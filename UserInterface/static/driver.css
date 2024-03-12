@@ -1,0 +1,73 @@
+body{
+    background: #001a54; /* background color */
+}
+
+h1{
+    color: #ff73fa; /* color headline 1 */
+    font-family: Helvetica, Helvetica, sans-serif;
+    position: relative;
+    top: 10px;
+    left: 10px;
+}
+
+.slider-label{
+    color: #ff73fa; /* color headline 1 */
+    font-family: Helvetica, Helvetica, sans-serif;
+    position: relative;
+    top: 10;
+    right: 20;
+}
+
+/* container to arrange the elements on the page*/
+.container {
+    display: flex;
+    align-items: center;
+}
+
+.slider-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* container to group and arrange the buttons*/
+.button-container{
+    display:flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+/* style options for the slider to control the velocity */
+.slider {
+    -webkit-appearance: none;
+    width: 300px;
+    height: 75px;
+    background: #d2f5ff;
+    border: 0px solid #a200e6; /* border thickness and color */
+    overflow: hidden;
+    border-radius: 25px;
+    margin-right: 50px;
+    margin-top: 150px;
+    transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
+}
+
+/* style options for slider thumb*/
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 75px;
+    background: #a200e6;
+    cursor: cursor;
+}
+
+/* style options for buttons */
+.button-size {
+    width: 100px;
+    height: 100px;
+    font-size: 25px;
+    border-radius: 50px;
+    color: #a200e6;
+    background: #d2f5ff;
+    border: 0px solid #a200e6; /* border thickness and color */
+}
