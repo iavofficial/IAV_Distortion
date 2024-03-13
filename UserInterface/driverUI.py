@@ -1,17 +1,20 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask.views import View
 
 app = Flask(__name__)
 
 ###--- Driver1 ---###
-@app.route('/driver1')
+#@app.route('/driver1')
 def home_driver1():
     return render_template('driver_index.html')
+app.add_url_rule('/driver1', view_func=home_driver1)
 
-@app.route('/slider', methods=['POST'])
+#@app.route('/slider', methods=['POST'])
 def slider_driver1():
     value = request.form['value']
     print(f"Driver1: Schieberegler-Wert: {value}")
     return '', 204
+app.add_url_rule('/slider', view_func=slider_driver1, methods=['POST'])
 
 @app.route('/changeLane_left', methods=['POST'])
 def laneChange_left_driver1():

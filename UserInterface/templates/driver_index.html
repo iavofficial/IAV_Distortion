@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Driver</title>
+    <title>Driver {{my_var}}</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
 
 </head>
 <body>
-    <h1>Driver</h1>
+    <h1>Player {{my_var}}</h1>
     <div class="container">
         <div class="slider-container">
             <input type="range" min="0" max="100" class="slider" id="velocity">
         </div>
 
         <div class="button-container">
-            <form action="/changeLane_left" method="post">
-                <input type="submit" id="changeLane_left" value="<<" class="button-size">
+            <form action="{{ url_for('change_lane_left', player=my_var) }}" method="post">
+                <input type="submit" id="change_lane_left" value="<<" class="button-size">
             </form>
-            <form action="/changeLane_right" method="post">
-                <input type="submit" id="changeLane_right" value=">>" class="button-size">
+            <form action="{{ url_for('change_lane_right', player=my_var) }}" method="post">
+                <input type="submit" id="change_lane_right" value=">>" class="button-size">
             </form>
         </div>
     </div>
@@ -30,7 +30,7 @@
     <script>
         var slider = document.getElementById("velocity");
         slider.oninput = function() {
-            $.post("/slider", { value: this.value });
+            $.post("/slider/{{my_var}}", { value: this.value });
         }
     </script>
 
