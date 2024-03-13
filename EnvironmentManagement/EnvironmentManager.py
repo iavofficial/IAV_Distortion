@@ -11,3 +11,10 @@ class EnvironmentManager:
         vehicle2 = Vehicle("78:90:01", "dummy2")
         vehicles = [vehicle1, vehicle2]
         return vehicles
+
+    def get_player_uuid_mapping(self):
+
+        player_uuid_map = {1: "",
+                           2: ""}
+
+        return player_uuid_map
