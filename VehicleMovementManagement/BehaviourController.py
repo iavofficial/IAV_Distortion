@@ -1,5 +1,5 @@
-from DriveController import DriverController
-from SecurityController import SecurityController
+from VehicleMovementManagement.DriveController import DriverController
+from VehicleMovementManagement.SecurityController import SecurityController
 
 
 class BehaviourController:

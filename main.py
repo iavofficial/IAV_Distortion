@@ -1,5 +1,6 @@
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from UserInterface.DriverUI import DriverUI
 
 
 class Main:
@@ -12,4 +13,8 @@ class Main:
         driver_ctrl = behaviour_ctrl.get_driver_controller()
         security_ctrl = behaviour_ctrl.get_security_controller()
 
+        driver_ui = DriverUI(map_of_uuids=player_uuid_map, drive_ctrl=driver_ctrl)
+        driver_ui.run()
 
+if __name__ == '__main__':
+    iav_distortuion = Main()

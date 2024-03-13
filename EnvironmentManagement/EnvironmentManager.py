@@ -14,7 +14,7 @@ class EnvironmentManager:
 
     def get_player_uuid_mapping(self):
 
-        player_uuid_map = {1: "",
-                           2: ""}
+        player_uuid_map = {'1': "12:34:56",
+                           '2': "78:90:01"}
 
         return player_uuid_map
