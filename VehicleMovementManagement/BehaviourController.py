@@ -8,7 +8,7 @@ class BehaviourController:
         self.vehicles = vehicles
 
     def get_driver_controller(self):
-        return DriverController()
+        return DriverController(self)
 
     def get_security_controller(self):
-        return SecurityController()
+        return SecurityController(self)

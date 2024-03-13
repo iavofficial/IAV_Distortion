@@ -28,6 +28,6 @@ class DriverController:
 
     def request_lights_on(self, uuid):
         return
-    
+
     def request_lights_off(self, uuid):
         return
