@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff_Control</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- specific style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->
+
+</head>
+<body>
+
+<div>
+<h1>IAV Distortion Control</h1>
+<section class="checkbox-section">
+    <h2>Show Attack Szenarios for:</h2>
+    <input type="checkbox" id="car1" name="car1">
+    <label for="car1">Car 1 - UUID: </label><br>
+    <input type="checkbox" id="car2" name="car2">
+    <label for="car2">Car 2 - UUID: </label><br>
+    <input type="checkbox" id="car3" name="car3">
+    <label for="car3">Car 3 - UUID: </label><br>
+    <input type="checkbox" id="car4" name="car4">
+    <label for="car4">Car 4 - UUID: </label>
+</section>
+
+</body>
+</html>
