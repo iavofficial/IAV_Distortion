@@ -1,33 +1,43 @@
+from VehicleMovementManagement.BehaviourController import BehaviourController
+
+
 class DriverController:
 
-    speedRequest = 0
-    laneChangeRequest = 0
-
-    def __init__(self):
-        self.speedRequest = 0
-        self.laneChangeRequest = 0
+    def __init__(self, behaviour_ctrl: BehaviourController):
+        self._behaviour_ctrl = behaviour_ctrl
         return
 
-    def request_speed_change(self, uuid, value):
-        self.speedRequest = value
+    def request_speed_change(self, uuid: str, value):
+        vehicle = self._behaviour_ctrl.get_vehicle_by_uuid(uuid)
+        vehicle.speed_request = value
+
         print(f"Switch speed to {value}. UUID: {uuid}")
         return
 
-    def request_lane_change(self, uuid, value):
+    def request_lane_change(self, uuid: str, value):
+        vehicle = self._behaviour_ctrl.get_vehicle_by_uuid(uuid)
         if value == "left":
-            laneChangeRequest = 1
+            vehicle.lane_request = 1
+
             print(f"Switch Lane left. UUID: {uuid}")
 
         elif value == "right":
-            laneChangeRequest = -1
+            vehicle.lane_request = -1
+
             print(f"Switch Lane right. UUID: {uuid}")
 
         else:
-            laneChangeRequest = 0
+            vehicle.lane_request = 0
         return
 
-    def request_lights_on(self, uuid):
+    def request_lights_on(self, uuid: str):
+        vehicle = self._behaviour_ctrl.get_vehicle_by_uuid(uuid)
+        vehicle.isLightOn = True
+
         return
 
-    def request_lights_off(self, uuid):
+    def request_lights_off(self, uuid: str):
+        vehicle = self._behaviour_ctrl.get_vehicle_by_uuid(uuid)
+        vehicle.isLightOn = False
+
         return
