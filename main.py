@@ -16,5 +16,6 @@ class Main:
         driver_ui = DriverUI(map_of_uuids=player_uuid_map, drive_ctrl=driver_ctrl)
         driver_ui.run()
 
+
 if __name__ == '__main__':
-    iav_distortuion = Main()
+    iav_distortion = Main()
