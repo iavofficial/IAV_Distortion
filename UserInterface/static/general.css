@@ -15,3 +15,14 @@ h2{
     position: relative;
     left: 10px;
 }
+h3{
+    color: #ff73fa; /* color headline 1 */
+    font-family: Helvetica, Helvetica, sans-serif;
+    position: relative;
+    left: 50px;
+}
+summary{
+    color: #ff73fa; /* color headline 1 */
+    font-family: Helvetica, Helvetica, sans-serif;
+
+}
