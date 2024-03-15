@@ -1,28 +1,25 @@
 body{
     background: #001a54; /* background color */
+    font-family: Helvetica, Helvetica, sans-serif;
 }
 
 h1{
     color: #ff73fa; /* color headline 1 */
-    font-family: Helvetica, Helvetica, sans-serif;
     position: relative;
     top: 10px;
     left: 10px;
 }
 h2{
     color: #ff73fa; /* color headline 1 */
-    font-family: Helvetica, Helvetica, sans-serif;
     position: relative;
     left: 10px;
 }
 h3{
     color: #ff73fa; /* color headline 1 */
-    font-family: Helvetica, Helvetica, sans-serif;
     position: relative;
     left: 50px;
 }
+
 summary{
     color: #ff73fa; /* color headline 1 */
-    font-family: Helvetica, Helvetica, sans-serif;
-
 }

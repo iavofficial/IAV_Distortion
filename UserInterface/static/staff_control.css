@@ -27,3 +27,13 @@
 summary{
       font-size: 15pt;
 }
+
+.scenarioDescription{
+        margin-left: 25px;
+}
+
+.activeScenatio_text{
+        display: inline-block;
+        margin-left: 25px;
+
+}

@@ -26,7 +26,7 @@
                       <div class="radio-container">
                         <div>
                           <input type="radio" id="car1_option1" name="option" value="Car 1 Option 1">
-                          <label for="car1_option1">Hack 1<br> Short describtion of Szenario 1</label>
+                            <label for="car1_option1">Hack 1<br> <span class="scenarioDescription"> Short describtion of Szenario 1 </span></label>
                         </div>
                         <div>
                           <input type="radio" id="car1_option2" name="option" value="Car 1 Option 2">
@@ -46,6 +46,7 @@
                         </div>
                       </div>
                       <input type="submit" value="Set Szenario">
+                        <span class="activeScenatio_text">Active Scenario: {{ activeScenario_car1 }}</span>
                     </form>
                 </section>
             </details>

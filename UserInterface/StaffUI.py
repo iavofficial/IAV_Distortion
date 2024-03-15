@@ -8,7 +8,9 @@ class StaffUI:
         self.uuids = map_of_uuids
 
         def home_staff_control():
-            return render_template('staff_control.html')
+            # activeScenario = get_activeScenario()  # TODO: function from Security or BehaviourControler
+            activeScenario = "Scenario 1: Speed Limiter"  # example for development
+            return render_template('staff_control.html', activeScenario_car1=activeScenario)
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
         def set_szenario():
