@@ -10,10 +10,8 @@ class Main:
         player_uuid_map = environment_mng.get_player_uuid_mapping()
 
         behaviour_ctrl = BehaviourController(vehicles)
-        driver_ctrl = behaviour_ctrl.get_driver_controller()
-        security_ctrl = behaviour_ctrl.get_security_controller()
 
-        driver_ui = DriverUI(map_of_uuids=player_uuid_map, drive_ctrl=driver_ctrl)
+        driver_ui = DriverUI(map_of_uuids=player_uuid_map, drive_ctrl=behaviour_ctrl)
         driver_ui.run()
 
 

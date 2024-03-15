@@ -1,8 +1,5 @@
-from VehicleMovementManagement.BehaviourController import BehaviourController
-
-
 class SecurityController:
-
+    """
     def __init__(self, behaviour_ctrl: BehaviourController):
         self._behaviour_ctrl = behaviour_ctrl
         return
@@ -42,3 +39,4 @@ class SecurityController:
         vehicle.isSafeModeOn = True
 
         return
+    """
