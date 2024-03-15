@@ -16,10 +16,10 @@
         </div>
 
         <div class="button-container">
-            <form action="{{ url_for('change_lane_left', player=my_var) }}" method="post">
+            <form action="{{ url_for('driverUI_bp.change_lane_left', player=my_var) }}" method="post">
                 <input type="submit" id="change_lane_left" value="<<" class="button-size">
             </form>
-            <form action="{{ url_for('change_lane_right', player=my_var) }}" method="post">
+            <form action="{{ url_for('driverUI_bp.change_lane_right', player=my_var) }}" method="post">
                 <input type="submit" id="change_lane_right" value=">>" class="button-size">
             </form>
         </div>
@@ -29,8 +29,9 @@
 
     <script>
         var slider = document.getElementById("velocity");
+        var url_slider = "{{ url_for('driverUI_bp.slider_driver', player=my_var) }}"
         slider.oninput = function() {
-            $.post("/slider/{{my_var}}", { value: this.value });
+            $.post(url_slider, { value: this.value });
         }
     </script>
 
