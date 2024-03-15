@@ -14,73 +14,73 @@
 
 </head>
 <body>
-
-<div>
 <h1>IAV Distortion Control</h1>
-<h2>Choose Hacking-Szenarios:</h2>
 
-<div class="choose_cars_container">
-    <details ><summary> Car 1 </summary>
-        <section class="hackingSzenario-section">
-            <form action="/hacking_szenario_car1" method="post">
-              <div class="radio-container">
-                <div>
-                  <input type="radio" id="car1_option1" name="option" value="Car 1 Option 1">
-                  <label for="car1_option1">Hack 1<br> Short describtion of Szenario 1</label>
-                </div>
-                <div>
-                  <input type="radio" id="car1_option2" name="option" value="Car 1 Option 2">
-                  <label for="car1_option2">Hack 2</label>
-                </div>
-                <div>
-                  <input type="radio" id="car1_option3" name="option" value="Car 1 Option 3">
-                  <label for="car1_option3">Hack 3</label>
-                </div>
-                <div>
-                  <input type="radio" id="car1_option4" name="option" value="Car 1 Option 4">
-                  <label for="car1_option4">Hack 4</label>
-                </div>
-                <div>
-                  <input type="radio" id="car1_option5" name="option" value="Car 1 Option 5" checked>
-                  <label for="car1_option5">Normal</label>
-                </div>
-              </div>
-              <input type="submit" value="Set Szenario">
-            </form>
-        </section>
-    </details>
+    <div>
+        <h2>Choose Hacking-Szenarios:</h2>
 
-    <details ><summary> Car 2 </summary>
-        <section class="hackingSzenario-section">
-            <form action="/hacking_szenario_car2" method="post">
-              <div class="radio-container">
-                <div>
-                  <input type="radio" id="car2_option1" name="option" value="Car 2 Option 1">
-                  <label for="car2_option1">Hack 1</label>
-                </div>
-                <div>
-                  <input type="radio" id="car2_option2" name="option" value="Car 2 Option 2">
-                  <label for="car2_option2">Hack 2</label>
-                </div>
-                <div>
-                  <input type="radio" id="car2_option3" name="option" value="Car 2 Option 3">
-                  <label for="car2_option3">Hack 3</label>
-                </div>
-                <div>
-                  <input type="radio" id="car2_option4" name="option" value="Car 2 Option 4">
-                  <label for="car2_option4">Hack 4</label>
-                </div>
-                <div>
-                  <input type="radio" id="car2_option5" name="option" value="Car 2 Option 5" checked>
-                  <label for="car2_option5">Normal</label>
-                </div>
-              </div>
-              <input type="submit" value="Set Szenario">
-            </form>
-        </section>
-    </details>
+        <div class="choose_cars_container">
+            <details ><summary> Car 1 </summary>
+                <section class="hackingSzenario-section">
+                    <form action="{{ url_for('staffUI_bp.set_szenario') }}" method="post">
+                      <div class="radio-container">
+                        <div>
+                          <input type="radio" id="car1_option1" name="option" value="Car 1 Option 1">
+                          <label for="car1_option1">Hack 1<br> Short describtion of Szenario 1</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car1_option2" name="option" value="Car 1 Option 2">
+                          <label for="car1_option2">Hack 2</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car1_option3" name="option" value="Car 1 Option 3">
+                          <label for="car1_option3">Hack 3</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car1_option4" name="option" value="Car 1 Option 4">
+                          <label for="car1_option4">Hack 4</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car1_option5" name="option" value="Car 1 Option 5" checked>
+                          <label for="car1_option5">Normal</label>
+                        </div>
+                      </div>
+                      <input type="submit" value="Set Szenario">
+                    </form>
+                </section>
+            </details>
+
+            <details ><summary> Car 2 </summary>
+                <section class="hackingSzenario-section">
+                    <form action="{{ url_for('staffUI_bp.set_szenario') }}" method="post">
+                      <div class="radio-container">
+                        <div>
+                          <input type="radio" id="car2_option1" name="option" value="Car 2 Option 1">
+                          <label for="car2_option1">Hack 1</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car2_option2" name="option" value="Car 2 Option 2">
+                          <label for="car2_option2">Hack 2</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car2_option3" name="option" value="Car 2 Option 3">
+                          <label for="car2_option3">Hack 3</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car2_option4" name="option" value="Car 2 Option 4">
+                          <label for="car2_option4">Hack 4</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="car2_option5" name="option" value="Car 2 Option 5" checked>
+                          <label for="car2_option5">Normal</label>
+                        </div>
+                      </div>
+                      <input type="submit" value="Set Szenario">
+                    </form>
+                </section>
+            </details>
+        </div>
     </div>
-</div>
 
 </body>
 </html>
