@@ -1,22 +1,30 @@
 from DataModel.Vehicle import Vehicle
 
-
 class EnvironmentManager:
 
     def __init__(self):
-        pass
+        self._player_uuid_map = None
+        self._active_anki_cars = None
 
-    @staticmethod
-    def get_vehicle_list():
-        vehicle1 = Vehicle("12:34:56", "dummy1")
-        vehicle2 = Vehicle("78:90:01", "dummy2")
-        vehicles = [vehicle1, vehicle2]
-        return vehicles
+        self._find_active_anki_cars()
 
-    @staticmethod
-    def get_player_uuid_mapping():
+    def get_player_uuid_mapping(self):
+        return self._player_uuid_map
 
-        player_uuid_map = {'1': "12:34:56",
-                           '2': "78:90:01"}
+    def set_player_uuid_mapping(self, player_id: str, uuid: str):
+        self._player_uuid_map = {player_id: uuid}
+        return
 
-        return player_uuid_map
+    def _find_active_anki_cars(self):
+        vehicle1 = Vehicle("12:34:56", "dummyCar1")
+        vehicle2 = Vehicle("78:90:01", "dummyCar2")
+        self._active_anki_cars = [vehicle1, vehicle2]
+        return
+
+    def get_vehicle_list(self):
+        return self._active_anki_cars
+
+
+
+
+
