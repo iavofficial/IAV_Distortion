@@ -8,7 +8,7 @@ class StaffUI:
     def __init__(self, map_of_uuids: dict, cybersecurity_mng, name=__name__):
         self.staffUI_blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
         self.uuids = map_of_uuids
-        self.scenarios = cybersecurity_mng.get_all_hacking_scenario()
+        self.scenarios = cybersecurity_mng.get_all_hacking_scenarios()
 
         def home_staff_control():
             names, descriptions = self.sort_scenarios()
