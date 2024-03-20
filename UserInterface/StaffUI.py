@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+import re
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 
 
@@ -20,12 +21,15 @@ class StaffUI:
 
         def set_szenario():
             selected_option = request.form.get('option')
+            pattern = r"scenarioID_(\d+)-UUID_([\d:]+)"
             print(f"Szenario {selected_option} wurde aktiviert")
-            # uuid = uuids[] # determine uuid of hacked vehicle from variable selected_option
-            # activate_hacking_scenario_for_vehicle(uuid, scenario_id)
+            match = re.search(pattern, selected_option)
+            scenario_id = match.group(1)
+            uuid = match.group(2)
+            cybersecurity_mng.activate_hacking_scenario_for_vehicle(uuid, scenario_id)
+
             return redirect(url_for('staffUI_bp.staff_control'))
         self.staffUI_blueprint.add_url_rule('/hacking_szenario', methods=['POST'], view_func=set_szenario)
-
 
     def get_blueprint(self):
         return self.staffUI_blueprint

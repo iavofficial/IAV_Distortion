@@ -28,7 +28,7 @@
                             <div class="radio-container">
                             {% for id, name in names.items() %}
                                 <div>
-                                    <input type="radio" id="{{ id }}" name="option" value="scenario{{ id }}_{{ uuid }}">
+                                    <input type="radio" id="{{ id }}" name="option" value="scenarioID_{{ id }}-UUID_{{ uuid }}">
                                     <label for="{{ id }}"> <strong> Scenario {{ id }} </strong> <br> <span class="scenarioDescription"> {{ descriptions[ id ] }} </span></label>
                                 </div>
                                 {% endfor %}
@@ -39,7 +39,7 @@
                     </section>
                 </details>
             {% endfor %}
-            
+
         </div>
     </div>
 
