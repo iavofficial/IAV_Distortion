@@ -16,7 +16,7 @@ class Main:
         player_uuid_map = environment_mng.get_player_uuid_mapping()
 
         behaviour_ctrl = BehaviourController(vehicles)
-        cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
+        cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
 
         driver_ui = DriverUI(map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl)
         driver_ui_blueprint = driver_ui.get_blueprint()
