@@ -20,66 +20,26 @@
         <h2>Choose Hacking-Szenarios:</h2>
 
         <div class="choose_cars_container">
-            <details ><summary> Car 1 </summary>
-                <section class="hackingSzenario-section">
-                    <form action="{{ url_for('staffUI_bp.set_szenario') }}" method="post">
-                      <div class="radio-container">
-                        <div>
-                          <input type="radio" id="car1_option1" name="option" value="Car 1 Option 1">
-                            <label for="car1_option1">Hack 1<br> <span class="scenarioDescription"> Short describtion of Szenario 1 </span></label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car1_option2" name="option" value="Car 1 Option 2">
-                          <label for="car1_option2">Hack 2</label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car1_option3" name="option" value="Car 1 Option 3">
-                          <label for="car1_option3">Hack 3</label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car1_option4" name="option" value="Car 1 Option 4">
-                          <label for="car1_option4">Hack 4</label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car1_option5" name="option" value="Car 1 Option 5" checked>
-                          <label for="car1_option5">Normal</label>
-                        </div>
-                      </div>
-                      <input type="submit" value="Set Szenario">
-                        <span class="activeScenatio_text">Active Scenario: {{ activeScenario_car1 }}</span>
-                    </form>
-                </section>
-            </details>
 
-            <details ><summary> Car 2 </summary>
-                <section class="hackingSzenario-section">
-                    <form action="{{ url_for('staffUI_bp.set_szenario') }}" method="post">
-                      <div class="radio-container">
-                        <div>
-                          <input type="radio" id="car2_option1" name="option" value="Car 2 Option 1">
-                          <label for="car2_option1">Hack 1</label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car2_option2" name="option" value="Car 2 Option 2">
-                          <label for="car2_option2">Hack 2</label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car2_option3" name="option" value="Car 2 Option 3">
-                          <label for="car2_option3">Hack 3</label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car2_option4" name="option" value="Car 2 Option 4">
-                          <label for="car2_option4">Hack 4</label>
-                        </div>
-                        <div>
-                          <input type="radio" id="car2_option5" name="option" value="Car 2 Option 5" checked>
-                          <label for="car2_option5">Normal</label>
-                        </div>
-                      </div>
-                      <input type="submit" value="Set Szenario">
-                    </form>
-                </section>
-            </details>
+            {% for vehicle, uuid in uuids.items() %}
+                <details><summary>Car - {{ uuid }}</summary>
+                    <section class="hackingSzenario-section">
+                        <form action="{{ url_for('staffUI_bp.set_szenario') }}" method="post">
+                            <div class="radio-container">
+                            {% for id, name in names.items() %}
+                                <div>
+                                    <input type="radio" id="{{ id }}" name="option" value="scenario{{ id }}_{{ uuid }}">
+                                    <label for="{{ id }}"> <strong> Scenario {{ id }} </strong> <br> <span class="scenarioDescription"> {{ descriptions[ id ] }} </span></label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <input type="submit" value="Set Szenario">
+                            <span class="activeScenatio_text">Active Scenario: {{ activeScenario_car1 }}</span>
+                        </form>
+                    </section>
+                </details>
+            {% endfor %}
+            
         </div>
     </div>
 
