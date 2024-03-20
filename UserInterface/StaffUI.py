@@ -13,9 +13,9 @@ class StaffUI:
         def home_staff_control():
             names, descriptions = self.sort_scenarios()
 
-            # activeScenario = get_activeScenario()  # TODO: function from Security or BehaviourControler
-            activeScenario = "Scenario 1: Speed Limiter"  # example for development
-            return render_template('staff_control.html', activeScenario_car1=activeScenario, uuids=self.uuids,
+            activeScenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
+            # activeScenarios = {'aa:bb:cc:dd': '1'}  # example for development
+            return render_template('staff_control.html', activeScenarios=activeScenarios, uuids=self.uuids,
                                    names=names, descriptions=descriptions)
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
