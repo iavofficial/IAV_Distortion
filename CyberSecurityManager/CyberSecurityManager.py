@@ -39,12 +39,9 @@ def _set_scenarios():
 
 class CyberSecurityManager:
 
-    def __init__(self, behaviour_ctrl: BehaviourController, map_of_uuids: dict):
+    def __init__(self, behaviour_ctrl: BehaviourController):
         self._behaviour_ctrl = behaviour_ctrl
         self._hacking_scenarios = _set_scenarios()
-        self._active_scenarios = {}
-        for player in map_of_uuids:
-            self._update_active_hacking_scenarios(uuid=map_of_uuids[player], scenario_id='0')  # initiate all vehicles with scenario 0
 
         return
 
@@ -76,4 +73,4 @@ class CyberSecurityManager:
         return self._active_scenarios
 
     def _update_active_hacking_scenarios(self, uuid: str, scenario_id: str):
-        self._active_scenarios.update({uuid: scenario_id})
+        self._active_scenarios = {uuid: scenario_id}
