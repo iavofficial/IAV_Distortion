@@ -3,7 +3,7 @@ from DataModel.Vehicle import Vehicle
 class EnvironmentManager:
 
     def __init__(self):
-        self._player_uuid_map = None
+        self._player_uuid_map = {}
         self._active_anki_cars = None
 
         self._find_active_anki_cars()
@@ -12,7 +12,7 @@ class EnvironmentManager:
         return self._player_uuid_map
 
     def set_player_uuid_mapping(self, player_id: str, uuid: str):
-        self._player_uuid_map = {player_id: uuid}
+        self._player_uuid_map.update({player_id: uuid})
         return
 
     def _find_active_anki_cars(self):
