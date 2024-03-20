@@ -1,18 +1,5 @@
-body{
-    background: #001a54; /* background color */
-}
-
-h1{
-    color: #ff73fa; /* color headline 1 */
-    font-family: Helvetica, Helvetica, sans-serif;
-    position: relative;
-    top: 10px;
-    left: 10px;
-}
-
 .slider-label{
     color: #ff73fa; /* color headline 1 */
-    font-family: Helvetica, Helvetica, sans-serif;
     position: relative;
     top: 10;
     right: 20;
