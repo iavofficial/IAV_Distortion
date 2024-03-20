@@ -1,5 +1,6 @@
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from UserInterface.DriverUI import DriverUI
 from UserInterface.StaffUI import StaffUI
 from flask import Flask
@@ -12,10 +13,11 @@ class Main:
         player_uuid_map = environment_mng.get_player_uuid_mapping()
 
         behaviour_ctrl = BehaviourController(vehicles)
+        cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
 
         driver_ui = DriverUI(map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl)
         driver_ui_blueprint = driver_ui.get_blueprint()
-        staff_ui = StaffUI(map_of_uuids=player_uuid_map)
+        staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng)
         staff_ui_blueprint = staff_ui.get_blueprint()
 
         app = Flask('IAV_Distortion', template_folder='Userinterface/templates', static_folder='Userinterface/static')
