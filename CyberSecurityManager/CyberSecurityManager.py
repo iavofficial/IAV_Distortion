@@ -26,7 +26,7 @@ def _set_scenarios():
                 "invert_light": False,
                 "turn_safemode_off": False}
 
-    scenario4 = {"id": "3",
+    scenario4 = {"id": "4",
                 "name": "no safety",
                 "description": "the safemode module is deactivated",
                 "speed_factor": 1.5,
