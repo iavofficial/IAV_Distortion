@@ -23,7 +23,7 @@ class Main:
         staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng)
         staff_ui_blueprint = staff_ui.get_blueprint()
 
-        app = Flask('IAV_Distortion', template_folder='Userinterface/templates', static_folder='Userinterface/static')
+        app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
         app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
         app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
         app.run(debug=True, host='0.0.0.0')
