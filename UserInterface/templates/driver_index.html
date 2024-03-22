@@ -29,13 +29,15 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
+    <!-- Include socket.io library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
+        // Connect to the server
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/driver');
         var slider = document.getElementById("velocity");
-        var url_slider = "{{ url_for('driverUI_bp.slider_driver', player=my_var) }}"
         slider.oninput = function() {
-            $.post(url_slider, { value: this.value });
+            // Emit "slider_changed" event when the slider value changes
+            socket.emit('slider_changed', { player: '{{my_var}}', value: this.value });
         }
     </script>
 
