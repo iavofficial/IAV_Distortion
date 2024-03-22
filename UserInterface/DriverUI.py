@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+from flask_socketio import emit
 from VehicleMovementManagement.DriveController import DriverController
 
 
@@ -8,6 +9,7 @@ class DriverUI:
         self.driverUI_blueprint = Blueprint(name='driverUI_bp', import_name='driverUI_bp')
         self.uuids = map_of_uuids
         self.behaviour_ctrl = behaviour_ctrl
+        self.socketio = None
 
         def home_driver(player):
             # TODO: Display Error message if requested player is not in uuids
@@ -38,3 +40,12 @@ class DriverUI:
 
     def get_blueprint(self):
         return self.driverUI_blueprint
+
+    def set_socketio(self, socketio):
+        self.socketio = socketio
+
+        @socketio.on('slider_changed')
+        def handle_slider_change(data):
+            player = data['player']
+            value = data['value']
+            self.behaviour_ctrl.request_speed_change(uuid=self.uuids[player], value=value)
