@@ -37,7 +37,8 @@ class Vehicle:
         self.calculate_speed()
 
     def calculate_speed(self):
-        self._speed = self._speed_request * self._speed_factor
+        #self._speed = self._speed_request * self._speed_factor
+        return
 
     @property
     def lane_change_request(self):
