@@ -22,6 +22,7 @@
     display:flex;
     flex-direction: row;
     gap: 50px;
+    margin-top: 200px;
 }
 
 /* style options for the slider to control the velocity */
@@ -34,7 +35,7 @@
     overflow: hidden;
     border-radius: 25px;
     margin-right: 50px;
-    margin-top: 150px;
+    margin-top: 50px;
     transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
 }
 
@@ -46,6 +47,17 @@
     height: 75px;
     background: #a200e6;
     cursor: cursor;
+}
+
+/* style for speed display */
+.speed_display {
+    font-size: 24px;
+    margin-bottom: 0px;
+}
+
+.speed_value {
+    font-size: 74px;
+    margin-top: 0px;
 }
 
 /* style options for buttons */

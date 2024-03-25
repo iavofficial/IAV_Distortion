@@ -21,12 +21,15 @@
     <div class="container">
         <div class="slider-container">
             <input type="range" min="0" max="100" class="slider" id="velocity_req">
-            <p>Value: <span id="velocity_res"></span></p>
+            <div>
+                <p class="speed_display">Speed:</p>
+                <p class="speed_value"><strong> <span id="velocity_res"></span> </strong></p>
+            </div>
         </div>
 
         <div class="button-container">
-            <button id="change_lane_left"> << </button>
-            <button id="change_lane_right"> >> </button>
+            <button class="button-size" id="change_lane_left"> << </button>
+            <button class="button-size" id="change_lane_right"> >> </button>
         </div>
     </div>
 
