@@ -19,14 +19,14 @@ class Main:
         behaviour_ctrl = BehaviourController(vehicles)
         cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
 
-        driver_ui = DriverUI(map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl)
+        app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
+        socketio = SocketIO(app, cors_allowed_origins="*", async_mode=None)
+
+        driver_ui = DriverUI(map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl, socketio=socketio)
         driver_ui_blueprint = driver_ui.get_blueprint()
         staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng)
         staff_ui_blueprint = staff_ui.get_blueprint()
 
-        app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
-        socketio = SocketIO(app)
-        driver_ui.set_socketio(socketio)
         app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
         app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
         socketio.run(app, debug=True, host='0.0.0.0', allow_unsafe_werkzeug=True)

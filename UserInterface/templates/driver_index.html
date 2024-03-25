@@ -16,7 +16,8 @@
     <h1>Player {{my_var}}</h1>
     <div class="container">
         <div class="slider-container">
-            <input type="range" min="0" max="100" class="slider" id="velocity">
+            <input type="range" min="0" max="100" class="slider" id="velocity_req">
+            <p>Value: <span id="velocity_res"></span></p>
         </div>
 
         <div class="button-container">
@@ -30,15 +31,18 @@
     </div>
 
     <!-- Include socket.io library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script>
-        // Connect to the server
-        var socket = io.connect('http://' + document.domain + ':' + location.port + '/driver');
-        var slider = document.getElementById("velocity");
+        var slider = document.getElementById("velocity_req");
+        var output = document.getElementById("velocity_res");
+        output.innerHTML = slider.value;
+
         slider.oninput = function() {
-            // Emit "slider_changed" event when the slider value changes
-            socket.emit('slider_changed', { player: '{{my_var}}', value: this.value });
+          output.innerHTML = this.value;
+          socket.emit('slider_changed', {player: '{{my_var}}', value: this.value});
         }
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
     </script>
 
 </body>
