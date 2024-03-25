@@ -21,14 +21,6 @@ class DriverUI:
             return render_template('driver_index.html', my_var=player)
         self.driverUI_blueprint.add_url_rule('/<player>', 'home_driver', view_func=home_driver)
 
-#        def slider_driver(player):
-#            value = request.form['value']
-#            # print(f"Driver{player} : Slider value: {value}")
-#            self.behaviour_ctrl.request_speed_change(uuid=self.uuids[player], value=value)
-#            return '', 204
-#        self.driverUI_blueprint.add_url_rule('/slider/<player>', 'slider_driver', methods=['POST'],
-#                                             view_func=slider_driver)
-
         def change_lane_left(player):
             # print(f"Driver{player}: Button << pressed!")
             self.behaviour_ctrl.request_lane_change(uuid=self.uuids[player], value='left')
@@ -47,8 +39,17 @@ class DriverUI:
         def handle_slider_change(data):
             player = data['player']
             value = data['value']
-            print(f"Slider {player} value: {value}")
+            # print(f"Slider {player} value: {value}")
             self.behaviour_ctrl.request_speed_change(uuid=self.uuids[player], value=value)
+
+        @self.socketio.on('lane_change')
+        def change_lane_left(data):
+            player = data['player']
+            direction = data['direction']
+            # print(f"Driver{player}: Button << pressed!")
+            self.behaviour_ctrl.request_lane_change(uuid=self.uuids[player], value=direction)
+            #return redirect(url_for('driverUI_bp.home_driver', player=player))
+
 
     def get_blueprint(self):
         return self.driverUI_blueprint
