@@ -1,28 +1,34 @@
-.slider-label{
-    color: #ff73fa; /* color headline 1 */
-    position: relative;
-    top: 10;
-    right: 20;
-}
-
 /* container to arrange the elements on the page*/
-.container {
-    display: flex;
-    align-items: center;
+.flexbox-container {
+    display:  flex;
+    justify-content: space-around;
 }
 
-.slider-container {
+.flexbox-container_right{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    min-height: 300px;
+    justify-content: space-between;
+}
+
+.flexbox-item{
+    width: 300px;
+    margin: 10px;
+    /*border: 3px solid #333;
+    background-color: white;*/
+}
+
+.flexbox-slider {
+    display: flex;
     align-items: center;
+    min-height: 300px;
 }
 
 /* container to group and arrange the buttons*/
-.button-container{
-    display:flex;
+.flexbox-change_lane_buttons{
+    display: flex;
     flex-direction: row;
-    gap: 50px;
-    margin-top: 200px;
+    justify-content: space-around;
 }
 
 /* style options for the slider to control the velocity */
@@ -34,8 +40,6 @@
     border: 0px solid #a200e6; /* border thickness and color */
     overflow: hidden;
     border-radius: 25px;
-    margin-right: 50px;
-    margin-top: 50px;
     transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
 }
 
@@ -50,12 +54,18 @@
 }
 
 /* style for speed display */
-.speed_display {
+.flexbox-speed_display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 24px;
     margin-bottom: 0px;
 }
 
-.speed_value {
+.flexbox-speed_value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 74px;
     margin-top: 0px;
 }
