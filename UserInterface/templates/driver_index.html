@@ -11,32 +11,55 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
 
+    <!-- Include socket.io library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+
+
 </head>
 <body>
     <h1>Player {{my_var}}</h1>
     <div class="container">
         <div class="slider-container">
-            <input type="range" min="0" max="100" class="slider" id="velocity">
+            <input type="range" min="0" max="100" class="slider" id="velocity_req">
+            <div>
+                <p class="speed_display">Speed:</p>
+                <p class="speed_value"><strong> <span id="velocity_res"></span> </strong></p>
+            </div>
         </div>
 
         <div class="button-container">
-            <form action="{{ url_for('driverUI_bp.change_lane_left', player=my_var) }}" method="post">
-                <input type="submit" id="change_lane_left" value="<<" class="button-size">
-            </form>
-            <form action="{{ url_for('driverUI_bp.change_lane_right', player=my_var) }}" method="post">
-                <input type="submit" id="change_lane_right" value=">>" class="button-size">
-            </form>
+            <button class="button-size" id="change_lane_left"> << </button>
+            <button class="button-size" id="change_lane_right"> >> </button>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
-    <script>
-        var slider = document.getElementById("velocity");
-        var url_slider = "{{ url_for('driverUI_bp.slider_driver', player=my_var) }}"
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        <!-- slider to control velocity-->
+
+        var slider = document.getElementById("velocity_req");
+        var output = document.getElementById("velocity_res");
+        output.innerHTML = slider.value;
+
         slider.oninput = function() {
-            $.post(url_slider, { value: this.value });
+          output.innerHTML = this.value;
+          socket.emit('slider_changed', {player: '{{my_var}}', value: this.value});
         }
+
+        <!-- buttons to control lanes -->
+        var buttonLeft = document.getElementById("change_lane_left");
+        var buttonRight = document.getElementById("change_lane_right");
+
+        buttonLeft.onclick = function() {
+          socket.emit('lane_change', {player: '{{my_var}}', direction: 'left'});
+        }
+
+        buttonRight.onclick = function() {
+          socket.emit('lane_change', {player: '{{my_var}}', direction: 'right'});
+        }
+
     </script>
 
 </body>
