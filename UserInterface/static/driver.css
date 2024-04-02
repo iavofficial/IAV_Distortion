@@ -14,6 +14,7 @@
 .flexbox-item{
     width: 300px;
     margin: 10px;
+    /* below only for design*/
     /*border: 3px solid #333;
     background-color: white;*/
 }
@@ -79,4 +80,25 @@
     color: #a200e6;
     background: #d2f5ff;
     border: 0px solid #a200e6; /* border thickness and color */
+}
+
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+}
+
+.info-box{
+    width: 300px;
+    margin: 15% auto;
+    background-color: #fff;
+    paddingL: 20px;
+    border: 1px solid #000;
+    box-shadow: 10px 10px 5px #888;
 }

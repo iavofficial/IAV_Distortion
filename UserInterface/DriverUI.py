@@ -13,7 +13,15 @@ class DriverUI:
 
         def home_driver(player):
             # TODO: Display Error message if requested player is not in uuids
-            return render_template('driver_index.html', my_var=player)
+            player_exists = False
+            for key in self.uuids:
+                if key == player:
+                    player_exists = True
+
+            if player_exists:
+                print(f'Player {player}')
+
+            return render_template('driver_index.html', my_var=player, player_exists=player_exists)
         self.driverUI_blueprint.add_url_rule('/<player>', 'home_driver', view_func=home_driver)
 
         @self.socketio.on('slider_changed')

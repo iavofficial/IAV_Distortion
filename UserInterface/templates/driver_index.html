@@ -17,6 +17,14 @@
 
 </head>
 <body>
+
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box">
+            <h2>Information</h2>
+            <p id="infoBoxContent">Player {{my_var}} currently not available. Please contact staff.</p>
+        </div>
+    </div>
+
     <h1>Player {{my_var}}</h1>
     <div class="flexbox-container">
         <div class="flexbox-item flexbox-slider">
@@ -61,6 +69,16 @@
           socket.emit('lane_change', {player: '{{my_var}}', direction: 'right'});
         }
 
+
+        window.onload = function() {
+          let playerExists = {{ player_exists | tojson }};
+          if(!playerExists) {
+            document.getElementById("infoBoxOverlay").style.display = "block";
+          }
+          else {
+            document.getElementById("infoBoxOverlay").style.display = "none";
+          }
+        }
     </script>
 
 </body>
