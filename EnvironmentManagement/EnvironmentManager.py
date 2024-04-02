@@ -50,6 +50,30 @@ class EnvironmentManager:
         self._active_anki_cars = [vehicle for vehicle in self._active_anki_cars if vehicle.uuid != uuid_to_remove]
         return
 
+    def add_vehicle(self, uuid: str):
+        if uuid in self._player_uuid_map.values():
+            print('UUID already exists!')
+            return
+        else:
+            players_as_ints = [int(player) for player in self._player_uuid_map.keys()]
+            if not players_as_ints:
+                max_player = 0
+                smallest_available_num = 1
+            else:
+                max_player = max(players_as_ints)
+
+            # find smallest available player
+            for i in range(1, max_player+1):
+                if i not in players_as_ints:
+                    smallest_available_num = str(i)
+                    break
+                else:
+                    smallest_available_num = str(max_player + 1)
+
+            # print(f'Player: {smallest_available_num}, UUID: {uuid}')
+            self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
+            return
+
     def _update_staff_ui(self):
         if self.staff_ui is not None:
             self.staff_ui.update_map_of_uuids(self._player_uuid_map)
