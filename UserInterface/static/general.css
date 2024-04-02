@@ -5,19 +5,14 @@ body{
 
 h1{
     color: #ff73fa; /* color headline 1 */
-    position: relative;
-    top: 10px;
-    left: 10px;
 }
+
 h2{
     color: #ff73fa; /* color headline 1 */
-    position: relative;
-    left: 10px;
 }
+
 h3{
     color: #ff73fa; /* color headline 1 */
-    position: relative;
-    left: 50px;
 }
 
 summary{

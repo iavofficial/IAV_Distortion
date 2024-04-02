@@ -12,36 +12,96 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->
 
+    <!-- Include socket.io library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
 <h1>IAV Distortion Control</h1>
 
-    <div>
-        <h2>Choose Hacking-Szenarios:</h2>
+    <div class="flexbox-container">
+        <div class="flexbox-item flexbox-hacking_cars">
+        <h2>Choose Hacking-Scenarios:</h2>
 
-        <div class="choose_cars_container">
-
-            {% for vehicle, uuid in uuids.items() %}
-                <details><summary>Car - {{ uuid }}</summary>
-                    <section class="hackingSzenario-section">
-                        <form action="{{ url_for('staffUI_bp.set_szenario') }}" method="post">
-                            <div class="radio-container">
-                            {% for id, name in names.items() %}
-                                <div>
-                                    <input type="radio" id="{{ id }}" name="option" value="scenarioID_{{ id }}-UUID_{{ uuid }}">
-                                    <label for="{{ id }}"> <strong> Scenario {{ id }} </strong> <br> <span class="scenarioDescription"> {{ descriptions[ id ] }} </span></label>
+            <div class="choose_cars_container">
+                {% for player, uuid in uuids.items() %}
+                    <h3>Player {{ player }} - Car: {{ uuid }}</h3>
+                        <section class="flexbox-item flexbox-hacking_scenarios">
+                            <div class="activeScenario_text"><strong>Active Scenario:</strong> {{ activeScenarios[ uuid ] }} - {{ descriptions[ activeScenarios[ uuid ] ] }}</div>
+                            <form action="{{ url_for('staffUI_bp.set_scenario') }}" method="post">
+                                <div class="flexbox-radio-button">
+                                {% for id, name in names.items() %}
+                                    <div>
+                                        <input type="radio" id="{{ id }}" name="option" value="scenarioID_{{ id }}-UUID_{{ uuid }}">
+                                        <label for="{{ id }}"> <strong> Scenario {{ id }} </strong> <br> <span class="scenarioDescription"> {{ descriptions[ id ] }} </span></label>
+                                    </div>
+                                    {% endfor %}
                                 </div>
-                                {% endfor %}
-                            </div>
-                            <input type="submit" value="Set Szenario">
-                            <span class="activeScenatio_text">Active Scenario: {{ activeScenarios[ uuid ] }}: {{ descriptions[ activeScenarios[ uuid ] ] }}</span>
-                        </form>
-                    </section>
-                </details>
-            {% endfor %}
-
+                                <input type="submit" value="Set Scenario">
+                            </form>
+                        </section>
+                {% endfor %}
+            </div>
         </div>
+
+        <div id="data" class="flexbox-item flexbox-activeCars">
+            <h2>Active cars:</h2>
+            <table id="table-container"></table>
+
+        <div class="flexbox-item">
+            <form action="{{ url_for('staffUI_bp.submit') }}" method="post"><label for="player">Player:</label><br><input type="text" id="player" name="player"><br><label for="uuid">UUID:</label><br><input type="text" id="uuid" name="uuid"><br><input type="submit" value="Submit"></form>
+        </div>
+        </div>
+
     </div>
+
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on('connect', function(){
+        socket.emit('get_uuids');
+    });
+
+    socket.on('update_uuids', function(data){
+        $('#table-container').empty();
+        var uuids_table = document.createElement('table');
+
+        // create table header
+        var thead = document.createElement('thead');
+        var header_row = document.createElement('tr');
+
+        var header_player = document.createElement('th');
+        header_player.innerText = 'Player';
+        header_row.appendChild(header_player);
+
+        var header_uuid = document.createElement('th');
+        header_uuid.innerText = 'UUID';
+        header_row.appendChild(header_uuid);
+
+        thead.appendChild(header_row);
+        uuids_table.appendChild(thead);
+
+        // fill table with player and uuids
+        for (var player in data) {
+            var row = document.createElement('tr');
+
+            var cell_player = document.createElement('td');
+            var cell_uuid = document.createElement('td');
+
+            cell_player.innerText = player;
+            cell_uuid.innerText = data[player];
+
+            row.appendChild(cell_player);
+            row.appendChild(cell_uuid);
+
+            uuids_table.appendChild(row);
+        }
+        document.getElementById('table-container').appendChild(uuids_table);
+    });
+
+
+</script>
 
 </body>
 </html>

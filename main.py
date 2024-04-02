@@ -24,7 +24,7 @@ class Main:
 
         driver_ui = DriverUI(map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl, socketio=socketio)
         driver_ui_blueprint = driver_ui.get_blueprint()
-        staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng)
+        staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng)
         staff_ui_blueprint = staff_ui.get_blueprint()
 
         app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
@@ -33,4 +33,4 @@ class Main:
 
 
 if __name__ == '__main__':
-    iav_distortuion = Main()
+    iav_distortion = Main()

@@ -1,39 +1,47 @@
-.choose_cars_container{
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    gap: 25px;
+.flexbox-container{
+    display:  flex;
+    justify-content: flex-start;
 }
 
-.hackingSzenario-section {
-      background-color: #d2f5ff;
-      width: 500px;
-      padding: 10px;
-      margin: auto;
-      margin-left: 0;  /* Linke Rand auf 0 setzen */
-      margin-right: auto; /* Rechte Rand auf auto setzen */
-    }
+.flexbox-item{
+    min-width: 225px;
+    margin: 10px;
+    /* below only for design*/
+    border: 3px solid #333;
+    background-color: white;
+}
 
-.radio-container {
+.flexbox-hacking_cars{
+    display: flex;
+    flex-direction: column;
+    justify-items: flex-start;
+    align-items: flex-start;
+
+}
+
+.flexbox-hacking_scenarios{
+    display: flex;
+    flex-direction: column;
+    justify-items: flex-start;
+    background-color: #d2f5ff;
+    min-width: 425px;
+}
+
+.flexbox-radio-button {
       display: flex;
       flex-direction: column; /* column - radio buttuns oriented vertivcally, row - radio buttuns oriented hrizontally*/
       justify-content: space-between;
+      margin-bottom: 15px;
     }
-
-.radio-container div {
-      margin-right: 20px;
-    }
-
-summary{
-      font-size: 15pt;
-}
 
 .scenarioDescription{
         margin-left: 25px;
 }
 
-.activeScenatio_text{
-        display: inline-block;
-        margin-left: 25px;
+.activeScenario_text{
+        margin-bottom: 15px;
+}
+
+.flexbox-activeCars{
 
 }
