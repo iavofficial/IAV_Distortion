@@ -10,6 +10,7 @@ class StaffUI:
         self.scenarios = cybersecurity_mng.get_all_hacking_scenarios()
         self.socketio = socketio
         self.environment_mng = environment_mng
+        self.devices = []
 
         self.environment_mng.set_staff_ui(self)
 
@@ -43,7 +44,26 @@ class StaffUI:
             self.socketio.emit('update_uuids', self.uuids)
             return
 
+        @self.socketio.on('search_cars')
+        def search_cars():
+            print('Searching for BLE devices')
+            # TODO: interface to environment_manager to activate BLE search to get new_devices
+            new_devices = ['12:34:56', '09:87:65', '43:21:09']  # example list
+            # remove already active uuids:
+            new_devices = [device for device in new_devices if device not in self.uuids.values()]
+            self.socketio.emit('new_devices', new_devices)
+            return
+
+        @self.socketio.on('add_device')
+        def handle_add_device(device):
+            environment_mng.add_vehicle(device)
+            # TODO: exception if device is no longer available
+            # TODO: remove added device from new_devices list
+            self.socketio.emit('device_added', device)
+
+
         def submit():
+            # TODO: delete function, only for development and testing
             player = request.form['player']
             uuid = request.form['uuid']
             self.environment_mng.set_player_uuid_mapping(player_id=player, uuid=uuid)
@@ -64,4 +84,3 @@ class StaffUI:
     def update_map_of_uuids(self, map_of_uuids):
         self.uuids = map_of_uuids
         self.socketio.emit('update_uuids', self.uuids)
-        print(self.uuids)

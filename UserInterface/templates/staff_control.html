@@ -45,13 +45,25 @@
             </div>
         </div>
 
-        <div id="data" class="flexbox-item flexbox-activeCars">
+        <div id="data" class="flexbox-item flexbox-manageCars">
             <h2>Active cars:</h2>
-            <table id="table-container"></table>
+            <table class="flexbox-item flexbox-activeCars" id="table-container"></table>
 
+            <h3>Add cars... </h3>
+            <button id="search_cars"> Search... </button>
+            <ul class="flexbox-item flexbox-activeCars" id="devices"></ul>
+
+        <!-- div below only for development and testing -->
         <div class="flexbox-item">
-            <form action="{{ url_for('staffUI_bp.submit') }}" method="post"><label for="player">Player:</label><br><input type="text" id="player" name="player"><br><label for="uuid">UUID:</label><br><input type="text" id="uuid" name="uuid"><br><input type="submit" value="Submit"></form>
+            <form action="{{ url_for('staffUI_bp.submit') }}" method="post">
+                <label for="player">Player:</label><br>
+                <input type="text" id="player" name="player"><br>
+                <label for="uuid">UUID:</label><br>
+                <input type="text" id="uuid" name="uuid"><br>
+                <input type="submit" value="Submit">
+            </form>
         </div>
+
         </div>
 
     </div>
@@ -99,6 +111,35 @@
         }
         document.getElementById('table-container').appendChild(uuids_table);
     });
+
+    <!-- buttons to search and add cars -->
+        var search_cars = document.getElementById("search_cars");
+        var add_car = document.getElementById("add_car");
+
+        search_cars.onclick = function() {
+          socket.emit('search_cars');
+        }
+
+
+        var deviceList = document.getElementById("devices");
+        socket.on('new_devices', function(devices){
+          devices.forEach(function(device) {
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(device));
+            var addButton = document.createElement('button');
+            addButton.textContent = 'Add';
+            addButton.onclick = function(){ addDevice(device); };
+            li.appendChild(addButton);
+            deviceList.appendChild(li);
+          });
+        });
+
+
+
+        function addDevice(device) {
+          socket.emit('add_device', device);
+        }
+
 
 
 </script>

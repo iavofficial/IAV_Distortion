@@ -6,9 +6,10 @@
 .flexbox-item{
     min-width: 225px;
     margin: 10px;
+    border-radius: 5px;
     /* below only for design*/
-    border: 3px solid #333;
-    background-color: white;
+    /*border: 3px solid #333;
+    background-color: white;*/
 }
 
 .flexbox-hacking_cars{
@@ -16,7 +17,6 @@
     flex-direction: column;
     justify-items: flex-start;
     align-items: flex-start;
-
 }
 
 .flexbox-hacking_scenarios{
@@ -42,6 +42,10 @@
         margin-bottom: 15px;
 }
 
-.flexbox-activeCars{
+.flexbox-manageCars{
 
+}
+
+.flexbox-activeCars{
+    background-color: #d2f5ff;
 }
