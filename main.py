@@ -11,12 +11,8 @@ class Main:
     def __init__(self):
         environment_mng = EnvironmentManager()
         vehicles = environment_mng.get_vehicle_list()
-        print(vehicles)
         for vehicle in vehicles:
-            print(vehicle.uuid)
             environment_mng.add_vehicle(uuid=vehicle.uuid)
-        #for player_count in range(0, 2):
-        #    environment_mng.set_player_uuid_mapping(player_id=str(player_count+1), uuid=vehicles[player_count].uuid)
 
         player_uuid_map = environment_mng.get_player_uuid_mapping()
 

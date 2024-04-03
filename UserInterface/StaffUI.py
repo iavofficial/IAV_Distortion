@@ -17,6 +17,8 @@ class StaffUI:
         def home_staff_control():
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
+            # TODO: How to update display of choose hacking scenarios?
+            # TODO: Show selection of choose hackink scenarios alwasy sorted by playernumber
             return render_template('staff_control.html', activeScenarios=active_scenarios, uuids=self.uuids,
                                    names=names, descriptions=descriptions)
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
@@ -46,11 +48,7 @@ class StaffUI:
 
         @self.socketio.on('search_cars')
         def search_cars():
-            print('Searching for BLE devices')
-            # TODO: interface to environment_manager to activate BLE search to get new_devices
-            new_devices = ['12:34:56', '09:87:65', '43:21:09']  # example list
-            # remove already active uuids:
-            new_devices = [device for device in new_devices if device not in self.uuids.values()]
+            new_devices = environment_mng.find_active_anki_cars()
             self.socketio.emit('new_devices', new_devices)
             return
 
@@ -60,7 +58,6 @@ class StaffUI:
             # TODO: exception if device is no longer available
             # TODO: remove added device from new_devices list
             self.socketio.emit('device_added', device)
-
 
         def submit():
             # TODO: delete function, only for development and testing
