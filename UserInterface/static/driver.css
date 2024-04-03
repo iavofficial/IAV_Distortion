@@ -4,6 +4,32 @@
     justify-content: space-between;
 }
 
+.flexbox-container_middle{
+    display: flex;
+    width: 200px;
+    height: 160px;
+}
+
+.flexbox-container_middle img {
+    flex: 1;  /* This will allow the image to grow or shrink as needed */
+    object-fit: cover;  /* This will ensure aspect ratio of the image is maintained while resizing */
+    width: 100%;  /* This makes sure image takes full width of its parent container */
+    height: auto;  /* You can also set this to '100%' if you want the image to take full height of the container */
+    justify-content: center;
+    background-color: #d2f5ff;
+    border-radius: 20px;
+}
+
+.flexbox-container_middle object {
+    flex: 1;  /* This will allow the image to grow or shrink as needed */
+    object-fit: cover;  /* This will ensure aspect ratio of the image is maintained while resizing */
+    width: 100%;  /* This makes sure image takes full width of its parent container */
+    height: auto;  /* You can also set this to '100%' if you want the image to take full height of the container */
+    justify-content: center;
+    background-color: #d2f5ff;
+    border-radius: 20px;
+}
+
 .flexbox-container_right{
     display: flex;
     flex-direction: column;
