@@ -12,36 +12,179 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->
 
+    <!-- Include socket.io library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
-<h1>IAV Distortion Control</h1>
+    <h1>IAV Distortion Control</h1>
 
-    <div>
-        <h2>Choose Hacking-Szenarios:</h2>
+    <div class="flexbox-container">
+        <div class="flexbox-item flexbox-hacking_cars">
+        <h2>Choose Hacking-Scenarios:</h2>
+            <div class="choose_cars_container" id="choose_hacking_scenarios">  </div>
+        </div>
 
-        <div class="choose_cars_container">
+        <div id="data" class="flexbox-item flexbox-manageCars">
+            <h2>Active cars:</h2>
+            <table class="flexbox-item flexbox-activeCars" id="table-container"></table>
 
-            {% for vehicle, uuid in uuids.items() %}
-                <details><summary>Car - {{ uuid }}</summary>
-                    <section class="hackingSzenario-section">
-                        <form action="{{ url_for('staffUI_bp.set_szenario') }}" method="post">
-                            <div class="radio-container">
-                            {% for id, name in names.items() %}
-                                <div>
-                                    <input type="radio" id="{{ id }}" name="option" value="scenarioID_{{ id }}-UUID_{{ uuid }}">
-                                    <label for="{{ id }}"> <strong> Scenario {{ id }} </strong> <br> <span class="scenarioDescription"> {{ descriptions[ id ] }} </span></label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <input type="submit" value="Set Szenario">
-                            <span class="activeScenatio_text">Active Scenario: {{ activeScenarios[ uuid ] }}: {{ descriptions[ activeScenarios[ uuid ] ] }}</span>
-                        </form>
-                    </section>
-                </details>
-            {% endfor %}
+            <h3>Add cars... </h3>
+            <button id="search_cars"> Search... </button>
+            <ul class="flexbox-item flexbox-activeCars" id="devices"></ul>
+
+        <!-- div below only for development and testing -->
+        <div class="flexbox-item">
+            <form action="{{ url_for('staffUI_bp.submit') }}" method="post">
+                <label for="player">Player:</label><br>
+                <input type="text" id="player" name="player"><br>
+                <label for="uuid">UUID:</label><br>
+                <input type="text" id="uuid" name="uuid"><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
 
         </div>
+
     </div>
+
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on('connect', function(){
+        socket.emit('get_uuids');
+    });
+
+    socket.on('update_uuids', function(data){
+        $('#table-container').empty();
+        var uuids_table = document.createElement('table');
+
+        // create table header
+        var thead = document.createElement('thead');
+        var header_row = document.createElement('tr');
+
+        var header_player = document.createElement('th');
+        header_player.innerText = 'Player';
+        header_row.appendChild(header_player);
+
+        var header_uuid = document.createElement('th');
+        header_uuid.innerText = 'UUID';
+        header_row.appendChild(header_uuid);
+
+        thead.appendChild(header_row);
+        uuids_table.appendChild(thead);
+
+        // fill table with player and uuids
+        for (var player in data) {
+            var row = document.createElement('tr');
+
+            var cell_player = document.createElement('td');
+            var cell_uuid = document.createElement('td');
+
+            cell_player.innerText = player;
+            cell_uuid.innerText = data[player];
+
+            row.appendChild(cell_player);
+            row.appendChild(cell_uuid);
+
+            uuids_table.appendChild(row);
+        }
+        document.getElementById('table-container').appendChild(uuids_table);
+
+       socket.emit('get_update_hacking_scenarios');
+    });
+
+    // automatic update of section to choose hacking scenarios
+    socket.on('update_hacking_scenarios', function(data){
+        // update sections to chose hacking scenarios
+        var uuids = data['uuids'];
+        var activeScenarios = data['activeScenarios'];
+        var descriptions = data['descriptions'];
+        var names = data['names'];
+
+        var div_choose_hacking_scenarios = document.getElementById('choose_hacking_scenarios');
+        div_choose_hacking_scenarios.innerHTML = '';
+
+        for (var player in uuids){
+            var uuid = uuids[player];
+            var scenario = activeScenarios[uuid];
+
+            var h3_car = document.createElement('h3')
+            h3_car.innerHTML = `<h3>Player ${player} - Car: ${uuid}</h3>`
+            div_choose_hacking_scenarios.append(h3_car);
+
+            var section_hacking_scenarios = document.createElement('section');
+            section_hacking_scenarios.className = "flexbox-item flexbox-hacking_scenarios";
+
+            var div_text_active_scenario = document.createElement('div');
+            div_text_active_scenario.className = "activeScenario_text"
+            div_text_active_scenario.innerHTML = `<strong>Active Scenario:</strong> ${scenario} - ${descriptions[scenario]}`
+            section_hacking_scenarios.append(div_text_active_scenario);
+
+            var form_choose_hack = document.createElement('form');
+            form_choose_hack.setAttribute('action', "{{ url_for('staffUI_bp.set_scenario') }}");
+            form_choose_hack.setAttribute('method', 'post');
+
+            var div_radio_buttons = document.createElement('div');
+            div_radio_buttons.className = "flexbox-radio-button";
+            for (var id in names){
+                var div = document.createElement('div');
+                var input_radio = document.createElement('input');
+                input_radio.setAttribute('type', 'radio');
+                input_radio.setAttribute('id', `$id`);
+                input_radio.setAttribute('name', 'option');
+                input_radio.setAttribute('value', `scenarioID_${ id }-UUID_${ uuid }`);
+                div.append(input_radio);
+
+                var label_radio = document.createElement('label');
+                label_radio.setAttribute('for', `$id`);
+                label_radio.innerHTML = `<strong> Scenario ${ id } </strong> <br> <span class="scenarioDescription"> ${ descriptions[ id ] } </span>`
+                div.append(label_radio);
+
+                div_radio_buttons.appendChild(div);
+            }
+            form_choose_hack.appendChild(div_radio_buttons);
+
+            var input_submit = document.createElement('input');
+            input_submit.setAttribute('type', 'submit');
+            input_submit.setAttribute('value', 'Set Scenario');
+            form_choose_hack.append(input_submit);
+            section_hacking_scenarios.append(form_choose_hack);
+
+            div_choose_hacking_scenarios.append(section_hacking_scenarios);
+        }
+    });
+
+    // Set scenario buttons
+
+
+    // buttons to search and add cars
+    var search_cars = document.getElementById("search_cars");
+    var add_car = document.getElementById("add_car");
+
+    search_cars.onclick = function() {
+      socket.emit('search_cars');
+    }
+
+    var deviceList = document.getElementById("devices");
+    socket.on('new_devices', function(devices){
+      devices.forEach(function(device) {
+        var li = document.createElement('li');
+        li.appendChild(document.createTextNode(device));
+        var addButton = document.createElement('button');
+        addButton.textContent = 'Add';
+        addButton.onclick = function(){ addDevice(device); };
+        li.appendChild(addButton);
+        deviceList.appendChild(li);
+      });
+    });
+
+    function addDevice(device) {
+      socket.emit('add_device', device);
+    }
+
+</script>
 
 </body>
 </html>

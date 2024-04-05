@@ -17,19 +17,34 @@
 
 </head>
 <body>
+
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box">
+            <h2>Information</h2>
+            <p id="infoBoxContent">Player {{my_var}} currently not available. Please contact staff.</p>
+            <button class="refresh-button" onclick="location.reload();">Refresh Page</button>
+        </div>
+    </div>
+
     <h1>Player {{my_var}}</h1>
-    <div class="container">
-        <div class="slider-container">
+    <div class="flexbox-container">
+        <div class="flexbox-item flexbox-slider">
             <input type="range" min="0" max="100" class="slider" id="velocity_req">
-            <div>
-                <p class="speed_display">Speed:</p>
-                <p class="speed_value"><strong> <span id="velocity_res"></span> </strong></p>
+        </div>
+        <div class="flexbox-container_middle">
+            <div class="flexbox-item">
+                <img src="{{ url_for('static', filename='images/' + picture) }}" >
             </div>
         </div>
-
-        <div class="button-container">
-            <button class="button-size" id="change_lane_left"> << </button>
-            <button class="button-size" id="change_lane_right"> >> </button>
+        <div class="flexbox-container_right">
+            <div>
+                <p class="flexbox-item flexbox-speed_display">Speed:</p>
+                <p class="flexbox-item flexbox-speed_value"><strong> <span id="velocity_res"></span> </strong></p>
+            </div>
+            <div class="flexbox-item flexbox-change_lane_buttons">
+                <button class="button-size" id="change_lane_left"> << </button>
+                <button class="button-size" id="change_lane_right"> >> </button>
+            </div>
         </div>
     </div>
 
@@ -60,6 +75,16 @@
           socket.emit('lane_change', {player: '{{my_var}}', direction: 'right'});
         }
 
+
+        window.onload = function() {
+          let playerExists = {{ player_exists | tojson }};
+          if(!playerExists) {
+            document.getElementById("infoBoxOverlay").style.display = "block";
+          }
+          else {
+            document.getElementById("infoBoxOverlay").style.display = "none";
+          }
+        }
     </script>
 
 </body>
