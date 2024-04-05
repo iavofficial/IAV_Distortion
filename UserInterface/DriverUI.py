@@ -1,6 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
-from flask_socketio import emit
-from VehicleMovementManagement.DriveController import DriverController
+from flask import Blueprint, render_template
 
 
 class DriverUI:
