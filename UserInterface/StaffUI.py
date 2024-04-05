@@ -17,7 +17,6 @@ class StaffUI:
         def home_staff_control():
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
-            # TODO: How to update display of choose hacking scenarios?
             # TODO: Show selection of choose hackink scenarios alwasy sorted by playernumber
             return render_template('staff_control.html', activeScenarios=active_scenarios, uuids=self.uuids,
                                    names=names, descriptions=descriptions)
@@ -58,6 +57,14 @@ class StaffUI:
             # TODO: exception if device is no longer available
             # TODO: remove added device from new_devices list
             self.socketio.emit('device_added', device)
+
+        @self.socketio.on('get_update_hacking_scenarios')
+        def update_hacking_scenarios():
+            names, descriptions = self.sort_scenarios()
+            active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
+            data = {'activeScenarios': active_scenarios, 'uuids': self.uuids, 'names': names, 'descriptions': descriptions}
+            self.socketio.emit('update_hacking_scenarios', data)
+            return
 
         def submit():
             # TODO: delete function, only for development and testing
