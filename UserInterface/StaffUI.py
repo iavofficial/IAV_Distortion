@@ -47,7 +47,8 @@ class StaffUI:
 
         @self.socketio.on('search_cars')
         def search_cars():
-            new_devices = environment_mng.find_active_anki_cars()
+            print("Searching devices")
+            new_devices = environment_mng.find_unpaired_anki_cars()
             self.socketio.emit('new_devices', new_devices)
             return
 
