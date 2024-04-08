@@ -1,66 +1,77 @@
 class Vehicle:
-    uuid = ""
-    name = ""
-
-    _speed = 0
-    _speed_request = 0
-    _speed_factor = 0.0
-
-    _lane = -1
-    _lane_request = -1
-    _lange_change_blocked = False
-
-    _is_light_on = False
-    _is_light_inverted = False
-    _is_safemode_on = True
-
-    def __init__(self, uuid, name):
+    def __init__(self, uuid):
         self.uuid = uuid
-        self.name = name
+        self.player = ""
+
+        self.__speed = 0.0
+        self.__speed_request = 0.0
+        self.__speed_factor = 1.0
+
+        self.__lane_change = 0
+        self.__lane_change_request = 0
+        self.__lange_change_blocked = False
+
+        self._is_light_on = False
+        self._is_light_inverted = False
+        self._is_safemode_on = True
 
     @property
-    def speed_request(self):
-        return self._speed_request
+    def speed_request(self) -> float:
+        return self.__speed_request
 
     @speed_request.setter
-    def speed_request(self, value: int):
-        self._speed_request = value
+    def speed_request(self, value: float) -> None:
+        self.__speed_request = value
         self.calculate_speed()
-
-    @property
-    def speed_factor(self):
-        return self._speed_factor
-
-    @speed_factor.setter
-    def speed_factor(self, value: float):
-        self._speed_factor = value
-        self.calculate_speed()
-
-    def calculate_speed(self):
-        #self._speed = self._speed_request * self._speed_factor
         return
 
     @property
-    def lane_change_request(self):
-        return self._lane_request
+    def speed_factor(self) -> float:
+        return self.__speed_factor
 
-    @lane_change_request.setter
-    def lane_change_request(self, value):
-        self._lane_request = self._lane_request + value
-        self.calculate_lane()
+    @speed_factor.setter
+    def speed_factor(self, value: float) -> None:
+        self.__speed_factor = value
+        self.calculate_speed()
 
     @property
-    def lange_change_blocked(self):
-        return self._lange_change_blocked
+    def speed(self) -> float:
+        return self.__speed
+
+    def calculate_speed(self) -> None:
+        self.__speed = self.__speed_request * self.__speed_factor
+        return
+
+    @property
+    def lane_change_request(self) -> int:
+        return self.__lane_change_request
+
+    @lane_change_request.setter
+    def lane_change_request(self, value: int) -> None:
+        self.__lane_change_request = value
+        self.calculate_lane_change()
+        return
+
+    @property
+    def lange_change_blocked(self) -> bool:
+        return self.__lange_change_blocked
 
     @lange_change_blocked.setter
-    def lange_change_blocked(self, value):
-        self._lange_change_blocked = value
+    def lange_change_blocked(self, value: bool) -> None:
+        self.__lange_change_blocked = value
+        return
 
-    def calculate_lane(self):
-        if not self._lange_change_blocked:
-            self._lane = self._lane_request
-            return
+    @property
+    def lane_change (self) -> int:
+        return self.__lane_change
+
+    def calculate_lane_change(self) -> None:
+        if not self.__lange_change_blocked:
+            self.__lane_change = self.__lane_change + self.__lane_change_request
+        else:
+            self.__lane_change = self.__lane_change
+        print(f"calculate_lane_change: {self.__lane_change}")
+        return
 
     def turn_on_lights(self):
         self._is_light_on = True

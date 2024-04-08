@@ -2,18 +2,22 @@ from typing import List
 
 from VehicleMovementManagement.DriveController import DriverController
 from VehicleMovementManagement.SecurityController import SecurityController
+
+from VehicleManagement.VehicleController import VehicleController
+
 from DataModel.Vehicle import Vehicle
 
 
 class BehaviourController:
 
-    def __init__(self, vehicles: List[Vehicle]):
+    def __init__(self, vehicles: List[Vehicle], vehicle_ctrl: VehicleController):
         self.vehicles = vehicles
+        self._vehicle_ctrl = vehicle_ctrl
 
-    def get_driver_controller(self):
+    def __get_driver_controller(self):
         return DriverController(self)
 
-    def get_security_controller(self):
+    def __get_security_controller(self):
         return SecurityController(self)
 
     def get_vehicle_by_uuid(self, uuid: str):
@@ -24,27 +28,30 @@ class BehaviourController:
         self.get_vehicle_by_uuid(uuid)
 
     # Driver Controller
-    def request_speed_change(self, uuid: str, value):
+    def request_speed_change_for(self, uuid: str, value_proz: float) -> None:
         vehicle = self.get_vehicle_by_uuid(uuid)
-        vehicle.speed_request = value
+        vehicle.speed_request = value_proz
 
-        print(f"Switch speed to {value}. UUID: {uuid}")
+        self._vehicle_ctrl.change_speed(uuid, int(vehicle.speed))
+
+        print(f"Switch speed to {value_proz}. UUID: {uuid}")
         return
 
-    def request_lane_change(self, uuid: str, value):
+    def request_lane_change_for(self, uuid: str, value: str) -> None:
         vehicle = self.get_vehicle_by_uuid(uuid)
-        if value == "left":
-            vehicle.lane_request = 1
+        if value == "right":
+            vehicle.lane_change_request = 1
+            print(f"Switch Lane to right ({vehicle.lane_change_request}) for {uuid}")
 
-            print(f"Switch Lane left. UUID: {uuid}")
-
-        elif value == "right":
-            vehicle.lane_request = -1
-
-            print(f"Switch Lane right. UUID: {uuid}")
+        elif value == "left":
+            vehicle.lane_change_request = -1
+            print(f"Switch Lane to left ({vehicle.lane_change_request}) for {uuid}")
 
         else:
-            vehicle.lane_request = 0
+            vehicle.lane_change_request = 0
+            print(f"Stay in lane ({vehicle.lane_change_request}) for {uuid}")
+
+        self._vehicle_ctrl.change_lane(uuid, vehicle.lane_change, vehicle.speed)
         return
 
     def request_lights_on(self, uuid: str):

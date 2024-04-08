@@ -1,3 +1,4 @@
+from VehicleManagement.VehicleController import VehicleController
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
@@ -9,14 +10,15 @@ from flask_socketio import SocketIO
 
 class Main:
     def __init__(self):
-        environment_mng = EnvironmentManager()
+        vehicle_ctrl = VehicleController()
+        environment_mng = EnvironmentManager(vehicle_ctrl)
         vehicles = environment_mng.get_vehicle_list()
         for vehicle in vehicles:
             environment_mng.add_vehicle(uuid=vehicle.uuid)
 
         player_uuid_map = environment_mng.get_player_uuid_mapping()
 
-        behaviour_ctrl = BehaviourController(vehicles)
+        behaviour_ctrl = BehaviourController(vehicles, vehicle_ctrl)
         cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
 
         app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')

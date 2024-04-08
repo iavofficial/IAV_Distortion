@@ -28,16 +28,16 @@ class DriverUI:
         @self.socketio.on('slider_changed')
         def handle_slider_change(data):
             player = data['player']
-            value = data['value']
+            value = float(data['value'])
             # print(f"Slider {player} value: {value}")
-            self.behaviour_ctrl.request_speed_change(uuid=self.uuids[player], value=value)
+            self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_proz=value)
 
         @self.socketio.on('lane_change')
         def change_lane_left(data):
             player = data['player']
             direction = data['direction']
             # print(f"Driver{player}: Button << pressed!")
-            self.behaviour_ctrl.request_lane_change(uuid=self.uuids[player], value=direction)
+            self.behaviour_ctrl.request_lane_change_for(uuid=self.uuids[player], value=direction)
 
     def get_blueprint(self):
         return self.driverUI_blueprint
