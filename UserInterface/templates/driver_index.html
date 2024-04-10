@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
 
+    <!-- material icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
     <!-- Include socket.io library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
 
@@ -20,9 +23,11 @@
 
     <div class="overlay" id="infoBoxOverlay">
         <div class="info-box">
-            <h2>Information</h2>
-            <p id="infoBoxContent">Player {{my_var}} currently not available. Please contact staff.</p>
-            <button class="refresh-button" onclick="location.reload();">Refresh Page</button>
+            <div class="info-title">
+                <i class="material-symbols-outlined info"> info </i> <h2>Information</h2>
+            </div>
+            <p id="infoBoxContent"> Player {{my_var}} currently not available. Please contact staff.</p>
+            <button class="refresh-button" onclick="location.reload();"><i class="material-symbols-outlined">refresh</i> <span>Refresh Page</span></button>
         </div>
     </div>
 
@@ -42,8 +47,12 @@
                 <p class="flexbox-item flexbox-speed_value"><strong> <span id="velocity_res"></span> </strong></p>
             </div>
             <div class="flexbox-item flexbox-change_lane_buttons">
-                <button class="button-size" id="change_lane_left"> << </button>
-                <button class="button-size" id="change_lane_right"> >> </button>
+                <button class="button-size" id="change_lane_left">
+                    <i class="material-symbols-outlined large">arrow_left</i>
+                </button>
+                <button class="button-size" id="change_lane_right">
+                    <i class="material-symbols-outlined large">arrow_right</i>
+                </button>
             </div>
         </div>
     </div>
