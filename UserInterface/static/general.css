@@ -1,14 +1,14 @@
 body{
-    background: #001a54; /* background color */
+    background: #D2F5FF; /* background color */
     font-family: Helvetica, Helvetica, sans-serif;
 }
 
 h1{
-    color: #ff73fa; /* color headline 1 */
+    color: #001A54; /* color headline 1 */
 }
 
 h2{
-    color: #ff73fa; /* color headline 1 */
+    color: #001A54; /* color headline 1 */
 }
 
 h3{
@@ -20,5 +20,5 @@ summary{
 }
 
 p{
-    color: #ff73fa;
+    color: #001A54;
 }
