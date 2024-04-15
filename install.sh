@@ -13,7 +13,7 @@ jquery_version="3.7.1"
 jquery_url="https://code.jquery.com/jquery-$jquery_version.min.js"
 jquery_directory=$ui_resources_directory
 
-socketio_version="4.0.1"
+socketio_version="4.7.5"
 socketio_url="https://cdnjs.cloudflare.com/ajax/libs/socket.io/$socketio_version/socket.io.js"
 socketio_directory="$ui_resources_directory/socketio/$socketio_version"
 
