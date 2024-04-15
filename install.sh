@@ -6,7 +6,7 @@ working_directory=$(pwd)
 pipenv install --skip-lock
 
 # get jquery dependencies
-ui_resources_directory="UserInterface/external_resources"
+ui_resources_directory="UserInterface/static/external_resources"
 
 # list of required resources:
 jquery_version="3.7.1"
