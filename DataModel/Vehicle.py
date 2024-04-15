@@ -1,7 +1,10 @@
+from VehicleManagement.VehicleController import VehicleController
+
 class Vehicle:
-    def __init__(self, uuid):
+    def __init__(self, uuid: str, controller: VehicleController):
         self.uuid = uuid
         self.player = ""
+        self.controller = controller
 
         self.__speed = 0.0
         self.__speed_request = 0.0
@@ -14,6 +17,23 @@ class Vehicle:
         self._is_light_on = False
         self._is_light_inverted = False
         self._is_safemode_on = True
+
+        self._road_piece = 0
+        self._prev_road_piece = 0
+        self._road_location = 0
+        self._offset_from_center = 0.0
+        self._speed_actual = 0
+        self._direction = 0
+        self._battery = ""
+        self._version = ""
+
+        self.controller.connect_to_anki_cars(uuid, True)
+        self.controller.set_callbacks(self.__receive_location,
+                                      self.__receive_transition,
+                                      self.__receive_version,
+                                      self.__receive_battery)
+        self.controller.request_version_of(uuid)
+        self.controller.request_battery_of(uuid)
 
     @property
     def speed_request(self) -> float:
@@ -40,6 +60,7 @@ class Vehicle:
 
     def calculate_speed(self) -> None:
         self.__speed = self.__speed_request * self.__speed_factor
+        self.controller.change_speed(self.uuid, self.__speed)
         return
 
     @property
@@ -62,7 +83,7 @@ class Vehicle:
         return
 
     @property
-    def lane_change (self) -> int:
+    def lane_change(self) -> int:
         return self.__lane_change
 
     def calculate_lane_change(self) -> None:
@@ -70,7 +91,8 @@ class Vehicle:
             self.__lane_change = self.__lane_change + self.__lane_change_request
         else:
             self.__lane_change = self.__lane_change
-        print(f"calculate_lane_change: {self.__lane_change}")
+
+        self.controller.change_lane(self.uuid, self.__lane_change, self.__speed)
         return
 
     def turn_on_lights(self):
@@ -81,3 +103,26 @@ class Vehicle:
 
     def set_safemode(self, value):
         self._is_safemode_on = value
+
+    def __receive_location(self, value_tuple):
+        location, piece, offset, speed, clockwise = value_tuple
+        self._road_location = location
+        self._road_piece = piece
+        self._offset_from_center = offset
+        self._speed_actual = speed
+        self._direction = clockwise
+        print(f"{self.uuid} location_tuple: {value_tuple}")
+
+    def __receive_transition(self, value_tuple):
+        piece, piece_prev, offset, direction = value_tuple
+        self._road_piece = piece
+        self._prev_road_piece = piece_prev
+        self._offset_from_center = offset
+        self._direction = direction
+        print(f"{self.uuid} transition_tuple: {value_tuple}")
+
+    def __receive_version(self, value_tuple):
+        print(f"{self.uuid} version_tuple: {value_tuple}")
+
+    def __receive_battery(self, value_tuple):
+        print(f"{self.uuid} battery_tuple: {value_tuple}")
