@@ -1,16 +1,17 @@
 from DataModel.Vehicle import Vehicle
+from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
 
 
 class EnvironmentManager:
 
-    def __init__(self, vehicle_ctrl: VehicleController):
-        self._vehicle_ctrl = vehicle_ctrl
+    def __init__(self, fleet_ctrl: FleetController):
+        self._fleet_ctrl = fleet_ctrl
         self._player_uuid_map = {}
         self._active_anki_cars = []
         self.staff_ui = None
 
-        self.find_unpaired_anki_cars()
+        # self.find_unpaired_anki_cars()
 
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
@@ -25,13 +26,19 @@ class EnvironmentManager:
         self._update_staff_ui()
         return
 
+    def connect_all_anki_cars(self) -> list[Vehicle]:
+        found_anki_cars = self.find_unpaired_anki_cars()
+        for vehicle_uuid in found_anki_cars:
+            self.add_vehicle(vehicle_uuid)
+        return self.get_vehicle_list()
+
     def find_unpaired_anki_cars(self) -> list[str]:
         # Funktion zum Fahrzeuge Suchen und Verbinden
         # BLE device suchen
         # mit Device verbinden, wenn bekannt, sonst via web interface
 
         # vehicle initialisieren
-        found_devices = self._vehicle_ctrl.scan_for_anki_cars()
+        found_devices = self._fleet_ctrl.scan_for_anki_cars()
         # remove already active uuids:
         new_devices = [device for device in found_devices if device not in self._player_uuid_map.values()]
 
@@ -74,10 +81,11 @@ class EnvironmentManager:
                     smallest_available_num = str(max_player + 1)
 
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
-            if self._vehicle_ctrl.connect_to_anki_cars(uuid):
+            anki_car_controller = VehicleController()
+            temp_vehicle = Vehicle(uuid, anki_car_controller)
+            if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
 
-                temp_vehicle = Vehicle(uuid)
                 temp_vehicle.player = smallest_available_num
                 self._active_anki_cars.append(temp_vehicle)
             return

@@ -10,9 +10,9 @@ from DataModel.Vehicle import Vehicle
 
 class BehaviourController:
 
-    def __init__(self, vehicles: List[Vehicle], vehicle_ctrl: VehicleController):
+    def __init__(self, vehicles: List[Vehicle]):
         self.vehicles = vehicles
-        self._vehicle_ctrl = vehicle_ctrl
+        #self._vehicle_ctrl = vehicle_ctrl
 
     def __get_driver_controller(self):
         return DriverController(self)
@@ -32,7 +32,7 @@ class BehaviourController:
         vehicle = self.get_vehicle_by_uuid(uuid)
         vehicle.speed_request = value_proz
 
-        self._vehicle_ctrl.change_speed(uuid, int(vehicle.speed))
+        #self._vehicle_ctrl.change_speed(uuid, int(vehicle.speed))
 
         print(f"Switch speed to {value_proz}. UUID: {uuid}")
         return
@@ -51,7 +51,7 @@ class BehaviourController:
             vehicle.lane_change_request = 0
             print(f"Stay in lane ({vehicle.lane_change_request}) for {uuid}")
 
-        self._vehicle_ctrl.change_lane(uuid, vehicle.lane_change, vehicle.speed)
+        #self._vehicle_ctrl.change_lane(uuid, vehicle.lane_change, vehicle.speed)
         return
 
     def request_lights_on(self, uuid: str):
