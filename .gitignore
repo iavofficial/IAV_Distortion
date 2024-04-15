@@ -1,1 +1,3 @@
 *.pyc
+UserInterface/external_resources/
+UserInterface/static/external_resources/
