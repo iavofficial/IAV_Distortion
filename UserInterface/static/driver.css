@@ -16,7 +16,7 @@
     width: 100%;  /* This makes sure image takes full width of its parent container */
     height: auto;  /* You can also set this to '100%' if you want the image to take full height of the container */
     justify-content: center;
-    background-color: #d2f5ff;
+    /* background-color: #d2f5ff; */
     border-radius: 20px;
 }
 
@@ -62,11 +62,10 @@
 .slider {
     -webkit-appearance: none;
     width: 300px;
-    height: 125px;
-    background: #d2f5ff;
-    border: 0px solid #a200e6; /* border thickness and color */
-    overflow: hidden;
-    border-radius: 50px;
+    height: 40px;
+    background: #ddd;
+    outline: none;
+    border-radius: 10px;
     transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
 }
 
@@ -75,9 +74,28 @@
     -webkit-appearance: none;
     appearance: none;
     width: 50px;
-    height: 125px;
-    background: #a200e6;
-    cursor: cursor;
+    height: 70px;
+    background: #fff;
+    cursor: pointer;
+    border: 5px solid #0091FF;
+    border-radius: 35px;
+}
+
+.slider::-moz-range-thumb {
+     width: 50px;
+     height: 70px;
+     background: #fff;
+     cursor: pointer;
+     border: 5px solid #0091FF;
+     border-radius: 35px;
+}
+
+.slider::-moz-range-progress {
+    background: #0091FF;
+}
+
+.slider::-moz-range-track {
+    background: #ddd;
 }
 
 /* style for speed display */
@@ -102,10 +120,10 @@
     width: 100px;
     height: 100px;
     font-size: 25px;
-    border-radius: 50px;
-    color: #a200e6;
-    background: #d2f5ff;
-    border: 0px solid #a200e6; /* border thickness and color */
+    border-radius: 12.5px;
+    color: #0091FF;
+    background: #FFFFFF;
+    border: 2px solid #0091FF; /* border thickness and color */
 }
 
 .overlay {
@@ -121,15 +139,47 @@
 }
 
 .info-box{
-    width: 300px;
+    display: flex;
+    flex-direction: column;
+    width: 350px;
     margin: 15% auto;
     background-color: #fff;
-    paddingL: 20px;
-    border: 1px solid #000;
-    box-shadow: 10px 10px 5px #888;
+    padding: 20px;
+    border: 0px solid #001A54;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.info-title {
+    display: flex;
+    align-items: center;
 }
 
 .refresh-button{
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: 5px auto;
+    height: 32px;
+    border-radius: 8px;
+    color: #FFFFFF;
+    background: #0091FF;
+    border: 0px solid #0091FF;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 500,
+  'GRAD' 0,
+  'opsz' 24
+}
+
+.material-symbols-outlined.large {
+    font-size: 75px
+}
+
+.material-symbols-outlined.info {
+    color: #FF9000;
+    padding-right: 5px;
 }
