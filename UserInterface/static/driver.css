@@ -16,7 +16,7 @@
     width: 100%;  /* This makes sure image takes full width of its parent container */
     height: auto;  /* You can also set this to '100%' if you want the image to take full height of the container */
     justify-content: center;
-    background-color: #d2f5ff;
+    /* background-color: #d2f5ff; */
     border-radius: 20px;
 }
 
@@ -62,11 +62,10 @@
 .slider {
     -webkit-appearance: none;
     width: 300px;
-    height: 125px;
-    background: #FFFFFF;
-    border: 2px solid #0091FF; /* border thickness and color */
-    overflow: hidden;
-    border-radius: 31px;
+    height: 40px;
+    background: #ddd;
+    outline: none;
+    border-radius: 10px;
     transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
 }
 
@@ -75,9 +74,28 @@
     -webkit-appearance: none;
     appearance: none;
     width: 50px;
-    height: 125px;
+    height: 70px;
+    background: #fff;
+    cursor: pointer;
+    border: 5px solid #0091FF;
+    border-radius: 35px;
+}
+
+.slider::-moz-range-thumb {
+     width: 50px;
+     height: 70px;
+     background: #fff;
+     cursor: pointer;
+     border: 5px solid #0091FF;
+     border-radius: 35px;
+}
+
+.slider::-moz-range-progress {
     background: #0091FF;
-    cursor: cursor;
+}
+
+.slider::-moz-range-track {
+    background: #ddd;
 }
 
 /* style for speed display */

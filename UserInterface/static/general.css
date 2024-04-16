@@ -1,6 +1,8 @@
 body{
-    background: #D2F5FF; /* background color */
+    background: #FFFFFF; /* background color */
     font-family: Helvetica, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 h1{
@@ -21,4 +23,19 @@ summary{
 
 p{
     color: #001A54;
+}
+
+p.header{
+    color: #FFFFFF;
+    font-size: 24px;
+    margin: 15px;
+}
+
+.custom_header{
+    background: #001A54;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    padding: 0px, 80px, 0px, 16px;
+    margin-bottom: 15px;
 }

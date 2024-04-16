@@ -31,14 +31,17 @@
         </div>
     </div>
 
-    <h1>Player {{my_var}}</h1>
+    <div class="flexbox-container custom_header">
+        <p class="header">Player {{my_var}}</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
     <div class="flexbox-container">
         <div class="flexbox-item flexbox-slider">
             <input type="range" min="0" max="100" class="slider" id="velocity_req">
         </div>
         <div class="flexbox-container_middle">
             <div class="flexbox-item">
-                <img src="{{ url_for('static', filename='images/' + picture) }}" >
+                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
             </div>
         </div>
         <div class="flexbox-container_right">
@@ -65,10 +68,12 @@
 
         var slider = document.getElementById("velocity_req");
         var output = document.getElementById("velocity_res");
+
         output.innerHTML = slider.value;
 
         slider.oninput = function() {
           output.innerHTML = this.value;
+          this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ this.value +'%, #ddd ' + this.value + '%, #ddd 100%)';
           socket.emit('slider_changed', {player: '{{my_var}}', value: this.value});
         }
 
@@ -86,6 +91,7 @@
 
 
         window.onload = function() {
+          slider.oninput();
           let playerExists = {{ player_exists | tojson }};
           if(!playerExists) {
             document.getElementById("infoBoxOverlay").style.display = "block";
