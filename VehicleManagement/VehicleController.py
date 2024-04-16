@@ -1,6 +1,21 @@
 import asyncio
 import struct
+from enum import Enum
+
 from bleak import BleakClient, BleakGATTCharacteristic
+
+
+class Turns(Enum):
+    VEHICLE_TURN_NONE = 0,
+    VEHICLE_TURN_LEFT = 1,
+    VEHICLE_TURN_RIGHT = 2,
+    VEHICLE_TURN_UTURN = 3,
+    VEHICLE_TURN_UTURN_JUMP = 4
+
+
+class TurnTrigger(Enum):
+    VEHICLE_TURN_TRIGGER_IMMEDIATE = 0,
+    VEHICLE_TURN_TRIGGER_INTERSECTION = 1
 
 
 class VehicleController:
@@ -81,8 +96,9 @@ class VehicleController:
         # print(f"{command}")
         self.__send_command_to(uuid, command)
 
-    def do_u_turn(self, uuid: str):
-        command = struct.pack("<BHH", 0x32, 0x03, 0x00)
+    def do_turn(self, uuid: str, direction: Turns,
+                turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE):
+        command = struct.pack("<BHH", 0x32, direction, turntrigger)
         self.__send_command_to(uuid, command)
 
     def request_version_of(self, uuid: str):
