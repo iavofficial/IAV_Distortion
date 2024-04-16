@@ -1,40 +1,41 @@
 from VehicleManagement.VehicleController import VehicleController
+from bleak import BleakClient
 
 class Vehicle:
     def __init__(self, uuid: str, controller: VehicleController):
-        self.uuid = uuid
-        self.player = ""
-        self.controller = controller
+        self.vehicle_id = uuid
+        self.player: str = ""
+        self._controller: VehicleController = controller
 
-        self.__speed = 0.0
-        self.__speed_request = 0.0
-        self.__speed_factor = 1.0
+        self.__speed: int = 0
+        self.__speed_request: int = 0
+        self.__speed_factor: float = 1.0
 
-        self.__lane_change = 0
-        self.__lane_change_request = 0
-        self.__lange_change_blocked = False
+        self.__lane_change: int = 0
+        self.__lane_change_request: int = 0
+        self.__lange_change_blocked: bool = False
 
-        self._is_light_on = False
-        self._is_light_inverted = False
-        self._is_safemode_on = True
+        self._is_light_on: bool = False
+        self._is_light_inverted: bool = False
+        self._is_safemode_on: bool = True
 
-        self._road_piece = 0
-        self._prev_road_piece = 0
-        self._road_location = 0
-        self._offset_from_center = 0.0
-        self._speed_actual = 0
-        self._direction = 0
-        self._battery = ""
-        self._version = ""
+        self._road_piece: int = 0
+        self._prev_road_piece: int = 0
+        self._road_location: int = 0
+        self._offset_from_center: float = 0.0
+        self._speed_actual: int = 0
+        self._direction: int = 0
+        self._battery: str = ""
+        self._version: str = ""
 
-        self.controller.connect_to_anki_cars(uuid, True)
-        self.controller.set_callbacks(self.__receive_location,
-                                      self.__receive_transition,
-                                      self.__receive_offset_update,
-                                      self.__receive_version,
-                                      self.__receive_battery)
-        self.controller.request_version_of(uuid)
-        self.controller.request_battery_of(uuid)
+        self._controller.connect_to_vehicle(BleakClient(uuid), True)
+        self._controller.set_callbacks(self.__receive_location,
+                                       self.__receive_transition,
+                                       self.__receive_offset_update,
+                                       self.__receive_version,
+                                       self.__receive_battery)
+        self._controller.request_version()
+        self._controller.request_battery()
 
     @property
     def speed_request(self) -> float:
@@ -61,7 +62,7 @@ class Vehicle:
 
     def calculate_speed(self) -> None:
         self.__speed = self.__speed_request * self.__speed_factor
-        self.controller.change_speed(self.uuid, self.__speed)
+        self._controller.change_speed_to(int(self.__speed))
         return
 
     @property
@@ -104,8 +105,7 @@ class Vehicle:
         else:
             self.__lane_change = self.__lane_change
 
-
-        self.controller.change_lane(self.uuid, self.__lane_change, self.__speed)
+        self._controller.change_lane_to(self.__lane_change, self.__speed)
         print(f"actual offset: {self._offset_from_center}")
         return
 
@@ -140,7 +140,7 @@ class Vehicle:
         self._offset_from_center = offset
 
     def __receive_version(self, value_tuple):
-        print(f"{self.uuid} version_tuple: {value_tuple}")
+        print(f"{self.vehicle_id} version_tuple: {value_tuple}")
 
     def __receive_battery(self, value_tuple):
-        print(f"{self.uuid} battery_tuple: {value_tuple}")
+        print(f"{self.vehicle_id} battery_tuple: {value_tuple}")
