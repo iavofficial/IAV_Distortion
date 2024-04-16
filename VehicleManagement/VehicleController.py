@@ -22,6 +22,7 @@ class VehicleController:
     def __init__(self):
         self._connected_cars = {}  # BleakClients
         self.loop = asyncio.new_event_loop()
+        self.task_in_progress: bool = False
 
         self.__MAX_ANKI_SPEED = 1200  # mm/s
         self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
@@ -29,6 +30,7 @@ class VehicleController:
 
         self.__location_callback = None
         self.__transition_callback = None
+        self.__offset_callback = None
         self.__version_callback = None
         self.__battery_callback = None
 
@@ -50,9 +52,15 @@ class VehicleController:
     def __len__(self):
         return len(self._connected_cars)
 
-    def set_callbacks(self, location_callback, transition_callback, version_callback, battery_callback):
+    def set_callbacks(self,
+                      location_callback,
+                      transition_callback,
+                      offset_callback,
+                      version_callback,
+                      battery_callback):
         self.__location_callback = location_callback
         self.__transition_callback = transition_callback
+        self.__offset_callback = offset_callback
         self.__version_callback = version_callback
         self.__battery_callback = battery_callback
 
@@ -91,7 +99,7 @@ class VehicleController:
     def change_lane(self, uuid: str, change_direction: int, velocity: int, acceleration: int = 1000):
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         lane_direction = self.__LANE_OFFSET * change_direction
-        # print(f"lane_direction: {lane_direction}")
+        print(f"change direction: {change_direction} and calculated offset: {lane_direction}")
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
         # print(f"{command}")
         self.__send_command_to(uuid, command)
@@ -136,16 +144,28 @@ class VehicleController:
 
         del self._connected_cars[uuid]
 
-    def __send_command_to(self, uuid: str, command: bytes):
-        final_command = struct.pack("B", len(command)) + command
+    def __send_command_to(self, uuid: str, command: bytes) -> bool:
+        success = False
+        self.task_in_progress = True
 
-        if uuid in self._connected_cars:
-            self.loop.run_until_complete(self._connected_cars[uuid].write_gatt_char("BE15BEE1-6186-407E-8381"
-                                                                                    "-0BD89C4D8DF4",
-                                                                                    final_command, None))
+        if self.task_in_progress:
+            return success
         else:
-            print(f"uuid {uuid} is unknown.")
-        'await self._connected_cars[uuid].write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None)'
+            final_command = struct.pack("B", len(command)) + command
+
+            if uuid in self._connected_cars:
+                self.loop.run_until_complete(self._connected_cars[uuid].
+                                             write_gatt_char("BE15BEE1-6186-407E-8381"
+                                                             "-0BD89C4D8DF4",
+                                                             final_command, None))
+                success = True
+            else:
+                print(f"sending command not possible. uuid {uuid} is unknown.")
+                success = False
+
+            self.task_in_progress = False
+            return success
+
 
     def __start_notifications_for(self, uuid: str):
         self.loop.run_until_complete(
@@ -158,35 +178,26 @@ class VehicleController:
         command_id = hex(data[1])
 
         if command_id == "0x19":
-            #version_tuple = tuple(data.hex("", 1))
             new_data = data.hex(" ", 1)
             version_tuple = tuple(new_data[6:11])
-            # print(f"{sender.uuid}: {command_id} - Version / {new_data[5:]}")
             self.new_event(version_tuple, self.__version_callback)
 
         elif command_id == "0x1b":
-            #battery_tuple = tuple(data.hex("", 1))
             new_data = data.hex(" ", 1)
             version_tuple = tuple(new_data[6:12])
-            # print(f"{sender.uuid}: {command_id} - Battery / {new_data[5:]}")
             self.new_event(version_tuple, self.__battery_callback)
 
         elif command_id == "0x27":
             location_tuple = struct.unpack_from("<BBfHB", data, 2)
-            location, piece, offset, speed, clockwise = location_tuple
-            # print(f"{sender.uuid}: {command_id} - Position / piece: {piece}, location: {location},
-            # offset: {offset:.2f}, speed: {speed}, clockwise: {clockwise}")
             self.new_event(location_tuple, self.__location_callback)
 
         elif command_id == "0x29":
             transition_tuple = struct.unpack_from("<BBfB", data, 2)
-            # piece, piecePrev, offset, direction = transition_tuple
-            # print(f"{sender.uuid}: {command_id} - Transition / piece: {piece}, piecePrev: {piecePrev},
-            # offset: {offset:.2f}, direction: {direction}")
             self.new_event(transition_tuple, self.__transition_callback)
 
         elif command_id == "0x2d":
-            print(f"{command_id} - Offset Update")
+            offset_tuple = struct.unpack_from("<f", data, 2)
+            self.new_event(offset_tuple, self.__offset_callback)
 
         else:
             new_data = data.hex(" ", 1)

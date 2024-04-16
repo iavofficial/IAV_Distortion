@@ -30,6 +30,7 @@ class Vehicle:
         self.controller.connect_to_anki_cars(uuid, True)
         self.controller.set_callbacks(self.__receive_location,
                                       self.__receive_transition,
+                                      self.__receive_offset_update,
                                       self.__receive_version,
                                       self.__receive_battery)
         self.controller.request_version_of(uuid)
@@ -87,12 +88,25 @@ class Vehicle:
         return self.__lane_change
 
     def calculate_lane_change(self) -> None:
-        if not self.__lange_change_blocked:
+        if self.__lange_change_blocked:
+            return
+
+        if 65.0 > self._offset_from_center > -65.0:
             self.__lane_change = self.__lane_change + self.__lane_change_request
+        elif 65.0 <= self._offset_from_center and self.__lane_change_request == -1:
+            self.__lane_change = self.__lane_change + self.__lane_change_request
+        elif 65.0 <= self._offset_from_center and self.__lane_change_request == 1:
+            self.__lane_change = 3
+        elif -65.0 >= self._offset_from_center and self.__lane_change_request == 1:
+            self.__lane_change = self.__lane_change + self.__lane_change_request
+        elif -65.0 >= self._offset_from_center and self.__lane_change_request == -1:
+            self.__lane_change = -3
         else:
             self.__lane_change = self.__lane_change
 
+
         self.controller.change_lane(self.uuid, self.__lane_change, self.__speed)
+        print(f"actual offset: {self._offset_from_center}")
         return
 
     def turn_on_lights(self):
@@ -111,7 +125,7 @@ class Vehicle:
         self._offset_from_center = offset
         self._speed_actual = speed
         self._direction = clockwise
-        print(f"{self.uuid} location_tuple: {value_tuple}")
+        # print(f"actual offset: {self._offset_from_center}")
 
     def __receive_transition(self, value_tuple):
         piece, piece_prev, offset, direction = value_tuple
@@ -119,7 +133,11 @@ class Vehicle:
         self._prev_road_piece = piece_prev
         self._offset_from_center = offset
         self._direction = direction
-        print(f"{self.uuid} transition_tuple: {value_tuple}")
+        # print(f"actual offset: {self._offset_from_center}")
+
+    def __receive_offset_update(self, value_tuple):
+        offset = value_tuple[0]
+        self._offset_from_center = offset
 
     def __receive_version(self, value_tuple):
         print(f"{self.uuid} version_tuple: {value_tuple}")
