@@ -146,11 +146,11 @@ class VehicleController:
 
     def __send_command_to(self, uuid: str, command: bytes) -> bool:
         success = False
-        self.task_in_progress = True
 
         if self.task_in_progress:
             return success
         else:
+            self.task_in_progress = True
             final_command = struct.pack("B", len(command)) + command
 
             if uuid in self._connected_cars:
