@@ -1,3 +1,4 @@
 *.pyc
-UserInterface/external_resources/
 UserInterface/static/external_resources/
+UserInterface/static/images/IAV-Logo-White.png
+UserInterface/static/images/IAV-Logo-White.svg

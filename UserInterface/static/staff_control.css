@@ -1,6 +1,5 @@
 .flexbox-container{
     display:  flex;
-    justify-content: flex-start;
 }
 
 .flexbox-item{

@@ -1,14 +1,16 @@
 body{
-    background: #001a54; /* background color */
+    background: #FFFFFF; /* background color */
     font-family: Helvetica, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 h1{
-    color: #ff73fa; /* color headline 1 */
+    color: #001A54; /* color headline 1 */
 }
 
 h2{
-    color: #ff73fa; /* color headline 1 */
+    color: #001A54; /* color headline 1 */
 }
 
 h3{
@@ -20,5 +22,20 @@ summary{
 }
 
 p{
-    color: #ff73fa;
+    color: #001A54;
+}
+
+p.header{
+    color: #FFFFFF;
+    font-size: 24px;
+    margin: 15px;
+}
+
+.custom_header{
+    background: #001A54;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    padding: 0px, 80px, 0px, 16px;
+    margin-bottom: 15px;
 }
