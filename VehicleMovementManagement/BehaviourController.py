@@ -15,13 +15,13 @@ class BehaviourController:
         #self._vehicle_ctrl = vehicle_ctrl
 
     def __get_driver_controller(self):
-        return DriverController(self)
+        return DriverController()
 
     def __get_security_controller(self):
-        return SecurityController(self)
+        return SecurityController()
 
     def get_vehicle_by_uuid(self, uuid: str):
-        found_vehicle = next((o for o in self.vehicles if o.uuid == uuid), None)
+        found_vehicle = next((o for o in self.vehicles if o.vehicle_id == uuid), None)
         return found_vehicle
 
     def on_vehicle_data_change(self, uuid):
