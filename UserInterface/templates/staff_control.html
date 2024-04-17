@@ -31,7 +31,7 @@
 
         <div id="data" class="flexbox-item flexbox-manageCars">
             <h2>Active cars:</h2>
-            <table class="flexbox-item flexbox-activeCars" id="table-container"></table>
+            <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
 
             <h3>Add cars... </h3>
             <button id="search_cars"> Search... </button>
@@ -120,7 +120,7 @@
 
             var div_text_active_scenario = document.createElement('div');
             div_text_active_scenario.className = "activeScenario_text"
-            div_text_active_scenario.innerHTML = `<strong>Active Scenario:</strong> ${scenario} - ${descriptions[scenario]}`
+            div_text_active_scenario.innerHTML = `<span><strong>Active Scenario:</strong> ${scenario} - ${descriptions[scenario]}</span>`
             section_hacking_scenarios.append(div_text_active_scenario);
 
             var form_choose_hack = document.createElement('form');
@@ -135,7 +135,7 @@
                 input_radio.setAttribute('type', 'radio');
                 input_radio.setAttribute('id', `$id`);
                 input_radio.setAttribute('name', 'option');
-                input_radio.setAttribute('value', `scenarioID_${ id }-UUID_${ uuid }`);
+                input_radio.setAttribute('value', `scenarioID_${ id }-UUID_${ uuid }>`);
                 div.append(input_radio);
 
                 var label_radio = document.createElement('label');
