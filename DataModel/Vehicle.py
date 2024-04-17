@@ -2,7 +2,7 @@ from VehicleManagement.VehicleController import VehicleController
 from bleak import BleakClient
 
 class Vehicle:
-    def __init__(self, uuid: str, controller: VehicleController):
+    def __init__(self, uuid: str, controller: VehicleController) -> None:
         self.vehicle_id = uuid
         self.player: str = ""
         self._controller: VehicleController = controller
@@ -37,6 +37,8 @@ class Vehicle:
         self._controller.request_version()
         self._controller.request_battery()
 
+        return
+
     @property
     def speed_request(self) -> float:
         return self.__speed_request
@@ -55,6 +57,7 @@ class Vehicle:
     def speed_factor(self, value: float) -> None:
         self.__speed_factor = value
         self.calculate_speed()
+        return
 
     @property
     def speed(self) -> float:
@@ -109,16 +112,18 @@ class Vehicle:
         print(f"actual offset: {self._offset_from_center}")
         return
 
-    def turn_on_lights(self):
+    def turn_on_lights(self) -> None:
         self._is_light_on = True
+        return
 
-    def turn_off_lights(self):
+    def turn_off_lights(self) -> None:
         self._is_light_on = False
+        return
 
     def set_safemode(self, value):
         self._is_safemode_on = value
 
-    def __receive_location(self, value_tuple):
+    def __receive_location(self, value_tuple) -> None:
         location, piece, offset, speed, clockwise = value_tuple
         self._road_location = location
         self._road_piece = piece
@@ -126,21 +131,26 @@ class Vehicle:
         self._speed_actual = speed
         self._direction = clockwise
         # print(f"actual offset: {self._offset_from_center}")
+        return
 
-    def __receive_transition(self, value_tuple):
+    def __receive_transition(self, value_tuple) -> None:
         piece, piece_prev, offset, direction = value_tuple
         self._road_piece = piece
         self._prev_road_piece = piece_prev
         self._offset_from_center = offset
         self._direction = direction
         # print(f"actual offset: {self._offset_from_center}")
+        return
 
-    def __receive_offset_update(self, value_tuple):
+    def __receive_offset_update(self, value_tuple) -> None:
         offset = value_tuple[0]
         self._offset_from_center = offset
+        return
 
-    def __receive_version(self, value_tuple):
+    def __receive_version(self, value_tuple) -> None:
         print(f"{self.vehicle_id} version_tuple: {value_tuple}")
+        return
 
-    def __receive_battery(self, value_tuple):
+    def __receive_battery(self, value_tuple)-> None:
         print(f"{self.vehicle_id} battery_tuple: {value_tuple}")
+        return

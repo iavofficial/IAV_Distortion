@@ -19,7 +19,7 @@ class TurnTrigger(Enum):
 
 
 class VehicleController:
-    def __init__(self):
+    def __init__(self) -> None:
         self._connected_car = None
         self.loop = asyncio.new_event_loop()
         self.task_in_progress: bool = False
@@ -36,7 +36,7 @@ class VehicleController:
 
         return
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.__disconnect_from_vehicle()
         del self._connected_car
 
@@ -51,12 +51,13 @@ class VehicleController:
                       transition_callback,
                       offset_callback,
                       version_callback,
-                      battery_callback):
+                      battery_callback) -> None:
         self.__location_callback = location_callback
         self.__transition_callback = transition_callback
         self.__offset_callback = offset_callback
         self.__version_callback = version_callback
         self.__battery_callback = battery_callback
+        return
 
     def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
         if ble_client is None or not isinstance(ble_client, BleakClient):
@@ -74,34 +75,39 @@ class VehicleController:
         except IOError:
             return False
 
-    def change_speed_to(self, velocity: int, acceleration: int = 1000, respect_speed_limit: bool = True):
+    def change_speed_to(self, velocity: int, acceleration: int = 1000, respect_speed_limit: bool = True) -> bool:
         limit_int = int(respect_speed_limit)
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         accel_int = acceleration
 
         command = struct.pack("<BHHH", 0x24, speed_int, accel_int, limit_int)
         self.__send_command(command)
+        return True
 
-    def change_lane_to(self, change_direction: int, velocity: int, acceleration: int = 1000):
+    def change_lane_to(self, change_direction: int, velocity: int, acceleration: int = 1000) -> bool:
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         lane_direction = self.__LANE_OFFSET * change_direction
         print(f"change direction: {change_direction} and calculated offset: {lane_direction}")
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
         # print(f"{command}")
         self.__send_command(command)
+        return True
 
     def do_turn_with(self, direction: Turns,
-                     turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE):
+                     turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE) -> bool:
         command = struct.pack("<BHH", 0x32, direction, turntrigger)
         self.__send_command(command)
+        return True
 
-    def request_version(self):
+    def request_version(self) -> bool:
         command = struct.pack("<B", 0x18)
         self.__send_command(command)
+        return True
 
-    def request_battery(self):
+    def request_battery(self) -> bool:
         command = struct.pack("<B", 0x1a)
         self.__send_command(command)
+        return True
 
     def _initiate_car(self, start_notification: bool) -> bool:
         if start_notification:
@@ -109,10 +115,9 @@ class VehicleController:
 
         self.__set_sdk_mode_to(True)
         self.__set_road_offset_on(0.0)
-
         return True
 
-    def __set_sdk_mode_to(self, value: bool):
+    def __set_sdk_mode_to(self, value: bool) -> bool:
         command_parameter: int
         if value:
             command_parameter = 0x01
@@ -120,21 +125,24 @@ class VehicleController:
             command_parameter = 0x00
         command = struct.pack("<BBB", 0x90, 0x01, command_parameter)
         self.__send_command(command)
+        return True
 
-    def __set_road_offset_on(self, value: float = 0.0):
+    def __set_road_offset_on(self, value: float = 0.0) -> bool:
         command = struct.pack("<Bf", 0x2c, value)
         self.__send_command(command)
+        return True
 
-    def _update_road_offset(self):
+    def _update_road_offset(self) -> bool:
         command = struct.pack("<B", 0x2d)
         self.__send_command(command)
+        return True
 
-    def __disconnect_from_vehicle(self):
+    def __disconnect_from_vehicle(self) -> bool:
         self.__stop_notifications_now()
 
         command = struct.pack("<B", 0xd)
         self.__send_command(command)
-
+        return True
 
     def __send_command(self, command: bytes) -> bool:
         success = False
@@ -155,14 +163,16 @@ class VehicleController:
             self.task_in_progress = False
             return success
 
-    def __start_notifications_now(self):
+    def __start_notifications_now(self) -> bool:
         self.loop.run_until_complete(
             self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
+        return True
 
-    def __stop_notifications_now(self):
+    def __stop_notifications_now(self) -> bool:
         self.loop.run_until_complete(self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4"))
+        return True
 
-    def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray):
+    def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> bool:
         command_id = hex(data[1])
 
         if command_id == "0x19":
@@ -190,6 +200,10 @@ class VehicleController:
         else:
             new_data = data.hex(" ", 1)
             # print(f"{command_id} / {new_data[2:]}")
+            return False
 
-    def new_event(self, value_tuple: tuple, callback: classmethod):
+        return True
+
+    def new_event(self, value_tuple: tuple, callback: classmethod) -> None:
         callback(value_tuple)
+        return
