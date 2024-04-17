@@ -151,6 +151,6 @@ class Vehicle:
         print(f"{self.vehicle_id} version_tuple: {value_tuple}")
         return
 
-    def __receive_battery(self, value_tuple)-> None:
+    def __receive_battery(self, value_tuple) -> None:
         print(f"{self.vehicle_id} battery_tuple: {value_tuple}")
         return
