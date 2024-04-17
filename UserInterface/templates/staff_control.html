@@ -20,7 +20,7 @@
 <body>
     <div class="flexbox-container custom_header">
         <p class="header">IAV Distortion - Control</p>
-        <img src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" >
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
     <div class="flexbox-container">
@@ -40,8 +40,6 @@
         <!-- div below only for development and testing -->
         <div class="flexbox-item">
             <form action="{{ url_for('staffUI_bp.submit') }}" method="post">
-                <label for="player">Player:</label><br>
-                <input type="text" id="player" name="player"><br>
                 <label for="uuid">UUID:</label><br>
                 <input type="text" id="uuid" name="uuid"><br>
                 <input type="submit" value="Submit">

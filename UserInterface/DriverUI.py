@@ -21,7 +21,12 @@ class DriverUI:
             else:
                 picture = "alternative.jpg"
 
-            print(picture)
+            print(self.uuids)
+            print(self.uuids[player])
+            vehicle = behaviour_ctrl.get_vehicle_by_uuid(self.uuids[player])
+            print(vehicle._speed_actual)
+            print(vehicle.get_speed_request())
+
             return render_template('driver_index.html', my_var=player, player_exists=player_exists, picture=picture)
         self.driverUI_blueprint.add_url_rule('/<player>', 'home_driver', view_func=home_driver)
 
@@ -31,6 +36,7 @@ class DriverUI:
             value = float(data['value'])
             # print(f"Slider {player} value: {value}")
             self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_proz=value)
+            return
 
         @self.socketio.on('lane_change')
         def change_lane_left(data):
@@ -38,6 +44,14 @@ class DriverUI:
             direction = data['direction']
             # print(f"Driver{player}: Button << pressed!")
             self.behaviour_ctrl.request_lane_change_for(uuid=self.uuids[player], value=direction)
+            return
+
+        @self.socketio.on('get_vehicle_status')
+        def get_vehicle_status():
+            pass
+
+    def update_vehicle_status(self, vehicle_status):
+        self.socketio.emit('update_vehicle_status', vehicle_status)
 
     def get_blueprint(self):
         return self.driverUI_blueprint
