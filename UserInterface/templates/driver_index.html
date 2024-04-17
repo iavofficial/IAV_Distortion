@@ -47,7 +47,7 @@
         <div class="flexbox-container_right">
             <div>
                 <p class="flexbox-item flexbox-speed_display">Speed:</p>
-                <p class="flexbox-item flexbox-speed_value"><strong> <span id="velocity_res"></span> </strong></p>
+                <p class="flexbox-item flexbox-speed_value"><strong> <span id="speed_actual"></span> </strong></p>
             </div>
             <div class="flexbox-item flexbox-change_lane_buttons">
                 <button class="button-size" id="change_lane_left">
@@ -67,12 +67,13 @@
         <!-- slider to control velocity-->
 
         var slider = document.getElementById("velocity_req");
-        var output = document.getElementById("velocity_res");
+        var speed_actual = document.getElementById("speed_actual");
 
-        output.innerHTML = slider.value;
+        socket.on('vehicle_status_update', function(data){
+            speed_actual.innerHTML = data.speed_actual;
+        });
 
         slider.oninput = function() {
-          output.innerHTML = this.value;
           this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ this.value +'%, #ddd ' + this.value + '%, #ddd 100%)';
           socket.emit('slider_changed', {player: '{{my_var}}', value: this.value});
         }

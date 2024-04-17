@@ -4,7 +4,7 @@ import re
 
 class StaffUI:
 
-    def __init__(self, map_of_uuids: dict, cybersecurity_mng, socketio, environment_mng, name=__name__):
+    def __init__(self, map_of_uuids: dict, cybersecurity_mng, socketio, environment_mng):
         self.staffUI_blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
         self.uuids = map_of_uuids  # {'player': 'uuid'}
         self.scenarios = cybersecurity_mng.get_all_hacking_scenarios()
@@ -17,7 +17,7 @@ class StaffUI:
         def home_staff_control():
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
-            # TODO: Show selection of choose hackink scenarios alwasy sorted by playernumber
+            # TODO: Show selection of choose hacking scenarios always sorted by player number
             return render_template('staff_control.html', activeScenarios=active_scenarios, uuids=self.uuids,
                                    names=names, descriptions=descriptions)
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
@@ -58,20 +58,21 @@ class StaffUI:
             # TODO: exception if device is no longer available
             # TODO: remove added device from new_devices list
             self.socketio.emit('device_added', device)
+            return
 
         @self.socketio.on('get_update_hacking_scenarios')
         def update_hacking_scenarios():
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
-            data = {'activeScenarios': active_scenarios, 'uuids': self.uuids, 'names': names, 'descriptions': descriptions}
+            data = {'activeScenarios': active_scenarios, 'uuids': self.uuids, 'names': names,
+                    'descriptions': descriptions}
             self.socketio.emit('update_hacking_scenarios', data)
             return
 
         def submit():
             # TODO: delete function, only for development and testing
-            player = request.form['player']
             uuid = request.form['uuid']
-            self.environment_mng.set_player_uuid_mapping(player_id=player, uuid=uuid)
+            self.environment_mng.add_vehicle(uuid=uuid)
             return redirect(url_for('staffUI_bp.staff_control'))
         self.staffUI_blueprint.add_url_rule('/submit', methods=['POST'], view_func=submit)
 

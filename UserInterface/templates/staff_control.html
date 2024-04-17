@@ -20,7 +20,7 @@
 <body>
     <div class="flexbox-container custom_header">
         <p class="header">IAV Distortion - Control</p>
-        <img src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" >
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
     <div class="flexbox-container">
@@ -31,7 +31,7 @@
 
         <div id="data" class="flexbox-item flexbox-manageCars">
             <h2>Active cars:</h2>
-            <table class="flexbox-item flexbox-activeCars" id="table-container"></table>
+            <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
 
             <h3>Add cars... </h3>
             <button id="search_cars"> Search... </button>
@@ -40,8 +40,6 @@
         <!-- div below only for development and testing -->
         <div class="flexbox-item">
             <form action="{{ url_for('staffUI_bp.submit') }}" method="post">
-                <label for="player">Player:</label><br>
-                <input type="text" id="player" name="player"><br>
                 <label for="uuid">UUID:</label><br>
                 <input type="text" id="uuid" name="uuid"><br>
                 <input type="submit" value="Submit">
@@ -122,7 +120,7 @@
 
             var div_text_active_scenario = document.createElement('div');
             div_text_active_scenario.className = "activeScenario_text"
-            div_text_active_scenario.innerHTML = `<strong>Active Scenario:</strong> ${scenario} - ${descriptions[scenario]}`
+            div_text_active_scenario.innerHTML = `<span><strong>Active Scenario:</strong> ${scenario} - ${descriptions[scenario]}</span>`
             section_hacking_scenarios.append(div_text_active_scenario);
 
             var form_choose_hack = document.createElement('form');
@@ -137,7 +135,7 @@
                 input_radio.setAttribute('type', 'radio');
                 input_radio.setAttribute('id', `$id`);
                 input_radio.setAttribute('name', 'option');
-                input_radio.setAttribute('value', `scenarioID_${ id }-UUID_${ uuid }`);
+                input_radio.setAttribute('value', `scenarioID_${ id }-UUID_${ uuid }>`);
                 div.append(input_radio);
 
                 var label_radio = document.createElement('label');
