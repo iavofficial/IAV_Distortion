@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Driver {{my_var}}</title>
+    <title>Driver {{player}}</title>
 
     <!-- general style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
@@ -26,18 +26,18 @@
             <div class="info-title">
                 <i class="material-symbols-outlined info"> info </i> <h2>Information</h2>
             </div>
-            <p id="infoBoxContent"> Player {{my_var}} currently not available. Please contact staff.</p>
+            <p id="infoBoxContent"> Player {{player}} currently not available. Please contact staff.</p>
             <button class="refresh-button" onclick="location.reload();"><i class="material-symbols-outlined">refresh</i> <span>Refresh Page</span></button>
         </div>
     </div>
 
     <div class="flexbox-container custom_header">
-        <p class="header">Player {{my_var}}</p>
+        <p class="header">Player {{player}}</p>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
     <div class="flexbox-container">
         <div class="flexbox-item flexbox-slider">
-            <input type="range" min="0" max="100" class="slider" id="velocity_req">
+            <input type="range" min="0" max="100" value="{{ vehicle_information.speed_request }}" class="slider" id="speed_request">
         </div>
         <div class="flexbox-container_middle">
             <div class="flexbox-item">
@@ -46,8 +46,8 @@
         </div>
         <div class="flexbox-container_right">
             <div>
-                <p class="flexbox-item flexbox-speed_display">Speed:</p>
-                <p class="flexbox-item flexbox-speed_value"><strong> <span id="speed_actual"></span> </strong></p>
+                <p class="flexbox-item flexbox-speed_display-label">Speed:</p>
+                <p class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> {{ vehicle_information.speed_actual }} </span> </strong> m/s</p>
             </div>
             <div class="flexbox-item flexbox-change_lane_buttons">
                 <button class="button-size" id="change_lane_left">
@@ -66,16 +66,16 @@
 
         <!-- slider to control velocity-->
 
-        var slider = document.getElementById("velocity_req");
+        var slider = document.getElementById("speed_request");
         var speed_actual = document.getElementById("speed_actual");
 
-        socket.on('vehicle_status_update', function(data){
+        socket.on('update_driving_data', function(data){
             speed_actual.innerHTML = data.speed_actual;
         });
 
         slider.oninput = function() {
           this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ this.value +'%, #ddd ' + this.value + '%, #ddd 100%)';
-          socket.emit('slider_changed', {player: '{{my_var}}', value: this.value});
+          socket.emit('slider_changed', {player: '{{player}}', value: this.value});
         }
 
         <!-- buttons to control lanes -->
@@ -83,11 +83,11 @@
         var buttonRight = document.getElementById("change_lane_right");
 
         buttonLeft.onclick = function() {
-          socket.emit('lane_change', {player: '{{my_var}}', direction: 'left'});
+          socket.emit('lane_change', {player: '{{player}}', direction: 'left'});
         }
 
         buttonRight.onclick = function() {
-          socket.emit('lane_change', {player: '{{my_var}}', direction: 'right'});
+          socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
         }
 
 

@@ -28,6 +28,8 @@ class Vehicle:
         self._battery: str = ""
         self._version: str = ""
 
+        self.__driving_data_callback = None
+
         self._controller.connect_to_vehicle(BleakClient(uuid), True)
         self._controller.set_callbacks(self.__receive_location,
                                        self.__receive_transition,
@@ -68,7 +70,8 @@ class Vehicle:
         self._controller.change_speed_to(int(self.__speed))
 
         # mock self._speed_actual
-        self._speed_actual = self.__speed * 2.55  # calculate _speed_actual as m/s by assuming simple factor
+        self._speed_actual = int(self.__speed * 2.55)  # calculate _speed_actual as m/s by assuming simple factor
+        self.__on_driving_data_change()
         return
 
     @property
@@ -159,6 +162,28 @@ class Vehicle:
         return
 
 
+    def get_driving_data(self) -> dict:
+        driving_data_dict = {
+            'vehicle_id': self.vehicle_id,
+            'player': self.player,
+            'speed_request': self.__speed_request,
+            'lane_change_blocked': self.__lange_change_blocked,
+            'is_light_on': self._is_light_on,
+            'is_safemode_on': self._is_safemode_on,
+            'road_piece': self._road_piece,
+            'road_location': self._road_location,
+            'offset_from_center': self._offset_from_center,
+            'speed_actual': self._speed_actual,
+            'direction': self._direction,
+            'battery': self._battery,
+            'version': self._version
+        }
+        return driving_data_dict
 
-    def get_speed_request(self):
-        return self.__speed_request
+    def __on_driving_data_change(self) -> None:
+        self.__driving_data_callback(self.get_driving_data())
+        return
+
+    def set_driving_data_callback(self, function) -> None:
+        self.__driving_data_callback = function
+        return
