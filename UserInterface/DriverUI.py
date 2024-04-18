@@ -10,7 +10,7 @@ class DriverUI:
         self.behaviour_ctrl = behaviour_ctrl
         self.socketio = socketio
 
-        def home_driver(player) -> str:
+        def home_driver(player: str) -> str:
 
             vehicle = self.get_vehicle_by_player(player=player)
             player_exists = False
@@ -44,11 +44,15 @@ class DriverUI:
             return
 
         @self.socketio.on('get_driving_data')
-        def get_driving_data() -> None:
-            pass
+        def get_driving_data(player: str) -> None:
+            vehicle = self.get_vehicle_by_player(player=player)
+            driving_data = vehicle.get_driving_data()
+            self.update_driving_data(driving_data)
+            return
 
-    def update_driving_data(self, vehicle_status: dict) -> None:
-        self.socketio.emit('update_driving_data', vehicle_status)
+    def update_driving_data(self, driving_data: dict) -> None:
+        self.socketio.emit('update_driving_data', driving_data)
+        return
 
     def get_blueprint(self) -> Blueprint:
         return self.driverUI_blueprint
