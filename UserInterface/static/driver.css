@@ -1,3 +1,6 @@
+body{
+    overflow: hidden;
+}
 /* container to arrange the elements on the page*/
 .flexbox-container {
     display:  flex;
@@ -99,7 +102,7 @@
 }
 
 /* style for speed display */
-.flexbox-speed_display {
+.flexbox-speed_display-label {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -107,12 +110,17 @@
     margin-bottom: 0px;
 }
 
-.flexbox-speed_value {
+.flexbox-speed_display {
     display: flex;
+    flex-direction: row;
     justify-content: center;
-    align-items: center;
-    font-size: 74px;
+    align-items: flex-end;
+    font-size: 35px;
     margin-top: 0px;
+}
+.flexbox-speed_display.value{
+    font-size: 74px;
+    margin-right: 5px;
 }
 
 /* style options for buttons */

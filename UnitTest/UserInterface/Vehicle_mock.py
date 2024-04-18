@@ -64,6 +64,10 @@ class Vehicle:
     def calculate_speed(self) -> None:
         self.__speed = self.__speed_request * self.__speed_factor
         self.__controller.change_speed_to(int(self.__speed))
+
+        # mock self._speed_actual
+        self._speed_actual = int(self.__speed * 2.55)  # calculate _speed_actual as m/s by assuming simple factor
+        self.__on_driving_data_change()
         return
 
     @property
