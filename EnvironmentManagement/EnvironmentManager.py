@@ -2,10 +2,6 @@ from DataModel.Vehicle import Vehicle
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
 
-# Todo: remove after development
-from UnitTest.UserInterface.Vehicle_mock import Vehicle
-from UnitTest.UserInterface.VehicleController_mock import VehicleController
-
 
 class EnvironmentManager:
 
