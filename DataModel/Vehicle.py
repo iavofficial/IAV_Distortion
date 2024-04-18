@@ -141,12 +141,22 @@ class Vehicle:
             return False
 
     def get_driving_data(self) -> dict:
-        driving_info_dic = {"player": self.player,
-                            "speed_actual": self._speed_actual,
-                            "active_hacking_scenario": self.__active_hacking_scenario,
-                            "battery": self._battery,
-                            "version": self._version}
-
+        driving_info_dic = {
+            'vehicle_id': self.vehicle_id,
+            'player': self.player,
+            'speed_request': self.__speed_request,
+            'lane_change_blocked': self.__lange_change_blocked,
+            'is_light_on': self.__is_light_on,
+            'is_safemode_on': self.__is_safemode_on,
+            'active_hacking_scenario': self.__active_hacking_scenario,
+            'road_piece': self._road_piece,
+            'road_location': self._road_location,
+            'offset_from_center': self._offset_from_center,
+            'speed_actual': self._speed_actual,
+            'direction': self._direction,
+            'battery': self._battery,
+            'version': self._version
+        }
         return driving_info_dic
 
     def __on_driving_data_change(self) -> None:
