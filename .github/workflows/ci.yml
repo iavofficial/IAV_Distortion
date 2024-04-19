@@ -15,3 +15,16 @@ jobs:
           echo "$(pipenv --venv)/bin" >> $GITHUB_PATH
 
       - uses: jakebailey/pyright-action@v2
+        
+  flake8-lint:
+    name: Check coding style via flake8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: flake8 lint
+        uses: py-actions/flake8@v2
+        with:
+          max-line-length: "100"
