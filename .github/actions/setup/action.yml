@@ -1,0 +1,21 @@
+name: Setup
+description: Setup Repository
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pipenv'
+      name: Setup Python
+
+    - name: Install pipenv
+      id: pipenv-install
+      shell: bash
+      run: pip install pipenv
+
+    - name: Install dependencies
+      id: pipenv-sync
+      shell: bash
+      run: pipenv sync --dev

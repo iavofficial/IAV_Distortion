@@ -1,0 +1,17 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  pyright-check:
+    name: Run Pyright
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Add pipenv to PATH
+        shell: bash
+        run: |
+          echo "$(pipenv --venv)/bin" >> $GITHUB_PATH
+
+      - uses: jakebailey/pyright-action@v2
