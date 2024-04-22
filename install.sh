@@ -44,7 +44,7 @@ fi
 
 # create desktop item
 current_user=$(whoami)
-desktop_item="/home/$current_user/Desktop/test.desktop"
+desktop_item="/home/$current_user/Desktop/iav_distortion.desktop"
 
 if [ -f "$desktop_item" ]; then
     rm -rf $desktop_item
@@ -57,13 +57,14 @@ echo "Exec=$working_directory/run.sh" >> "$desktop_item"
 echo "Terminal=true" >> "$desktop_item"
 echo "Type=Application" >> "$desktop_item"
 echo "Name[de_DE]=IAV Distortion" >> "$desktop_item"
-echo "X-KeepTerminal=true" >> "$desktop_item"
 echo "Path=$working_directory" >> "$desktop_item"
 
 # make run.sh and desctop item executable
 chmod +x run.sh
 chmod +x $desktop_item
 
+# add add run.sh to autostart
+(crontab -l 2>/dev/null; echo "@reboot cd $working_directory && bash run.sh && cd") | crontab -
 
 # finish message
 echo "Finished. Please check for errors!"
