@@ -1,5 +1,5 @@
 *.pyc
-UserInterface/static/external_resources/
-UserInterface/static/images/IAV-Logo-White.png
-UserInterface/static/images/IAV-Logo-White.svg
+src/UserInterface/static/external_resources/
+src/UserInterface/static/images/IAV-Logo-White.png
+src/UserInterface/static/images/IAV-Logo-White.svg
 .idea/
