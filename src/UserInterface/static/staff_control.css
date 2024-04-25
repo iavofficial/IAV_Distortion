@@ -1,0 +1,49 @@
+.flexbox-container{
+    display:  flex;
+}
+
+.flexbox-item{
+    min-width: 225px;
+    margin: 10px;
+    border-radius: 5px;
+    /* below only for design*/
+    /*border: 3px solid #333;
+    background-color: white;*/
+}
+
+.flexbox-hacking_cars{
+    display: flex;
+    flex-direction: column;
+    justify-items: flex-start;
+    align-items: flex-start;
+}
+
+.flexbox-hacking_scenarios{
+    display: flex;
+    flex-direction: column;
+    justify-items: flex-start;
+    min-width: 425px;
+}
+
+.flexbox-radio-button {
+      display: flex;
+      flex-direction: column; /* column - radio buttuns oriented vertivcally, row - radio buttuns oriented hrizontally*/
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+.scenarioDescription{
+        margin-left: 25px;
+}
+
+.activeScenario_text{
+        margin-bottom: 15px;
+}
+
+.flexbox-manageCars{
+
+}
+
+.flexbox-activeCars{
+
+}

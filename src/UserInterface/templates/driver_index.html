@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver {{player}}</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- material icons -->
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> -->
+
+    <!-- Include socket.io library -->
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+
+
+</head>
+<body>
+
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box">
+            <div class="info-title">
+                <!-- <i class="material-symbols-outlined info"> info </i> --> <h2>Information</h2>
+            </div>
+            <p id="infoBoxContent"> Player {{player}} currently not available. Please contact staff.</p>
+            <button class="refresh-button" onclick="location.reload();"> <!-- <i class="material-symbols-outlined">refresh</i>--> <span>Refresh Page</span></button>
+        </div>
+    </div>
+
+    <div class="flexbox-container custom_header">
+        <p class="header">Player {{player}}</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+    <div class="flexbox-container">
+        <div class="flexbox-item flexbox-slider">
+            <input type="range" min="0" max="100" class="slider" id="speed_request">
+        </div>
+        <div class="flexbox-container_middle">
+            <div class="flexbox-item">
+                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+            </div>
+        </div>
+        <div class="flexbox-container_right">
+            <div>
+                <p class="flexbox-item flexbox-speed_display-label">Speed:</p>
+                <p class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span> </strong> m/s</p>
+            </div>
+            <div class="flexbox-item flexbox-change_lane_buttons">
+                <button class="button-size" id="change_lane_left">
+                    <<
+                    <!-- <i class="material-symbols-outlined large">arrow_left</i> -->
+                </button>
+                <button class="button-size" id="change_lane_right">
+                    >>
+                    <!-- <i class="material-symbols-outlined large">arrow_right</i> -->
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        <!-- slider to control velocity-->
+
+        var slider = document.getElementById("speed_request");
+        var speed_actual = document.getElementById("speed_actual");
+
+
+        slider.oninput = function() {
+          this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ this.value +'%, #ddd ' + this.value + '%, #ddd 100%)';
+          socket.emit('slider_changed', {player: '{{player}}', value: this.value});
+        }
+
+        <!-- buttons to control lanes -->
+        var buttonLeft = document.getElementById("change_lane_left");
+        var buttonRight = document.getElementById("change_lane_right");
+
+        buttonLeft.onclick = function() {
+          socket.emit('lane_change', {player: '{{player}}', direction: 'left'});
+        }
+
+        buttonRight.onclick = function() {
+          socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
+        }
+
+
+        window.onload = function() {
+
+          var slider_temp = document.getElementById("speed_request");
+          slider_temp.value = {{ vehicle_information.speed_request }};
+
+          let playerExists = {{ player_exists | tojson }};
+          if(!playerExists) {
+            document.getElementById("infoBoxOverlay").style.display = "block";
+          }
+          else {
+            document.getElementById("infoBoxOverlay").style.display = "none";
+            slider.oninput();
+          }
+        }
+
+        function get_driving_data(){
+          socket.emit('get_driving_data');
+        }
+
+        socket.on('update_driving_data', function(data){
+            speed_actual.innerHTML = data.speed_actual;
+        });
+    </script>
+
+</body>
+</html>

@@ -6,9 +6,12 @@ name = "pypi"
 [packages]
 flask = "*"
 bleak = "*"
+flask-socketio = "*"
+eventlet = "*"
 
 [dev-packages]
+sphinx = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.11"
-python_full_version = "3.11.8"
