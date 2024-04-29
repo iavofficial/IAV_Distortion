@@ -110,7 +110,9 @@
         }
 
         socket.on('update_driving_data', function(data){
+          if(data.player == '{{player}}'){
             speed_actual.innerHTML = data.speed_actual;
+          }
         });
     </script>
 
