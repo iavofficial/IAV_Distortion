@@ -8,12 +8,7 @@
 #
 
 from typing import List
-
-from VehicleMovementManagement.DriveController import DriverController
-from VehicleMovementManagement.SecurityController import SecurityController
-
 from VehicleManagement.VehicleController import VehicleController
-
 from DataModel.Vehicle import Vehicle
 
 
@@ -22,12 +17,6 @@ class BehaviourController:
     def __init__(self, vehicles: List[Vehicle]):
         self.vehicles = vehicles
         #self._vehicle_ctrl = vehicle_ctrl
-
-    def __get_driver_controller(self):
-        return DriverController()
-
-    def __get_security_controller(self):
-        return SecurityController()
 
     def get_vehicle_by_uuid(self, uuid: str):
         found_vehicle = next((o for o in self.vehicles if o.vehicle_id == uuid), None)
