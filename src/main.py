@@ -8,9 +8,10 @@ from UserInterface.StaffUI import StaffUI
 from flask import Flask
 from flask_socketio import SocketIO
 
+import os
 
 class Main:
-    def __init__(self):
+    def __init__(self, admin_password: str):
         fleet_ctrl = FleetController()
         environment_mng = EnvironmentManager(fleet_ctrl)
 
@@ -25,7 +26,7 @@ class Main:
 
         driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl, socketio=socketio)
         driver_ui_blueprint = driver_ui.get_blueprint()
-        staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng)
+        staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
         staff_ui_blueprint = staff_ui.get_blueprint()
 
         app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
@@ -34,4 +35,8 @@ class Main:
 
 
 if __name__ == '__main__':
-    iav_distortion = Main()
+    admin_pwd = os.environ.get('ADMIN_PASSWORD')
+    if admin_pwd is None:
+        print("WARNING!!! No admin password supplied via Environement variable. Using '123' as default password!")
+        admin_pwd = '123'
+    iav_distortion = Main(admin_pwd)
