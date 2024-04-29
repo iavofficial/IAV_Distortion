@@ -169,12 +169,14 @@ class Vehicle:
         return driving_info_dic
 
     def __on_driving_data_change(self) -> None:
+        print(__name__)
         if self.__driving_data_callback is not None:
             self.__driving_data_callback(self.get_driving_data())
         return
 
-    def set_driving_data_callback(self, function_name):
+    def set_driving_data_callback(self, function_name) -> None:
         self.__driving_data_callback = function_name
+        return
 
     def __receive_location(self, value_tuple) -> None:
         location, piece, offset, speed, clockwise = value_tuple
