@@ -61,7 +61,7 @@ With the buttons on the right the lanes can be changed.
 -->
 ## License
 
-### Third party dependensies
+### Third party dependencies
 IAV-Distortion uses some third party dependencies.
 - Bleak (MIT License)
 - Flask (BSD-3-Clause License)

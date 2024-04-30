@@ -1,3 +1,12 @@
+# Copyright 2024 IAV GmbH
+#
+# This file is part of the IAV-Distortion project an interactive
+# and educational showcase designed to demonstrate the need
+# of automotive cybersecurity in a playful, engaging manner.
+# and is released under the "Apache 2.0". Please see the LICENSE
+# file that should have been included as part of this package.
+#
+
 import asyncio
 import struct
 from enum import Enum
@@ -68,7 +77,7 @@ class VehicleController:
             self.loop.run_until_complete(connected_car.connect())
             if connected_car.is_connected:
                 self._connected_car = connected_car
-                self._initiate_car(start_notification)
+                self._setup_car(start_notification)
                 return True
             else:
                 return False
@@ -109,7 +118,7 @@ class VehicleController:
         self.__send_command(command)
         return True
 
-    def _initiate_car(self, start_notification: bool) -> bool:
+    def _setup_car(self, start_notification: bool) -> bool:
         if start_notification:
             self.__start_notifications_now()
 
@@ -153,9 +162,7 @@ class VehicleController:
             self.task_in_progress = True
             final_command = struct.pack("B", len(command)) + command
 
-            self.loop.run_until_complete(self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381"
-                                                                             "-0BD89C4D8DF4",
-                                                                             final_command, None))
+            self.loop.run_until_complete(self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None))
             success = True
             # print(f"sending command not possible. uuid {self.uuid} is unknown.")
             # success = False
@@ -164,8 +171,7 @@ class VehicleController:
             return success
 
     def __start_notifications_now(self) -> bool:
-        self.loop.run_until_complete(
-            self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
+        self.loop.run_until_complete(self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
         return True
 
     def __stop_notifications_now(self) -> bool:
@@ -175,15 +181,19 @@ class VehicleController:
     def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> bool:
         command_id = hex(data[1])
 
+        # Version
         if command_id == "0x19":
-            new_data = data.hex(" ", 1)
-            version_tuple = tuple(new_data[6:11])
+            version_tuple = struct.unpack_from("<BB", data, 2)
+            #new_data = data.hex(" ", 1)
+            #version_tuple = tuple(new_data[6:11])
             self.new_event(version_tuple, self.__version_callback)
 
+        # Battery
         elif command_id == "0x1b":
-            new_data = data.hex(" ", 1)
-            version_tuple = tuple(new_data[6:12])
-            self.new_event(version_tuple, self.__battery_callback)
+            battery_tuple = struct.unpack_from("<H", data, 2)
+            #new_data = data.hex(" ", 1)
+            #battery_tuple = tuple(new_data[6:12])
+            self.new_event(battery_tuple, self.__battery_callback)
 
         elif command_id == "0x27":
             location_tuple = struct.unpack_from("<BBfHB", data, 2)

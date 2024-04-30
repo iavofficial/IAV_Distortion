@@ -1,3 +1,12 @@
+# Copyright 2024 IAV GmbH
+#
+# This file is part of the IAV-Distortion project an interactive
+# and educational showcase designed to demonstrate the need
+# of automotive cybersecurity in a playful, engaging manner.
+# and is released under the "Apache 2.0". Please see the LICENSE
+# file that should have been included as part of this package.
+#
+
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
@@ -83,6 +92,7 @@ class EnvironmentManager:
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
             anki_car_controller = VehicleController()
             temp_vehicle = Vehicle(uuid, anki_car_controller)
+            temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
 

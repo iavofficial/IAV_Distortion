@@ -1,3 +1,12 @@
+# Copyright 2024 IAV GmbH
+#
+# This file is part of the IAV-Distortion project an interactive
+# and educational showcase designed to demonstrate the need
+# of automotive cybersecurity in a playful, engaging manner.
+# and is released under the "Apache 2.0". Please see the LICENSE
+# file that should have been included as part of this package.
+#
+
 from flask import Blueprint, render_template
 
 
@@ -9,6 +18,7 @@ class DriverUI:
         self.uuids: dict = map_of_uuids
         self.behaviour_ctrl = behaviour_ctrl
         self.socketio = socketio
+
 
         def home_driver(player: str) -> str:
 
@@ -22,6 +32,7 @@ class DriverUI:
                 picture = picture.replace(":", "") + ".png"
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
+                print(f'set callback for {player}')
 
             return render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
                                    vehicle_information=vehicle_information)
