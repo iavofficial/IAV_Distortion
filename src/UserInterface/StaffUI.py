@@ -85,13 +85,6 @@ class StaffUI:
             self.socketio.emit('update_hacking_scenarios', data)
             return
 
-        def submit() -> Any:
-            # TODO: delete function, only for development and testing
-            uuid = request.form['uuid']
-            self.environment_mng.add_vehicle(uuid=uuid)
-            return redirect(url_for('staffUI_bp.staff_control'))
-        self.staffUI_blueprint.add_url_rule('/submit', methods=['POST'], view_func=submit)
-
     def get_blueprint(self) -> Blueprint:
         return self.staffUI_blueprint
 
