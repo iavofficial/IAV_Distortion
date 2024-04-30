@@ -202,11 +202,10 @@ class Vehicle:
         return
 
     def __receive_version(self, value_tuple) -> None:
-        print(f"{self.vehicle_id} version_tuple: {value_tuple}")
-        self.__on_driving_data_change()
+        self._version = str(value_tuple)
         return
 
     def __receive_battery(self, value_tuple) -> None:
-        print(f"{self.vehicle_id} battery_tuple: {value_tuple}")
+        self._battery = str(value_tuple)
         self.__on_driving_data_change()
         return
