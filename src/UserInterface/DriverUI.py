@@ -19,6 +19,7 @@ class DriverUI:
         self.behaviour_ctrl = behaviour_ctrl
         self.socketio = socketio
 
+
         def home_driver(player: str) -> str:
 
             vehicle = self.get_vehicle_by_player(player=player)
@@ -31,6 +32,7 @@ class DriverUI:
                 picture = picture.replace(":", "") + ".png"
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
+                print(f'set callback for {player}')
 
             return render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
                                    vehicle_information=vehicle_information)

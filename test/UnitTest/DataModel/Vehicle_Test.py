@@ -5,7 +5,7 @@ from DataModel.Vehicle import Vehicle
 from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
 
-dummy_uuid = "12:34:AB:CD"
+dummy_uuid = "FA:14:67:0F39:FE"
 
 def test_get_location():
     vctrl = VehicleController()

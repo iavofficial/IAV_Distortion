@@ -11,6 +11,7 @@ from VehicleManagement.VehicleController import VehicleController
 from bleak import BleakClient
 import json
 
+
 class Vehicle:
     def __init__(self, uuid: str, controller: VehicleController) -> None:
         self.vehicle_id: str = uuid
@@ -41,8 +42,6 @@ class Vehicle:
         self._version: str = ""
 
         self.__driving_data_callback = None
-
-        self.initiate_connection(uuid)
 
         return
 
@@ -173,8 +172,9 @@ class Vehicle:
             self.__driving_data_callback(self.get_driving_data())
         return
 
-    def set_driving_data_callback(self, function_name):
+    def set_driving_data_callback(self, function_name) -> None:
         self.__driving_data_callback = function_name
+        return
 
     def __receive_location(self, value_tuple) -> None:
         location, piece, offset, speed, clockwise = value_tuple
@@ -201,11 +201,10 @@ class Vehicle:
         return
 
     def __receive_version(self, value_tuple) -> None:
-        print(f"{self.vehicle_id} version_tuple: {value_tuple}")
-        self.__on_driving_data_change()
+        self._version = str(value_tuple)
         return
 
     def __receive_battery(self, value_tuple) -> None:
-        print(f"{self.vehicle_id} battery_tuple: {value_tuple}")
+        self._battery = str(value_tuple)
         self.__on_driving_data_change()
         return
