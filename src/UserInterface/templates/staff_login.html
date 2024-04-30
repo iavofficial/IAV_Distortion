@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff_Control Login</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+    <!-- specific style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='staff_login.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/staff_login.css"/> <!-- link to stylesheet for development for working preview -->
+</head>
+
+<body>
+    <div class="flexbox-container custom_header">
+        <p class="header">IAV Distortion - Login</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+
+    <div class="flexbox-container">
+        <div class="flexbox-login">
+        <h2>Login:</h2>
+            <form method="post">
+		            <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password"><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+    {% if wrong_password %}
+	  <div class="alert-wrong-password">Wrong password!</div>
+    {% endif %}
+</body>
+</html>
