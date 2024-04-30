@@ -11,6 +11,7 @@ from VehicleManagement.VehicleController import VehicleController
 from bleak import BleakClient
 import json
 
+
 class Vehicle:
     def __init__(self, uuid: str, controller: VehicleController) -> None:
         self.vehicle_id: str = uuid
@@ -41,8 +42,6 @@ class Vehicle:
         self._version: str = ""
 
         self.__driving_data_callback = None
-
-        self.initiate_connection(uuid)
 
         return
 
