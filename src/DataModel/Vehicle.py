@@ -168,7 +168,6 @@ class Vehicle:
         return driving_info_dic
 
     def __on_driving_data_change(self) -> None:
-        print(__name__)
         if self.__driving_data_callback is not None:
             self.__driving_data_callback(self.get_driving_data())
         return
