@@ -10,6 +10,7 @@
 import asyncio
 import struct
 from enum import Enum
+from threading import Thread
 
 from bleak import BleakClient, BleakGATTCharacteristic
 
@@ -43,10 +44,14 @@ class VehicleController:
         self.__version_callback = None
         self.__battery_callback = None
 
+        Thread(target=self.loop.run_forever).start()
+
         return
+
 
     def __del__(self) -> None:
         self.__disconnect_from_vehicle()
+        self.loop.stop()
         del self._connected_car
 
     def __str__(self):
@@ -74,7 +79,7 @@ class VehicleController:
 
         try:
             connected_car = ble_client
-            self.loop.run_until_complete(connected_car.connect())
+            self.__run_async_task(connected_car.connect())
             if connected_car.is_connected:
                 self._connected_car = connected_car
                 self._setup_car(start_notification)
@@ -162,7 +167,7 @@ class VehicleController:
             self.task_in_progress = True
             final_command = struct.pack("B", len(command)) + command
 
-            self.loop.run_until_complete(self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None))
+            self.__run_async_task(self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None))
             success = True
             # print(f"sending command not possible. uuid {self.uuid} is unknown.")
             # success = False
@@ -171,11 +176,11 @@ class VehicleController:
             return success
 
     def __start_notifications_now(self) -> bool:
-        self.loop.run_until_complete(self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
+        self.__run_async_task(self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
         return True
 
     def __stop_notifications_now(self) -> bool:
-        self.loop.run_until_complete(self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4"))
+        self.__run_async_task(self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4"))
         return True
 
     def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> bool:
@@ -217,3 +222,11 @@ class VehicleController:
     def new_event(self, value_tuple: tuple, callback: classmethod) -> None:
         callback(value_tuple)
         return
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        asyncio.run_coroutine_threadsafe(task, self.loop).result()
+        # TODO: Log error, if the coroutine doesn't end successfully
