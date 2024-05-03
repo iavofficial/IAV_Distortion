@@ -98,7 +98,6 @@ class ModelCar(Vehicle):
             self.__lane_change = self.__lane_change
 
         self._controller.change_lane_to(self.__lane_change, self.__speed)
-        #print(f"actual offset: {self._offset_from_center}")
         return
 
     def switch_lights(self, value: bool) -> None:
@@ -149,7 +148,7 @@ class ModelCar(Vehicle):
         self._speed_actual = speed
         self._direction = clockwise
 
-        self.__on_driving_data_change()
+        self._on_driving_data_change()
         return
 
     def __receive_transition(self, value_tuple) -> None:
@@ -171,5 +170,5 @@ class ModelCar(Vehicle):
 
     def __receive_battery(self, value_tuple) -> None:
         self._battery = str(value_tuple)
-        self.__on_driving_data_change()
+        self._on_driving_data_change()
         return
