@@ -1,10 +1,12 @@
+from bleak import BleakClient
+
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.AnkiController import AnkiController
 
 
 class ModelCar(Vehicle):
     def __init__(self, uuid: str, controller: AnkiController) -> None:
-        super.__init__(uuid, AnkiController)
+        super().__init__(uuid, controller)
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
@@ -33,7 +35,7 @@ class ModelCar(Vehicle):
     @speed_request.setter
     def speed_request(self, value: float) -> None:
         self.__speed_request = value
-        self.calculate_speed()
+        self.__calculate_speed()
         return
 
     @property
@@ -43,16 +45,16 @@ class ModelCar(Vehicle):
     @speed_factor.setter
     def speed_factor(self, value: float) -> None:
         self.__speed_factor = value
-        self.calculate_speed()
+        self.__calculate_speed()
         return
 
     @property
     def speed(self) -> float:
         return self.__speed
 
-    def calculate_speed(self) -> None:
+    def __calculate_speed(self) -> None:
         self.__speed = self.__speed_request * self.__speed_factor
-        self.__controller.change_speed_to(int(self.__speed))
+        self._controller.change_speed_to(int(self.__speed))
         return
 
     @property
@@ -62,7 +64,7 @@ class ModelCar(Vehicle):
     @lane_change_request.setter
     def lane_change_request(self, value: int) -> None:
         self.__lane_change_request = value
-        self.calculate_lane_change()
+        self.__calculate_lane_change()
         return
 
     @property
@@ -78,25 +80,25 @@ class ModelCar(Vehicle):
     def lane_change(self) -> int:
         return self.__lane_change
 
-    def calculate_lane_change(self) -> None:
+    def __calculate_lane_change(self) -> None:
         if self.__lange_change_blocked:
             return
 
         if 65.0 > self._offset_from_center > -65.0:
             self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif 65.0 <= self._offset_from_center and self.__lane_change_request == -1:
+        elif 65.0 <= self._offset_from_center and self.__lane_change_request <= -1:
             self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif 65.0 <= self._offset_from_center and self.__lane_change_request == 1:
+        elif 65.0 <= self._offset_from_center and self.__lane_change_request >= 1:
             self.__lane_change = 3
-        elif -65.0 >= self._offset_from_center and self.__lane_change_request == 1:
+        elif -65.0 >= self._offset_from_center and self.__lane_change_request >= 1:
             self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif -65.0 >= self._offset_from_center and self.__lane_change_request == -1:
+        elif -65.0 >= self._offset_from_center and self.__lane_change_request <= -1:
             self.__lane_change = -3
         else:
             self.__lane_change = self.__lane_change
 
-        self.__controller.change_lane_to(self.__lane_change, self.__speed)
-        print(f"actual offset: {self._offset_from_center}")
+        self._controller.change_lane_to(self.__lane_change, self.__speed)
+        #print(f"actual offset: {self._offset_from_center}")
         return
 
     def switch_lights(self, value: bool) -> None:
@@ -107,14 +109,14 @@ class ModelCar(Vehicle):
         self.__is_safemode_on = value
 
     def initiate_connection(self, uuid: str) -> bool:
-        if self.__controller.connect_to_vehicle(BleakClient(uuid), True):
-            self.__controller.set_callbacks(self.__receive_location,
-                                            self.__receive_transition,
-                                            self.__receive_offset_update,
-                                            self.__receive_version,
-                                            self.__receive_battery)
-            self.__controller.request_version()
-            self.__controller.request_battery()
+        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
+            self._controller.set_callbacks(self.__receive_location,
+                                           self.__receive_transition,
+                                           self.__receive_offset_update,
+                                           self.__receive_version,
+                                           self.__receive_battery)
+            self._controller.request_version()
+            self._controller.request_battery()
 
             return True
         else:
@@ -128,7 +130,7 @@ class ModelCar(Vehicle):
             'lane_change_blocked': self.__lange_change_blocked,
             'is_light_on': self.__is_light_on,
             'is_safemode_on': self.__is_safemode_on,
-            'active_hacking_scenario': self.__active_hacking_scenario,
+            'active_hacking_scenario': self._active_hacking_scenario,
             'road_piece': self._road_piece,
             'road_location': self._road_location,
             'offset_from_center': self._offset_from_center,
