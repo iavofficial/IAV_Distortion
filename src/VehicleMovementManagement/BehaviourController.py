@@ -15,11 +15,10 @@ from DataModel.Vehicle import Vehicle
 class BehaviourController:
 
     def __init__(self, vehicles: List[Vehicle]):
-        self.vehicles = vehicles
-        #self._vehicle_ctrl = vehicle_ctrl
+        self._vehicles = vehicles
 
     def get_vehicle_by_uuid(self, uuid: str):
-        found_vehicle = next((o for o in self.vehicles if o.vehicle_id == uuid), None)
+        found_vehicle = next((o for o in self._vehicles if o.vehicle_id == uuid), None)
         return found_vehicle
 
     def on_vehicle_data_change(self, uuid):
@@ -29,8 +28,6 @@ class BehaviourController:
     def request_speed_change_for(self, uuid: str, value_proz: float) -> None:
         vehicle = self.get_vehicle_by_uuid(uuid)
         vehicle.speed_request = value_proz
-
-        #self._vehicle_ctrl.change_speed(uuid, int(vehicle.speed))
 
         print(f"Switch speed to {value_proz}. UUID: {uuid}")
         return
@@ -49,7 +46,6 @@ class BehaviourController:
             vehicle.lane_change_request = 0
             print(f"Stay in lane ({vehicle.lane_change_request}) for {uuid}")
 
-        #self._vehicle_ctrl.change_lane(uuid, vehicle.lane_change, vehicle.speed)
         return
 
     def request_lights_on(self, uuid: str):
