@@ -6,10 +6,10 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-
+from DataModel.ModelCar import ModelCar
 from DataModel.Vehicle import Vehicle
+from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
-from VehicleManagement.VehicleController import VehicleController
 
 
 class EnvironmentManager:
@@ -90,8 +90,8 @@ class EnvironmentManager:
                     smallest_available_num = str(max_player + 1)
 
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
-            anki_car_controller = VehicleController()
-            temp_vehicle = Vehicle(uuid, anki_car_controller)
+            anki_car_controller = AnkiController()
+            temp_vehicle = ModelCar(uuid, anki_car_controller)
             temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
