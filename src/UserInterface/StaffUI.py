@@ -47,9 +47,9 @@ class StaffUI:
             if not is_authenticated():
                 return login_redirect()
             selected_option = request.form.get('option')
-            pattern = r"scenarioID_(\d+)-UUID_([\d:]+)"
-            print(f"Scenario {selected_option} has been activated")
+            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
             match = re.search(pattern, selected_option)
+
             scenario_id = match.group(1)
             uuid = match.group(2)
             cybersecurity_mng.activate_hacking_scenario_for_vehicle(uuid, scenario_id)
