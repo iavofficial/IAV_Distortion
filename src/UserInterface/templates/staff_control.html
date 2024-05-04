@@ -43,6 +43,9 @@
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+    // list of devices found by BLE-Scanning
+    var scanResultList = document.getElementById("devices");
+
     socket.on('connect', function(){
         socket.emit('get_uuids');
     });
@@ -68,6 +71,11 @@
 
         // fill table with player and uuids
         for (let player in data) {
+            var search_result = document.getElementById(data[player]);
+            if (scanResultList.contains(search_result)) {
+                scanResultList.remove(search_result);
+            }
+
             var row = document.createElement('tr');
 
             var cell_player = document.createElement('td');
@@ -165,24 +173,24 @@
     // buttons to search and add cars
     var search_cars = document.getElementById("search_cars");
     var add_car = document.getElementById("add_car");
-    var deviceList = document.getElementById("devices");
 
     search_cars.onclick = function() {
       // remove old entries
-      deviceList.replaceChildren();
+      scanResultList.replaceChildren();
       socket.emit('search_cars');
     }
 
     socket.on('new_devices', function(devices){
       devices.forEach(function(device) {
         var li = document.createElement('li');
+        li.setAttribute("id", device);
         li.appendChild(document.createTextNode(device));
         var addButton = document.createElement('button');
         addButton.textContent = 'Add';
         addButton.onclick = function(){ addDevice(device); };
         addButton.className = 'button_small';
         li.appendChild(addButton);
-        deviceList.appendChild(li);
+        scanResultList.appendChild(li);
       });
     });
 
