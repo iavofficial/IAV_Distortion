@@ -27,6 +27,7 @@ def main(admin_password: str):
 
     vehicles = environment_mng.get_vehicle_list()
     player_uuid_map = environment_mng.get_player_uuid_mapping()
+    player_queue_list = environment_mng.get_player_queue()
 
     behaviour_ctrl = BehaviourController(vehicles)
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)

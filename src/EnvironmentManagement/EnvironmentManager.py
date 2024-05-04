@@ -16,6 +16,7 @@ class EnvironmentManager:
 
     def __init__(self, fleet_ctrl: FleetController):
         self._fleet_ctrl = fleet_ctrl
+        self._player_queue_list = []
         self._player_uuid_map = {}
         self._active_anki_cars = []
         self.staff_ui = None
@@ -28,6 +29,9 @@ class EnvironmentManager:
 
     def get_player_uuid_mapping(self):
         return self._player_uuid_map
+    
+    def get_player_queue(self):
+        return self._player_queue_list
 
     def set_player_uuid_mapping(self, player_id: str, uuid: str):
         self._player_uuid_map.update({player_id: uuid})

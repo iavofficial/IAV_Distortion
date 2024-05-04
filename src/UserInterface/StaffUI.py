@@ -14,7 +14,7 @@ import secrets
 
 class StaffUI:
 
-    def __init__(self, map_of_uuids: dict, cybersecurity_mng, socketio, environment_mng, password: str):
+    def __init__(self, map_of_uuids: dict, cybersecurity_mng, player_queue, socketio, environment_mng, password: str):
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
@@ -23,6 +23,7 @@ class StaffUI:
         self.socketio = socketio
         self.environment_mng = environment_mng
         self.devices = []
+        self.player_queue = player_queue
 
         self.environment_mng.set_staff_ui(self)
 
