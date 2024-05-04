@@ -165,12 +165,14 @@
     // buttons to search and add cars
     var search_cars = document.getElementById("search_cars");
     var add_car = document.getElementById("add_car");
+    var deviceList = document.getElementById("devices");
 
     search_cars.onclick = function() {
+      // remove old entries
+      deviceList.replaceChildren();
       socket.emit('search_cars');
     }
 
-    var deviceList = document.getElementById("devices");
     socket.on('new_devices', function(devices){
       devices.forEach(function(device) {
         var li = document.createElement('li');
