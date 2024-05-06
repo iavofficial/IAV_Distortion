@@ -6,7 +6,9 @@ from VehicleManagement.AnkiController import AnkiController
 
 class ModelCar(Vehicle):
     def __init__(self, uuid: str, controller: AnkiController) -> None:
-        super().__init__(uuid, controller)
+        super().__init__(uuid)
+        self._controller: AnkiController = controller
+
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
@@ -27,6 +29,23 @@ class ModelCar(Vehicle):
         self._direction: int = 0
         self._battery: str = ""
         self._version: str = ""
+
+    def get_typ_of_controller(self):
+        return type(self._controller)
+
+    def initiate_connection(self, uuid: str) -> bool:
+        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
+            self._controller.set_callbacks(self.__receive_location,
+                                           self.__receive_transition,
+                                           self.__receive_offset_update,
+                                           self.__receive_version,
+                                           self.__receive_battery)
+            self._controller.request_version()
+            self._controller.request_battery()
+
+            return True
+        else:
+            return False
 
     @property
     def speed_request(self) -> float:
@@ -106,20 +125,6 @@ class ModelCar(Vehicle):
 
     def set_safemode(self, value: bool) -> None:
         self.__is_safemode_on = value
-
-    def initiate_connection(self, uuid: str) -> bool:
-        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
-            self._controller.set_callbacks(self.__receive_location,
-                                           self.__receive_transition,
-                                           self.__receive_offset_update,
-                                           self.__receive_version,
-                                           self.__receive_battery)
-            self._controller.request_version()
-            self._controller.request_battery()
-
-            return True
-        else:
-            return False
 
     def get_driving_data(self) -> dict:
         driving_info_dic = {
