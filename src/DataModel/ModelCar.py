@@ -31,6 +31,8 @@ class ModelCar(Vehicle):
         self._battery: str = ""
         self._version: str = ""
 
+        self._model_car_disconnected_callback = None
+
     def get_typ_of_controller(self):
         return type(self._controller)
 
@@ -47,7 +49,6 @@ class ModelCar(Vehicle):
             return True
         else:
             return False
-        self._modelcar_disconnected_callback = None
 
     @property
     def speed_request(self) -> float:
@@ -147,6 +148,15 @@ class ModelCar(Vehicle):
         }
         return driving_info_dic
 
+    def set_model_car_disconnected_callback(self, function_name) -> None:
+        self._model_car_disconnected_callback = function_name
+        return
+
+    def on_model_car_disconnected(self) -> None:
+        if self._model_car_disconnected_callback is not None:
+            self._model_car_disconnected_callback(self.vehicle_id, self.player)
+        return
+
     def __receive_location(self, value_tuple) -> None:
         location, piece, offset, speed, clockwise = value_tuple
         self._road_location = location
@@ -178,13 +188,4 @@ class ModelCar(Vehicle):
     def __receive_battery(self, value_tuple) -> None:
         self._battery = str(value_tuple)
         self._on_driving_data_change()
-        return
-
-    def set_modelcar_disconnected_callback(self, function_name) -> None:
-        self._modelcar_disconnected_callback = function_name
-        return
-
-    def on_modelcar_disconnected(self) -> None:
-        if self._modelcar_disconnected_callback is not None:
-            self._modelcar_disconnected_callback(self.vehicle_id, self.player)
         return
