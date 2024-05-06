@@ -9,6 +9,7 @@ class ModelCar(Vehicle):
         super().__init__(uuid)
         self._controller: AnkiController = controller
 
+        super().__init__(uuid, controller)
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
@@ -46,6 +47,7 @@ class ModelCar(Vehicle):
             return True
         else:
             return False
+        self._modelcar_disconnected_callback = None
 
     @property
     def speed_request(self) -> float:
@@ -176,4 +178,13 @@ class ModelCar(Vehicle):
     def __receive_battery(self, value_tuple) -> None:
         self._battery = str(value_tuple)
         self._on_driving_data_change()
+        return
+
+    def set_modelcar_disconnected_callback(self, function_name) -> None:
+        self._modelcar_disconnected_callback = function_name
+        return
+
+    def on_modelcar_disconnected(self) -> None:
+        if self._modelcar_disconnected_callback is not None:
+            self._modelcar_disconnected_callback(self.vehicle_id, self.player)
         return
