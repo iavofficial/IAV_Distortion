@@ -111,7 +111,7 @@ class StaffUI:
 
         @self.socketio.on('delete_device')
         def handle_delete_player(device: str) -> None:
-            if not is_authentificated():
+            if not is_authenticated():
                 return
             print(f'delete player {device}')
             environment_mng.remove_vehicle(device)
