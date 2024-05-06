@@ -45,7 +45,7 @@ def build_ui(admin_password: str):
 
 admin_pwd = os.environ.get('ADMIN_PASSWORD')
 if admin_pwd is None:
-    print("WARNING!!! No admin password supplied via Environement variable. Using '123' as default password!")
+    print("WARNING!!! No admin password supplied via Environment variable. Using '123' as default password!")
     admin_pwd = '123'
 
 build_ui(admin_pwd)
