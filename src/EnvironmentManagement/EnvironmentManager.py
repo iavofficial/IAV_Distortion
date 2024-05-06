@@ -92,6 +92,7 @@ class EnvironmentManager:
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
             anki_car_controller = VehicleController()
             temp_vehicle = Vehicle(uuid, anki_car_controller)
+            temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
 
