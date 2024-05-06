@@ -26,7 +26,7 @@ class StaffUI:
 
         self.environment_mng.set_staff_ui(self)
 
-        def is_authentificated() -> bool:
+        def is_authenticated() -> bool:
             request_token = request.cookies.get('admin_token')
             return request_token is not None and request_token == self.admin_token
 
@@ -34,7 +34,7 @@ class StaffUI:
             return redirect(url_for("staffUI_bp.login_site"))
 
         def home_staff_control(): 
-            if not is_authentificated():
+            if not is_authenticated():
                 return login_redirect()
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
@@ -44,12 +44,12 @@ class StaffUI:
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
         def set_scenario():
-            if not is_authentificated():
+            if not is_authenticated():
                 return login_redirect()
             selected_option = request.form.get('option')
-            pattern = r"scenarioID_(\d+)-UUID_([\d:]+)"
-            print(f"Scenario {selected_option} has been activated")
+            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
             match = re.search(pattern, selected_option)
+
             scenario_id = match.group(1)
             uuid = match.group(2)
             cybersecurity_mng.activate_hacking_scenario_for_vehicle(uuid, scenario_id)
@@ -57,7 +57,7 @@ class StaffUI:
             return redirect(url_for('staffUI_bp.staff_control'))
 
         def login_site():
-            if is_authentificated():
+            if is_authenticated():
                 return redirect(url_for('staffUI_bp.staff_control'))
             if request.method == 'GET':
                 return render_template('staff_login.html')
@@ -76,14 +76,14 @@ class StaffUI:
         # TODO: Log dropped events!
         @self.socketio.on('get_uuids')
         def update_uuids_staff_ui():
-            if not is_authentificated():
+            if not is_authenticated():
                 return
             self.update_map_of_uuids(self.uuids)
             return
 
         @self.socketio.on('connect')
         def initiate_uuids():
-            if not is_authentificated():
+            if not is_authenticated():
                 return
             print('Client connected')
             self.socketio.emit('update_uuids', self.uuids)
@@ -91,7 +91,7 @@ class StaffUI:
 
         @self.socketio.on('search_cars')
         def search_cars():
-            if not is_authentificated():
+            if not is_authenticated():
                 return
             print("Searching devices")
             new_devices = environment_mng.find_unpaired_anki_cars()
@@ -100,7 +100,7 @@ class StaffUI:
 
         @self.socketio.on('add_device')
         def handle_add_device(device):
-            if not is_authentificated():
+            if not is_authenticated():
                 return
             environment_mng.add_vehicle(device)
             # TODO: exception if device is no longer available
@@ -110,7 +110,7 @@ class StaffUI:
 
         @self.socketio.on('get_update_hacking_scenarios')
         def update_hacking_scenarios():
-            if not is_authentificated():
+            if not is_authenticated():
                 return
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
@@ -120,7 +120,7 @@ class StaffUI:
             return
 
         def submit():
-            if not is_authentificated():
+            if not is_authenticated():
                 return login_redirect()
             # TODO: delete function, only for development and testing
             uuid = request.form['uuid']

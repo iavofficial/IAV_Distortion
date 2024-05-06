@@ -29,7 +29,7 @@ class Vehicle:
     @hacking_scenario.setter
     def hacking_scenario(self, value: str) -> None:
         self._active_hacking_scenario = value
-        self.__on_driving_data_change()
+        self._on_driving_data_change()
 
     @abc.abstractmethod
     def get_driving_data(self) -> dict:
@@ -39,7 +39,7 @@ class Vehicle:
         self._driving_data_callback = function_name
         return
 
-    def __on_driving_data_change(self) -> None:
+    def _on_driving_data_change(self) -> None:
         if self._driving_data_callback is not None:
             self._driving_data_callback(self.get_driving_data())
         return
