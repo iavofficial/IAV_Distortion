@@ -12,13 +12,13 @@ from flask import Blueprint, render_template
 
 class DriverUI:
 
-    def __init__(self, vehicles, map_of_uuids, behaviour_ctrl, player_queue, socketio, name=__name__) -> None:
+    def __init__(self, behaviour_ctrl, environment_mng, socketio, name=__name__) -> None:
         self.driverUI_blueprint: Blueprint = Blueprint(name='driverUI_bp', import_name='driverUI_bp')
-        self.vehicles: list = vehicles
-        self.uuids: dict = map_of_uuids
+        self.vehicles: list = environment_mng.get_vehicle_list()
+        self.uuids: dict = environment_mng.get_player_uuid_mapping()
         self.behaviour_ctrl = behaviour_ctrl
         self.socketio = socketio
-        self.player_queue = player_queue
+        self.environment_mng = environment_mng
 
 
         def home_driver(player: str) -> str:
@@ -34,28 +34,27 @@ class DriverUI:
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
                 print(f'set callback for {player}')
-            elif player not in queue:
+            else:
                 # add to queue
-                self.player_queue.push(player)
+                self.environment_mng.add_player(player)
                 print(f'added {player} to queue')
 
             return render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
                                    vehicle_information=vehicle_information)
         self.driverUI_blueprint.add_url_rule('/<player>', 'home_driver', view_func=home_driver)
 
-        @self.socketio.on('disconnected')
+        @self.socketio.on('disconnect')
         def handle_disconnected():
-            # remove user from queue
-            if self.player in self.player_queue:
-                self.player_queue.remove(self.player)
-                print(f'removed {self.player} from queue')
+            print(f"Driver {self.player} disconnected!")
+            #self.environment_mng.remove_player(self.player)
 
         @self.socketio.on('slider_changed')
         def handle_slider_change(data) -> None:
             player = data['player']
             value = float(data['value'])
             # print(f"Slider {player} value: {value}")
-            self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_proz=value)
+            if player in self.uuids:
+              self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_proz=value)
             return
 
         @self.socketio.on('lane_change')

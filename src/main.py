@@ -27,7 +27,6 @@ def main(admin_password: str):
 
     vehicles = environment_mng.get_vehicle_list()
     player_uuid_map = environment_mng.get_player_uuid_mapping()
-    player_queue_list = environment_mng.get_player_queue()
 
     behaviour_ctrl = BehaviourController(vehicles)
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
@@ -36,9 +35,9 @@ def main(admin_password: str):
     socketio = SocketIO(app, cors_allowed_origins="*", async_mode=None)
 
 
-    driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl, socketio=socketio)
+    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng = environment_mng,socketio=socketio)
     driver_ui_blueprint = driver_ui.get_blueprint()
-    staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
+    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
 
     app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
