@@ -81,6 +81,21 @@ button {
     margin-top: 5px;
 }
 
+.button_small{
+    min-width: 40px;
+    height: 20px;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+.button_red{
+    background-color: #F80000;
+}
+
+.button_pink{
+    background-color: #DC46F3;
+}
+
 /* table style*/
 table {
     border-collapse: collapse;

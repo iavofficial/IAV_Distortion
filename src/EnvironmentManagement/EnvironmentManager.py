@@ -66,7 +66,7 @@ class EnvironmentManager:
             del self._player_uuid_map[player_to_remove]
             self._update_staff_ui()
 
-        self._active_anki_cars = [vehicle for vehicle in self._active_anki_cars if vehicle.uuid != uuid_to_remove]
+        self._active_anki_cars = [vehicle for vehicle in self._active_anki_cars if vehicle.vehicle_id != uuid_to_remove]
         return
 
     def add_vehicle(self, uuid: str):
