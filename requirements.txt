@@ -39,5 +39,5 @@ sphinxcontrib-qthelp==1.0.7
 sphinxcontrib-serializinghtml==1.1.10
 typing_extensions==4.11.0
 urllib3==2.2.1
-Werkzeug==3.0.2
+Werkzeug==3.0.3
 wsproto==1.2.0
