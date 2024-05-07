@@ -46,6 +46,7 @@ def main(admin_password: str):
 
 
 if __name__ == '__main__':
+    # TODO: work with hashed password, passwords should not be stored in clear text
     admin_pwd = os.environ.get('ADMIN_PASSWORD')
     if admin_pwd is None:
         print("WARNING!!! No admin password supplied via Environement variable. Using '123' as default password!")
