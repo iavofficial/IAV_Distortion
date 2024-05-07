@@ -5,8 +5,10 @@ from VehicleManagement.AnkiController import AnkiController
 
 
 class ModelCar(Vehicle):
-    def __init__(self, uuid: str, controller: AnkiController) -> None:
-        super().__init__(uuid, controller)
+    def __init__(self, vehicle_id: str, controller: AnkiController) -> None:
+        super().__init__(vehicle_id)
+        self._controller: AnkiController = controller
+
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
@@ -28,14 +30,43 @@ class ModelCar(Vehicle):
         self._battery: str = ""
         self._version: str = ""
 
+        self._model_car_not_reachable_callback = None
+
+    def get_typ_of_controller(self):
+        return type(self._controller)
+
+    def initiate_connection(self, uuid: str) -> bool:
+        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
+            self._controller.set_callbacks(self.__receive_location,
+                                           self.__receive_transition,
+                                           self.__receive_offset_update,
+                                           self.__receive_version,
+                                           self.__receive_battery,
+                                           self._on_model_car_not_reachable)
+            self._controller.request_version()
+            self._controller.request_battery()
+            return True
+        else:
+            return False
+
+    def set_model_car_not_reachable_callback(self, function_name) -> None:
+        self._model_car_not_reachable_callback = function_name
+        return
+
+    def _on_model_car_not_reachable(self, err_msg: str) -> None:
+        if self._model_car_not_reachable_callback is not None:
+            self._model_car_not_reachable_callback(self.vehicle_id, self.player, err_msg)
+        return
+
     @property
     def speed_request(self) -> float:
         return self.__speed_request
 
     @speed_request.setter
     def speed_request(self, value: float) -> None:
-        self.__speed_request = value
-        self.__calculate_speed()
+        if not value == self.__speed_request:
+            self.__speed_request = value
+            self.__calculate_speed()
         return
 
     @property
@@ -44,8 +75,9 @@ class ModelCar(Vehicle):
 
     @speed_factor.setter
     def speed_factor(self, value: float) -> None:
-        self.__speed_factor = value
-        self.__calculate_speed()
+        if not value == self.__speed_factor:
+            self.__speed_factor = value
+            self.__calculate_speed()
         return
 
     @property
@@ -106,20 +138,6 @@ class ModelCar(Vehicle):
 
     def set_safemode(self, value: bool) -> None:
         self.__is_safemode_on = value
-
-    def initiate_connection(self, uuid: str) -> bool:
-        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
-            self._controller.set_callbacks(self.__receive_location,
-                                           self.__receive_transition,
-                                           self.__receive_offset_update,
-                                           self.__receive_version,
-                                           self.__receive_battery)
-            self._controller.request_version()
-            self._controller.request_battery()
-
-            return True
-        else:
-            return False
 
     def get_driving_data(self) -> dict:
         driving_info_dic = {

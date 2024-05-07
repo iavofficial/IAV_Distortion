@@ -12,14 +12,27 @@ import abc
 
 
 class Vehicle:
-    def __init__(self, uuid: str, controller: VehicleController) -> None:
-        self.vehicle_id: str = uuid
+    def __init__(self, vehicle_id: str, controller: VehicleController = None) -> None:
+        self.vehicle_id: str = vehicle_id
         self.player: str = ""
 
         self._controller: VehicleController = controller
         self._active_hacking_scenario: str = ""
         self._driving_data_callback = None
 
+        return
+
+    @abc.abstractmethod
+    def get_typ_of_controller(self):
+        pass
+
+    def set_driving_data_callback(self, function_name) -> None:
+        self._driving_data_callback = function_name
+        return
+
+    def _on_driving_data_change(self) -> None:
+        if self._driving_data_callback is not None:
+            self._driving_data_callback(self.get_driving_data())
         return
 
     @property
@@ -34,15 +47,3 @@ class Vehicle:
     @abc.abstractmethod
     def get_driving_data(self) -> dict:
         pass
-
-    def set_driving_data_callback(self, function_name) -> None:
-        self._driving_data_callback = function_name
-        return
-
-    def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
-            self._driving_data_callback(self.get_driving_data())
-        return
-
-    def get_typ_of_controller(self):
-        return type(self._controller)
