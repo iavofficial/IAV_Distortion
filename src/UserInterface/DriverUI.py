@@ -40,7 +40,7 @@ class DriverUI:
         def handle_slider_change(data) -> None:
             player = data['player']
             value = float(data['value'])
-            self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_proz=value)
+            self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_perc=value)
             return
 
         @self.socketio.on('lane_change')
