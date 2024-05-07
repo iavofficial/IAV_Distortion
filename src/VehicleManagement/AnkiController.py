@@ -2,7 +2,7 @@ import asyncio
 import struct
 
 from VehicleManagement.VehicleController import VehicleController, Turns, TurnTrigger
-from bleak import BleakClient, BleakGATTCharacteristic
+from bleak import BleakClient, BleakGATTCharacteristic, BleakError
 
 
 class AnkiController(VehicleController):
@@ -19,6 +19,7 @@ class AnkiController(VehicleController):
         self.__offset_callback = None
         self.__version_callback = None
         self.__battery_callback = None
+        self.__car_not_reachable_callback = None
 
         return
 
@@ -31,12 +32,14 @@ class AnkiController(VehicleController):
                       transition_callback,
                       offset_callback,
                       version_callback,
-                      battery_callback) -> None:
+                      battery_callback,
+                      car_not_reachable_callback) -> None:
         self.__location_callback = location_callback
         self.__transition_callback = transition_callback
         self.__offset_callback = offset_callback
         self.__version_callback = version_callback
         self.__battery_callback = battery_callback
+        self.__car_not_reachable_callback = car_not_reachable_callback
         return
 
     def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
@@ -52,7 +55,7 @@ class AnkiController(VehicleController):
                 return True
             else:
                 return False
-        except IOError:
+        except BleakError:
             return False
 
     def change_speed_to(self, velocity: int, acceleration: int = 1000, respect_speed_limit: bool = True) -> bool:
@@ -133,13 +136,16 @@ class AnkiController(VehicleController):
             self.task_in_progress = True
             final_command = struct.pack("B", len(command)) + command
 
-            self.__run_async_task(
-                self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None))
-            success = True
-            # print(f"sending command not possible. uuid {self.uuid} is unknown.")
-            # success = False
+            try:
+                self.__run_async_task(
+                    self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None))
+                success = True
+                self.task_in_progress = False
+            except BleakError:
+                success = False
+                self.task_in_progress = False
+                self.__car_not_reachable_callback()
 
-            self.task_in_progress = False
             return success
 
     def __start_notifications_now(self) -> bool:
@@ -188,7 +194,8 @@ class AnkiController(VehicleController):
         return True
 
     def new_event(self, value_tuple: tuple, callback: classmethod) -> None:
-        callback(value_tuple)
+        if callback is not None:
+            callback(value_tuple)
         return
 
     def __run_async_task(self, task):
