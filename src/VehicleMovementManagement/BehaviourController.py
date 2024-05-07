@@ -48,6 +48,22 @@ class BehaviourController:
 
         return
 
+    def request_uturn_for(self, uuid: str, value: str) -> None:
+        vehicle = self.get_vehicle_by_uuid(uuid)
+        if value == "right":
+            # TODO: add vehicle call
+            print(f"Make right u-turn for ({uuid})")
+
+        elif value == "left":
+            # TODO: add vehicle call
+            print(f"Make right u-turn for ({uuid})")
+
+        else:
+            # TODO: add vehicle call
+            print(f"Don't make any u-turn for ({uuid})")
+
+        return
+
     def request_lights_on(self, uuid: str):
         vehicle = self.get_vehicle_by_uuid(uuid)
         vehicle.isLightOn = True
