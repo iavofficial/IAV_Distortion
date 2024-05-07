@@ -58,6 +58,49 @@ class AnkiController(VehicleController):
         except BleakError:
             return False
 
+    def __send_command(self, command: bytes) -> bool:
+        success = False
+
+        if self.task_in_progress:
+            return success
+        else:
+            self.task_in_progress = True
+            final_command = struct.pack("B", len(command)) + command
+
+            try:
+                self.__run_async_task(
+                    self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command,
+                                                        None))
+                success = True
+                self.task_in_progress = False
+            except BleakError:
+                success = False
+                self.task_in_progress = False
+                if self.__car_not_reachable_callback is not None:
+                    self.__car_not_reachable_callback("Anki car is not reachable. Can not send command.")
+
+            return success
+
+    def __start_notifications_now(self) -> bool:
+        try:
+            self.__run_async_task(self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
+            return True
+        except BleakError:
+            if self.__car_not_reachable_callback is not None:
+                self.__car_not_reachable_callback("Anki car is not reachable. Can not start notification.")
+            else:
+                return False
+
+    def __stop_notifications_now(self) -> bool:
+        try:
+            self.__run_async_task(self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4"))
+            return True
+        except BleakError:
+            if self.__car_not_reachable_callback is not None:
+                self.__car_not_reachable_callback("Anki car is not reachable. Can not stop notification.")
+            else:
+                return False
+
     def change_speed_to(self, velocity: int, acceleration: int = 1000, respect_speed_limit: bool = True) -> bool:
         limit_int = int(respect_speed_limit)
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
@@ -127,36 +170,6 @@ class AnkiController(VehicleController):
         self.__send_command(command)
         return True
 
-    def __send_command(self, command: bytes) -> bool:
-        success = False
-
-        if self.task_in_progress:
-            return success
-        else:
-            self.task_in_progress = True
-            final_command = struct.pack("B", len(command)) + command
-
-            try:
-                self.__run_async_task(
-                    self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None))
-                success = True
-                self.task_in_progress = False
-            except BleakError:
-                success = False
-                self.task_in_progress = False
-                self.__car_not_reachable_callback()
-
-            return success
-
-    def __start_notifications_now(self) -> bool:
-        self.__run_async_task(
-            self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
-        return True
-
-    def __stop_notifications_now(self) -> bool:
-        self.__run_async_task(self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4"))
-        return True
-
     def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> bool:
         command_id = hex(data[1])
 
@@ -165,26 +178,26 @@ class AnkiController(VehicleController):
             version_tuple = struct.unpack_from("<BB", data, 2)
             # new_data = data.hex(" ", 1)
             # version_tuple = tuple(new_data[6:11])
-            self.new_event(version_tuple, self.__version_callback)
+            self.on_send_new_event(version_tuple, self.__version_callback)
 
         # Battery
         elif command_id == "0x1b":
             battery_tuple = struct.unpack_from("<H", data, 2)
             # new_data = data.hex(" ", 1)
             # battery_tuple = tuple(new_data[6:12])
-            self.new_event(battery_tuple, self.__battery_callback)
+            self.on_send_new_event(battery_tuple, self.__battery_callback)
 
         elif command_id == "0x27":
             location_tuple = struct.unpack_from("<BBfHB", data, 2)
-            self.new_event(location_tuple, self.__location_callback)
+            self.on_send_new_event(location_tuple, self.__location_callback)
 
         elif command_id == "0x29":
             transition_tuple = struct.unpack_from("<BBfB", data, 2)
-            self.new_event(transition_tuple, self.__transition_callback)
+            self.on_send_new_event(transition_tuple, self.__transition_callback)
 
         elif command_id == "0x2d":
             offset_tuple = struct.unpack_from("<f", data, 2)
-            self.new_event(offset_tuple, self.__offset_callback)
+            self.on_send_new_event(offset_tuple, self.__offset_callback)
 
         else:
             new_data = data.hex(" ", 1)
@@ -193,7 +206,7 @@ class AnkiController(VehicleController):
 
         return True
 
-    def new_event(self, value_tuple: tuple, callback: classmethod) -> None:
+    def on_send_new_event(self, value_tuple: tuple, callback: classmethod) -> None:
         if callback is not None:
             callback(value_tuple)
         return
