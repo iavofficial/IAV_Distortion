@@ -50,9 +50,11 @@ class VehicleController:
     def change_speed_to(self, velocity: int, acceleration: int = 1000, respect_speed_limit: bool = True) -> bool:
         pass
 
+    @abc.abstractmethod
     def change_lane_to(self, change_direction: int, velocity: int, acceleration: int = 1000) -> bool:
         pass
 
+    @abc.abstractmethod
     def do_turn_with(self, direction: Turns,
                      turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE) -> bool:
         pass
