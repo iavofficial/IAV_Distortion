@@ -47,3 +47,78 @@ class Vehicle:
     @abc.abstractmethod
     def get_driving_data(self) -> dict:
         pass
+
+    @property
+    @abc.abstractmethod
+    def speed_request(self) -> float:
+        pass
+
+    @speed_request.setter
+    @abc.abstractmethod
+    def speed_request(self, value: float) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def speed_factor(self) -> float:
+        pass
+
+    @speed_factor.setter
+    @abc.abstractmethod
+    def speed_factor(self, value: float) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def speed(self) -> float:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def lane_change_request(self) -> int:
+        pass
+
+    @lane_change_request.setter
+    @abc.abstractmethod
+    def lane_change_request(self, value: int) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def lange_change_blocked(self) -> bool:
+        pass
+
+    @lange_change_blocked.setter
+    @abc.abstractmethod
+    def lange_change_blocked(self, value: bool) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def lane_change(self) -> int:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def turn_request(self) -> int:
+        pass
+
+    @turn_request.setter
+    @abc.abstractmethod
+    def turn_request(self, value: int) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def turn_blocked(self) -> bool:
+        pass
+
+    @turn_blocked.setter
+    @abc.abstractmethod
+    def turn_blocked(self, value: bool) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def turn(self):
+        pass
