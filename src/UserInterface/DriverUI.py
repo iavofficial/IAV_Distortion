@@ -19,9 +19,7 @@ class DriverUI:
         self.behaviour_ctrl = behaviour_ctrl
         self.socketio = socketio
 
-
         def home_driver(player: str) -> str:
-
             vehicle = self.get_vehicle_by_player(player=player)
             player_exists = False
             picture = ''  # default picture can be added here
@@ -47,7 +45,7 @@ class DriverUI:
             return
 
         @self.socketio.on('lane_change')
-        def change_lane_left(data: dict) -> None:
+        def change_lane(data: dict) -> None:
             player = data['player']
             direction = data['direction']
             # print(f"Driver{player}: Button << pressed!")
