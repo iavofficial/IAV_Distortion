@@ -59,9 +59,10 @@ echo "Type=Application" >> "$desktop_item"
 echo "Name[de_DE]=IAV Distortion" >> "$desktop_item"
 echo "Path=$working_directory" >> "$desktop_item"
 
-# make run.sh and desctop item executable
+# make run.sh, desktop-item and quit.sh executable
 chmod +x run.sh
 chmod +x $desktop_item
+chmod +x quit.sh
 
 # add add run.sh to autostart
 (crontab -l 2>/dev/null; echo "@reboot cd $working_directory && bash run.sh && cd") | crontab -

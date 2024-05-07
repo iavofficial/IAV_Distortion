@@ -4,7 +4,7 @@
 working_directory=$(pwd)
 
 # get list of PIDs for main.py
-pids=$(pgrep -f "$working_directory/main.py")
+pids=$(pgrep -f "main.py")
 
 # kill each
 for pid in $pids
@@ -16,3 +16,6 @@ do
   fi
 done
 echo "All processes terminated"
+
+echo "Press any key to exit..."
+read -n1 -s
