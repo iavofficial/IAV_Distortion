@@ -113,7 +113,7 @@ class AnkiController(VehicleController):
     def change_lane_to(self, change_direction: int, velocity: int, acceleration: int = 1000) -> bool:
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         lane_direction = self.__LANE_OFFSET * change_direction
-        print(f"change direction: {change_direction} and calculated offset: {lane_direction}")
+        # print(f"change direction: {change_direction} and calculated offset: {lane_direction}")
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
         # print(f"{command}")
         self.__send_command(command)
@@ -121,7 +121,8 @@ class AnkiController(VehicleController):
 
     def do_turn_with(self, direction: Turns,
                      turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE) -> bool:
-        command = struct.pack("<BHH", 0x32, direction, turntrigger)
+        # print(f"{direction} : {direction.value}; {turntrigger} : {turntrigger.value}")
+        command = struct.pack("<BHH", 0x32, direction.value[0], turntrigger.value[0])
         self.__send_command(command)
         return True
 
