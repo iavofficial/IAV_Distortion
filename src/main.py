@@ -50,7 +50,7 @@ if __name__ == '__main__':
     admin_pwd = os.environ.get('ADMIN_PASSWORD')
     if admin_pwd is None:
         print("WARNING!!! No admin password supplied via Environement variable. Using '123' as default password!")
-        admin_pwd = '123'
+        admin_pwd = '0000'
         
     iav_distortion = asyncio.run(main(admin_pwd))
 
