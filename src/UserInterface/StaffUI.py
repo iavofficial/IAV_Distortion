@@ -11,11 +11,16 @@ from flask import Blueprint, render_template, request, redirect, url_for
 import re
 import secrets
 from typing import Any, Dict, Tuple, List
-
+import logging
 
 class StaffUI:
 
     def __init__(self, map_of_uuids: dict, cybersecurity_mng, socketio, environment_mng, password: str):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        console_handler = logging.StreamHandler()
+        self.logger.addHandler(console_handler)
+
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
@@ -36,6 +41,7 @@ class StaffUI:
 
         def home_staff_control() -> Any:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return login_redirect()
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
@@ -46,6 +52,7 @@ class StaffUI:
 
         def set_scenario() -> Any:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return login_redirect()
             selected_option = request.form.get('option')
             pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
@@ -59,6 +66,7 @@ class StaffUI:
 
         def login_site():
             if is_authenticated():
+                self.logger.info("Authenticated")
                 return redirect(url_for('staffUI_bp.staff_control'))
             if request.method == 'GET':
                 return render_template('staff_login.html')
@@ -78,6 +86,7 @@ class StaffUI:
         @self.socketio.on('get_uuids')
         def update_uuids_staff_ui() -> None:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return
             self.update_map_of_uuids(self.uuids)
             return
@@ -85,7 +94,9 @@ class StaffUI:
         @self.socketio.on('connect')
         def initiate_uuids() -> None:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return
+            self.logger.info("Client connected")
             print('Client connected')
             self.socketio.emit('update_uuids', self.uuids)
             return
@@ -93,7 +104,9 @@ class StaffUI:
         @self.socketio.on('search_cars')
         def search_cars() -> None:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return
+            self.logger.info("Searching devices")
             print("Searching devices")
             new_devices = environment_mng.find_unpaired_anki_cars()
             self.socketio.emit('new_devices', new_devices)
@@ -102,8 +115,10 @@ class StaffUI:
         @self.socketio.on('add_device')
         def handle_add_device(device: str) -> None:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return
             environment_mng.add_vehicle(device)
+            self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             # TODO: remove added device from new_devices list
             self.socketio.emit('device_added', device)
@@ -112,19 +127,23 @@ class StaffUI:
         @self.socketio.on('delete_device')
         def handle_delete_player(device: str) -> None:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return
             print(f'delete player {device}')
+            self.logger.debug("Device deleted %s", device)
             environment_mng.remove_vehicle(device)
             return
 
         @self.socketio.on('get_update_hacking_scenarios')
         def update_hacking_scenarios() -> None:
             if not is_authenticated():
+                self.logger.info("Not authenticated")
                 return
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
             data = {'activeScenarios': active_scenarios, 'uuids': self.uuids, 'names': names,
                     'descriptions': descriptions}
+            self.logger.info("Updated hacking scenarios")
             self.socketio.emit('update_hacking_scenarios', data)
             return
 
