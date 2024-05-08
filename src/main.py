@@ -7,7 +7,6 @@
 # file that should have been included as part of this package.
 #
 
-from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
@@ -34,7 +33,6 @@ def main(admin_password: str):
     app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
     socketio = SocketIO(app, cors_allowed_origins="*", async_mode=None)
 
-
     driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl, socketio=socketio)
     driver_ui_blueprint = driver_ui.get_blueprint()
     staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
@@ -54,4 +52,3 @@ if __name__ == '__main__':
         admin_pwd = '0000'
         
     iav_distortion = asyncio.run(main(admin_pwd))
-
