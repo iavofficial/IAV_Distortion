@@ -75,6 +75,8 @@ class StaffUI:
 
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
+
+
         @self.socketio.on('get_uuids')
         def update_uuids_staff_ui() -> None:
             if not is_authenticated():
@@ -87,7 +89,7 @@ class StaffUI:
             if not is_authenticated():
                 return
             print('Client connected')
-            self.socketio.emit('update_uuids', self.uuids)
+            self.update_uuids()
             return
 
         @self.socketio.on('search_cars')
@@ -141,5 +143,9 @@ class StaffUI:
 
     def update_map_of_uuids(self, map_of_uuids: dict) -> None:
         self.uuids = map_of_uuids
-        self.socketio.emit('update_uuids', self.uuids)
+        self.update_uuids()
         return
+
+    def update_uuids(self):
+        self.socketio.emit('update_uuids', {"uuids": self.uuids, "car_queue": self.environment_mng._car_queue_list,
+                                            "player_queue": self.environment_mng.get_player_queue()})

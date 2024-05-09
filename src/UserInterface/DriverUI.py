@@ -8,7 +8,7 @@
 #
 
 from flask import Blueprint, render_template
-
+import uuid
 
 class DriverUI:
 
@@ -20,33 +20,35 @@ class DriverUI:
         self.socketio = socketio
         self.environment_mng = environment_mng
 
-
-        def home_driver(player: str) -> str:
+        def home_driver(player:str) -> str:
             self.player = player
-            vehicle = self.get_vehicle_by_player(player=player)
+            vehicle = self.get_vehicle_by_player(player=self.player)
             player_exists = False
             picture = ''  # default picture can be added here
             vehicle_information = {}
+
+            print(f"Driver {self.player} connected!")
             if vehicle is not None:
                 player_exists = True
-                picture = vehicle.vehicle_id
+                picture = str(vehicle.vehicle_id)
                 picture = picture.replace(":", "") + ".png"
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
-                print(f'set callback for {player}')
+                print(f'set callback for {self.player}')
             else:
                 # add to queue
-                self.environment_mng.add_player(player)
-                print(f'added {player} to queue')
+                self.environment_mng.add_player(self.player)
+                print(f'added {self.player} to queue')
 
-            return render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
+            return render_template('driver_index.html', player=self.player, player_exists=player_exists, picture=picture,
                                    vehicle_information=vehicle_information)
+
         self.driverUI_blueprint.add_url_rule('/<player>', 'home_driver', view_func=home_driver)
 
-        @self.socketio.on('disconnect')
+        @self.socketio.on('disconnected')
         def handle_disconnected():
             print(f"Driver {self.player} disconnected!")
-            #self.environment_mng.remove_player(self.player)
+            self.environment_mng.remove_player(self.player)
 
         @self.socketio.on('slider_changed')
         def handle_slider_change(data) -> None:

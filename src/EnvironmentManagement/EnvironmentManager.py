@@ -101,6 +101,8 @@ class EnvironmentManager:
             # Assuming a car has become available and the player is added to the active list
             self.add_vehicle(uuid=uuid)
 
+        self._update_staff_ui()
+
     def add_vehicle(self, uuid: str):
         if uuid in self._player_uuid_map.values():
             print('UUID already exists!')
@@ -112,14 +114,14 @@ class EnvironmentManager:
                 self.set_player_uuid_mapping(player_id=player, uuid=uuid)
             else:
                 self._car_queue_list.append(uuid)
+                self._update_staff_ui()
                 return
 
 
             print(f'Player: {player}, UUID: {uuid}')
             anki_car_controller = AnkiController()
             temp_vehicle = ModelCar(uuid, anki_car_controller)
-        # Einkommentieren, um mit echten Geräten zu testen
-         #   temp_vehicle.initiate_connection(uuid)
+            temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=player, uuid=uuid)
 

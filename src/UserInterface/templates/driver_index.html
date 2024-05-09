@@ -26,8 +26,7 @@
             <div class="info-title">
                 <!-- <i class="material-symbols-outlined info"> info </i> --> <h2>Information</h2>
             </div>
-            <p id="infoBoxContent"> Player {{player}} currently not available. Please contact staff.</p>
-            <button class="refresh-button" onclick="location.reload();"> <!-- <i class="material-symbols-outlined">refresh</i>--> <span>Refresh Page</span></button>
+            <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait...</p>
         </div>
     </div>
 
@@ -93,16 +92,28 @@
         window.onload = function() {
 
           var slider_temp = document.getElementById("speed_request");
-          slider_temp.value = {{ vehicle_information.speed_request }};
+          slider_temp.value = 0{{ vehicle_information.speed_request }};
 
-          let playerExists = {{ player_exists | tojson }};
-          if(!playerExists) {
-            document.getElementById("infoBoxOverlay").style.display = "block";
-          }
-          else {
-            document.getElementById("infoBoxOverlay").style.display = "none";
-            slider.oninput();
-          }
+
+
+
+              let playerExists = {{ player_exists | tojson }};
+              if(!playerExists) {
+                document.getElementById("infoBoxOverlay").style.display = "block";
+                setTimeout(function(){
+                    window.onunload=function(){}
+                    window.location.reload()
+                                },3000)
+              }
+              else {
+                document.getElementById("infoBoxOverlay").style.display = "none";
+                slider.oninput();
+              }
+
+        }
+
+        window.onunload=function(){
+          socket.emit('disconnected');
         }
 
         function get_driving_data(){
