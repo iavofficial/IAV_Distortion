@@ -10,6 +10,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 import re
 import secrets
+from typing import Any, Dict, Tuple, List
 
 
 class StaffUI:
@@ -17,24 +18,24 @@ class StaffUI:
     def __init__(self, cybersecurity_mng, socketio, environment_mng, password: str):
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
-        self.staffUI_blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
+        self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
         self.uuids = environment_mng.get_player_uuid_mapping()
-        self.scenarios = cybersecurity_mng.get_all_hacking_scenarios()
-        self.socketio = socketio
+        self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
+        self.socketio: Any = socketio
         self.environment_mng = environment_mng
-        self.devices = []
+        self.devices: list = []
 
         self.environment_mng.set_staff_ui(self)
 
-        def is_authentificated() -> bool:
+        def is_authenticated() -> bool:
             request_token = request.cookies.get('admin_token')
             return request_token is not None and request_token == self.admin_token
 
         def login_redirect():
             return redirect(url_for("staffUI_bp.login_site"))
 
-        def home_staff_control(): 
-            if not is_authentificated():
+        def home_staff_control() -> Any:
+            if not is_authenticated():
                 return login_redirect()
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
@@ -43,13 +44,13 @@ class StaffUI:
                                    names=names, descriptions=descriptions)
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
-        def set_scenario():
-            if not is_authentificated():
+        def set_scenario() -> Any:
+            if not is_authenticated():
                 return login_redirect()
             selected_option = request.form.get('option')
-            pattern = r"scenarioID_(\d+)-UUID_([\d:]+)"
-            print(f"Scenario {selected_option} has been activated")
+            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
             match = re.search(pattern, selected_option)
+
             scenario_id = match.group(1)
             uuid = match.group(2)
             cybersecurity_mng.activate_hacking_scenario_for_vehicle(uuid, scenario_id)
@@ -57,7 +58,7 @@ class StaffUI:
             return redirect(url_for('staffUI_bp.staff_control'))
 
         def login_site():
-            if is_authentificated():
+            if is_authenticated():
                 return redirect(url_for('staffUI_bp.staff_control'))
             if request.method == 'GET':
                 return render_template('staff_login.html')
@@ -75,23 +76,23 @@ class StaffUI:
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
         @self.socketio.on('get_uuids')
-        def update_uuids_staff_ui():
-            if not is_authentificated():
+        def update_uuids_staff_ui() -> None:
+            if not is_authenticated():
                 return
             self.update_map_of_uuids(self.uuids)
             return
 
         @self.socketio.on('connect')
-        def initiate_uuids():
-            if not is_authentificated():
+        def initiate_uuids() -> None:
+            if not is_authenticated():
                 return
             print('Client connected')
             self.socketio.emit('update_uuids', self.uuids)
             return
 
         @self.socketio.on('search_cars')
-        def search_cars():
-            if not is_authentificated():
+        def search_cars() -> None:
+            if not is_authenticated():
                 return
             print("Searching devices")
             new_devices = environment_mng.find_unpaired_anki_cars()
@@ -99,8 +100,8 @@ class StaffUI:
             return
 
         @self.socketio.on('add_device')
-        def handle_add_device(device):
-            if not is_authentificated():
+        def handle_add_device(device: str) -> None:
+            if not is_authenticated():
                 return
             environment_mng.add_vehicle(device)
             # TODO: exception if device is no longer available
@@ -108,9 +109,17 @@ class StaffUI:
             self.socketio.emit('device_added', device)
             return
 
+        @self.socketio.on('delete_device')
+        def handle_delete_player(device: str) -> None:
+            if not is_authenticated():
+                return
+            print(f'delete player {device}')
+            environment_mng.remove_vehicle(device)
+            return
+
         @self.socketio.on('get_update_hacking_scenarios')
-        def update_hacking_scenarios():
-            if not is_authentificated():
+        def update_hacking_scenarios() -> None:
+            if not is_authenticated():
                 return
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
@@ -119,19 +128,10 @@ class StaffUI:
             self.socketio.emit('update_hacking_scenarios', data)
             return
 
-        def submit():
-            if not is_authentificated():
-                return login_redirect()
-            # TODO: delete function, only for development and testing
-            uuid = request.form['uuid']
-            self.environment_mng.add_vehicle(uuid=uuid)
-            return redirect(url_for('staffUI_bp.staff_control'))
-        self.staffUI_blueprint.add_url_rule('/submit', methods=['POST'], view_func=submit)
-
-    def get_blueprint(self):
+    def get_blueprint(self) -> Blueprint:
         return self.staffUI_blueprint
 
-    def sort_scenarios(self):
+    def sort_scenarios(self) -> Tuple[dict, dict]:
         scenario_names = {}
         scenario_descriptions = {}
         for scenario in self.scenarios:
@@ -139,6 +139,7 @@ class StaffUI:
             scenario_descriptions.update({scenario['id']: scenario['description']})
         return scenario_names, scenario_descriptions
 
-    def update_map_of_uuids(self, map_of_uuids):
+    def update_map_of_uuids(self, map_of_uuids: dict) -> None:
         self.uuids = map_of_uuids
         self.socketio.emit('update_uuids', self.uuids)
+        return

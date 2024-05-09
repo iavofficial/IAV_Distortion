@@ -6,8 +6,9 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-
+from DataModel.ModelCar import ModelCar
 from DataModel.Vehicle import Vehicle
+from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
 
@@ -30,7 +31,7 @@ class EnvironmentManager:
 
     def get_player_uuid_mapping(self):
         return self._player_uuid_map
-    
+
     def get_player_queue(self):
         return self._player_queue_list
 
@@ -71,7 +72,7 @@ class EnvironmentManager:
             del self._player_uuid_map[player_to_remove]
             self._update_staff_ui()
 
-        self._active_anki_cars = [vehicle for vehicle in self._active_anki_cars if vehicle.uuid != uuid_to_remove]
+        self._active_anki_cars = [vehicle for vehicle in self._active_anki_cars if vehicle.vehicle_id != uuid_to_remove]
         return
 
 
@@ -115,8 +116,8 @@ class EnvironmentManager:
 
 
             print(f'Player: {player}, UUID: {uuid}')
-            anki_car_controller = VehicleController()
-            temp_vehicle = Vehicle(uuid, anki_car_controller)
+            anki_car_controller = AnkiController()
+            temp_vehicle = ModelCar(uuid, anki_car_controller)
         # Einkommentieren, um mit echten Geräten zu testen
          #   temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:

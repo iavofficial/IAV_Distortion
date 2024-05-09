@@ -36,16 +36,6 @@
             <h3>Add cars... </h3>
             <button id="search_cars"> Search... </button>
             <ul class="flexbox-item flexbox-activeCars" id="devices"></ul>
-
-        <!-- div below only for development and testing -->
-        <div class="flexbox-item">
-            <form action="{{ url_for('staffUI_bp.submit') }}" method="post">
-                <label for="uuid">UUID:</label><br>
-                <input type="text" id="uuid" name="uuid"><br>
-                <input type="submit" value="Submit">
-            </form>
-        </div>
-
         </div>
 
     </div>
@@ -77,17 +67,29 @@
         uuids_table.appendChild(thead);
 
         // fill table with player and uuids
-        for (var player in data) {
+        for (let player in data) {
             var row = document.createElement('tr');
 
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
+            var cell_del = document.createElement('td');
+            var delButton = document.createElement('button');
+            delButton.textContent = 'delet';
+            delButton.className = 'button_small button_pink'
+            delButton.onclick = function(){
+                if(confirm(`Are you sure you want to delete the device with the id: ${data[player]}?`)) {
+                    deleteDevice(data[player])
+                }
+            };
 
             cell_player.innerText = player;
             cell_uuid.innerText = data[player];
 
+
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
+            row.appendChild(delButton);
+
 
             uuids_table.appendChild(row);
         }
@@ -176,6 +178,7 @@
         var addButton = document.createElement('button');
         addButton.textContent = 'Add';
         addButton.onclick = function(){ addDevice(device); };
+        addButton.className = 'button_small';
         li.appendChild(addButton);
         deviceList.appendChild(li);
       });
@@ -183,6 +186,10 @@
 
     function addDevice(device) {
       socket.emit('add_device', device);
+    }
+
+    function deleteDevice(device) {
+      socket.emit('delete_device', device);
     }
 
 </script>
