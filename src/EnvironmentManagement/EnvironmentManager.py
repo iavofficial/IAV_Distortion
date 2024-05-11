@@ -42,13 +42,9 @@ class EnvironmentManager:
         return self.get_vehicle_list()
 
     def find_unpaired_anki_cars(self) -> list[str]:
-        # Funktion zum Fahrzeuge Suchen und Verbinden
-        # BLE device suchen
-        # mit Device verbinden, wenn bekannt, sonst via web interface
-
-        # vehicle initialisieren
         found_devices = self._fleet_ctrl.scan_for_anki_cars()
         # remove already active uuids:
+        new_devices = []
         new_devices = [device for device in found_devices if device not in self._player_uuid_map.values()]
 
         return new_devices
