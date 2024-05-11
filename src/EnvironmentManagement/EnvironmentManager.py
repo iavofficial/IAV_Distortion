@@ -62,6 +62,8 @@ class EnvironmentManager:
             del self._player_uuid_map[player_to_remove]
             self._update_staff_ui()
 
+        # TODO: AnkiController for the vehicle.vehicle_id == uuid_to_remove has to be deleted
+        #  -> how to identify/how is it connected with the vehicle object?
         self._active_anki_cars = [vehicle for vehicle in self._active_anki_cars if vehicle.vehicle_id != uuid_to_remove]
         return
 
