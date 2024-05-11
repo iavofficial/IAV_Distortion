@@ -108,19 +108,51 @@ fi
 echo "[Desktop Entry]" > "$desktop_item"
 echo "Name=IAV Distortion" >> "$desktop_item"
 echo "Comment=Run IAV Distortion" >> "$desktop_item"
-echo "Exec=$working_directory/run.sh" >> "$desktop_item"
+echo "Exec=$working_directory/run_IAV-Distortion.sh" >> "$desktop_item"
 echo "Terminal=true" >> "$desktop_item"
 echo "Type=Application" >> "$desktop_item"
 echo "Name[de_DE]=IAV Distortion" >> "$desktop_item"
 echo "Path=$working_directory" >> "$desktop_item"
 
-# make run.sh, desktop-item and quit.sh executable
-chmod +x run.sh
+# make run_IAV-Distortion.sh, desktop-item and quit.sh executable
+chmod +x run_IAV-Distortion.sh
 chmod +x $desktop_item
 chmod +x quit.sh
 
-# add add run.sh to autostart
-(crontab -l 2>/dev/null; echo "@reboot cd $working_directory && bash run.sh && cd") | crontab -
+# add add run_IAV-Distortion.sh to autostart
+check_cronjobs=$(crontab -l | grep "run_IAV-Distortion.sh")
+cronjob="@reboot cd $working_directory && bash run_IAV-Distortion.sh && cd"
+check_existence=$(crontab -l | grep -F "$cronjob")
+
+if [ ! -z "$check_cronjobs" ]; then
+    if [ "$check_cronjobs" != "$check_existence" ]; then
+        echo -e "\033[0;33mCronjobs for IAV-Distortion found, that don't match this installation. Please check if these are from different instances of IAV-Distortion. Only one instance of IAV-Distortion should run.\033[0m"
+        echo "$check_cronjobs"
+    fi
+fi
+
+
+if [ -z "$check_existence" ]; then
+    read -p "Do you want to add IAV-Distortion to the autostart? (y/n) " -n 1 -r
+    echo    # move to a new line
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        (crontab -l 2>/dev/null; echo "$cronjob") | crontab -
+        echo -e "\033[0;32mA cronjob has been created.\033[0m"
+    else
+        echo -e "\033[0;33mIAV-Distortion has not been added to the autostart.\033[0m"
+    fi
+else
+    read -p "IAV-Distortion already in autostart. Do you want to keep it? (y/n) " -n 1 -r
+    echo    # move to a new line    
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        echo -e "\033[0;32mCronjob kept. IAV-Distortion in autostart.\033[0m"
+    else
+        (crontab -l | grep -v -F "$cronjob") | crontab -
+        echo -e "\033[0;33mIAV-Distortion removed from autostart.\033[0m"
+    fi
+fi
 
 # copy logo to images directory, if file exists in Pictures directory
 # define file of a logo. Has to be stored anywhere on the system, will automatically be copied to images directory for webinterfaces 
