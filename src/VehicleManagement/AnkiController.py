@@ -25,7 +25,6 @@ class AnkiController(VehicleController):
 
     def __del__(self) -> None:
         self.__disconnect_from_vehicle()
-        super().__del__()
 
     def set_callbacks(self,
                       location_callback,
@@ -48,6 +47,7 @@ class AnkiController(VehicleController):
 
         try:
             connected_car = ble_client
+            print(f'connect to {ble_client.address}')
             self.__run_async_task(connected_car.connect())
             if connected_car.is_connected:
                 self._connected_car = connected_car

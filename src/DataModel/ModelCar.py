@@ -36,6 +36,11 @@ class ModelCar(Vehicle):
         self._version: str = ""
 
         self._model_car_not_reachable_callback = None
+        return
+
+    def __del__(self) -> None:
+        self._controller.__del__()
+        return
 
     def get_typ_of_controller(self):
         return type(self._controller)
