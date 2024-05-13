@@ -21,7 +21,15 @@
 </head>
 <body>
 
-
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box">
+            <div class="info-title">
+                <h2>Information</h2>
+            </div>
+            <p id="infoBoxContent"> Player {{player}} currently not available. Please contact staff.</p>
+            <button class="refresh-button" onclick="location.reload();"> <span>Refresh Page</span></button>
+        </div>
+    </div>
 
     <div class="flexbox-container custom_header">
         <p class="header">Player {{player}}</p>
