@@ -113,7 +113,7 @@ class LocationService():
 
     def _run_task(self):
         """
-        Runs the simulation asynchronously
+        Runs the simulation asynchronously in an own thread
         """
         while not self._stop_event.is_set():
             # TODO: publish position and rotation via callback or similar
@@ -121,6 +121,9 @@ class LocationService():
             time.sleep(1 / self._simulation_ticks_per_second)
 
     def start(self):
+        """
+        Start the thread that's responsible for the simulation
+        """
         if self._simulation_thread is not None:
             # TODO: Log error that the location service is already running!
             return
@@ -130,6 +133,9 @@ class LocationService():
         self._simulation_thread.start()
 
     def stop(self):
+        """
+        Stops the thread that's responsible for the simulation
+        """
         if self._simulation_thread is None:
             # TODO: Log that it was attempted to stop a stopped LocationService!
             return
