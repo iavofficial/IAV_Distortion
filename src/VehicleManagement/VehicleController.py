@@ -38,7 +38,6 @@ class VehicleController:
 
     def __del__(self) -> None:
         self.loop.stop()
-        del self._connected_car
 
     def __str__(self):
         return "Connected Car" + str(self._connected_car)

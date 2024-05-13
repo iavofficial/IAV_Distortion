@@ -23,6 +23,11 @@ class Vehicle:
         return
 
     @abc.abstractmethod
+    def __del__(self) -> None:
+        self._controller.__del__()
+        return
+
+    @abc.abstractmethod
     def get_typ_of_controller(self):
         pass
 
