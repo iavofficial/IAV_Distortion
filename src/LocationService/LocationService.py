@@ -18,6 +18,11 @@ class LocationService():
         self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT = 0.30
         self._simulation_ticks_per_second = simulation_ticks_per_second
 
+        # Taken from AnkiController
+        # TODO: Put this in a more central place where both the controller and the LocationService can get it
+        self.__MAX_ANKI_SPEED = 1200
+        self.__LANE_OFFSET = 22.25
+
         self._value_mutex: Lock = Lock()
         self._actual_speed: float = 0
         self._target_speed: float = 0
@@ -41,21 +46,23 @@ class LocationService():
         """
         Updates the target speed of the car.
         Thread-safe
-        speed: targeted speed in mm/s
+        speed: targeted speed in percent
         acceleration: used acceleration in mm/s^2
         """
         with self._value_mutex:
-            self._target_speed = speed
+            self._target_speed = self.__MAX_ANKI_SPEED * speed / 100
             self._acceleration = acceleration
 
-    def set_offset(self, offset: float):
+    def set_offset(self, offset: int):
         """
         Sets the targeted offset where the car should drive.
         Thread-safe
-        offset: target offset where the car should drive
+        offset: target offset where the car should drive (as int like
+                in the AnkiController)
         """
         with self._value_mutex:
-            self._target_offset = offset
+            # TODO: This doesn't check for out of bounds driving
+            self._target_offset = self.__LANE_OFFSET * offset
 
     def _adjust_speed(self):
         """
