@@ -4,14 +4,6 @@ import math
 from LocationService.Track import Direction, FullTrack, TrackPiece, TrackPieceType
 from LocationService.Trigo import Position, Angle
 
-# TODO: Clean these up
-STRAIGHT_PIECE_LENGTH = 555
-STRAIGHT_PIECE_DIAMETER = 260
-# This has to be the same as STRAIGHT_PIECE_LENGTH; otherwise the simulation
-# would need extra calculations to do the transition onto the piece; since every
-# piece we have fulfills this requirement the case isn't handled
-CURVE_PIECE_SIZE = STRAIGHT_PIECE_LENGTH
-
 
 class StraightPiece(TrackPiece):
     def __init__(self, length, diameter, rotation):
@@ -101,38 +93,54 @@ class CurvedPiece(TrackPiece):
     def get_track_length(self, offset: float) -> float:
         return (self._radius + offset) * math.pi / 2
 
-# TODO: Clean this up
-TRACK_PIECES = {
-    TrackPieceType.STRAIGHT_SN: StraightPiece(STRAIGHT_PIECE_LENGTH, STRAIGHT_PIECE_DIAMETER, 0),
-    TrackPieceType.STRAIGHT_WE: StraightPiece(STRAIGHT_PIECE_LENGTH, STRAIGHT_PIECE_DIAMETER, 90),
-    TrackPieceType.STRAIGHT_NS: StraightPiece(STRAIGHT_PIECE_LENGTH, STRAIGHT_PIECE_DIAMETER, 180),
-    TrackPieceType.STRAIGHT_EW: StraightPiece(STRAIGHT_PIECE_LENGTH, STRAIGHT_PIECE_DIAMETER, 270),
-    TrackPieceType.CURVE_NW: CurvedPiece(CURVE_PIECE_SIZE, 0, False),
-    TrackPieceType.CURVE_EN: CurvedPiece(CURVE_PIECE_SIZE, 90, False),
-    TrackPieceType.CURVE_SE: CurvedPiece(CURVE_PIECE_SIZE, 180, False),
-    TrackPieceType.CURVE_WS: CurvedPiece(CURVE_PIECE_SIZE, 270, False),
 
-    # Mirrored
-    TrackPieceType.CURVE_ES: CurvedPiece(CURVE_PIECE_SIZE, 0, True),
-    TrackPieceType.CURVE_SW: CurvedPiece(CURVE_PIECE_SIZE, 90, True),
-    TrackPieceType.CURVE_WN: CurvedPiece(CURVE_PIECE_SIZE, 180, True),
-    TrackPieceType.CURVE_NE: CurvedPiece(CURVE_PIECE_SIZE, 270, True),
-}
-
-    
 class TrackBuilder():
     """
     Class to build an entire track by chaining append() calls with the desired direction
     """
     def __init__(self):
         self.piece_list: List[TrackPiece] = [] 
-
-    def get_track_piece(self, track_piece_type: TrackPieceType) -> TrackPiece:
-        return TRACK_PIECES[track_piece_type]
+        # Constants
+        self.STRAIGHT_PIECE_LENGTH = 555
+        self.STRAIGHT_PIECE_DIAMETER = 260
+        # This has to be the same as STRAIGHT_PIECE_LENGTH; otherwise the simulation
+        # would need extra calculations to do the transition onto the piece; since every
+        # piece we have fulfills this requirement the case isn't handled
+        self.CURVE_PIECE_SIZE = self.STRAIGHT_PIECE_LENGTH
 
     def append(self, track_piece: TrackPieceType):
-        self.piece_list.append(self.get_track_piece(track_piece))
+        self.piece_list.append(self._get_track_piece(track_piece))
         return self
 
     def build(self) -> FullTrack:
         return FullTrack(self.piece_list)
+
+    # This isn't the best way but it works for now
+    def _get_track_piece(self, track_piece_type: TrackPieceType) -> TrackPiece:
+        match track_piece_type:
+            case TrackPieceType.STRAIGHT_SN:
+                return StraightPiece(self.STRAIGHT_PIECE_LENGTH, self.STRAIGHT_PIECE_DIAMETER, 0)
+            case TrackPieceType.STRAIGHT_WE:
+                return StraightPiece(self.STRAIGHT_PIECE_LENGTH, self.STRAIGHT_PIECE_DIAMETER, 90)
+            case TrackPieceType.STRAIGHT_NS:
+                return StraightPiece(self.STRAIGHT_PIECE_LENGTH, self.STRAIGHT_PIECE_DIAMETER, 180)
+            case TrackPieceType.STRAIGHT_EW:
+                return StraightPiece(self.STRAIGHT_PIECE_LENGTH, self.STRAIGHT_PIECE_DIAMETER, 270)
+            case TrackPieceType.CURVE_NW:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 0, False)
+            case TrackPieceType.CURVE_EN:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 90, False)
+            case TrackPieceType.CURVE_SE:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 180, False)
+            case TrackPieceType.CURVE_WS:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 270, False)
+
+            # Mirrored
+            case TrackPieceType.CURVE_ES:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 0, True)
+            case TrackPieceType.CURVE_SW:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 90, True)
+            case TrackPieceType.CURVE_WN:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 180, True)
+            case TrackPieceType.CURVE_NE:
+                return CurvedPiece(self.CURVE_PIECE_SIZE, 270, True)
