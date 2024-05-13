@@ -172,6 +172,9 @@
 
     var deviceList = document.getElementById("devices");
     socket.on('new_devices', function(devices){
+      while (deviceList.firstChild) {
+        deviceList.removeChild(deviceList.firstChild);
+      }
       devices.forEach(function(device) {
         var li = document.createElement('li');
         li.appendChild(document.createTextNode(device));
