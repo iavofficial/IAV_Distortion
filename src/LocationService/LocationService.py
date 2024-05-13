@@ -1,7 +1,7 @@
 import time
 import math
 from typing import Tuple
-from threading import Event, Thread
+from threading import Event, Lock, Thread
 
 from LocationService.Trigo import Position, Angle
 from LocationService.Track import FullTrack
@@ -18,7 +18,7 @@ class LocationService():
         self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT = 0.30
         self._simulation_ticks_per_second = simulation_ticks_per_second
 
-        # TODO: Protect these with a Mutex for thread safety
+        self._value_mutex: Lock = Lock()
         self._actual_speed: float = 0
         self._target_speed: float = 0
         self._acceleration: float = 0
@@ -39,22 +39,28 @@ class LocationService():
 
     def set_speed(self, speed: int, acceleration: int = 1000):
         """
-        Updates the target speed of the car
+        Updates the target speed of the car.
+        Thread-safe
         speed: targeted speed in mm/s
         acceleration: used acceleration in mm/s^2
         """
-        self._target_speed = speed
-        self._acceleration = acceleration
+        with self._value_mutex:
+            self._target_speed = speed
+            self._acceleration = acceleration
 
     def set_offset(self, offset: float):
         """
-        Sets the targeted offset where the car should drive
+        Sets the targeted offset where the car should drive.
+        Thread-safe
+        offset: target offset where the car should drive
         """
-        self._target_offset = offset
+        with self._value_mutex:
+            self._target_offset = offset
 
     def _adjust_speed(self):
         """
-        Updates internal speed values for the simulation based on the acceleration
+        Updates internal speed values for the simulation based on the acceleration.
+        Not Thread-safe
         """
         if self._actual_speed < self._target_speed:
             self._actual_speed += self._acceleration / self._simulation_ticks_per_second
@@ -67,6 +73,7 @@ class LocationService():
         """
         Changes the current offset to get closer to the target based on the
         traveled distance.
+        Not Thread-safe
         returns: leftover distance that can be traveled straight
         """
         needed_offset = abs(self._actual_offset - self._target_offset)
@@ -86,19 +93,25 @@ class LocationService():
         remaining_way = math.sqrt(travel_distance * travel_distance - change * change)
         return remaining_way
 
-    def _run_simulation_step(self, distance: float | None = None) -> Tuple[Position, Angle]:
+    def _run_simulation_step_threadsafe(self) -> Tuple[Position, Angle]:
         """
-        Advance the simulation one simulation step. Should be called all 1/TICKS_PER_SECOND
-        seconds. If distance is None the speed will be used to determine the distance. Can be
-        overwritten by giving a distance argument
+        Runs a single simulation step by calling _run_simulation_step internally.
+        Thread-safe
+        returns: The new position and the Angle where the car is pointing
+        """
+        with self._value_mutex:
+            self._adjust_speed()
+            trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
+            return self._run_simulation_step(trav_distance)
+
+    def _run_simulation_step(self, distance: float) -> Tuple[Position, Angle]:
+        """
+        Advance the simulation one step without threadsafety. Should only be called
+        internally.
+        distance: Distance to travel
         returns: The new position and the Angle where the car is pointing
         """
         old_pos = self._current_position
-        # if distance is not given we were called normally. If distance is given we were called
-        # recursively and don't need to get the distance and adjust the offset again
-        if distance is None:
-            self._adjust_speed()
-            distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
         piece, global_track_offset = self._track.get_entry_tupel(self._current_piece_index)
         leftover_distance, new_pos = piece.process_update(self._progress_on_current_piece, distance, self._actual_offset)
         self._progress_on_current_piece += distance
@@ -117,7 +130,7 @@ class LocationService():
         """
         while not self._stop_event.is_set():
             # TODO: publish position and rotation via callback or similar
-            pos, rot = self._run_simulation_step()
+            pos, rot = self._run_simulation_step_threadsafe()
             time.sleep(1 / self._simulation_ticks_per_second)
 
     def start(self):
