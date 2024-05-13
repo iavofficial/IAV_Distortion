@@ -14,6 +14,8 @@ from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
 
+from LocationService.TrackPieces import TrackBuilder, FullTrack
+from LocationService.Track import TrackPieceType
 
 class EnvironmentManager:
 
@@ -148,8 +150,17 @@ class EnvironmentManager:
 
 
             print(f'Player: {player}, UUID: {uuid}')
+            track: FullTrack = TrackBuilder()\
+                .append(TrackPieceType.STRAIGHT_WE)\
+                .append(TrackPieceType.CURVE_WS)\
+                .append(TrackPieceType.CURVE_NW)\
+                .append(TrackPieceType.STRAIGHT_EW)\
+                .append(TrackPieceType.CURVE_EN)\
+                .append(TrackPieceType.CURVE_SE)\
+                .build()
+
             anki_car_controller = AnkiController()
-            temp_vehicle = ModelCar(uuid, anki_car_controller)
+            temp_vehicle = ModelCar(uuid, anki_car_controller, track)
             temp_vehicle.initiate_connection(uuid)
             self.set_player_uuid_mapping(player_id=player, uuid=uuid)
 
