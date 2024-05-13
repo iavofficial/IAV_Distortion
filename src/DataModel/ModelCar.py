@@ -13,6 +13,7 @@ class ModelCar(Vehicle):
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
+        self.__min_speed_thr = 20
 
         self.__lane_change: int = 0
         self.__lane_change_request: int = 0
@@ -95,7 +96,12 @@ class ModelCar(Vehicle):
         return self.__speed
 
     def __calculate_speed(self) -> None:
-        self.__speed = self.__speed_request * self.__speed_factor
+        speed_calculated = self.__speed_request * self.__speed_factor
+        if speed_calculated > self.__min_speed_thr:
+            self.__speed = speed_calculated
+        else:
+            self.__speed = 0
+
         self._controller.change_speed_to(int(self.__speed))
         return
 
@@ -226,5 +232,6 @@ class ModelCar(Vehicle):
 
     def __receive_battery(self, value_tuple) -> None:
         self._battery = str(value_tuple)
+
         self._on_driving_data_change()
         return
