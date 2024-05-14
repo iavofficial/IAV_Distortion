@@ -104,3 +104,8 @@ class BehaviourController:
         vehicle = self.get_vehicle_by_uuid(uuid)
         vehicle.isSafeModeOn = True
         return
+
+    def set_hacking_scenario(self, uuid, value) -> None:
+        vehicle = self.get_vehicle_by_uuid(uuid)
+        vehicle.hacking_scenario = value
+        return

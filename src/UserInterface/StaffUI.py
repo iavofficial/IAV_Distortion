@@ -20,6 +20,7 @@ class StaffUI:
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
         self.uuids: dict = map_of_uuids  # {'player': 'uuid'}
+        self.cybersecurity_mng = cybersecurity_mng
         self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
         self.socketio: Any = socketio
         self.environment_mng = environment_mng
@@ -105,8 +106,8 @@ class StaffUI:
                 return
             environment_mng.add_vehicle(device)
             # TODO: exception if device is no longer available
-            # TODO: remove added device from new_devices list
             self.socketio.emit('device_added', device)
+            self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
             return
 
         @self.socketio.on('delete_device')

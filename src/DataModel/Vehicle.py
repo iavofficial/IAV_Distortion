@@ -17,7 +17,7 @@ class Vehicle:
         self.player: str = ""
 
         self._controller: VehicleController = controller
-        self._active_hacking_scenario: str = ""
+        self._active_hacking_scenario: str = "0"
         self._driving_data_callback = None
 
         return

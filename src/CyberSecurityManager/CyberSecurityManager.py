@@ -78,6 +78,7 @@ class CyberSecurityManager:
             self._behaviour_ctrl.turn_safemode_on(uuid)
 
         self._update_active_hacking_scenarios(uuid, scenario_id)
+        self._behaviour_ctrl.set_hacking_scenario(uuid, scenario_id)
 
         return
 
