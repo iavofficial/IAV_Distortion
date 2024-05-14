@@ -53,8 +53,7 @@ class DriverUI:
         @self.socketio.on('make_uturn')
         def make_uturn(data: dict) -> None:
             player = data['player']
-            direction = data['direction']
-            self.behaviour_ctrl.request_uturn_for(uuid=self.uuids[player], value=direction)
+            self.behaviour_ctrl.request_uturn_for(uuid=self.uuids[player])
             return
 
         @self.socketio.on('get_driving_data')
