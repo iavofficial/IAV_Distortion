@@ -41,7 +41,7 @@ class StaffUI:
 
         def home_staff_control() -> Any:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return login_redirect()
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
@@ -52,7 +52,7 @@ class StaffUI:
 
         def set_scenario() -> Any:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return login_redirect()
             selected_option = request.form.get('option')
             pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
@@ -86,7 +86,7 @@ class StaffUI:
         @self.socketio.on('get_uuids')
         def update_uuids_staff_ui() -> None:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return
             self.update_map_of_uuids(self.uuids)
             return
@@ -94,7 +94,7 @@ class StaffUI:
         @self.socketio.on('connect')
         def initiate_uuids() -> None:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return
             self.logger.info("Client connected")
             print('Client connected')
@@ -104,7 +104,7 @@ class StaffUI:
         @self.socketio.on('search_cars')
         def search_cars() -> None:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return
             self.logger.info("Searching devices")
             print("Searching devices")
@@ -115,7 +115,7 @@ class StaffUI:
         @self.socketio.on('add_device')
         def handle_add_device(device: str) -> None:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return
             environment_mng.add_vehicle(device)
             self.logger.debug("Device added %s", device)
@@ -127,7 +127,7 @@ class StaffUI:
         @self.socketio.on('delete_device')
         def handle_delete_player(device: str) -> None:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return
             print(f'delete player {device}')
             self.logger.debug("Device deleted %s", device)
@@ -137,7 +137,7 @@ class StaffUI:
         @self.socketio.on('get_update_hacking_scenarios')
         def update_hacking_scenarios() -> None:
             if not is_authenticated():
-                self.logger.info("Not authenticated")
+                self.logger.warning("Not authenticated")
                 return
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()

@@ -22,15 +22,7 @@ import os
 import asyncio
 
 
-logger = logging.getLogger(__name__)
-
 def main(admin_password: str):
-
-    logging.basicConfig(level=logging.WARN)
-    logging.info("Info")
-    logging.debug("Debug")
-    logging.warning("Warning")
-    logging.error("Error")
 
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl)
