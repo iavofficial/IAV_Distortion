@@ -50,11 +50,8 @@
                 <p class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span> </strong> m/s</p>
             </div>
             <div class="flexbox-item flexbox-change_lane_buttons">
-                <button class="driver-buttons" id="make_uturn_left">
+                <button class="driver-buttons" id="make_uturn">
                     &curvearrowleft;
-                </button>
-                <button class="driver-buttons" id="make_uturn_right">
-                    &curvearrowright;
                 </button>
             </div>
             <div class="flexbox-item flexbox-change_lane_buttons">
@@ -97,15 +94,10 @@
         }
 
         <!-- buttons to control uturn -->
-        var buttonUTurnLeft = document.getElementById("make_uturn_left");
-        var buttonUTurnRight = document.getElementById("make_uturn_right");
+        var buttonUTurn = document.getElementById("make_uturn");
 
-        buttonUTurnLeft.onclick = function() {
-          socket.emit('make_uturn', {player: '{{player}}', direction: 'left'});
-        }
-
-        buttonUTurnRight.onclick = function() {
-          socket.emit('make_uturn', {player: '{{player}}', direction: 'right'});
+        buttonUTurn.onclick = function() {
+          socket.emit('make_uturn', {player: '{{player}}'});
         }
 
         <!-- loading window -->
