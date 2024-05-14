@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+import logging
 
 from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
@@ -21,7 +22,16 @@ import os
 import asyncio
 
 
+logger = logging.getLogger(__name__)
+
 def main(admin_password: str):
+
+    logging.basicConfig(level=logging.WARN)
+    logging.info("Info")
+    logging.debug("Debug")
+    logging.warning("Warning")
+    logging.error("Error")
+
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl)
 
