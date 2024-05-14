@@ -177,3 +177,30 @@ th:first-child::before {
 td:last-child {
     padding-right: 30px;
 }
+
+
+/* Hide the default radio button */
+.custom-radio {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Create a new 'radio' button */
+.custom-radio + label:before {
+    content: '';
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: 2px solid #C8C6C6;
+    vertical-align: middle;
+}
+
+/* Style for checked state */
+.custom-radio:checked + label:before {
+    background-image: radial-gradient(circle at center, #0091FF 40%, transparent 50%);
+    border-color: #0091FF;
+}

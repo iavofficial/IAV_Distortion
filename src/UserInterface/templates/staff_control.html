@@ -134,6 +134,7 @@
             for (var id in names){
                 var div = document.createElement('div');
                 var input_radio = document.createElement('input');
+                input_radio.classList.add('custom-radio');
                 input_radio.setAttribute('type', 'radio');
                 input_radio.setAttribute('id', `$id`);
                 input_radio.setAttribute('name', 'option');
