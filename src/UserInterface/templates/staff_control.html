@@ -139,6 +139,12 @@
                 input_radio.setAttribute('id', `$id`);
                 input_radio.setAttribute('name', 'option');
                 input_radio.setAttribute('value', `scenarioID_${ id }-UUID_${ uuid }>`);
+
+                // Enable submit button if any radio is checked
+                input_radio.addEventListener('change', function() {
+                  input_submit.disabled = !this.checked;
+                });
+
                 div.append(input_radio);
 
                 var label_radio = document.createElement('label');
@@ -153,6 +159,7 @@
             var input_submit = document.createElement('input');
             input_submit.setAttribute('type', 'submit');
             input_submit.setAttribute('value', 'Set Scenario');
+            input_submit.disabled = true;
             form_choose_hack.append(input_submit);
             section_hacking_scenarios.append(form_choose_hack);
 
