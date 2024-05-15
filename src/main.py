@@ -20,7 +20,7 @@ import os
 import asyncio
 
 
-def main(admin_password: str):
+async def main(admin_password: str):
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl)
 
