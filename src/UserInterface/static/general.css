@@ -90,7 +90,6 @@ button {
     gap: 8px;
     background-color: #0091FF;
     color: #FFFFFF;
-    color: #FFFFFF;
     margin-top: 5px;
     user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
