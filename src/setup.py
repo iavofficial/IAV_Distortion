@@ -10,5 +10,5 @@
 from setuptools import setup, find_packages
 
 setup(name='IAV Distortion',
-      version='1.0.0',
+      version='1.0.0-derivative-jsae_2024',
       packages=find_packages())
