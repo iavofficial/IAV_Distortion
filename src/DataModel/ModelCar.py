@@ -2,11 +2,14 @@ from bleak import BleakClient
 
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.AnkiController import AnkiController
+from VehicleManagement.VehicleController import Turns
 
 
 class ModelCar(Vehicle):
-    def __init__(self, uuid: str, controller: AnkiController) -> None:
-        super().__init__(uuid, controller)
+    def __init__(self, vehicle_id: str, controller: AnkiController) -> None:
+        super().__init__(vehicle_id)
+        self._controller: AnkiController = controller
+
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
@@ -14,6 +17,10 @@ class ModelCar(Vehicle):
         self.__lane_change: int = 0
         self.__lane_change_request: int = 0
         self.__lange_change_blocked: bool = False
+
+        self.__turn: int = 0
+        self.__turn_request: int = 0
+        self.__turn_blocked: bool = False
 
         self.__is_light_on: bool = False
         self.__is_light_inverted: bool = False
@@ -28,14 +35,43 @@ class ModelCar(Vehicle):
         self._battery: str = ""
         self._version: str = ""
 
+        self._model_car_not_reachable_callback = None
+
+    def get_typ_of_controller(self):
+        return type(self._controller)
+
+    def initiate_connection(self, uuid: str) -> bool:
+        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
+            self._controller.set_callbacks(self.__receive_location,
+                                           self.__receive_transition,
+                                           self.__receive_offset_update,
+                                           self.__receive_version,
+                                           self.__receive_battery,
+                                           self._on_model_car_not_reachable)
+            self._controller.request_version()
+            self._controller.request_battery()
+            return True
+        else:
+            return False
+
+    def set_model_car_not_reachable_callback(self, function_name) -> None:
+        self._model_car_not_reachable_callback = function_name
+        return
+
+    def _on_model_car_not_reachable(self, err_msg: str) -> None:
+        if self._model_car_not_reachable_callback is not None:
+            self._model_car_not_reachable_callback(self.vehicle_id, self.player, err_msg)
+        return
+
     @property
     def speed_request(self) -> float:
         return self.__speed_request
 
     @speed_request.setter
     def speed_request(self, value: float) -> None:
-        self.__speed_request = value
-        self.__calculate_speed()
+        if not value == self.__speed_request:
+            self.__speed_request = value
+            self.__calculate_speed()
         return
 
     @property
@@ -44,8 +80,9 @@ class ModelCar(Vehicle):
 
     @speed_factor.setter
     def speed_factor(self, value: float) -> None:
-        self.__speed_factor = value
-        self.__calculate_speed()
+        if not value == self.__speed_factor:
+            self.__speed_factor = value
+            self.__calculate_speed()
         return
 
     @property
@@ -100,26 +137,40 @@ class ModelCar(Vehicle):
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
+    @property
+    def turn_request(self) -> int:
+        return self.__turn_request
+
+    @turn_request.setter
+    def turn_request(self, value: int) -> None:
+        self.__turn_request = value
+        self.__calculate_turn()
+
+    @property
+    def turn_blocked(self) -> bool:
+        return self.__turn_blocked
+
+    @turn_request.setter
+    def turn_blocked(self, value: bool) -> None:
+        self.__turn_blocked = value
+
+    @property
+    def turn(self):
+        return self.__turn
+
+    def __calculate_turn(self) -> None:
+        if self.__turn_blocked:
+            return
+
+        self._controller.do_turn_with(Turns.A_UTURN)
+        return
+
     def switch_lights(self, value: bool) -> None:
         self.__is_light_on = value
         return
 
     def set_safemode(self, value: bool) -> None:
         self.__is_safemode_on = value
-
-    def initiate_connection(self, uuid: str) -> bool:
-        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
-            self._controller.set_callbacks(self.__receive_location,
-                                           self.__receive_transition,
-                                           self.__receive_offset_update,
-                                           self.__receive_version,
-                                           self.__receive_battery)
-            self._controller.request_version()
-            self._controller.request_battery()
-
-            return True
-        else:
-            return False
 
     def get_driving_data(self) -> dict:
         driving_info_dic = {

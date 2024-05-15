@@ -81,7 +81,16 @@ body{
     background: #fff;
     cursor: pointer;
     border: 5px solid #0091FF;
-    border-radius: 35px;
+    border-radius: 25px;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    border: 5px solid #33A7FF;
+}
+
+.slider::-webkit-slider-thumb:active {
+    border: 5px solid #0074CC;
+    background: #0074CC;
 }
 
 .slider::-moz-range-thumb {
@@ -90,7 +99,16 @@ body{
      background: #fff;
      cursor: pointer;
      border: 5px solid #0091FF;
-     border-radius: 35px;
+     border-radius: 25px;
+}
+
+.slider::-moz-range-thumb:hover {
+    border: 5px solid #33A7FF;
+}
+
+.slider::-moz-range-thumb:active {
+    border: 5px solid #0074CC;
+    background: #0074CC;
 }
 
 .slider::-moz-range-progress {
@@ -124,14 +142,26 @@ body{
 }
 
 /* style options for buttons */
-.button-size {
+.driver-buttons {
     width: 100px;
     height: 100px;
     font-size: 25px;
-    border-radius: 12.5px;
+    border-radius: 25px;
     color: #0091FF;
     background: #FFFFFF;
-    border: 2px solid #0091FF; /* border thickness and color */
+    border: 5px solid #0091FF; /* border thickness and color */
+}
+
+.driver-buttons:hover {
+    color: #33A7FF;
+    border: 5px solid #33A7FF;
+    background: #FFFFFF;
+}
+
+.driver-buttons:active {
+    color: #FFFFFF;
+    border: 5px solid #0074CC;
+    background: #0074CC;
 }
 
 .overlay {

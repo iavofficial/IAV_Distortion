@@ -12,14 +12,27 @@ import abc
 
 
 class Vehicle:
-    def __init__(self, uuid: str, controller: VehicleController) -> None:
-        self.vehicle_id: str = uuid
+    def __init__(self, vehicle_id: str, controller: VehicleController = None) -> None:
+        self.vehicle_id: str = vehicle_id
         self.player: str = ""
 
         self._controller: VehicleController = controller
         self._active_hacking_scenario: str = ""
         self._driving_data_callback = None
 
+        return
+
+    @abc.abstractmethod
+    def get_typ_of_controller(self):
+        pass
+
+    def set_driving_data_callback(self, function_name) -> None:
+        self._driving_data_callback = function_name
+        return
+
+    def _on_driving_data_change(self) -> None:
+        if self._driving_data_callback is not None:
+            self._driving_data_callback(self.get_driving_data())
         return
 
     @property
@@ -35,14 +48,77 @@ class Vehicle:
     def get_driving_data(self) -> dict:
         pass
 
-    def set_driving_data_callback(self, function_name) -> None:
-        self._driving_data_callback = function_name
-        return
+    @property
+    @abc.abstractmethod
+    def speed_request(self) -> float:
+        pass
 
-    def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
-            self._driving_data_callback(self.get_driving_data())
-        return
+    @speed_request.setter
+    @abc.abstractmethod
+    def speed_request(self, value: float) -> None:
+        pass
 
-    def get_typ_of_controller(self):
-        return type(self._controller)
+    @property
+    @abc.abstractmethod
+    def speed_factor(self) -> float:
+        pass
+
+    @speed_factor.setter
+    @abc.abstractmethod
+    def speed_factor(self, value: float) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def speed(self) -> float:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def lane_change_request(self) -> int:
+        pass
+
+    @lane_change_request.setter
+    @abc.abstractmethod
+    def lane_change_request(self, value: int) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def lange_change_blocked(self) -> bool:
+        pass
+
+    @lange_change_blocked.setter
+    @abc.abstractmethod
+    def lange_change_blocked(self, value: bool) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def lane_change(self) -> int:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def turn_request(self) -> int:
+        pass
+
+    @turn_request.setter
+    @abc.abstractmethod
+    def turn_request(self, value: int) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def turn_blocked(self) -> bool:
+        pass
+
+    @turn_blocked.setter
+    @abc.abstractmethod
+    def turn_blocked(self, value: bool) -> None:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def turn(self):
+        pass

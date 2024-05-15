@@ -63,17 +63,23 @@ class DriverUI:
         def handle_slider_change(data) -> None:
             player = data['player']
             value = float(data['value'])
-            # print(f"Slider {player} value: {value}")
             if player in self.uuids:
-              self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_proz=value)
+              self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_perc=value)
             return
 
         @self.socketio.on('lane_change')
-        def change_lane_left(data: dict) -> None:
+        def change_lane(data: dict) -> None:
             player = data['player']
             direction = data['direction']
             # print(f"Driver{player}: Button << pressed!")
             self.behaviour_ctrl.request_lane_change_for(uuid=self.uuids[player], value=direction)
+            return
+
+        @self.socketio.on('make_uturn')
+        def make_uturn(data: dict) -> None:
+            player = data['player']
+            direction = data['direction']
+            self.behaviour_ctrl.request_uturn_for(uuid=self.uuids[player], value=direction)
             return
 
         @self.socketio.on('get_driving_data')

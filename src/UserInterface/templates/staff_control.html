@@ -205,6 +205,9 @@
 
     var deviceList = document.getElementById("devices");
     socket.on('new_devices', function(devices){
+      while (deviceList.firstChild) {
+        deviceList.removeChild(deviceList.firstChild);
+      }
       devices.forEach(function(device) {
         var li = document.createElement('li');
         li.appendChild(document.createTextNode(device));
@@ -219,11 +222,24 @@
 
     function addDevice(device) {
       socket.emit('add_device', device);
+      remove_from_found_devices(device);
     }
 
     function deleteDevice(device) {
       socket.emit('delete_device', device);
     }
+
+    function remove_from_found_devices(device) {
+      var list = document.getElementById("devices");
+      var items = list.getElementsByTagName('li');
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].textContent === device + "Add") {
+            list.removeChild(items[i]);
+            break;
+        }
+    }
+}
+
 
 </script>
 

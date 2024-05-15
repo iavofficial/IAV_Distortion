@@ -24,9 +24,10 @@
     <div class="overlay" id="infoBoxOverlay">
         <div class="info-box">
             <div class="info-title">
-                <!-- <i class="material-symbols-outlined info"> info </i> --> <h2>Information</h2>
+                <h2>Information</h2>
             </div>
             <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait...</p>
+            <button class="refresh-button" onclick="location.reload();"> <span>Refresh Page</span></button>
         </div>
     </div>
 
@@ -49,15 +50,22 @@
                 <p class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span> </strong> m/s</p>
             </div>
             <div class="flexbox-item flexbox-change_lane_buttons">
-                <button class="button-size" id="change_lane_left">
-                    <<
-                    <!-- <i class="material-symbols-outlined large">arrow_left</i> -->
+                <button class="driver-buttons" id="make_uturn_left">
+                    &curvearrowleft;
                 </button>
-                <button class="button-size" id="change_lane_right">
-                    >>
-                    <!-- <i class="material-symbols-outlined large">arrow_right</i> -->
+                <button class="driver-buttons" id="make_uturn_right">
+                    &curvearrowright;
                 </button>
             </div>
+            <div class="flexbox-item flexbox-change_lane_buttons">
+                <button class="driver-buttons" id="change_lane_left">
+                    &ShortLeftArrow;
+                </button>
+                <button class="driver-buttons" id="change_lane_right">
+                    &ShortRightArrow;
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -90,7 +98,19 @@
           socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
         }
 
+        <!-- buttons to control uturn -->
+        var buttonUTurnLeft = document.getElementById("make_uturn_left");
+        var buttonUTurnRight = document.getElementById("make_uturn_right");
 
+        buttonUTurnLeft.onclick = function() {
+          socket.emit('make_uturn', {player: '{{player}}', direction: 'left'});
+        }
+
+        buttonUTurnRight.onclick = function() {
+          socket.emit('make_uturn', {player: '{{player}}', direction: 'right'});
+        }
+
+        <!-- loading window -->
         window.onload = function() {
 
           var slider_temp = document.getElementById("speed_request");
@@ -120,6 +140,7 @@
           socket.emit('disconnected', {player: '{{ player }}'});
         }
 
+        <!-- driving data functions -->
         function get_driving_data(){
           socket.emit('get_driving_data');
         }
