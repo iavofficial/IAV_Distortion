@@ -65,6 +65,8 @@
     <script type="text/javascript" charset="utf-8">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+        document.cookie = "player={{ player }}";
+
         <!-- slider to control velocity-->
 
         var slider = document.getElementById("speed_request");
@@ -112,8 +114,10 @@
 
         }
 
+        socket.emit('connected', {player: '{{ player }}'});
+
         window.onunload=function(){
-          socket.emit('disconnected');
+          socket.emit('disconnected', {player: '{{ player }}'});
         }
 
         function get_driving_data(){

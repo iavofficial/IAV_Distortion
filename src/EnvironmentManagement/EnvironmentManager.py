@@ -25,6 +25,7 @@ class EnvironmentManager:
 
         # self.find_unpaired_anki_cars()
 
+
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
         return
@@ -37,6 +38,10 @@ class EnvironmentManager:
 
     def set_player_uuid_mapping(self, player_id: str, uuid: str):
         self._player_uuid_map.update({player_id: uuid})
+        if uuid in self._car_queue_list:
+            self._car_queue_list.remove(uuid)
+        if player_id in self._player_queue_list:
+            self._player_queue_list.remove(player_id)
         print("added uuid")
         self._update_staff_ui()
         return
@@ -86,7 +91,7 @@ class EnvironmentManager:
             return
         else:
             self._player_queue_list.append(player_id)
-        if self._car_queue_list:
+        if len(self._car_queue_list) > 0:
             self.add_vehicle(uuid=self._car_queue_list.pop(0))
 
     def remove_player(self, player_id: str):
@@ -111,7 +116,6 @@ class EnvironmentManager:
             # if player queue is not empty, take first player id
             if len(self._player_queue_list) > 0:
                 player = self._player_queue_list.pop(0)
-                self.set_player_uuid_mapping(player_id=player, uuid=uuid)
             else:
                 self._car_queue_list.append(uuid)
                 self._update_staff_ui()
