@@ -69,6 +69,11 @@ class ModelCar(Vehicle):
             self._model_car_not_reachable_callback(self.vehicle_id, self.player, err_msg)
         return
 
+    def _on_driving_data_change(self) -> None:
+        if self._driving_data_callback is not None:
+            self._driving_data_callback(self.get_driving_data())
+        return
+
     @property
     def speed_request(self) -> float:
         return self.__speed_request
@@ -101,6 +106,8 @@ class ModelCar(Vehicle):
             self.__speed = speed_calculated
         else:
             self.__speed = 0
+            self._speed_actual = 0
+            self._on_driving_data_change()
 
         self._controller.change_speed_to(int(self.__speed))
         return
@@ -207,7 +214,10 @@ class ModelCar(Vehicle):
         self._road_location = location
         self._road_piece = piece
         self._offset_from_center = offset
-        self._speed_actual = speed
+        if self.__speed == 0:
+            self._speed_actual = 0
+        else:
+            self._speed_actual = speed
         self._direction = clockwise
 
         self._on_driving_data_change()
