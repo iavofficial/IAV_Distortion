@@ -71,7 +71,6 @@ class DriverUI:
         def change_lane(data: dict) -> None:
             player = data['player']
             direction = data['direction']
-            # print(f"Driver{player}: Button << pressed!")
             self.behaviour_ctrl.request_lane_change_for(uuid=self.uuids[player], value=direction)
             return
 
