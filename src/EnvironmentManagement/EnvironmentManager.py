@@ -6,10 +6,10 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-
+from DataModel.ModelCar import ModelCar
 from DataModel.Vehicle import Vehicle
+from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
-from VehicleManagement.VehicleController import VehicleController
 
 
 class EnvironmentManager:
@@ -42,13 +42,9 @@ class EnvironmentManager:
         return self.get_vehicle_list()
 
     def find_unpaired_anki_cars(self) -> list[str]:
-        # Funktion zum Fahrzeuge Suchen und Verbinden
-        # BLE device suchen
-        # mit Device verbinden, wenn bekannt, sonst via web interface
-
-        # vehicle initialisieren
         found_devices = self._fleet_ctrl.scan_for_anki_cars()
         # remove already active uuids:
+        new_devices = []
         new_devices = [device for device in found_devices if device not in self._player_uuid_map.values()]
 
         return new_devices
@@ -66,7 +62,9 @@ class EnvironmentManager:
             del self._player_uuid_map[player_to_remove]
             self._update_staff_ui()
 
-        self._active_anki_cars = [vehicle for vehicle in self._active_anki_cars if vehicle.uuid != uuid_to_remove]
+        found_vehicle = next((o for o in self._active_anki_cars if o.vehicle_id == uuid_to_remove), None)
+        self._active_anki_cars.remove(found_vehicle)
+        found_vehicle.__del__()
         return
 
     def add_vehicle(self, uuid: str):
@@ -90,8 +88,9 @@ class EnvironmentManager:
                     smallest_available_num = str(max_player + 1)
 
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
-            anki_car_controller = VehicleController()
-            temp_vehicle = Vehicle(uuid, anki_car_controller)
+            anki_car_controller = AnkiController()
+            temp_vehicle = ModelCar(uuid, anki_car_controller)
+            temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
 

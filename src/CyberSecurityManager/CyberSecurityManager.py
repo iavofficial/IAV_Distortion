@@ -6,9 +6,10 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+from typing import List
 
 from VehicleMovementManagement.BehaviourController import BehaviourController
-
+from DataModel.Vehicle import Vehicle
 
 def _set_scenarios():
     scenario0 = {"id": "0",
@@ -48,12 +49,11 @@ def _set_scenarios():
 
 class CyberSecurityManager:
 
-    def __init__(self, behaviour_ctrl: BehaviourController, map_of_uuids: dict):
+    def __init__(self, behaviour_ctrl: BehaviourController, vehicles: List[Vehicle]):
         self._behaviour_ctrl = behaviour_ctrl
         self._hacking_scenarios = _set_scenarios()
         self._active_scenarios = {}
-        for player in map_of_uuids:
-            self._update_active_hacking_scenarios(uuid=map_of_uuids[player], scenario_id='0')  # initiate all vehicles with scenario 0
+        self._vehicles = vehicles
 
         return
 
@@ -78,6 +78,7 @@ class CyberSecurityManager:
             self._behaviour_ctrl.turn_safemode_on(uuid)
 
         self._update_active_hacking_scenarios(uuid, scenario_id)
+        self._behaviour_ctrl.set_hacking_scenario(uuid, scenario_id)
 
         return
 

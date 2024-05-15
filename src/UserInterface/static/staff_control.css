@@ -16,6 +16,13 @@
     flex-direction: column;
     justify-items: flex-start;
     align-items: flex-start;
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
 }
 
 .flexbox-hacking_scenarios{
@@ -23,17 +30,19 @@
     flex-direction: column;
     justify-items: flex-start;
     min-width: 425px;
+
 }
 
-.flexbox-radio-button {
+.flexbox-radio-button > div {
       display: flex;
-      flex-direction: column; /* column - radio buttuns oriented vertivcally, row - radio buttuns oriented hrizontally*/
+      flex-direction: column;
       justify-content: space-between;
       margin-bottom: 15px;
+      position: relative;
     }
 
 .scenarioDescription{
-        margin-left: 25px;
+        margin-left: 50px;
 }
 
 .activeScenario_text{
