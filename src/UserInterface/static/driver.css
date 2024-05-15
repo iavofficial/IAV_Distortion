@@ -201,7 +201,7 @@ body{
 .info-box{
     display: flex;
     flex-direction: column;
-    width: 350px;
+    width: 450px;
     margin: 15% auto;
     background-color: #fff;
     padding: 20px;
@@ -221,6 +221,7 @@ body{
     justify-content: space-around;
     padding: 6px 12px;
     margin: 5px auto;
+    margin-top: 20px;
     border-radius: 15px;
     color: #FFFFFF;
     background: #0091FF;
