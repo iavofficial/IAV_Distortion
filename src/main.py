@@ -7,6 +7,7 @@
 # file that should have been included as part of this package.
 #
 
+from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
@@ -20,7 +21,7 @@ import os
 import asyncio
 
 
-async def main(admin_password: str):
+def main(admin_password: str):
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl)
 
@@ -31,11 +32,15 @@ async def main(admin_password: str):
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
 
     app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
-    socketio = SocketIO(app, cors_allowed_origins="*", async_mode=None)
+    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+    # Todo: using async_mode='threading' makes flask use the development server instead of the eventlet server.
+    #  change to use some production server
 
-    driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl, socketio=socketio)
+    driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl,
+                         socketio=socketio)
     driver_ui_blueprint = driver_ui.get_blueprint()
-    staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
+    staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio,
+                       environment_mng=environment_mng, password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
 
     app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
@@ -52,3 +57,4 @@ if __name__ == '__main__':
         admin_pwd = '0000'
         
     iav_distortion = asyncio.run(main(admin_pwd))
+
