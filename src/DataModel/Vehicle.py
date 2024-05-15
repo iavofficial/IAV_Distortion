@@ -35,10 +35,9 @@ class Vehicle:
         self._driving_data_callback = function_name
         return
 
+    @abc.abstractmethod
     def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
-            self._driving_data_callback(self.get_driving_data())
-        return
+        pass
 
     @property
     def hacking_scenario(self) -> str:
