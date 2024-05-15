@@ -113,36 +113,36 @@ body{
     appearance: none;
     width: 50px;
     height: 75px;
-    background: #fff;
+    background: #0091FF;
     cursor: pointer;
-    border: 5px solid #0091FF;
+    /*border: 5px solid #0091FF;*/
     border-radius: 25px;
 }
 
 .slider::-webkit-slider-thumb:hover {
-    border: 5px solid #33A7FF;
+    /*border: 5px solid #33A7FF;*/
 }
 
 .slider::-webkit-slider-thumb:active {
-    border: 5px solid #0074CC;
+    /*border: 5px solid #0074CC;*/
     background: #0074CC;
 }
 
 .slider::-moz-range-thumb {
      width: 50px;
      height: 75px;
-     background: #fff;
+     background: #0091FF;
      cursor: pointer;
-     border: 5px solid #0091FF;
+     /*border: 5px solid #0091FF;*/
      border-radius: 25px;
 }
 
 .slider::-moz-range-thumb:hover {
-    border: 5px solid #33A7FF;
+    /*border: 5px solid #33A7FF;2*/
 }
 
 .slider::-moz-range-thumb:active {
-    border: 5px solid #0074CC;
+    /*border: 5px solid #0074CC;*/
     background: #0074CC;
 }
 
@@ -182,21 +182,21 @@ body{
     height: 110px;
     font-size: 50px;
     border-radius: 25px;
-    color: #0091FF;
+    /* color: #0091FF;
     background: #FFFFFF;
-    border: 5px solid #0091FF; /* border thickness and color */
+    border: 5px solid #0091FF; */
 }
 
 .driver-buttons:hover {
-    color: #33A7FF;
+    /*color: #33A7FF;
     border: 5px solid #33A7FF;
-    background: #FFFFFF;
+    background: #FFFFFF;*/
 }
 
 .driver-buttons:active {
-    color: #FFFFFF;
+    /*color: #FFFFFF;
     border: 5px solid #0074CC;
-    background: #0074CC;
+    background: #0074CC;*/
 }
 
 .overlay {
