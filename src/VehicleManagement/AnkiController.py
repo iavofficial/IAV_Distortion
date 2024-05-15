@@ -1,5 +1,6 @@
 import asyncio
 import struct
+from threading import Thread
 
 from VehicleManagement.VehicleController import VehicleController, Turns, TurnTrigger
 from bleak import BleakClient, BleakGATTCharacteristic, BleakError
@@ -9,6 +10,12 @@ class AnkiController(VehicleController):
     def __init__(self) -> None:
         super().__init__()
         self.task_in_progress: bool = False
+
+        self._notification_thread: Thread = Thread(target=self.__on_receive_data,
+                                                   name="notification_thread",
+                                                   args=(BleakGATTCharacteristic, bytearray))
+
+        self.__loop = asyncio.new_event_loop()
 
         self.__MAX_ANKI_SPEED = 1200  # mm/s
         self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
@@ -25,6 +32,14 @@ class AnkiController(VehicleController):
 
     def __del__(self) -> None:
         self.__disconnect_from_vehicle()
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        asyncio.run_coroutine_threadsafe(task, self.__loop).result()
+        # TODO: Log error, if the coroutine doesn't end successfully
 
     def set_callbacks(self,
                       location_callback,
@@ -46,11 +61,11 @@ class AnkiController(VehicleController):
             return False
 
         try:
-            connected_car = ble_client
-            print(f'connect to {ble_client.address}')
-            self.__run_async_task(connected_car.connect())
-            if connected_car.is_connected:
-                self._connected_car = connected_car
+            Thread(target=self.__loop.run_forever).start()
+            self.__run_async_task(ble_client.connect())
+
+            if ble_client.is_connected:
+                self._connected_car = ble_client
                 self._setup_car(start_notification)
                 return True
             else:
@@ -83,7 +98,9 @@ class AnkiController(VehicleController):
 
     def __start_notifications_now(self) -> bool:
         try:
-            self.__run_async_task(self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4", self.__on_receive_data))
+            self._notification_thread.start()
+            self.__run_async_task(self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4",
+                                                                   self.__on_receive_data))
             return True
         except BleakError:
             if self.__car_not_reachable_callback is not None:
@@ -113,15 +130,12 @@ class AnkiController(VehicleController):
     def change_lane_to(self, change_direction: int, velocity: int, acceleration: int = 1000) -> bool:
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         lane_direction = self.__LANE_OFFSET * change_direction
-        # print(f"change direction: {change_direction} and calculated offset: {lane_direction}")
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
-        # print(f"{command}")
         self.__send_command(command)
         return True
 
     def do_turn_with(self, direction: Turns,
                      turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE) -> bool:
-        # print(f"{direction} : {direction.value}; {turntrigger} : {turntrigger.value}")
         command = struct.pack("<BHH", 0x32, direction.value[0], turntrigger.value[0])
         self.__send_command(command)
         return True
@@ -171,7 +185,7 @@ class AnkiController(VehicleController):
         self.__send_command(command)
         return True
 
-    def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> bool:
+    def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> None:
         command_id = hex(data[1])
 
         # Version
@@ -203,19 +217,9 @@ class AnkiController(VehicleController):
         else:
             new_data = data.hex(" ", 1)
             # print(f"{command_id} / {new_data[2:]}")
-            return False
-
-        return True
+        return
 
     def on_send_new_event(self, value_tuple: tuple, callback: classmethod) -> None:
         if callback is not None:
             callback(value_tuple)
         return
-
-    def __run_async_task(self, task):
-        """
-        Run a asyncio awaitable task
-        task: awaitable task
-        """
-        asyncio.run_coroutine_threadsafe(task, self.loop).result()
-        # TODO: Log error, if the coroutine doesn't end successfully
