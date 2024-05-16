@@ -20,7 +20,6 @@ class DriverUI:
         self.socketio = socketio
 
         def home_driver(player: str) -> str:
-
             vehicle = self.get_vehicle_by_player(player=player)
             player_exists = False
             picture = ''  # default picture can be added here
@@ -31,6 +30,7 @@ class DriverUI:
                 picture = picture.replace(":", "") + ".png"
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
+                print(f'set callback for {player}')
 
             return render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
                                    vehicle_information=vehicle_information)
@@ -40,16 +40,20 @@ class DriverUI:
         def handle_slider_change(data) -> None:
             player = data['player']
             value = float(data['value'])
-            # print(f"Slider {player} value: {value}")
-            self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_proz=value)
+            self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_perc=value)
             return
 
         @self.socketio.on('lane_change')
-        def change_lane_left(data: dict) -> None:
+        def change_lane(data: dict) -> None:
             player = data['player']
             direction = data['direction']
-            # print(f"Driver{player}: Button << pressed!")
             self.behaviour_ctrl.request_lane_change_for(uuid=self.uuids[player], value=direction)
+            return
+
+        @self.socketio.on('make_uturn')
+        def make_uturn(data: dict) -> None:
+            player = data['player']
+            self.behaviour_ctrl.request_uturn_for(uuid=self.uuids[player])
             return
 
         @self.socketio.on('get_driving_data')

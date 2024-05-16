@@ -15,7 +15,7 @@ class FleetController:
 
     def __init__(self):
         self._connected_cars = {} # BleakClients
-        self.loop = asyncio.get_event_loop()
+        self.loop = asyncio.new_event_loop()
 
     def scan_for_anki_cars(self) -> list[str]:
         ble_devices = self.loop.run_until_complete(BleakScanner.discover(return_adv=True))

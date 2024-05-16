@@ -1,0 +1,16 @@
+.flexbox-container {
+    display:  flex;
+}
+
+.flexbox-login {
+    margin: 0 auto;
+    margin-bottom: 15px;
+}
+
+.alert-wrong-password {
+    background-color: red;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 6px;
+    border-radius: 10px;
+}
