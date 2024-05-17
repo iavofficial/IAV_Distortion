@@ -64,3 +64,44 @@ def test_acceleration(speed, acceleration):
         sum += acceleration
         location_service._run_simulation_step_threadsafe()
         assert location_service._actual_speed == sum
+
+def get_top_left_in_global(piece: TrackPiece, pos: Position) -> Position:
+    x = pos.get_x() - piece.get_used_space_horiz() / 2
+    y = pos.get_y() - piece.get_used_space_vert() / 2
+    return Position(x, y)
+
+def test_top_left_corner():
+    """
+    Create a full track and test, that there is a piece at (0, 0). It needs to be ran
+    on a full closing track. As of now the test doesn't account for the fact that there
+    are tracks without clean top left piece!
+    """
+    track = get_loop_track()
+    piece, pos = track.get_entry_tupel(0)
+    top_left_pos = get_top_left_in_global(piece, pos)
+    min_x = top_left_pos.get_x()
+    # indices of the minimum. Since there can be equal ones it needs to be a list
+    min_x_list = list()
+    min_y = top_left_pos.get_y()
+    min_y_list = list()
+    for i in range(0, track.get_len()):
+        piece, pos_on_track = track.get_entry_tupel(i)
+        top_left_corner = get_top_left_in_global(piece, pos_on_track)
+        if top_left_corner.get_x() < min_x:
+            min_x = top_left_corner.get_x()
+            min_x_list.clear()
+            min_x_list.append(i)
+        elif top_left_corner.get_x() == min_x:
+            min_x_list.append(i)
+        if top_left_corner.get_y() < min_y:
+            min_y = top_left_corner.get_y()
+            min_y_list.clear()
+            min_y_list.append(i)
+        elif top_left_corner.get_y() == min_y:
+            min_y_list.append(i)
+
+    piece, pos = track.get_entry_tupel(1)
+    assert min_x == 0
+    assert min_y == 0
+    # Check, if the (0, 0) is on the same piece
+    assert len(set(min_x_list).intersection(min_y_list)) >= 1
