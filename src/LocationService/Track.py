@@ -69,12 +69,14 @@ class FullTrack():
     Class that represents an entire track. The upper left corner of the upper left
     track piece is at the coordinate 0, 0. All units are in mm.
     """
-    def __init__(self, pieces):
+    def __init__(self, pieces: list[TrackPiece]):
         self.track_entries: list[TrackEntry] = list()
         cur_y = 0
         cur_x = 0
-        max_x = 0
-        max_y = 0
+        min_x = 0
+        min_y = 0
+        max_used_horiz = 0
+        max_used_vert = 0
         for track in pieces:
             self.track_entries.append(TrackEntry(track, Position(cur_x, cur_y)))
             match track.get_next_attachment_direction():
@@ -86,13 +88,19 @@ class FullTrack():
                     cur_x += track.get_used_space_horiz()
                 case Direction.SOUTH:
                     cur_y += track.get_used_space_vert()
-            if max_x > cur_x:
-                max_x = cur_x
-            if max_y > cur_y:
-                max_y = cur_y
+            if cur_x < min_x:
+                min_x = cur_x
+            if cur_y < min_y:
+                min_y = cur_y
+            if track.get_used_space_horiz() > max_used_horiz:
+                max_used_horiz = track.get_used_space_horiz()
+            if track.get_used_space_vert() > max_used_vert:
+                max_used_vert = track.get_used_space_vert()
         # change positions so that the top left corner of the top left piece is at (0, 0)
+        diff_x = -min_x + max_used_horiz / 2
+        diff_y = -min_y + max_used_vert / 2
         for entry in self.track_entries:
-            entry.get_global_offset().add_offset(-max_x + pieces[0].get_used_space_horiz() / 2, -max_y + pieces[0].get_used_space_vert() / 2)
+            entry.get_global_offset().add_offset(diff_x, diff_y)
 
     def get_entry_tupel(self, num: int) -> Tuple[TrackPiece, Position]:
         entry = self.track_entries[num]
