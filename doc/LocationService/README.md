@@ -7,6 +7,9 @@ on the FullTrack (determined while building the track). With the sum of the posi
 the Trackpiece position on the track itself you can get the global position. On a track the upper left corner of the
 upper left piece is on (0, 0).
 
+## Coordinate system
+North means that the y value is **decreasing**. East means the x value is **increasing**.
+
 ## Pieces
 The coordinate (0, 0) of every piece is in the middle of it. To see the common variable names look at the following
 pictures:
