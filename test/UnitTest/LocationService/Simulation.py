@@ -105,3 +105,18 @@ def test_top_left_corner():
     assert min_y == 0
     # Check, if the (0, 0) is on the same piece
     assert len(set(min_x_list).intersection(min_y_list)) >= 1
+
+@pytest.mark.parametrize("speed", [(200), (1), (100), (10)])
+def test_multiple_transitions(speed: float):
+    """
+    Test the transitions against jumping at a full track
+    """
+    track = get_loop_track()
+    location_service = LocationService(track, simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service._set_speed_mm(speed, acceleration=1)
+    old_pos, _ = location_service._run_simulation_step_threadsafe()
+    for _ in range(0, track.get_len() * STRAIGHT_PIECE_LENGTH()):
+        new_pos, _ = location_service._run_simulation_step_threadsafe()
+        # allow small floating errors
+        assert old_pos.distance_to(new_pos) < speed * 1.000001
+        old_pos = new_pos
