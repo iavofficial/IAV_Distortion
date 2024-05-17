@@ -93,3 +93,7 @@ class Position():
             rad += 2 * math.pi
         deg = math.degrees(rad)
         return Angle(deg)
+    
+    def distance_to(self, other) -> float:
+        in_sqrt = math.pow(self.get_x() - other.get_x(), 2) + math.pow(self.get_y() - other.get_y(), 2)
+        return math.sqrt(in_sqrt)
