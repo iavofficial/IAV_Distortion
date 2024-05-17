@@ -50,8 +50,17 @@ class LocationService():
         acceleration: used acceleration in mm/s^2
         """
         with self._value_mutex:
-            self._target_speed = self.__MAX_ANKI_SPEED * speed / 100
-            self._acceleration = acceleration
+            self._set_speed_mm(self.__MAX_ANKI_SPEED * speed / 100, acceleration)
+
+    def _set_speed_mm(self, speed_mm: float, acceleration: int = 1000):
+        """
+        Update the target speed of the car
+        Not Thread-safe
+        speed: target speed in mm/s
+        acceleration: used acceleration in mm/s^2
+        """
+        self._target_speed = speed_mm
+        self._acceleration = acceleration
 
     def set_offset(self, offset: int):
         """
@@ -62,7 +71,16 @@ class LocationService():
         """
         with self._value_mutex:
             # TODO: This doesn't check for out of bounds driving
-            self._target_offset = self.__LANE_OFFSET * offset
+            self._set_offset_mm(self.__LANE_OFFSET * offset)
+
+    def _set_offset_mm(self, offset: float):
+        """
+        Sets the targeted offset where the car should drive on the track.
+        Not Thread-safe
+        offset: target offset where the car should drive in mm of
+                distance to the track center
+        """
+        self._target_offset = offset
 
     def _adjust_speed(self):
         """
