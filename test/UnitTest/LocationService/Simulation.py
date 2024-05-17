@@ -51,3 +51,16 @@ def test_track_transistion():
     location_service._run_simulation_step_threadsafe()
     assert location_service._current_piece_index == 1
     assert location_service._progress_on_current_piece == 1
+
+@pytest.mark.parametrize("speed,acceleration", [(200, 9), (10, 2), (100, 53), (10, 100)])
+def test_acceleration(speed, acceleration):
+    """
+    Test that the vehicle accelerates correctly
+    """
+    location_service = LocationService(get_two_straight_pieces(), simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service._set_speed_mm(speed, acceleration=acceleration)
+    sum = 0
+    for _ in range(0, int(speed / acceleration)):
+        sum += acceleration
+        location_service._run_simulation_step_threadsafe()
+        assert location_service._actual_speed == sum
