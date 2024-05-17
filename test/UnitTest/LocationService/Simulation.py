@@ -120,3 +120,15 @@ def test_multiple_transitions(speed: float):
         # allow small floating errors
         assert old_pos.distance_to(new_pos) < speed * 1.000001
         old_pos = new_pos
+
+@pytest.mark.parametrize("offset", [(20), (1), (75), (10), (-15), (0), (-72)])
+def test_offset(offset: float):
+    location_service = LocationService(get_two_straight_pieces(), simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service._set_speed_mm(1, acceleration=1)
+    old_pos, _ = location_service._run_simulation_step_threadsafe()
+    location_service._set_offset_mm(offset)
+    for _ in range(0, 500):
+        location_service._run_simulation_step_threadsafe()
+    new_pos, _ = location_service._run_simulation_step_threadsafe()
+    exp_y = old_pos.get_y() + offset
+    assert new_pos.get_y() == pytest.approx(exp_y)
