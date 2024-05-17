@@ -40,15 +40,15 @@ and run it. Executing the install script will...
 After setting up the project successfuly, you can control the system and the cars using any device wich can access a webbrowser and is connected to the same network or hotspot of the system.
 
 ### Staff Control
-The staff userinterface can be accessed via <system_iP>:5000/staff/staff_control.
+The staff userinterface can be accessed via &lt;system_iP&gt;:5000/staff/staff_control.
 On this side Anki cars can be added / connected via bluetooth.
 Aside from that the different hacking scenarios can be actiavted for the connected cars.
 
 <img src="./images/staffUI_activateScenario.png" alt="IAV-Distortion staff ui" style="width:100%;max-width:400px">
 
 ### Driver UI
-The driver ui can be acessed via <system_iP>:5000/driver/<player>.
-This ui will only be available if the choosen <player> exists. (See staff ui).
+The driver ui can be acessed via &lt;system_iP&gt;:5000/driver/&lt;player&gt;.
+This ui will only be available if the choosen &lt;player&gt; exists. (See staff ui).
 The slider on the left controls the speed.
 With the buttons on the right the lanes can be changed.
 
