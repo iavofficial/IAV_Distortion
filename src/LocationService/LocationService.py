@@ -141,10 +141,8 @@ class LocationService():
         leftover_distance, new_pos = piece.process_update(self._progress_on_current_piece, distance, self._actual_offset)
         self._progress_on_current_piece += distance
         if leftover_distance != 0:
-            self._current_piece_index += 1
+            self._current_piece_index = (self._current_piece_index + 1) % self._track.get_len()
             self._progress_on_current_piece = 0
-            if self._current_piece_index >= self._track.get_len():
-                self._current_piece_index = 0
             return self._run_simulation_step(leftover_distance)
         self._current_position = new_pos + global_track_offset
         return (self._current_position, self._current_position.calculate_angle_to(old_pos))
