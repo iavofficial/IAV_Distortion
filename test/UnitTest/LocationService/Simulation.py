@@ -123,6 +123,9 @@ def test_multiple_transitions(speed: float):
 
 @pytest.mark.parametrize("offset", [(20), (1), (75), (10), (-15), (0), (-72)])
 def test_offset(offset: float):
+    """
+    Test the offset changing on the track itself for different values
+    """
     location_service = LocationService(get_two_straight_pieces(), simulation_ticks_per_second=1, start_immeaditly=False)
     location_service._set_speed_mm(1, acceleration=1)
     old_pos, _ = location_service._run_simulation_step_threadsafe()
@@ -134,6 +137,9 @@ def test_offset(offset: float):
     assert new_pos.get_y() == pytest.approx(exp_y)
 
 def test_position_rotation():
+    """
+    Test the returned rotation value, where the car is pointing for plausibility
+    """
     track = get_loop_track()
     location_service = LocationService(track, simulation_ticks_per_second=1, start_immeaditly=False)
     location_service._set_speed_mm(1, acceleration=1)
