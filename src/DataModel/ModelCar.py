@@ -187,7 +187,7 @@ class ModelCar(Vehicle):
         if self.__turn_blocked:
             return
 
-        # TODO: Implement U-Turn in Simulation
+        self._location_service.do_uturn()
         self._controller.do_turn_with(Turns.A_UTURN)
         return
 

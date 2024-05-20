@@ -39,14 +39,24 @@ class StraightPiece(TrackPiece):
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
         end = start_progress + distance
         left = 0
+        # handle the car driving more than the piece is long
         if end >= self._length:
             left = end - self._length
             end = self._length
+        elif end <= 0:
+            left = end
+            end = 0
 
         endposition = Position(-offset, self._length / 2 - end)
         endposition.rotate_around_0_0(self._rotation)
 
         return (left, endposition)
+
+    def get_length(self, offset: float) -> float:
+        return self._length
+
+    def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
+        return old_progress
 
 class CurvedPiece(TrackPiece):
     def __init__(self, square_size, rot: int, mirror: bool):
@@ -76,10 +86,14 @@ class CurvedPiece(TrackPiece):
     def process_update(self, start_progress: float, distance: float, offset: float):
         end = start_progress + distance
         left = 0
-        travel_len = self.get_track_length(offset)
+        travel_len = self.get_length(offset)
+        # handle the car driving more than the piece is long
         if end >= travel_len:
             left = end - travel_len
             end = travel_len
+        elif end <= 0:
+            left = end
+            end = 0
         progress = end / travel_len
         angle = Angle(progress * 90)
         distance_to_middle = self._radius + offset
@@ -90,8 +104,12 @@ class CurvedPiece(TrackPiece):
         position.rotate_around_0_0(self._rotation)
         return (left, position)
 
-    def get_track_length(self, offset: float) -> float:
+    def get_length(self, offset: float) -> float:
         return (self._radius + offset) * math.pi / 2
+
+    def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
+        percent = old_progress / self.get_length(old_offset)
+        return percent * self.get_length(new_offset)
 
 
 class TrackBuilder():
