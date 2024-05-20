@@ -132,3 +132,26 @@ def test_offset(offset: float):
     new_pos, _ = location_service._run_simulation_step_threadsafe()
     exp_y = old_pos.get_y() + offset
     assert new_pos.get_y() == pytest.approx(exp_y)
+
+def test_position_rotation():
+    track = get_loop_track()
+    location_service = LocationService(track, simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service._set_speed_mm(1, acceleration=1)
+    location_service._run_simulation_step_threadsafe()
+    # for the 1st piece it should always be 90° (pointing right)
+    while True:
+        _, rot = location_service._run_simulation_step_threadsafe()
+        if location_service._current_piece_index != 0:
+            break
+        assert rot.get_deg() == pytest.approx(90)
+    _, last = location_service._run_simulation_step_threadsafe()
+    while True:
+        _, new = location_service._run_simulation_step_threadsafe()
+        # go over both curve pieces
+        if location_service._current_piece_index == 3:
+            break
+        assert new.get_deg() > last.get_deg()
+        last = new
+    # now we are on a straight piece again and should point right
+    _, rot = location_service._run_simulation_step_threadsafe()
+    assert rot.get_deg() == 270
