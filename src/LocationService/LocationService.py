@@ -27,8 +27,12 @@ class LocationService():
         self._actual_speed: float = 0
         self._target_speed: float = 0
         self._acceleration: float = 0
+        # the real cars will multiply the offset by -1 when changing directions. We will account
+        # for this change in all function calls that read/write the offset
         self._actual_offset: float = 0
         self._target_offset: float = 0
+        # direction multiplier. 1 if going the default rotation and -1 if going the opposing direction
+        self._direction_mult: int = 1
 
         self._track: FullTrack = track
         self._current_piece_index: int = 0
@@ -41,6 +45,16 @@ class LocationService():
 
         if start_immeaditly:
             self.start()
+
+    def do_uturn(self):
+        """
+        Do a U-Turn.
+        Thread-Safe
+        """
+        # TODO: Implement actual movement instead of just rotating 180° and also account in other
+        # functions for the multiplication of the offset by -1
+        with self._value_mutex:
+            self._direction_mult *= -1
 
     def set_speed(self, speed: int, acceleration: int = 1000):
         """
@@ -101,6 +115,7 @@ class LocationService():
         Not Thread-safe
         returns: leftover distance that can be traveled straight
         """
+        # slightly changes the progress on the piece itself
         needed_offset = abs(self._actual_offset - self._target_offset)
         max_change = self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT * travel_distance
         change = max_change
@@ -109,10 +124,14 @@ class LocationService():
 
         if needed_offset < change:
             change = needed_offset
+        old_offset = self._actual_offset
         if self._target_offset > self._actual_offset:
             self._actual_offset += change
         else:
             self._actual_offset -= change
+        new_offset = self._actual_offset
+        piece, _ = self._track.get_entry_tupel(self._current_piece_index)
+        self._progress_on_current_piece = piece.get_equivalent_progress_for_offset(old_offset, new_offset, self._progress_on_current_piece)
 
         # use pythagoras for more accuracy
         remaining_way = math.sqrt(travel_distance * travel_distance - change * change)
@@ -127,7 +146,7 @@ class LocationService():
         with self._value_mutex:
             self._adjust_speed()
             trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
-            return self._run_simulation_step(trav_distance)
+            return self._run_simulation_step(trav_distance * self._direction_mult)
 
     def _run_simulation_step(self, distance: float) -> Tuple[Position, Angle]:
         """
@@ -141,8 +160,12 @@ class LocationService():
         leftover_distance, new_pos = piece.process_update(self._progress_on_current_piece, distance, self._actual_offset)
         self._progress_on_current_piece += distance
         if leftover_distance != 0:
-            self._current_piece_index = (self._current_piece_index + 1) % self._track.get_len()
-            self._progress_on_current_piece = 0
+            self._current_piece_index = (self._current_piece_index + self._direction_mult) % self._track.get_len()
+            if self._direction_mult == 1:
+                self._progress_on_current_piece = 0
+            else:
+                new_piece, _ = self._track.get_entry_tupel(self._current_piece_index)
+                self._progress_on_current_piece = new_piece.get_length(self._actual_offset)
             return self._run_simulation_step(leftover_distance)
         self._current_position = new_pos + global_track_offset
         return (self._current_position, self._current_position.calculate_angle_to(old_pos))

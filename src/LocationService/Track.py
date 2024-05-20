@@ -38,6 +38,7 @@ class TrackPiece(ABC):
         Drive a distance on the piece. Returns a tupe with the leftover distance that can be used on the next piece
         immediately (or 0, if the car is still on the same piece) and a position relativ to the center of the track piece
         (which should be ignored, if there is a leftover distance).
+        To drive in the opposing direction start at the end (by getting the length) and then providing a negative distance.
         """
         raise NotImplementedError
 
@@ -51,6 +52,20 @@ class TrackPiece(ABC):
 
     @abstractmethod
     def get_next_attachment_direction(self) -> Direction:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_length(self, offset: float) -> float:
+        """
+        Get the length of the track at a given offset
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
+        """
+        Get the current progress on the track for changing the offset
+        """
         raise NotImplementedError
 
 class TrackEntry():
