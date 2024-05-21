@@ -36,3 +36,8 @@ the end of the piece and should immediately (in the same step) go to the next tr
 
 These calculations are called usually multiple times per second (according to how often the position should be updated).
 The amount of updates is configurable.
+
+## Offset
+The track pieces have a offset that is absolute (as in it doesn't know the driving direction and therefor isn't making
+positive values go right). To implement the offset to be dependent on the driving direction the value is adjusted before
+giving it to the track in the LocationService implementation that knows the full track.

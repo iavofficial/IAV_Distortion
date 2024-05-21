@@ -31,8 +31,10 @@ class LocationService():
         # for this change in all function calls that read/write the offset
         self._actual_offset: float = 0
         self._target_offset: float = 0
-        # direction multiplier. 1 if going the default rotation and -1 if going the opposing direction
+        # direction multiplier. 1 if going the default rotation (clockwise on a round track) and -1 if going the opposing direction
         self._direction_mult: int = 1
+
+        self._uturn_override: UTurnOverride | None = None
 
         self._track: FullTrack = track
         self._current_piece_index: int = 0
@@ -51,10 +53,10 @@ class LocationService():
         Do a U-Turn.
         Thread-Safe
         """
-        # TODO: Implement actual movement instead of just rotating 180° and also account in other
-        # functions for the multiplication of the offset by -1
         with self._value_mutex:
-            self._direction_mult *= -1
+            # block a U-Turn in a U-Turn
+            if self._uturn_override is None:
+                self._uturn_override = UTurnOverride(self, self._actual_offset > 0)
 
     def set_speed(self, speed: int, acceleration: int = 1000):
         """
@@ -78,7 +80,9 @@ class LocationService():
 
     def set_offset(self, offset: int):
         """
-        Sets the targeted offset where the car should drive.
+        Sets the targeted offset where the car should drive. Use positive
+        values to go right and negative values to go left in the driving
+        direction.
         Thread-safe
         offset: target offset where the car should drive (as int like
                 in the AnkiController)
@@ -94,19 +98,28 @@ class LocationService():
         offset: target offset where the car should drive in mm of
                 distance to the track center
         """
-        self._target_offset = offset
+        self._target_offset = offset * -1
 
     def _adjust_speed(self):
         """
         Updates internal speed values for the simulation based on the acceleration.
         Not Thread-safe
         """
-        if self._actual_speed < self._target_speed:
+        self._adjust_speed_to(self._target_speed)
+
+    def _adjust_speed_to(self, target_speed: float):
+        """
+        Updates internal speed values for the simulation based on the acceleration.
+        Takes the target speed as argument
+        Not Thread-safe
+        """
+        if self._actual_speed < target_speed:
             self._actual_speed += self._acceleration / self._simulation_ticks_per_second
 
         # TODO: Use better slowdown approach
-        if self._actual_speed > self._target_speed:
-            self._actual_speed = self._target_speed
+        if self._actual_speed > target_speed:
+            self._actual_speed = target_speed
+
 
     def _adjust_offset(self, travel_distance: float) -> float:
         """
@@ -126,16 +139,23 @@ class LocationService():
             change = needed_offset
         old_offset = self._actual_offset
         if self._target_offset > self._actual_offset:
-            self._actual_offset += change
+            new_offset = self._actual_offset + change
         else:
-            self._actual_offset -= change
-        new_offset = self._actual_offset
-        piece, _ = self._track.get_entry_tupel(self._current_piece_index)
-        self._progress_on_current_piece = piece.get_equivalent_progress_for_offset(old_offset, new_offset, self._progress_on_current_piece)
+            new_offset = self._actual_offset - change
+        self._adjust_offset_on_piece(old_offset, new_offset)
 
         # use pythagoras for more accuracy
         remaining_way = math.sqrt(travel_distance * travel_distance - change * change)
         return remaining_way
+
+    def _adjust_offset_on_piece(self, old_offset: float, new_offset: float):
+        """
+        Adjusts the offset on the current piece.
+        Not Thread-safe
+        """
+        piece, _ = self._track.get_entry_tupel(self._current_piece_index)
+        self._progress_on_current_piece = piece.get_equivalent_progress_for_offset(old_offset, new_offset, self._progress_on_current_piece)
+        self._actual_offset = new_offset
 
     def _run_simulation_step_threadsafe(self) -> Tuple[Position, Angle]:
         """
@@ -144,8 +164,11 @@ class LocationService():
         returns: The new position and the Angle where the car is pointing
         """
         with self._value_mutex:
-            self._adjust_speed()
-            trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
+            if self._uturn_override is not None:
+                trav_distance = self._uturn_override.override_simulation()
+            else:
+                self._adjust_speed()
+                trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
             return self._run_simulation_step(trav_distance * self._direction_mult)
 
     def _run_simulation_step(self, distance: float) -> Tuple[Position, Angle]:
@@ -201,3 +224,86 @@ class LocationService():
         self._stop_event.set()
         self._simulation_thread.join()
         self._simulation_thread = None
+
+    
+class UTurnOverride():
+    """
+    Class that overrides the complete LocationService behavior to
+    do a complete U-Turn
+    """
+    def __init__(self, location_service, drive_to_outside_of_tack: bool):
+        """
+        Create a UTurn override object that can be set in the LocationService
+        to perform a U-Turn. Based on direction_mult it will either be clockwise
+        or counter-clockwise. The allowed values for this argument are -1 and 1.
+        """
+        self._SPEED_FOR_UTURN = 200
+        self._CIRCLE_RADIUS = 50
+        self._CIRCLE_LENGTH = self._CIRCLE_RADIUS * math.pi
+        self._DEGREE_PER_STEP = (self._SPEED_FOR_UTURN * 180) / (self._CIRCLE_LENGTH * location_service._simulation_ticks_per_second) * -1
+
+        self._location_service = location_service
+
+        self._phase = 0
+        self._curve_progress = 0
+
+        if drive_to_outside_of_tack:
+            self._angle_multiplier = 1
+        else:
+            self._angle_multiplier = -1
+
+        # Point around which the U-Turn will resolve. Generally dx is the length and dy the offset
+        self._last_curve_pos: Position = Position(0, self._angle_multiplier)
+        self._orig_mult = self._location_service._direction_mult
+
+    def override_simulation(self) -> float:
+        """
+        Function that is called in the simulation step. It will return a float with
+        the distance the car will travel in piece direction
+        """
+        match self._phase:
+            # change speed to safe value for U-Turns
+            case 0:
+                if abs(self._location_service._actual_speed - self._SPEED_FOR_UTURN) < 0.1:
+                    self._phase = 1
+                    return self.override_simulation()
+                self._location_service._adjust_speed_to(self._SPEED_FOR_UTURN)
+                return self._location_service._actual_speed / self._location_service._simulation_ticks_per_second
+            # first half of the curve
+            case 1:
+                # check if we entered the 2nd half already
+                if self._last_curve_pos.get_y() <= 0 and self._angle_multiplier == 1 or\
+                        self._last_curve_pos.get_y() >= 0 and self._angle_multiplier == -1:
+                    self._location_service._direction_mult *= -1
+                    self._phase = 2
+                # this is done since dy could be negative for the last step which would create a infinite recursion
+                return abs(self._do_curve_step())
+            # second half of the curve
+            case 2:
+                # check if the curve was finished already
+                if self._last_curve_pos.get_x() <= 0:
+                    self._location_service._uturn_override = None
+                    self._location_service._target_offset = self._location_service._actual_offset
+                    return 0
+                # this isn't a problem since the abs and the inverted driving direction cancel out each other
+                return abs(self._do_curve_step())
+        raise RuntimeError(f"The U-Turn override got into phase {self._phase} which doesn't exist!")
+    
+    def _do_curve_step(self) -> float:
+        """
+        Does a single curve step by applying the changed offset and returning the
+        travelled distance
+        """
+        new_pos = self._last_curve_pos.clone()
+        new_pos.rotate_around_0_0(Angle(self._DEGREE_PER_STEP * self._angle_multiplier))
+        dx = new_pos.get_x() - self._last_curve_pos.get_x()
+        dy = new_pos.get_y() - self._last_curve_pos.get_y()
+
+        self._last_curve_pos = new_pos
+        dx *= self._CIRCLE_RADIUS
+        dy *= self._CIRCLE_RADIUS
+
+        old_offset = self._location_service._actual_offset
+        new_offset = old_offset + dy
+        self._location_service._adjust_offset_on_piece(old_offset, new_offset)
+        return dx
