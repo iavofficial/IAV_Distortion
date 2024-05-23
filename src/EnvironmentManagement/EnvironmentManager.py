@@ -13,6 +13,7 @@ from flask_socketio import SocketIO
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
+from DataModel.VirtualCar import VirtualCar
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
@@ -36,6 +37,8 @@ class EnvironmentManager:
 
         # self.find_unpaired_anki_cars()
 
+        # number used for naming virtual vehicles
+        self._virtual_vehicle_num: int = 1
 
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
@@ -176,6 +179,17 @@ class EnvironmentManager:
         # TODO: add a check if connection was successful 
 
         self._active_anki_cars.append(temp_vehicle)
+        self._assign_players_to_vehicles()
+        self._update_staff_ui()
+        return
+
+    def add_virtual_vehicle(self):
+        # TODO: Add more better way of determining name numbers to allow reuse of already
+        # used numbers
+        name = f"Virtual Vehicle {self._virtual_vehicle_num}"
+        self._virtual_vehicle_num += 1
+        vehicle = VirtualCar(name, self.get_track())
+        self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
         self._update_staff_ui()
         return
