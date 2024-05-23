@@ -152,6 +152,11 @@ class ModelCar(Vehicle):
         else:
             self.__lane_change = self.__lane_change
 
+        if self.__lane_change < -3:
+            self.__lane_change = -3
+        elif self.__lane_change > 3:
+            self.__lane_change = 3
+
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
