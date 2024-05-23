@@ -11,7 +11,7 @@ from typing import List
 from collections import deque
 from flask_socketio import SocketIO
 
-from DataModel.ModelCar import ModelCar
+from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
@@ -171,7 +171,7 @@ class EnvironmentManager:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = ModelCar(uuid, anki_car_controller, self.get_track())
+        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
         temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 

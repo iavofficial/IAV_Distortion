@@ -2,16 +2,20 @@ from bleak import BleakClient
 
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.AnkiController import AnkiController
-from VehicleManagement.VehicleController import Turns
+from VehicleManagement.VehicleController import Turns, VehicleController
 
 from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
 
 
 class ModelCar(Vehicle):
-    def __init__(self, vehicle_id: str, controller: AnkiController, track: FullTrack) -> None:
+    """
+    Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
+    the controller, if appropriate
+    """
+    def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack) -> None:
         super().__init__(vehicle_id)
-        self._controller: AnkiController = controller
+        self._controller = controller
         self._location_service: LocationService = LocationService(track)
 
         self.__speed: int = 0
@@ -45,24 +49,11 @@ class ModelCar(Vehicle):
 
     def __del__(self) -> None:
         self._controller.__del__()
+        self._location_service.__del__()
         return
 
     def get_typ_of_controller(self):
         return type(self._controller)
-
-    def initiate_connection(self, uuid: str) -> bool:
-        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
-            self._controller.set_callbacks(self.__receive_location,
-                                           self.__receive_transition,
-                                           self.__receive_offset_update,
-                                           self.__receive_version,
-                                           self.__receive_battery,
-                                           self._on_model_car_not_reachable)
-            self._controller.request_version()
-            self._controller.request_battery()
-            return True
-        else:
-            return False
 
     def set_model_car_not_reachable_callback(self, function_name) -> None:
         self._model_car_not_reachable_callback = function_name
@@ -232,7 +223,7 @@ class ModelCar(Vehicle):
         }
         return driving_info_dic
 
-    def __receive_location(self, value_tuple) -> None:
+    def _receive_location(self, value_tuple) -> None:
         location, piece, offset, speed, clockwise = value_tuple
         self._road_location = location
         self._road_piece = piece
@@ -246,7 +237,7 @@ class ModelCar(Vehicle):
         self._on_driving_data_change()
         return
 
-    def __receive_transition(self, value_tuple) -> None:
+    def _receive_transition(self, value_tuple) -> None:
         piece, piece_prev, offset, direction = value_tuple
         self._road_piece = piece
         self._prev_road_piece = piece_prev
@@ -254,16 +245,16 @@ class ModelCar(Vehicle):
         self._direction = direction
         return
 
-    def __receive_offset_update(self, value_tuple) -> None:
+    def _receive_offset_update(self, value_tuple) -> None:
         offset = value_tuple[0]
         self._offset_from_center = offset
         return
 
-    def __receive_version(self, value_tuple) -> None:
+    def _receive_version(self, value_tuple) -> None:
         self._version = str(value_tuple)
         return
 
-    def __receive_battery(self, value_tuple) -> None:
+    def _receive_battery(self, value_tuple) -> None:
         self._battery = str(value_tuple)
 
         self._on_driving_data_change()
