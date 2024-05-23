@@ -48,6 +48,10 @@ class LocationService():
         if start_immeaditly:
             self.start()
 
+    def __del__(self):
+        if self._simulation_thread != None:
+            self.stop()
+
     def do_uturn(self):
         """
         Do a U-Turn.
