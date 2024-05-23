@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car map</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	  <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- Include socket.io library -->
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+</head>
+
+<body>
+    <canvas id="car_canvas"></canvas>
+
+        <script type="text/javascript" charset="utf-8">
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            var canvas = document.getElementById("car_canvas");
+            var ctx = canvas.getContext("2d");
+            const dataMap = new Map();
+
+            const colorMap = new Map();
+            colorMap.set("Virtual Vehicle 1", "#ff0000");
+            colorMap.set("Virtual Vehicle 2", "#ff8000");
+            colorMap.set("Virtual Vehicle 3", "#ffff00");
+            colorMap.set("Virtual Vehicle 4", "#00ff00");
+            colorMap.set("Virtual Vehicle 5", "#0000ff");
+            colorMap.set("Virtual Vehicle 6", "#ff00ff");
+
+            socket.on('car_positions', function(data){
+                var carName = data.car;
+                dataMap.set(carName, data);
+                resizeCanvas();
+                resetCanvas();
+                drawTrack();
+                for (const car of dataMap) {
+                    const name = car[0];
+                    const d = car[1];
+                    var x = d.position.x;
+                    var y = d.position.y;
+                    var angle = d.angle;
+                    drawCar(x, y, angle, colorMap.get(name));
+                }
+            });
+
+            function drawCar(x, y, angle, color) {
+                // TODO: Draw as rectangle with rotation
+                ctx.beginPath();
+                // x, y, radius, startAngle, endAngle
+                ctx.arc(x, y, 10, 0, 2 * Math.PI);
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.closePath();
+
+                ctx.moveTo(x, y);
+                ctx.lineWidth = 10;
+                theta = Math.PI * (angle - 90) / 180.0;
+                lineLength = 75;
+                ctx.lineTo(x + lineLength * Math.cos(theta), y + lineLength * Math.sin(theta));
+
+                ctx.stroke();
+            }
+
+            function drawTrack() {
+                // TODO: Implement; track could be given via template
+            }
+
+            function resetCanvas() { 
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        </script>
+    </body>
+</html>

@@ -15,6 +15,7 @@ from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from UserInterface.DriverUI import DriverUI
 from UserInterface.StaffUI import StaffUI
+from UserInterface.CarMap import CarMap
 from flask import Flask
 from flask_socketio import SocketIO
 
@@ -37,9 +38,12 @@ def main(admin_password: str):
     driver_ui_blueprint = driver_ui.get_blueprint()
     staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
+    car_map = CarMap(environment_manager=environment_mng)
+    car_map_blueprint = car_map.get_blueprint()
 
     app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
     app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
+    app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
     socketio.run(app, debug=True, host='0.0.0.0', allow_unsafe_werkzeug=True)
 
 
