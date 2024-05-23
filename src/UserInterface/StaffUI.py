@@ -49,7 +49,7 @@ class StaffUI:
             if not is_authenticated():
                 return login_redirect()
             selected_option = request.form.get('option')
-            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
+            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+|Virtual Vehicle [0-9]+)>"
             match = re.search(pattern, selected_option)
 
             scenario_id = match.group(1)
@@ -109,6 +109,14 @@ class StaffUI:
             self.socketio.emit('device_added', device)
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
             return
+
+        @self.socketio.on('add_virtual_vehicle')
+        def handle_add_virtual_vehicle() -> None:
+            if not is_authenticated():
+                return
+            name = environment_mng.add_virtual_vehicle()
+            self.socketio.emit('device_added', name)
+            self.cybersecurity_mng._update_active_hacking_scenarios(name, '0')
 
         @self.socketio.on('delete_device')
         def handle_delete_player(device: str) -> None:

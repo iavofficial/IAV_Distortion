@@ -8,6 +8,7 @@
 #
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
+from DataModel.VirtualCar import VirtualCar
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 
@@ -23,6 +24,9 @@ class EnvironmentManager:
         self.staff_ui = None
 
         # self.find_unpaired_anki_cars()
+
+        # number used for naming virtual vehicles
+        self._virtual_vehicle_num: int = 1
 
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
@@ -105,6 +109,18 @@ class EnvironmentManager:
                 temp_vehicle.player = smallest_available_num
                 self._active_anki_cars.append(temp_vehicle)
             return
+
+    def add_virtual_vehicle(self):
+        name = f"Virtual Vehicle {self._virtual_vehicle_num}"
+        if name in self._player_uuid_map.values():
+            print('name already exists!')
+            return
+        self._virtual_vehicle_num += 1
+        smallest_available_num = self.get_smallest_available_num()
+        vehicle = VirtualCar(name, self.get_track())
+        self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=name)
+        vehicle.player = smallest_available_num
+        self._active_anki_cars.append(vehicle)
 
     def get_track(self) -> FullTrack:
         track: FullTrack = TrackBuilder()\
