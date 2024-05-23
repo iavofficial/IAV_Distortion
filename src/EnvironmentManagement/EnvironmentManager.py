@@ -69,11 +69,7 @@ class EnvironmentManager:
         found_vehicle.__del__()
         return
 
-    def add_vehicle(self, uuid: str):
-        if uuid in self._player_uuid_map.values():
-            print('UUID already exists!')
-            return
-        else:
+    def get_smallest_available_num(self) -> str:
             players_as_ints = [int(player) for player in self._player_uuid_map.keys()]
             if not players_as_ints:
                 max_player = 0
@@ -89,6 +85,15 @@ class EnvironmentManager:
                 else:
                     smallest_available_num = str(max_player + 1)
 
+            return smallest_available_num
+
+    def add_vehicle(self, uuid: str):
+        if uuid in self._player_uuid_map.values():
+            print('UUID already exists!')
+            return
+        else:
+
+            smallest_available_num = self.get_smallest_available_num()
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
 
             anki_car_controller = AnkiController()
