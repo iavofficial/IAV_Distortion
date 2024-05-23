@@ -17,9 +17,14 @@ class Vehicle:
         self.player: str = ""
 
         self._controller: VehicleController = controller
-        self._active_hacking_scenario: str = ""
+        self._active_hacking_scenario: str = "0"
         self._driving_data_callback = None
 
+        return
+
+    @abc.abstractmethod
+    def __del__(self) -> None:
+        self._controller.__del__()
         return
 
     @abc.abstractmethod
@@ -30,10 +35,9 @@ class Vehicle:
         self._driving_data_callback = function_name
         return
 
+    @abc.abstractmethod
     def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
-            self._driving_data_callback(self.get_driving_data())
-        return
+        pass
 
     @property
     def hacking_scenario(self) -> str:

@@ -1,10 +1,9 @@
 from unittest import TestCase
 from unittest.mock import Mock
+from TestingTools import generate_mac_address
 
 from DataModel.ModelCar import ModelCar
 from VehicleManagement.AnkiController import AnkiController
-
-dummy_uuid = "F1:76:08:08:C1:00" #rot
 
 
 class ModelCarTest(TestCase):
@@ -13,23 +12,25 @@ class ModelCarTest(TestCase):
         self.anki_controller_mock = Mock(spec=AnkiController)
         self.anki_controller_mock.change_speed_to.return_value = True
         self.anki_controller_mock.change_lane_to.return_value = True
-        self.mut: ModelCar = ModelCar(dummy_uuid, self.anki_controller_mock)
+
+        self.dummy_uuid = generate_mac_address()
 
     def tearDown(self) -> None:
         del self.mut
 
-    def test_new_instance(self):
+    def test_get_typ_of_controller(self):
         # Arrange
 
         # Act
-        self.mut = ModelCar(dummy_uuid, self.anki_controller_mock)
+        self.mut = ModelCar(self.dummy_uuid, self.anki_controller_mock)
 
         # Assert
-        assert self.mut.vehicle_id == dummy_uuid
+        assert self.mut.vehicle_id == self.dummy_uuid
         assert isinstance(self.mut.get_typ_of_controller(), type(AnkiController))
 
     def test_calculate_speed(self):
         # Arrange
+        self.mut: ModelCar = ModelCar(self.dummy_uuid, self.anki_controller_mock)
 
         # Act/Assert
         self.mut.speed_factor = 0.5

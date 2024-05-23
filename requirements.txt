@@ -19,7 +19,7 @@ idna==3.7
 imagesize==1.4.1
 iniconfig==2.0.0
 itsdangerous==2.2.0
-Jinja2==3.1.3
+Jinja2==3.1.4
 MarkupSafe==2.1.5
 packaging==24.0
 pluggy==1.4.0
@@ -39,5 +39,5 @@ sphinxcontrib-qthelp==1.0.7
 sphinxcontrib-serializinghtml==1.1.10
 typing_extensions==4.11.0
 urllib3==2.2.1
-Werkzeug==3.0.2
+Werkzeug==3.0.3
 wsproto==1.2.0

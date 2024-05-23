@@ -7,10 +7,7 @@
 # file that should have been included as part of this package.
 #
 
-import asyncio
-import struct
 from enum import Enum
-from threading import Thread
 import abc
 
 
@@ -30,15 +27,12 @@ class TurnTrigger(Enum):
 class VehicleController:
     def __init__(self) -> None:
         self._connected_car = None
-        self.loop = asyncio.new_event_loop()
 
-        Thread(target=self.loop.run_forever).start()
 
         return
 
     def __del__(self) -> None:
         self.loop.stop()
-        del self._connected_car
 
     def __str__(self):
         return "Connected Car" + str(self._connected_car)
