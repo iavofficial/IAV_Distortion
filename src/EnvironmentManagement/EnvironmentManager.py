@@ -90,17 +90,9 @@ class EnvironmentManager:
                     smallest_available_num = str(max_player + 1)
 
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
-            track: FullTrack = TrackBuilder()\
-                .append(TrackPieceType.STRAIGHT_WE)\
-                .append(TrackPieceType.CURVE_WS)\
-                .append(TrackPieceType.CURVE_NW)\
-                .append(TrackPieceType.STRAIGHT_EW)\
-                .append(TrackPieceType.CURVE_EN)\
-                .append(TrackPieceType.CURVE_SE)\
-                .build()
 
             anki_car_controller = AnkiController()
-            temp_vehicle = PhysicalCar(uuid, anki_car_controller, track)
+            temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
             temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
@@ -108,6 +100,18 @@ class EnvironmentManager:
                 temp_vehicle.player = smallest_available_num
                 self._active_anki_cars.append(temp_vehicle)
             return
+
+    def get_track(self) -> FullTrack:
+        track: FullTrack = TrackBuilder()\
+            .append(TrackPieceType.STRAIGHT_WE)\
+            .append(TrackPieceType.CURVE_WS)\
+            .append(TrackPieceType.CURVE_NW)\
+            .append(TrackPieceType.STRAIGHT_EW)\
+            .append(TrackPieceType.CURVE_EN)\
+            .append(TrackPieceType.CURVE_SE)\
+            .build()
+
+        return track
 
     def _update_staff_ui(self):
         if self.staff_ui is not None:
