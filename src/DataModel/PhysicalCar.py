@@ -1,13 +1,14 @@
 
 from bleak import BleakClient
+from flask_socketio import SocketIO
 from DataModel.ModelCar import ModelCar
 from LocationService.Track import FullTrack
 from VehicleManagement.AnkiController import AnkiController
 
 
 class PhysicalCar(ModelCar):
-    def __init__(self, vehicle_id: str, controller: AnkiController, track: FullTrack) -> None:
-        super().__init__(vehicle_id, controller, track)
+    def __init__(self, vehicle_id: str, controller: AnkiController, track: FullTrack, socketio: SocketIO) -> None:
+        super().__init__(vehicle_id, controller, track, socketio)
         self._controller: AnkiController = controller
 
     def initiate_connection(self, uuid: str) -> bool:

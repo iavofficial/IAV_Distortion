@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+from flask_socketio import SocketIO
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
@@ -17,7 +18,7 @@ from LocationService.Track import TrackPieceType
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController):
+    def __init__(self, fleet_ctrl: FleetController, socketio: SocketIO):
         self._fleet_ctrl = fleet_ctrl
         self._player_uuid_map = {}
         self._active_anki_cars = []
@@ -27,6 +28,8 @@ class EnvironmentManager:
 
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
+
+        self._socketio: SocketIO = socketio
 
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
@@ -101,7 +104,7 @@ class EnvironmentManager:
             # print(f'Player: {smallest_available_num}, UUID: {uuid}')
 
             anki_car_controller = AnkiController()
-            temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
+            temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track(), self._socketio)
             temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
@@ -117,7 +120,7 @@ class EnvironmentManager:
             return
         self._virtual_vehicle_num += 1
         smallest_available_num = self.get_smallest_available_num()
-        vehicle = VirtualCar(name, self.get_track())
+        vehicle = VirtualCar(name, self.get_track(), self._socketio)
         self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=name)
         vehicle.player = smallest_available_num
         self._active_anki_cars.append(vehicle)

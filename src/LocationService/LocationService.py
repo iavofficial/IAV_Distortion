@@ -1,6 +1,6 @@
 import time
 import math
-from typing import Tuple
+from typing import Tuple, Callable
 from threading import Event, Lock, Thread
 
 from LocationService.Trigo import Position, Angle
@@ -8,7 +8,7 @@ from LocationService.Track import FullTrack
 
 
 class LocationService():
-    def __init__(self, track: FullTrack, starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immeaditly: bool = False):
+    def __init__(self, track: FullTrack, on_update_callback: Callable[[Position, Angle], None] | None, starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immeaditly: bool = False):
         """
         Init the location service
         track: List of all Track Pieces
@@ -46,6 +46,8 @@ class LocationService():
 
         self._stop_event: Event = Event()
         self._simulation_thread: Thread | None = None
+
+        self._on_update_callback: Callable[[Position, Angle], None] | None = on_update_callback
 
         if start_immeaditly:
             self.start()
@@ -219,8 +221,9 @@ class LocationService():
         Runs the simulation asynchronously in an own thread
         """
         while not self._stop_event.is_set():
-            # TODO: publish position and rotation via callback or similar
             pos, rot = self._run_simulation_step_threadsafe()
+            if self._on_update_callback is not None:
+                self._on_update_callback(pos, rot)
             time.sleep(1 / self._simulation_ticks_per_second)
 
     def start(self):
