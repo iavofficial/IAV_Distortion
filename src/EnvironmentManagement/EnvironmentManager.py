@@ -6,7 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-from DataModel.ModelCar import ModelCar
+from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
@@ -100,7 +100,7 @@ class EnvironmentManager:
                 .build()
 
             anki_car_controller = AnkiController()
-            temp_vehicle = ModelCar(uuid, anki_car_controller, track)
+            temp_vehicle = PhysicalCar(uuid, anki_car_controller, track)
             temp_vehicle.initiate_connection(uuid)
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
