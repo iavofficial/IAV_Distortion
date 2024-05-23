@@ -14,6 +14,7 @@ from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from UserInterface.DriverUI import DriverUI
 from UserInterface.StaffUI import StaffUI
+from UserInterface.CarMap import CarMap
 from flask import Flask
 from flask_socketio import SocketIO
 
@@ -22,6 +23,11 @@ import asyncio
 
 
 def main(admin_password: str):
+    app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
+    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+    # Todo: using async_mode='threading' makes flask use the development server instead of the eventlet server.
+    #  change to use some production server
+
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl, socketio)
 
@@ -38,9 +44,12 @@ def main(admin_password: str):
     staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio,
                        environment_mng=environment_mng, password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
+    car_map = CarMap(environment_manager=environment_mng)
+    car_map_blueprint = car_map.get_blueprint()
 
     app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
     app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
+    app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
     socketio.run(app, debug=True, host='0.0.0.0', allow_unsafe_werkzeug=True)
 
 
