@@ -7,18 +7,22 @@
 # file that should have been included as part of this package.
 #
 
+from flask_socketio import SocketIO
+
 from VehicleManagement.VehicleController import VehicleController
 import abc
 
 
 class Vehicle:
-    def __init__(self, vehicle_id: str, controller: VehicleController = None) -> None:
+    def __init__(self, vehicle_id: str, socketio: SocketIO, controller: VehicleController = None) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
 
         self._controller: VehicleController = controller
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback = None
+
+        self._socketio = socketio
 
         return
 

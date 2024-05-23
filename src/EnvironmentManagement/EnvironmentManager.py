@@ -40,6 +40,8 @@ class EnvironmentManager:
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
 
+        self._socketio: SocketIO = socketio
+
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
         return
@@ -174,7 +176,7 @@ class EnvironmentManager:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
+        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track(), self._socketio)
         temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
@@ -188,7 +190,7 @@ class EnvironmentManager:
         # used numbers
         name = f"Virtual Vehicle {self._virtual_vehicle_num}"
         self._virtual_vehicle_num += 1
-        vehicle = VirtualCar(name, self.get_track())
+        vehicle = VirtualCar(name, self.get_track(), self._socketio)
         self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
         self._update_staff_ui()

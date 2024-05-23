@@ -1,6 +1,8 @@
 from bleak import BleakClient
+from flask_socketio import SocketIO
 
 from DataModel.Vehicle import Vehicle
+from LocationService.Trigo import Angle, Position
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.VehicleController import Turns, VehicleController
 
@@ -13,10 +15,10 @@ class ModelCar(Vehicle):
     Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
     the controller, if appropriate
     """
-    def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack) -> None:
-        super().__init__(vehicle_id)
+    def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack, socketio: SocketIO) -> None:
+        super().__init__(vehicle_id, socketio)
         self._controller = controller
-        self._location_service: LocationService = LocationService(track)
+        self._location_service: LocationService = LocationService(track, self.__on_locationservice_update)
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -258,4 +260,9 @@ class ModelCar(Vehicle):
         self._battery = str(value_tuple)
 
         self._on_driving_data_change()
+        return
+
+    def __on_locationservice_update(self, pos: Position, angle: Angle) -> None:
+        data = { 'car': self.vehicle_id, 'position': pos.to_dict(), 'angle': angle.get_deg() }
+        self._socketio.emit("car_positions", data)
         return
