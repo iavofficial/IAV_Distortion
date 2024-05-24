@@ -33,6 +33,8 @@ class LocationService():
         self._target_offset: float = 0
         # direction multiplier. 1 if going the default rotation (clockwise on a round track) and -1 if going the opposing direction
         self._direction_mult: int = 1
+        # used to save direction, if the car comes to a stop
+        self._stop_direction: Angle = Angle(90)
 
         self._uturn_override: UTurnOverride | None = None
 
@@ -195,7 +197,13 @@ class LocationService():
                 self._progress_on_current_piece = new_piece.get_length(self._actual_offset)
             return self._run_simulation_step(leftover_distance)
         self._current_position = new_pos + global_track_offset
-        return (self._current_position, self._current_position.calculate_angle_to(old_pos))
+        distance = self._current_position.distance_to(old_pos)
+        if distance < 0.1:
+            rot = self._stop_direction
+        else:
+            rot = self._current_position.calculate_angle_to(old_pos)
+            self._stop_direction = rot
+        return (self._current_position, rot)
 
     def _run_task(self):
         """
