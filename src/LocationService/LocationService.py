@@ -64,7 +64,7 @@ class LocationService():
             if self._uturn_override is None:
                 self._uturn_override = UTurnOverride(self, self._actual_offset > 0)
 
-    def set_speed(self, speed: int, acceleration: int = 1000):
+    def set_speed_percent(self, speed: int, acceleration: int = 1000):
         """
         Updates the target speed of the car.
         Thread-safe
@@ -84,7 +84,7 @@ class LocationService():
         self._target_speed = speed_mm
         self._acceleration = acceleration
 
-    def set_offset(self, offset: int):
+    def set_offset_int(self, offset: int):
         """
         Sets the targeted offset where the car should drive. Use positive
         values to go right and negative values to go left in the driving
