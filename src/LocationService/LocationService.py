@@ -184,6 +184,15 @@ class LocationService():
         distance: Distance to travel
         returns: The new position and the Angle where the car is pointing
         """
+        if self._direction_mult == -1 and distance > 0:
+            # TODO: Log as critical via Logger
+            print("Critical: The leftover distance is positive while driving in opposing direction. This would create a infinite recursion. Breaking the loop to prevent this!")
+            return (self._current_position, self._stop_direction)
+        elif self._direction_mult == 1 and distance < 0:
+            # TODO: Log as critical via Logger
+            print("Critical: The leftover distance is negative while driving in default direction. This would create a infinite recursion. Breaking the loop to prevent this!")
+            return (self._current_position, self._stop_direction)
+
         old_pos = self._current_position
         piece, global_track_offset = self._track.get_entry_tupel(self._current_piece_index)
         leftover_distance, new_pos = piece.process_update(self._progress_on_current_piece, distance, self._actual_offset)
