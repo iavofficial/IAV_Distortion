@@ -113,8 +113,9 @@
 
         <!-- loading window -->
         window.onload = function() {
-        //    var slider_temp = document.getElementById("speed_request");
-        //   slider_temp.value = 0{{ vehicle_information.speed_request }};
+            // davor hier auskommentiert
+            //var slider_temp = document.getElementById("speed_request");
+          // slider_temp.value = 0{{ vehicle_information.speed_request }};
 
 
 
@@ -125,20 +126,27 @@
           else {
             document.getElementById("infoBoxOverlay").style.display = "none";
 
-            var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
+            var active_hacking_scenario = 0{{vehicle_information.active_hacking_scenario }};
             show_hacked_info(active_hacking_scenario);
 
             var slider_temp = document.getElementById("speed_request");
-            slider_temp.value = {{ vehicle_information.speed_request }};
+            slider_temp.value = 0{{ vehicle_information.speed_request }};
             slider.oninput();
           }
         };
 
-       // socket.emit('connected', {player: '{{ player }}'});
 
-       // window.onunload=function(){
-       //   socket.emit('disconnected', {player: '{{ player }}'});
-      //  }
+        socket.on('connect', () => {
+            socket.emit('handle_connect', {player: '{{ player }}'});
+            console.log('Connected to the server');
+        });
+
+
+            window.onunload = function() {
+                socket.emit('disconnected', {player: '{{ player }}'});
+            }
+
+
 
         <!-- driving data functions -->
         function get_driving_data(){

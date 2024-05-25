@@ -19,8 +19,6 @@ class StaffUI:
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
-     #   self.uuids: dict = map_of_uuids  # {'player': 'uuid'}
-     #   self.cybersecurity_mng = cybersecurity_mng
         self.uuids = environment_mng.get_player_uuid_mapping()
         self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
         self.socketio: Any = socketio
@@ -91,7 +89,7 @@ class StaffUI:
             if not is_authenticated():
                 return
             print('Client connected')
-            self.update_uuids()
+            self.socketio.emit('update_uuids', self.uuids)
             return
 
         @self.socketio.on('search_cars')
@@ -145,9 +143,10 @@ class StaffUI:
 
     def update_map_of_uuids(self, map_of_uuids: dict) -> None:
         self.uuids = map_of_uuids
-        self.update_uuids()
-        return
-
-    def update_uuids(self):
         self.socketio.emit('update_uuids', {"uuids": self.uuids, "car_queue": self.environment_mng._car_queue_list,
                                             "player_queue": self.environment_mng.get_player_queue()})
+        return
+
+   # def update_uuids(self):
+    #    self.socketio.emit('update_uuids', {"uuids": self.uuids, "car_queue": self.environment_mng._car_queue_list,
+     #                                       "player_queue": self.environment_mng.get_player_queue()})

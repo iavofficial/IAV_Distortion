@@ -33,7 +33,7 @@ class DriverUI:
 
             if vehicle is not None:
                 player_exists = True
-                picture = str(vehicle.vehicle_id)
+                picture = vehicle.vehicle_id
                 picture = picture.replace(":", "") + ".png"
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
@@ -44,7 +44,7 @@ class DriverUI:
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
-        @self.socketio.on('connected')
+        @self.socketio.on('handle_connect')
         def handle_connected(data):
             player = data["player"]
             vehicle = self.get_vehicle_by_player(player=player)

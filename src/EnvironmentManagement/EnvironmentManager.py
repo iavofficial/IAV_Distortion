@@ -89,8 +89,12 @@ class EnvironmentManager:
             return
         else:
             self._player_queue_list.append(player_id)
+            print(self._player_queue_list)
+
         if len(self._car_queue_list) > 0:
             self.add_vehicle(uuid=self._car_queue_list.pop(0))
+        else:
+            self._update_staff_ui()
 
     def remove_player(self, player_id: str):
         """
@@ -124,6 +128,7 @@ class EnvironmentManager:
             anki_car_controller = AnkiController()
             temp_vehicle = ModelCar(uuid, anki_car_controller)
             temp_vehicle.initiate_connection(uuid)
+            temp_vehicle = True
             if temp_vehicle:
                 self.set_player_uuid_mapping(player_id=player, uuid=uuid)
 
