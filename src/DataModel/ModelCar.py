@@ -104,7 +104,7 @@ class ModelCar(Vehicle):
             self._speed_actual = 0
             self._on_driving_data_change()
 
-        self._location_service.set_speed(self.__speed)
+        self._location_service.set_speed_percent(self.__speed)
         self._controller.change_speed_to(int(self.__speed))
         return
 
@@ -153,8 +153,8 @@ class ModelCar(Vehicle):
         elif self.__lane_change > 3:
             self.__lane_change = 3
 
-        self._location_service.set_offset(self.__lane_change)
-        self._location_service.set_speed(self.__speed)
+        self._location_service.set_offset_int(self.__lane_change)
+        self._location_service.set_speed_percent(self.__speed)
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
