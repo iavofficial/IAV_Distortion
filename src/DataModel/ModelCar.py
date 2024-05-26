@@ -18,7 +18,7 @@ class ModelCar(Vehicle):
     def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack, socketio: SocketIO) -> None:
         super().__init__(vehicle_id, socketio)
         self._controller = controller
-        self._location_service: LocationService = LocationService(track, self.__on_locationservice_update)
+        self._location_service: LocationService = LocationService(track, self.__on_location_service_update)
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -262,7 +262,10 @@ class ModelCar(Vehicle):
         self._on_driving_data_change()
         return
 
-    def __on_locationservice_update(self, pos: Position, angle: Angle) -> None:
+    def __on_location_service_update(self, pos: Position, angle: Angle, _: dict):
+        self._send_location_via_socketio(pos, angle)
+
+    def _send_location_via_socketio(self, pos: Position, angle: Angle) -> None:
         data = { 'car': self.vehicle_id, 'position': pos.to_dict(), 'angle': angle.get_deg() }
         self._socketio.emit("car_positions", data)
         return

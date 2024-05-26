@@ -9,12 +9,20 @@ from LocationService.Track import FullTrack
 
 
 class LocationService():
-    def __init__(self, track: FullTrack, on_update_callback: Callable[[Position, Angle], None] | None, starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immeaditly: bool = False):
+    def __init__(self, track: FullTrack, on_update_callback: Callable[[Position, Angle, dict], None] | None, starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immeaditly: bool = False):
         """
         Init the location service
         track: List of all Track Pieces
         simulation_ticks_per_second: how many steps should be ran per second. A higher value
             increases accuracy and the required CPU time
+        on_update_callback: Callback that gets executed every time a new position was
+            calculated. It includes the global position, the global angle and a dict
+            with additional data. This data is:
+                offset: offset from the center (a positive value means right; a negative left in
+                                                driving direction)
+                speed: simulated actual speed of the car
+                going_clockwise: true, if the car is going clockwise (assuming a round track)
+                uturn_in_progress: True, if it's currently doing a U-Turn
         """
         self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT = 0.30
         self._simulation_ticks_per_second = simulation_ticks_per_second
@@ -53,7 +61,7 @@ class LocationService():
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
-        self._on_update_callback: Callable[[Position, Angle], None] | None = on_update_callback
+        self._on_update_callback: Callable[[Position, Angle, dict], None] | None = on_update_callback
 
         if start_immeaditly:
             self.start()
@@ -234,7 +242,13 @@ class LocationService():
         while not self._stop_event.is_set():
             pos, rot = self._run_simulation_step_threadsafe()
             if self._on_update_callback is not None:
-                self._on_update_callback(pos, rot)
+                data: dict = {
+                    'offset': self._actual_offset * self._direction_mult,
+                    'speed': self._actual_speed,
+                    'going_clockwise': self._direction_mult == 1,
+                    'uturn_in_progress': self._uturn_override is not None
+                }
+                self._on_update_callback(pos, rot, data)
             time.sleep(1 / self._simulation_ticks_per_second)
 
     def start(self):
