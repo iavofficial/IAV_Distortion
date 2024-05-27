@@ -22,6 +22,10 @@
             var ctx = canvas.getContext("2d");
             const dataMap = new Map();
 
+            var track = {{track | tojson}};
+            const track_color = "#000000";
+            const track_width = 5;
+
             const colorMap = new Map();
             colorMap.set("Virtual Vehicle 1", "#ff0000");
             colorMap.set("Virtual Vehicle 2", "#ff8000");
@@ -29,6 +33,10 @@
             colorMap.set("Virtual Vehicle 4", "#00ff00");
             colorMap.set("Virtual Vehicle 5", "#0000ff");
             colorMap.set("Virtual Vehicle 6", "#ff00ff");
+
+            resizeCanvas();
+            resetCanvas();
+            drawTrack();
 
             socket.on('car_positions', function(data){
                 var carName = data.car;
@@ -66,7 +74,63 @@
             }
 
             function drawTrack() {
-                // TODO: Implement; track could be given via template
+                for (const piece of track) {
+                    piece_type = piece.piece.type;
+                    if (piece_type == "straight_piece") {
+                        drawStraightPiece(piece);
+                    } else if (piece_type == "curved_piece") {
+                        drawCurvedPiece(piece);
+                    }
+                }
+            }
+
+            function drawStraightTrackLine(x1, y1, x2, y2) {
+                ctx.lineWidth = track_width;
+                ctx.strokeStyle = track_color;
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+
+            function drawCuvedTrackLine(x, y, radius, start_deg) {
+                start_rad = (start_deg - 90) * Math.PI / 180;
+                end_rad = start_rad + 0.5 * Math.PI;
+
+                ctx.lineWidth = track_width;
+                ctx.strokeStyle = track_color;
+
+                ctx.beginPath();
+                // x, y, radius, startAngle, endAngle
+                ctx.arc(x, y, radius, start_rad, end_rad);
+                ctx.stroke();
+            }
+
+            function drawStraightPiece(piece) {
+                offset_x = piece.offset.x;
+                offset_y = piece.offset.y;
+                line_1_start_x = offset_x + piece.piece.line_1_start.x;
+                line_1_start_y = offset_y + piece.piece.line_1_start.y;
+                line_1_end_x = offset_x + piece.piece.line_1_end.x;
+                line_1_end_y = offset_y + piece.piece.line_1_end.y;
+
+                line_2_start_x = offset_x + piece.piece.line_2_start.x;
+                line_2_start_y = offset_y + piece.piece.line_2_start.y;
+                line_2_end_x = offset_x + piece.piece.line_2_end.x;
+                line_2_end_y = offset_y + piece.piece.line_2_end.y;
+                drawStraightTrackLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
+                drawStraightTrackLine(line_2_start_x, line_2_start_y, line_2_end_x, line_2_end_y);
+            }
+
+            function drawCurvedPiece(piece) {
+                start_point_x = piece.offset.x + piece.piece.point.x;
+                start_point_y = piece.offset.y + piece.piece.point.y;
+                radius_1 = piece.piece.radius_1;
+                radius_2 = piece.piece.radius_2;
+                start_angle = piece.piece.start_angle + 90;
+                drawCuvedTrackLine(start_point_x, start_point_y, radius_1, start_angle);
+                drawCuvedTrackLine(start_point_x, start_point_y, radius_2, start_angle);
             }
 
             function resetCanvas() { 
