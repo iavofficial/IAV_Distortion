@@ -33,10 +33,9 @@ def main(admin_password: str):
     environment_mng = EnvironmentManager(fleet_ctrl, socketio)
 
     vehicles = environment_mng.get_vehicle_list()
-    player_uuid_map = environment_mng.get_player_uuid_mapping()
 
     behaviour_ctrl = BehaviourController(vehicles)
-    cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
+    cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
 
 
    # driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl,

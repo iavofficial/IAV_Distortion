@@ -16,7 +16,7 @@ import abc
 class Vehicle:
     def __init__(self, vehicle_id: str, socketio: SocketIO, controller: VehicleController = None) -> None:
         self.vehicle_id: str = vehicle_id
-        self.player: str = ""
+        self.player: str | None = None
 
         self._controller: VehicleController = controller
         self._active_hacking_scenario: str = "0"
@@ -25,6 +25,28 @@ class Vehicle:
         self._socketio = socketio
 
         return
+
+    def set_player(self, key: str):
+        """
+        Sets the owner of the vehicle
+        """
+        self.player = key
+
+    def remove_player(self):
+        """
+        Removes the player occupation and marks the vehicle as free
+        """
+        self.player = None
+
+    def is_free(self):
+        return self.player == None
+
+    def get_player(self):
+        return self.player
+
+    def get_vehicle_id(self):
+        return self.vehicle_id
+
 
     @abc.abstractmethod
     def __del__(self) -> None:
