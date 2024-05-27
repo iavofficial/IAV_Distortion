@@ -33,27 +33,35 @@
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
-    <div class="flexbox-container">
+    <div class="flexbox-container flexbox-controls">
         <div class="flexbox-item flexbox-slider">
             <input type="range" min="20" max="100" class="slider" id="speed_request">
         </div>
 
         <div class="flexbox-container_middle">
-            <div class="flexbox-item avatar">
-                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+            <div class="speedometer">
+                <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
+                <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> mm/s </span></span>
             </div>
 
-            <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
-                <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
-                <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
+            <div class="avatar">
+                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+            
+                <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
+                    <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
+                    <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
+                </div>
             </div>
+
         </div>
 
         <div class="flexbox-container_right">
+            <!--
             <div>
                 <p class="flexbox-item flexbox-speed_display-label">Speed:</p>
                 <p class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span> </strong> mm/s</p>
             </div>
+            -->
 
             <div class="flexbox-driver_buttons">
                 <div class="flexbox-item flexbox-change_lane_buttons">
