@@ -9,6 +9,7 @@
 import logging
 from typing import List
 from collections import deque
+from flask_socketio import SocketIO
 
 from DataModel.ModelCar import ModelCar
 from DataModel.Vehicle import Vehicle
@@ -19,13 +20,14 @@ from VehicleManagement.VehicleController import VehicleController
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController):
+    def __init__(self, fleet_ctrl: FleetController, socketio: SocketIO):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
         self._fleet_ctrl = fleet_ctrl
+        self._socketio: SocketIO = socketio
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
         self.staff_ui = None
@@ -116,6 +118,7 @@ class EnvironmentManager:
                     self._update_staff_ui()
                     return
                 p = self._player_queue_list.popleft()
+                self._socketio.emit('player_active', p)
                 v.set_player(p)
         self._update_staff_ui()
 

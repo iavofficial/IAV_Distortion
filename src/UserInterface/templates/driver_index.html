@@ -177,6 +177,12 @@
           }
         };
 
+        socket.on('player_active', function(data) {
+            if (data == "{{ player }}") {
+                window.location.reload();
+            }
+        });
+
     </script>
 
 </body>
