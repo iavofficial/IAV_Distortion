@@ -158,7 +158,11 @@ class CurvedPiece(TrackPiece):
 
     def to_dict(self) -> dict:
         start_angle: int = int(self._rotation.get_deg())
+        if self._is_mirrored:
+            start_angle = (start_angle + 180) % 360
         point: Position = Position(-self._size / 2, -self._size / 2)
+        if self._is_mirrored:
+            point.rotate_around_0_0(Angle(180))
         point.rotate_around_0_0(self._rotation)
         radius_1: float = self._radius - self._diameter / 2
         radius_2: float = self._radius + self._diameter / 2
