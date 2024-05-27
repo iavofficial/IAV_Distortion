@@ -58,6 +58,39 @@ class StraightPiece(TrackPiece):
     def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
         return old_progress
 
+    def to_dict(self) -> dict:
+        line_1_start = Position(-self._diameter / 2, -self._length / 2)
+        line_1_end = Position(-self._diameter / 2, self._length / 2)
+        line_1_start.rotate_around_0_0(self._rotation)
+        line_1_end.rotate_around_0_0(self._rotation)
+
+        line_2_start = Position(self._diameter / 2, -self._length / 2)
+        line_2_end = Position(self._diameter / 2, self._length / 2)
+        line_2_start.rotate_around_0_0(self._rotation)
+        line_2_end.rotate_around_0_0(self._rotation)
+
+        return {
+
+            'type': 'straight_piece',
+            'rotation': str(self._rotation),
+            'line_1_start': {
+                'x': line_1_start.get_x(),
+                'y': line_1_start.get_y()
+            },
+            'line_1_end': {
+                'x': line_1_end.get_x(),
+                'y': line_1_end.get_y()
+            },
+            'line_2_start': {
+                'x': line_2_start.get_x(),
+                'y': line_2_start.get_y()
+            },
+            'line_2_end': {
+                'x': line_2_end.get_x(),
+                'y': line_2_end.get_y()
+            }
+        }
+
 class CurvedPiece(TrackPiece):
     def __init__(self, square_size, diameter: int, rot: int, mirror: bool):
         super().__init__(rot)
@@ -126,6 +159,23 @@ class CurvedPiece(TrackPiece):
     def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
         percent = old_progress / self.get_length(old_offset)
         return percent * self.get_length(new_offset)
+
+    def to_dict(self) -> dict:
+        start_angle: int = int(self._rotation.get_deg())
+        point: Position = Position(-self._size / 2, -self._size / 2)
+        point.rotate_around_0_0(self._rotation)
+        radius_1: float = self._radius - self._diameter / 2
+        radius_2: float = self._radius + self._diameter / 2
+        return {
+            'type': 'curved_piece',
+            'start_angle': start_angle,
+            'radius_1': radius_1,
+            'radius_2': radius_2,
+            'point': {
+                'x': point.get_x(),
+                'y': point.get_y()
+            }
+        }
 
 
 class TrackBuilder():
