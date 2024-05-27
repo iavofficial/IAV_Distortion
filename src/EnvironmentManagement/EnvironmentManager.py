@@ -75,6 +75,9 @@ class EnvironmentManager:
 
         found_vehicle = next((o for o in self._active_anki_cars if o.vehicle_id == uuid_to_remove), None)
         if found_vehicle is not None:
+            player = found_vehicle.get_player()
+            if player is not None:
+                self._socketio.emit('player_removed', player)
             found_vehicle.remove_player()
             self._active_anki_cars.remove(found_vehicle)
             found_vehicle.__del__()
@@ -144,6 +147,7 @@ class EnvironmentManager:
                 v.remove_player()
         if player_id in self._player_queue_list:
             self._player_queue_list.remove(player_id)
+        self._socketio.emit('player_removed', player_id)
         self._update_staff_ui()
 
     def add_vehicle(self, uuid: str):
