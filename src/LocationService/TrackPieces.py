@@ -112,7 +112,7 @@ class CurvedPiece(TrackPiece):
         position = Position(distance_to_middle * angle.get_x_mult(), distance_to_middle * angle.get_y_mult())
         position.add_offset(-self._size / 2, -self._size / 2)
         if self._is_mirrored:
-            position = Position(position.get_x() * -1, position.get_y() * -1)
+            position = Position(position.get_y() * -1, position.get_x() * -1)
         position.rotate_around_0_0(self._rotation)
         return (left, position)
 
