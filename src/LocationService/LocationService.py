@@ -275,8 +275,8 @@ class UTurnOverride():
         to perform a U-Turn. Based on direction_mult it will either be clockwise
         or counter-clockwise. The allowed values for this argument are -1 and 1.
         """
-        self._SPEED_FOR_UTURN = 200
-        self._CIRCLE_RADIUS = 50
+        self._SPEED_FOR_UTURN = 300
+        self._CIRCLE_RADIUS = 22.5
         self._CIRCLE_LENGTH = self._CIRCLE_RADIUS * math.pi
         self._DEGREE_PER_STEP = (self._SPEED_FOR_UTURN * 180) / (self._CIRCLE_LENGTH * location_service._simulation_ticks_per_second) * -1
 
