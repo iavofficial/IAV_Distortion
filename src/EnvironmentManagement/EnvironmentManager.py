@@ -144,7 +144,8 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 v.remove_player()
-        self._player_queue_list.remove(player_id)
+        if player_id in self._player_queue_list:
+            self._player_queue_list.remove(player_id)
         self._update_staff_ui()
 
     def add_physical_vehicle(self, uuid: str):
