@@ -120,6 +120,7 @@ class EnvironmentManager:
                 if len(self._player_queue_list) == 0:
                     return
                 p = self._player_queue_list.popleft()
+                self._socketio.emit('player_active', p)
                 v.set_player(p)
 
     def add_player(self, player_id: str):
