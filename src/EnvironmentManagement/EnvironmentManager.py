@@ -8,6 +8,7 @@
 #
 import logging
 from typing import List
+from collections import deque
 from flask_socketio import SocketIO
 
 from DataModel.Vehicle import Vehicle
@@ -29,7 +30,7 @@ class EnvironmentManager:
         self.logger.addHandler(console_handler)
 
         self._fleet_ctrl = fleet_ctrl
-        self._player_queue_list: List[str] = []
+        self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
         self.staff_ui = None
 
@@ -104,7 +105,8 @@ class EnvironmentManager:
             if v.is_free():
                 if len(self._player_queue_list) == 0:
                     return
-                v.set_player(self._player_queue_list.pop())
+                p = self._player_queue_list.popleft()
+                v.set_player(p)
 
     def add_player(self, player_id: str):
         """
@@ -137,12 +139,14 @@ class EnvironmentManager:
         temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track(), self._socketio)
         temp_vehicle.initiate_connection(uuid)
         self._active_anki_cars.append(temp_vehicle)
+        self._assign_players_to_vehicles()
 
     def add_virtual_vehicle(self):
         name = f"Virtual Vehicle {self._virtual_vehicle_num}"
         self._virtual_vehicle_num += 1
         vehicle = VirtualCar(name, self.get_track(), self._socketio)
         self._active_anki_cars.append(vehicle)
+        self._assign_players_to_vehicles()
 
     def get_track(self) -> FullTrack:
         track: FullTrack = TrackBuilder()\
@@ -178,7 +182,10 @@ class EnvironmentManager:
         return l
 
     def get_waiting_player_list(self):
-        return self._player_queue_list
+        tmp = []
+        for p in self._player_queue_list:
+            tmp.append(p)
+        return tmp
 
     def get_car_from_player(self, player: str) -> Vehicle:
         for v in self._active_anki_cars:
