@@ -12,6 +12,7 @@ from DataModel.ModelCar import ModelCar
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
+from VehicleManagement.VehicleController import VehicleController
 
 
 class EnvironmentManager:
@@ -23,11 +24,14 @@ class EnvironmentManager:
         self.logger.addHandler(console_handler)
 
         self._fleet_ctrl = fleet_ctrl
+        self._player_queue_list = []
+        self._car_queue_list = []
         self._player_uuid_map = {}
         self._active_anki_cars = []
         self.staff_ui = None
 
         # self.find_unpaired_anki_cars()
+
 
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
@@ -36,8 +40,17 @@ class EnvironmentManager:
     def get_player_uuid_mapping(self):
         return self._player_uuid_map
 
+    def get_player_queue(self):
+        return self._player_queue_list
+
     def set_player_uuid_mapping(self, player_id: str, uuid: str):
         self._player_uuid_map.update({player_id: uuid})
+
+        if uuid in self._car_queue_list:
+            self._car_queue_list.remove(uuid)
+        if player_id in self._player_queue_list:
+            self._player_queue_list.remove(player_id)
+
         self.logger.debug("Updated player UUID map: %s", self._player_uuid_map)
         print("added uuid")
         self._update_staff_ui()
@@ -87,35 +100,62 @@ class EnvironmentManager:
 
         return
 
+
+
+    def add_player(self, player_id: str):
+        """
+        Add a player to the waiting queue.
+        """
+        if player_id in self._player_queue_list:
+            print(f'Player {player_id} is already in the queue!')
+            return
+        else:
+            self._player_queue_list.append(player_id)
+            print(self._player_queue_list)
+
+        if len(self._car_queue_list) > 0:
+            self.add_vehicle(uuid=self._car_queue_list.pop(0))
+        else:
+            self._update_staff_ui()
+
+    def remove_player(self, player_id: str):
+        """
+        Remove a player from the waiting queue and add them to the active list.
+        """
+        if player_id  in self._player_queue_list:
+            self._player_queue_list.remove(player_id)
+        if player_id in self._player_uuid_map:
+            uuid = self._player_uuid_map[player_id]
+            del self._player_uuid_map[player_id]
+            # Assuming a car has become available and the player is added to the active list
+            self.add_vehicle(uuid=uuid)
+
+        self._update_staff_ui()
+
     def add_vehicle(self, uuid: str):
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
         if uuid in self._player_uuid_map.values():
             print('UUID already exists!')
             return
         else:
-            players_as_ints = [int(player) for player in self._player_uuid_map.keys()]
-            if not players_as_ints:
-                max_player = 0
-                smallest_available_num = '1'
+            # if player queue is not empty, take first player id
+            if len(self._player_queue_list) > 0:
+                player = self._player_queue_list.pop(0)
             else:
-                max_player = max(players_as_ints)
+                self._car_queue_list.append(uuid)
+                self._update_staff_ui()
+                return
 
-            # find smallest available player
-            for i in range(1, max_player+1):
-                if i not in players_as_ints:
-                    smallest_available_num = str(i)
-                    break
-                else:
-                    smallest_available_num = str(max_player + 1)
 
-            # print(f'Player: {smallest_available_num}, UUID: {uuid}')
+            print(f'Player: {player}, UUID: {uuid}')
             anki_car_controller = AnkiController()
             temp_vehicle = ModelCar(uuid, anki_car_controller)
             temp_vehicle.initiate_connection(uuid)
+            temp_vehicle = True
             if temp_vehicle:
-                self.set_player_uuid_mapping(player_id=smallest_available_num, uuid=uuid)
+                self.set_player_uuid_mapping(player_id=player, uuid=uuid)
 
-                temp_vehicle.player = smallest_available_num
+                temp_vehicle.player = player
                 self._active_anki_cars.append(temp_vehicle)
             return
 

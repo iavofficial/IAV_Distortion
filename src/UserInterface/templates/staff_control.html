@@ -30,7 +30,7 @@
         </div>
 
         <div id="data" class="flexbox-item flexbox-manageCars">
-            <h2>Active cars:</h2>
+            <h2>List of Players/Cars:</h2>
             <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
 
             <h3>Add cars... </h3>
@@ -48,6 +48,9 @@
     });
 
     socket.on('update_uuids', function(data){
+        var uuid = data["uuids"];
+        var car_queue = data["car_queue"];
+        var player_queue=data["player_queue"];
         $('#table-container').empty();
         var uuids_table = document.createElement('table');
 
@@ -67,7 +70,7 @@
         uuids_table.appendChild(thead);
 
         // fill table with player and uuids
-        for (let player in data) {
+        for (let player in uuid) {
             var row = document.createElement('tr');
 
             var cell_player = document.createElement('td');
@@ -77,13 +80,13 @@
             delButton.textContent = 'delet';
             delButton.className = 'button_small button_pink'
             delButton.onclick = function(){
-                if(confirm(`Are you sure you want to delete the device with the id: ${data[player]}?`)) {
-                    deleteDevice(data[player])
+                if(confirm(`Are you sure you want to delete the device with the id: ${uuid[player]}?`)) {
+                    deleteDevice(uuid[player])
                 }
             };
 
             cell_player.innerText = player;
-            cell_uuid.innerText = data[player];
+            cell_uuid.innerText = uuid[player];
 
 
             row.appendChild(cell_player);
@@ -91,6 +94,36 @@
             row.appendChild(delButton);
 
 
+            uuids_table.appendChild(row);
+        }
+
+        // fill table with player and uuids
+        for (let player in player_queue) {
+            var row = document.createElement('tr');
+
+            var cell_player = document.createElement('td');
+            var cell_uuid = document.createElement('td');
+
+            cell_player.innerText = player_queue[player];
+            cell_uuid.innerText = "None";
+
+            row.appendChild(cell_player);
+            row.appendChild(cell_uuid);
+            uuids_table.appendChild(row);
+        }
+
+                // fill table with player and uuids
+        for (let car in car_queue) {
+            var row = document.createElement('tr');
+
+            var cell_player = document.createElement('td');
+            var cell_uuid = document.createElement('td');
+
+            cell_player.innerText = "None";
+            cell_uuid.innerText = car_queue[car];
+
+            row.appendChild(cell_player);
+            row.appendChild(cell_uuid);
             uuids_table.appendChild(row);
         }
         document.getElementById('table-container').appendChild(uuids_table);

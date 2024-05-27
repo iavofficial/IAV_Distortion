@@ -15,7 +15,7 @@ import logging
 
 class StaffUI:
 
-    def __init__(self, map_of_uuids: dict, cybersecurity_mng, socketio, environment_mng, password: str):
+    def __init__(self, cybersecurity_mng, socketio, environment_mng, password: str):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
@@ -24,8 +24,7 @@ class StaffUI:
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
-        self.uuids: dict = map_of_uuids  # {'player': 'uuid'}
-        self.cybersecurity_mng = cybersecurity_mng
+        self.uuids = environment_mng.get_player_uuid_mapping()
         self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
         self.socketio: Any = socketio
         self.environment_mng = environment_mng
@@ -84,6 +83,8 @@ class StaffUI:
 
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
+
+
         @self.socketio.on('get_uuids')
         def update_uuids_staff_ui() -> None:
             if not is_authenticated():
@@ -161,5 +162,10 @@ class StaffUI:
 
     def update_map_of_uuids(self, map_of_uuids: dict) -> None:
         self.uuids = map_of_uuids
-        self.socketio.emit('update_uuids', self.uuids)
+        self.socketio.emit('update_uuids', {"uuids": self.uuids, "car_queue": self.environment_mng._car_queue_list,
+                                            "player_queue": self.environment_mng.get_player_queue()})
         return
+
+   # def update_uuids(self):
+    #    self.socketio.emit('update_uuids', {"uuids": self.uuids, "car_queue": self.environment_mng._car_queue_list,
+     #                                       "player_queue": self.environment_mng.get_player_queue()})
