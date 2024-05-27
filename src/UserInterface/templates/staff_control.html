@@ -51,7 +51,7 @@
     });
 
     socket.on('update_uuids', function(data){
-        var uuid = data["uuids"];
+        var map_data = data["car_map"];
         var car_queue = data["car_queue"];
         var player_queue=data["player_queue"];
         $('#table-container').empty();
@@ -73,28 +73,39 @@
         uuids_table.appendChild(thead);
 
         // fill table with player and uuids
-        for (let player in uuid) {
+        for (let i in map_data) {
+            var c_map = map_data[i];
             var row = document.createElement('tr');
 
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
             var cell_del = document.createElement('td');
-            var delButton = document.createElement('button');
-            delButton.textContent = 'delet';
-            delButton.className = 'button_small button_pink'
-            delButton.onclick = function(){
-                if(confirm(`Are you sure you want to delete the device with the id: ${uuid[player]}?`)) {
-                    deleteDevice(uuid[player])
+            var delPlayerButton = document.createElement('button');
+            var delVehicleButton = document.createElement('button');
+            delPlayerButton.textContent = 'Remove Player';
+            delPlayerButton.className = 'button_small button_pink'
+            delPlayerButton.onclick = function(){
+                if(confirm(`Are you sure you want to delete the player with the id: ${c_map.player}?`)) {
+                    deletePlayer(c_map.player);
                 }
             };
 
-            cell_player.innerText = player;
-            cell_uuid.innerText = uuid[player];
+            delVehicleButton.textContent = 'Remove Vehicle';
+            delVehicleButton.className = 'button_small button_pink'
+            delVehicleButton.onclick = function(){
+                if(confirm(`Are you sure you want to delete the vehicle with the id: ${c_map.car}?`)) {
+                    deleteVehicle(c_map.car);
+                }
+            };
+
+            cell_player.innerText = c_map.player;
+            cell_uuid.innerText = c_map.car;
 
 
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
-            row.appendChild(delButton);
+            row.appendChild(delPlayerButton);
+            row.appendChild(delVehicleButton);
 
 
             uuids_table.appendChild(row);
@@ -242,8 +253,12 @@
       remove_from_found_devices(device);
     }
 
-    function deleteDevice(device) {
-      socket.emit('delete_device', device);
+    function deletePlayer(player) {
+      socket.emit('delete_player', player);
+    }
+
+    function deleteVehicle(vehicle) {
+        socket.emit('delete_vehicle',vehicle);
     }
 
     function remove_from_found_devices(device) {

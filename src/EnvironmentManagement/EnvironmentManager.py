@@ -73,15 +73,28 @@ class EnvironmentManager:
     def get_vehicle_list(self) -> list[Vehicle]:
         return self._active_anki_cars
 
-    def remove_vehicle(self, uuid_to_remove: str):
-        # TODO: Differentiate between remove and kick!
-        self.logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
-
+    def remove_player_from_vehicles_and_waitlist(self, player: str):
+        """
+        Kicks a player out of the current car/queue
+        """
+        self.logger.info(f"Removing player with UUID {player}")
+        for v in self._active_anki_cars:
+            if v.get_player() == player:
+                v.remove_player()
+        self._assign_players_to_vehicles()
         self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
+        self._update_staff_ui()
 
-        found_vehicle = next((o for o in self._active_anki_cars if o.vehicle_id == uuid_to_remove), None)
-        if found_vehicle is not None:
-            found_vehicle.remove_player()
+    def remove_vehicle(self, vehicle_id: str):
+        self.logger.info("Removing vehicle with id %s", vehicle_id)
+        vehicle = next((v for v in self._active_anki_cars if v.get_vehicle_id() == vehicle_id), None)
+        if vehicle is None:
+            self.logger.error("Attempted to remove vehicle %s which doesn't exist!", vehicle_id)
+            return
+        self._active_anki_cars.remove(vehicle)
+        vehicle.__del__()
+        self._update_staff_ui()
+
 
     def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
         self._add_player_to_queue_if_appropiate(player_id)
@@ -89,6 +102,7 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 return v
+        self._update_staff_ui()
         return None
 
     def _add_player_to_queue_if_appropiate(self, player_id: str):
@@ -192,3 +206,13 @@ class EnvironmentManager:
             if v.get_player() == player:
                 return v
         return None
+
+    def get_mapped_cars(self) -> List[dict]:
+        tmp = []
+        for v in self._active_anki_cars:
+            if v.get_player() is not None:
+                tmp.append({
+                    'player': v.get_player(),
+                    'car': v.get_vehicle_id()
+                })
+        return tmp
