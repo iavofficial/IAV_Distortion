@@ -82,6 +82,7 @@ class EnvironmentManager:
             if v.get_player() == player:
                 v.remove_player()
         self._assign_players_to_vehicles()
+        self._socketio.emit('player_removed', player)
         self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
         self._update_staff_ui()
 
@@ -91,6 +92,10 @@ class EnvironmentManager:
         if vehicle is None:
             self.logger.error("Attempted to remove vehicle %s which doesn't exist!", vehicle_id)
             return
+        player = vehicle.get_player()
+        if player is not None:
+            # also notify the player
+            self.remove_player_from_vehicles_and_waitlist(player)
         self._active_anki_cars.remove(vehicle)
         vehicle.__del__()
         self._update_staff_ui()
