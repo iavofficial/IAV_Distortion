@@ -120,8 +120,8 @@ class TrackBuilder():
     def __init__(self):
         self.piece_list: List[TrackPiece] = [] 
         # Constants
-        self.STRAIGHT_PIECE_LENGTH = 555
-        self.PIECE_DIAMETER = 260
+        self.STRAIGHT_PIECE_LENGTH = 559
+        self.PIECE_DIAMETER = 184
         # This has to be the same as STRAIGHT_PIECE_LENGTH; otherwise the simulation
         # would need extra calculations to do the transition onto the piece; since every
         # piece we have fulfills this requirement the case isn't handled
