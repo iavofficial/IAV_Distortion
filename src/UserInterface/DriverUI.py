@@ -30,7 +30,10 @@ class DriverUI:
             vehicle = self.environment_mng.update_queues_and_get_vehicle(player)
             player_exists = False
             picture = ''  # default picture can be added here
-            vehicle_information = {}
+            vehicle_information = {
+                'active_hacking_scenario': '0',
+                'speed_request': '0'
+            }
 
             if vehicle is not None:
                 player_exists = True
