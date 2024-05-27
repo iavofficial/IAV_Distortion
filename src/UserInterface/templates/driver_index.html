@@ -129,7 +129,7 @@
 
           let playerExists = {{ player_exists | tojson }};
           if(!playerExists) {
-            document.getElementById("infoBoxOverlay").style.display = "block";
+            document.getElementById("infoBoxOverlay").style.display = "flex";
           }
           else {
             document.getElementById("infoBoxOverlay").style.display = "none";
