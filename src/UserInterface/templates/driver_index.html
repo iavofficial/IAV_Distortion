@@ -23,7 +23,7 @@
             <div class="info-title">
                 <h2>Information</h2>
             </div>
-            <p id="infoBoxContent"> Player {{player}} currently not available. Please contact staff.</p>
+            <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait...</p>
             <button class="refresh-button" onclick="location.reload();"> <span class="reload_symbol">&circlearrowright;	</span> Refresh Page</button>
         </div>
     </div>
@@ -33,27 +33,35 @@
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
-    <div class="flexbox-container">
+    <div class="flexbox-container flexbox-controls">
         <div class="flexbox-item flexbox-slider">
             <input type="range" min="20" max="100" class="slider" id="speed_request">
         </div>
 
         <div class="flexbox-container_middle">
-            <div class="flexbox-item avatar">
-                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+            <div class="speedometer">
+                <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
+                <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> mm/s </span></span>
             </div>
 
-            <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
-                <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
-                <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
+            <div class="avatar">
+                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+            
+                <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
+                    <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
+                    <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
+                </div>
             </div>
+
         </div>
 
         <div class="flexbox-container_right">
+            <!--
             <div>
                 <p class="flexbox-item flexbox-speed_display-label">Speed:</p>
                 <p class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span> </strong> mm/s</p>
             </div>
+            -->
 
             <div class="flexbox-driver_buttons">
                 <div class="flexbox-item flexbox-change_lane_buttons">
@@ -77,6 +85,8 @@
 
     <script type="text/javascript" charset="utf-8">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        document.cookie = "player={{ player }}";
 
         <!-- slider to control velocity-->
 
@@ -111,22 +121,40 @@
 
         <!-- loading window -->
         window.onload = function() {
+            // davor hier auskommentiert
+            //var slider_temp = document.getElementById("speed_request");
+          // slider_temp.value = 0{{ vehicle_information.speed_request }};
+
+
 
           let playerExists = {{ player_exists | tojson }};
           if(!playerExists) {
-            document.getElementById("infoBoxOverlay").style.display = "block";
+            document.getElementById("infoBoxOverlay").style.display = "flex";
           }
           else {
             document.getElementById("infoBoxOverlay").style.display = "none";
 
-            var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
+            var active_hacking_scenario = 0{{vehicle_information.active_hacking_scenario }};
             show_hacked_info(active_hacking_scenario);
 
             var slider_temp = document.getElementById("speed_request");
-            slider_temp.value = {{ vehicle_information.speed_request }};
+            slider_temp.value = 0{{ vehicle_information.speed_request }};
             slider.oninput();
           }
         };
+
+
+        socket.on('connect', () => {
+            socket.emit('handle_connect', {player: '{{ player }}'});
+            console.log('Connected to the server');
+        });
+
+
+            window.onunload = function() {
+                socket.emit('disconnected', {player: '{{ player }}'});
+            }
+
+
 
         <!-- driving data functions -->
         function get_driving_data(){

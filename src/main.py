@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+import logging
 
 from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
@@ -38,11 +39,14 @@ def main(admin_password: str):
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
 
 
-    driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl,
-                         socketio=socketio)
+   # driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl,
+   #                      socketio=socketio)
+
+    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng = environment_mng,socketio=socketio)
     driver_ui_blueprint = driver_ui.get_blueprint()
-    staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio,
-                       environment_mng=environment_mng, password=admin_password)
+   # staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio,
+    #                   environment_mng=environment_mng, password=admin_password)
+    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
     car_map = CarMap(environment_manager=environment_mng)
     car_map_blueprint = car_map.get_blueprint()
