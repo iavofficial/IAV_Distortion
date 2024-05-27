@@ -10,15 +10,16 @@
 from flask import Blueprint, render_template ,request
 import uuid
 
+from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+
 class DriverUI:
 
     def __init__(self, behaviour_ctrl, environment_mng, socketio, name=__name__) -> None:
         self.driverUI_blueprint: Blueprint = Blueprint(name='driverUI_bp', import_name='driverUI_bp')
         self.vehicles: list = environment_mng.get_vehicle_list()
-        self.uuids: dict = environment_mng.get_player_uuid_mapping()
         self.behaviour_ctrl = behaviour_ctrl
         self.socketio = socketio
-        self.environment_mng = environment_mng
+        self.environment_mng: EnvironmentManager = environment_mng
 
         def home_driver() -> str:
             player = request.cookies.get("player")
@@ -26,7 +27,7 @@ class DriverUI:
             if player is None:
                 player = str(uuid.uuid4())
 
-            vehicle = self.get_vehicle_by_player(player=player)
+            vehicle = self.environment_mng.update_queues_and_get_vehicle(player)
             player_exists = False
             picture = ''  # default picture can be added here
             vehicle_information = {
@@ -66,21 +67,23 @@ class DriverUI:
         def handle_slider_change(data) -> None:
             player = data['player']
             value = float(data['value'])
-            if player in self.uuids:
-              self.behaviour_ctrl.request_speed_change_for(uuid=self.uuids[player], value_perc=value)
+            car_id = self.environment_mng.get_car_from_player(player).get_vehicle_id()
+            self.behaviour_ctrl.request_speed_change_for(uuid=car_id, value_perc=value)
             return
 
         @self.socketio.on('lane_change')
         def change_lane(data: dict) -> None:
             player = data['player']
             direction = data['direction']
-            self.behaviour_ctrl.request_lane_change_for(uuid=self.uuids[player], value=direction)
+            car_id = self.environment_mng.get_car_from_player(player).get_vehicle_id()
+            self.behaviour_ctrl.request_lane_change_for(uuid=car_id, value=direction)
             return
 
         @self.socketio.on('make_uturn')
         def make_uturn(data: dict) -> None:
             player = data['player']
-            self.behaviour_ctrl.request_uturn_for(uuid=self.uuids[player])
+            car_id = self.environment_mng.get_car_from_player(player).get_vehicle_id()
+            self.behaviour_ctrl.request_uturn_for(uuid=car_id)
             return
 
         @self.socketio.on('get_driving_data')

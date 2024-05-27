@@ -27,10 +27,9 @@ def main(admin_password: str):
     environment_mng = EnvironmentManager(fleet_ctrl)
 
     vehicles = environment_mng.get_vehicle_list()
-    player_uuid_map = environment_mng.get_player_uuid_mapping()
 
     behaviour_ctrl = BehaviourController(vehicles)
-    cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, player_uuid_map)
+    cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
 
     app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
     socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
