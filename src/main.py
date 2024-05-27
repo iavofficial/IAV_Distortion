@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+import logging
 
 from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
@@ -22,6 +23,7 @@ import asyncio
 
 
 def main(admin_password: str):
+
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl)
 
