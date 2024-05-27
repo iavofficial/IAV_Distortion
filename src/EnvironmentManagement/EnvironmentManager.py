@@ -8,6 +8,7 @@
 #
 import logging
 from typing import List
+from collections import deque
 
 from DataModel.ModelCar import ModelCar
 from DataModel.Vehicle import Vehicle
@@ -25,7 +26,7 @@ class EnvironmentManager:
         self.logger.addHandler(console_handler)
 
         self._fleet_ctrl = fleet_ctrl
-        self._player_queue_list: List[str] = []
+        self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
         self.staff_ui = None
 
@@ -113,7 +114,8 @@ class EnvironmentManager:
                 if len(self._player_queue_list) == 0:
                     self._update_staff_ui()
                     return
-                v.set_player(self._player_queue_list.pop())
+                p = self._player_queue_list.popleft()
+                v.set_player(p)
         self._update_staff_ui()
 
     def add_player(self, player_id: str):
@@ -183,7 +185,10 @@ class EnvironmentManager:
         """
         Gets a list of all player that are waiting for a vehicle
         """
-        return self._player_queue_list
+        tmp = []
+        for p in self._player_queue_list:
+            tmp.append(p)
+        return tmp
 
     def get_car_from_player(self, player: str) -> Vehicle | None:
         """
