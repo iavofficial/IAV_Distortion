@@ -120,7 +120,7 @@ class StaffUI:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            environment_mng.add_vehicle(device)
+            environment_mng.add_physical_vehicle(device)
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
