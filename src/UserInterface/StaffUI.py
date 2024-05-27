@@ -21,6 +21,8 @@ class StaffUI:
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
+        self.cybersecurity_mng = cybersecurity_mng
+
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
