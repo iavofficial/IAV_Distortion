@@ -106,15 +106,26 @@ class CurvedPiece(TrackPiece):
         return self._size
 
     def get_next_attachment_direction(self) -> Direction:
-        match self._rotation.get_deg():
-            case 0:
-                return Direction.WEST
-            case 90:
-                return Direction.NORTH
-            case 180:
-                return Direction.EAST
-            case 270:
-                return Direction.SOUTH
+        if not self._is_mirrored:
+            match self._rotation.get_deg():
+                case 0:
+                    return Direction.WEST
+                case 90:
+                    return Direction.NORTH
+                case 180:
+                    return Direction.EAST
+                case 270:
+                    return Direction.SOUTH
+        else:
+            match self._rotation.get_deg():
+                case 0:
+                    return Direction.SOUTH
+                case 90:
+                    return Direction.WEST
+                case 180:
+                    return Direction.NORTH
+                case 270:
+                    return Direction.EAST
         raise NotImplementedError
 
     def process_update(self, start_progress: float, distance: float, offset: float):
