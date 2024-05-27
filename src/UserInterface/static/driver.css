@@ -1,48 +1,75 @@
 body{
+    margin: 0;
+    padding: 0;
     overflow: hidden;
 }
 /* container to arrange the elements on the page*/
 .flexbox-container {
     display:  flex;
     justify-content: space-between;
+    width: 100%;
+}
+
+.flexbox-controls {
+    display: flex;
+    height: 90vh;
 }
 
 .flexbox-container_middle{
     display: flex;
-    width: 200px;
-    height: 160px;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    width: 50%;
+    height: 90%;
+    position: relative;
+}
+
+.avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 55%;
 }
 
 .flexbox-container_middle img {
-    flex: 1;  /* This will allow the image to grow or shrink as needed */
-    object-fit: cover;  /* This will ensure aspect ratio of the image is maintained while resizing */
-    width: 100%;  /* This makes sure image takes full width of its parent container */
-    height: auto;  /* You can also set this to '100%' if you want the image to take full height of the container */
+    display: flex;
+    object-fit: cover;
+    max-height: 100%;
+    max-width: 80%;
     justify-content: center;
     /* background-color: #d2f5ff; */
     border-radius: 20px;
 }
 
-.flexbox-container_middle object {
-    flex: 1;  /* This will allow the image to grow or shrink as needed */
-    object-fit: cover;  /* This will ensure aspect ratio of the image is maintained while resizing */
-    width: 100%;  /* This makes sure image takes full width of its parent container */
-    height: auto;  /* You can also set this to '100%' if you want the image to take full height of the container */
-    justify-content: center;
-    background-color: #d2f5ff;
-    border-radius: 20px;
+.flexbox-hackedInfo {
+    border: 8px solid #F80000;
+    border-radius: 35px;
+    width: auto;
+    height: auto;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.hackedInfo_text{
+    color: #F80000;
+    font-size: 4vh;
+    text-align: center;
+    margin-left: 2vw;
+    margin-right: 2vw;
 }
 
 .flexbox-container_right{
     display: flex;
     flex-direction: column;
-    min-height: 300px;
-    justify-content: space-between;
+    height: 90%;
+    width: 25%;
+    justify-content: space-around;
 }
 
 .flexbox-item{
-    width: 300px;
-    margin: 10px;
+    /*width: 300px;
+    margin: 10px;*/
     /* below only for design*/
     /*border: 3px solid #333;
     background-color: white;*/
@@ -51,10 +78,16 @@ body{
 .flexbox-slider {
     display: flex;
     align-items: center;
-    min-height: 300px;
+    height: 90%;
+    width: 25%;
 }
 
 /* container to group and arrange the buttons*/
+.flexbox-driver_buttons{
+    display: flex;
+    flex-direction: column;
+}
+
 .flexbox-change_lane_buttons{
     display: flex;
     flex-direction: row;
@@ -64,11 +97,11 @@ body{
 /* style options for the slider to control the velocity */
 .slider {
     -webkit-appearance: none;
-    width: 300px;
-    height: 40px;
+    width: 100vh;
+    height: 6vw;
     background: #ddd;
     outline: none;
-    border-radius: 10px;
+    border-radius: 1.25vw;
     transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
 }
 
@@ -76,21 +109,39 @@ body{
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 50px;
-    height: 70px;
-    background: #fff;
+    width: 5vw;
+    height: 8vw;
+    background: #0091FF;
     cursor: pointer;
-    border: 5px solid #0091FF;
-    border-radius: 35px;
+    /*border: 5px solid #0091FF;*/
+    border-radius: 5vw;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    /*border: 5px solid #33A7FF;*/
+}
+
+.slider::-webkit-slider-thumb:active {
+    /*border: 5px solid #0074CC;*/
+    background: #0074CC;
 }
 
 .slider::-moz-range-thumb {
-     width: 50px;
-     height: 70px;
-     background: #fff;
-     cursor: pointer;
-     border: 5px solid #0091FF;
-     border-radius: 35px;
+    width: 5vw;
+    height: 8vw;
+    background: #0091FF;
+    cursor: pointer;
+    /*border: 5px solid #0091FF;*/
+    border-radius: 5vw;
+}
+
+.slider::-moz-range-thumb:hover {
+    /*border: 5px solid #33A7FF;2*/
+}
+
+.slider::-moz-range-thumb:active {
+    /*border: 5px solid #0074CC;*/
+    background: #0074CC;
 }
 
 .slider::-moz-range-progress {
@@ -102,11 +153,15 @@ body{
 }
 
 /* style for speed display */
+.speedometer {
+
+}
+
 .flexbox-speed_display-label {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
+    font-size: 6vh;
     margin-bottom: 0px;
 }
 
@@ -115,23 +170,39 @@ body{
     flex-direction: row;
     justify-content: center;
     align-items: flex-end;
-    font-size: 35px;
+    font-size: 10vh;
     margin-top: 0px;
 }
 .flexbox-speed_display.value{
-    font-size: 74px;
+
     margin-right: 5px;
 }
 
+.speed_unit{
+    font-size: 6vh;
+}
+
 /* style options for buttons */
-.button-size {
-    width: 100px;
-    height: 100px;
-    font-size: 25px;
-    border-radius: 12.5px;
-    color: #0091FF;
+.driver-buttons {
+    width: 8vw;
+    height: 8vw;
+    font-size: 4vw;
+    border-radius: 25px;
+    /* color: #0091FF;
     background: #FFFFFF;
-    border: 2px solid #0091FF; /* border thickness and color */
+    border: 5px solid #0091FF; */
+}
+
+.driver-buttons:hover {
+    /*color: #33A7FF;
+    border: 5px solid #33A7FF;
+    background: #FFFFFF;*/
+}
+
+.driver-buttons:active {
+    /*color: #FFFFFF;
+    border: 5px solid #0074CC;
+    background: #0074CC;*/
 }
 
 .overlay {
@@ -144,13 +215,15 @@ body{
     bottom: 0;
     background-color: rgba(0,0,0,0.5);
     z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .info-box{
     display: flex;
     flex-direction: column;
-    width: 350px;
-    margin: 15% auto;
+    width: 50%;
     background-color: #fff;
     padding: 20px;
     border: 0px solid #001A54;
@@ -166,28 +239,19 @@ body{
 .refresh-button{
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
+    padding: 6px 12px;
     margin: 5px auto;
-    height: 32px;
-    border-radius: 8px;
+    border-radius: 15px;
     color: #FFFFFF;
     background: #0091FF;
     border: 0px solid #0091FF;
 }
 
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 500,
-  'GRAD' 0,
-  'opsz' 24
+.reload_symbol{
+    font-size: 20px;
+    color: #FFFFFF;
 }
 
-.material-symbols-outlined.large {
-    font-size: 75px
-}
 
-.material-symbols-outlined.info {
-    color: #FF9000;
-    padding-right: 5px;
-}
+

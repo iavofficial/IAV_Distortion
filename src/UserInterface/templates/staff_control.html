@@ -134,10 +134,17 @@
             for (var id in names){
                 var div = document.createElement('div');
                 var input_radio = document.createElement('input');
+                input_radio.classList.add('custom-radio');
                 input_radio.setAttribute('type', 'radio');
                 input_radio.setAttribute('id', `$id`);
                 input_radio.setAttribute('name', 'option');
                 input_radio.setAttribute('value', `scenarioID_${ id }-UUID_${ uuid }>`);
+
+                // Enable submit button if any radio is checked
+                input_radio.addEventListener('change', function() {
+                  input_submit.disabled = !this.checked;
+                });
+
                 div.append(input_radio);
 
                 var label_radio = document.createElement('label');
@@ -149,9 +156,10 @@
             }
             form_choose_hack.appendChild(div_radio_buttons);
 
-            var input_submit = document.createElement('input');
+            let input_submit = document.createElement('input');
             input_submit.setAttribute('type', 'submit');
             input_submit.setAttribute('value', 'Set Scenario');
+            input_submit.disabled = true;
             form_choose_hack.append(input_submit);
             section_hacking_scenarios.append(form_choose_hack);
 
@@ -172,6 +180,9 @@
 
     var deviceList = document.getElementById("devices");
     socket.on('new_devices', function(devices){
+      while (deviceList.firstChild) {
+        deviceList.removeChild(deviceList.firstChild);
+      }
       devices.forEach(function(device) {
         var li = document.createElement('li');
         li.appendChild(document.createTextNode(device));
@@ -186,11 +197,24 @@
 
     function addDevice(device) {
       socket.emit('add_device', device);
+      remove_from_found_devices(device);
     }
 
     function deleteDevice(device) {
       socket.emit('delete_device', device);
     }
+
+    function remove_from_found_devices(device) {
+      var list = document.getElementById("devices");
+      var items = list.getElementsByTagName('li');
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].textContent === device + "Add") {
+            list.removeChild(items[i]);
+            break;
+        }
+    }
+}
+
 
 </script>
 
