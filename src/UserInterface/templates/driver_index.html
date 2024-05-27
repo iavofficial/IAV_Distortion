@@ -134,11 +134,11 @@
           else {
             document.getElementById("infoBoxOverlay").style.display = "none";
 
-            var active_hacking_scenario = 0{{vehicle_information.active_hacking_scenario }};
+            var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
             show_hacked_info(active_hacking_scenario);
 
             var slider_temp = document.getElementById("speed_request");
-            slider_temp.value = 0{{ vehicle_information.speed_request }};
+            slider_temp.value = {{ vehicle_information.speed_request }};
             slider.oninput();
           }
         };
