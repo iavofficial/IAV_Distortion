@@ -89,6 +89,7 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 return v
+        self._update_staff_ui()
         return None
 
     def _add_player_to_queue_if_appropiate(self, player_id: str):
@@ -199,3 +200,13 @@ class EnvironmentManager:
             if v.get_player() == player:
                 return v
         return None
+
+    def get_mapped_cars(self) -> List[dict]:
+        tmp = []
+        for v in self._active_anki_cars:
+            if v.get_player() is not None:
+                tmp.append({
+                    'player': v.get_player(),
+                    'car': v.get_vehicle_id()
+                })
+        return tmp

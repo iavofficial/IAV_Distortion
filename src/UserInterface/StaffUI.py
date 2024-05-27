@@ -125,15 +125,22 @@ class StaffUI:
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
 
-        @self.socketio.on('delete_device')
-        def handle_delete_player(device: str) -> None:
+        @self.socketio.on('delete_player')
+        def handle_delete_player(player: str) -> None:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            print(f'delete player {device}')
-            self.logger.debug("Device deleted %s", device)
-            environment_mng.remove_vehicle(device)
+            print(f'delete player {player}')
+            self.logger.debug("Device deleted %s", player)
+            environment_mng.remove_player(player)
             return
+
+        @self.socketio.on('delete_vehicle')
+        def handle_delete_vehicle(vehicle_id: str) -> None:
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return
+            environment_mng.remove_vehicle(vehicle_id)
 
         @self.socketio.on('get_update_hacking_scenarios')
         def update_hacking_scenarios() -> None:
@@ -160,7 +167,7 @@ class StaffUI:
         return scenario_names, scenario_descriptions
 
     def publish_new_data(self):
-        self.socketio.emit('update_uuids', {"uuids": self.environment_mng.get_controlled_cars_list(), "car_queue": self.environment_mng.get_free_car_list(),
+        self.socketio.emit('update_uuids', {"car_map": self.environment_mng.get_mapped_cars(), "car_queue": self.environment_mng.get_free_car_list(),
                                             "player_queue": self.environment_mng.get_waiting_player_list()})
         return
 
