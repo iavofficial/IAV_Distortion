@@ -141,18 +141,6 @@ class EnvironmentManager:
         # TODO: Implememnt
         self._update_staff_ui()
 
-
-    def remove_player(self, player_id: str):
-        """
-        Remove a player from the waiting queue and the car they are active in
-        """
-        for v in self._active_anki_cars:
-            if v.get_player() == player_id:
-                v.remove_player()
-        if player_id in self._player_queue_list:
-            self._player_queue_list.remove(player_id)
-        self._update_staff_ui()
-
     def add_physical_vehicle(self, uuid: str):
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
