@@ -25,7 +25,7 @@ from flask_socketio import SocketIO
 import os
 import asyncio
 
-def main(admin_password: str):
+def main(admin_password: str, debug: bool):
     app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
     socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
     # Todo: using async_mode='threading' makes flask use the development server instead of the eventlet server.
@@ -55,16 +55,18 @@ def main(admin_password: str):
     app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
     app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
     app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
-    socketio.run(app, debug=True, host='0.0.0.0', allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=debug, host='0.0.0.0', allow_unsafe_werkzeug=debug)
 
 
 if __name__ == '__main__':
     # TODO: work with hashed password, passwords should not be stored in clear text
     admin_pwd = os.environ.get('ADMIN_PASSWORD')
+    debug = False
     if admin_pwd is None:
-        print("WARNING!!! No admin password supplied via Environment variable. Using '0000' as default password. "
-              "Please change the password!")
+        print("WARNING!!! No admin password supplied via Environment variable. Using '0000' as default password"
+              " and starting in debug mode. Please change the password!")
         admin_pwd = '0000'
+        debug = True
         
-    main(admin_pwd)
+    main(admin_pwd, debug)
 
