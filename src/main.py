@@ -6,6 +6,9 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+from gevent import monkey
+monkey.patch_all()
+
 import logging
 
 from VehicleManagement.VehicleController import VehicleController
@@ -22,10 +25,9 @@ from flask_socketio import SocketIO
 import os
 import asyncio
 
-
 def main(admin_password: str):
     app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
-    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
     # Todo: using async_mode='threading' makes flask use the development server instead of the eventlet server.
     #  change to use some production server
 
