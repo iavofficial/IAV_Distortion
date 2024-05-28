@@ -12,6 +12,7 @@ pluggy = "==1.5.0"
 pytest = "==8.2.0"
 gevent = "*"
 gevent-websocket = "*"
+typing-extensions = "*"
 
 [dev-packages]
 sphinx = "*"
