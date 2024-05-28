@@ -20,5 +20,11 @@ class VirtualCar(ModelCar):
         else:
             self._speed_actual = int(speed)
 
+        offset: float | None = data.get('offset')
+        if offset is None:
+            print("Error: Location service callback didn't include the offset!")
+        else:
+            self._offset_from_center = offset
+
         self._on_driving_data_change()
         self._send_location_via_socketio(pos, rot)
