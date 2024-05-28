@@ -161,11 +161,31 @@ class EnvironmentManager:
 
     def get_track(self) -> FullTrack:
         track: FullTrack = TrackBuilder()\
+            .append(TrackPieceType.CURVE_WS)\
+            .append(TrackPieceType.STRAIGHT_NS)\
+            .append(TrackPieceType.CURVE_NE)\
+            .append(TrackPieceType.CURVE_WN)\
+            .append(TrackPieceType.STRAIGHT_SN)\
+            .append(TrackPieceType.CURVE_SE)\
+            .append(TrackPieceType.CURVE_WS)\
+            .append(TrackPieceType.STRAIGHT_NS)\
+            .append(TrackPieceType.CURVE_NE)\
+            .append(TrackPieceType.CURVE_WN)\
+            .append(TrackPieceType.STRAIGHT_SN)\
+            .append(TrackPieceType.CURVE_SE)\
             .append(TrackPieceType.STRAIGHT_WE)\
             .append(TrackPieceType.CURVE_WS)\
+            .append(TrackPieceType.STRAIGHT_NS)\
+            .append(TrackPieceType.STRAIGHT_NS)\
             .append(TrackPieceType.CURVE_NW)\
             .append(TrackPieceType.STRAIGHT_EW)\
+            .append(TrackPieceType.STRAIGHT_EW)\
+            .append(TrackPieceType.STRAIGHT_EW)\
+            .append(TrackPieceType.STRAIGHT_EW)\
+            .append(TrackPieceType.STRAIGHT_EW)\
             .append(TrackPieceType.CURVE_EN)\
+            .append(TrackPieceType.STRAIGHT_SN)\
+            .append(TrackPieceType.STRAIGHT_SN)\
             .append(TrackPieceType.CURVE_SE)\
             .build()
 
