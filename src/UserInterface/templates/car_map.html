@@ -28,13 +28,18 @@
             const track_color = "#000000";
             const track_width = 5;
 
+            const car_length = 82;
+            const car_width = 30;
+            const car_outline = 4;
+
             const colorMap = new Map();
-            colorMap.set("Virtual Vehicle 1", "#ff0000");
-            colorMap.set("Virtual Vehicle 2", "#ff8000");
-            colorMap.set("Virtual Vehicle 3", "#ffff00");
-            colorMap.set("Virtual Vehicle 4", "#00ff00");
-            colorMap.set("Virtual Vehicle 5", "#0000ff");
-            colorMap.set("Virtual Vehicle 6", "#ff00ff");
+            const colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"];
+            const colorCrossmap = [];
+            for (const c of colors) {
+                for (const d of colors) {
+                    colorCrossmap.push([d, c]);
+                }
+            }
 
             resizeCanvas();
             resetCanvas();
@@ -52,27 +57,34 @@
                     var x = d.position.x;
                     var y = d.position.y;
                     var angle = d.angle;
-                    drawCar(x, y, angle, colorMap.get(name));
+                    const num = getVehicleNum(name);
+                    const colors = colorCrossmap[num];
+                    // TODO: Draw preferably as image, if enough images are there
+                    drawCarBox(x, y, angle, colors[0], colors[1]);
                 }
             });
 
-            function drawCar(x, y, angle, color) {
-                // TODO: Draw as rectangle with rotation
+            function drawCarBox(x, y, angle, colorInner, colorOuter) {
+                x *= scale;
+                y *= scale;
+                ctx.save();
+
+                rotationRadians = Math.PI * (angle - 90) / 180.0;
+                // do rotation for rect
+                ctx.translate(x, y);
+                ctx.rotate(rotationRadians);
+                ctx.translate(-x, -y);
                 ctx.beginPath();
-                // x, y, radius, startAngle, endAngle
-                ctx.arc(x * scale, y * scale, 10 * scale, 0, 2 * Math.PI);
-                ctx.strokeStyle = color;
-                ctx.fillStyle = color;
+                ctx.strokeStyle = colorOuter;
+                ctx.fillStyle = colorInner;
+                ctx.lineWidth = car_outline * scale;
+                ctx.rect(x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
                 ctx.fill();
-                ctx.closePath();
-
-                ctx.moveTo(x * scale, y * scale);
-                ctx.lineWidth = 10 * scale;
-                theta = Math.PI * (angle - 90) / 180.0;
-                lineLength = 75;
-                ctx.lineTo((x + lineLength * Math.cos(theta)) * scale, (y + lineLength * Math.sin(theta)) * scale);
-
                 ctx.stroke();
+                ctx.closePath();
+                ctx.rotate(-Math.PI / 2);
+
+                ctx.restore();
             }
 
             function drawTrack() {
@@ -142,6 +154,11 @@
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+            }
+
+            const vehicleNumRe = /Virtual Vehicle (\d+)/;
+            function getVehicleNum(name) {
+                return name.match(vehicleNumRe)[1];
             }
         </script>
     </body>
