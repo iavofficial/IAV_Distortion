@@ -66,5 +66,5 @@ if __name__ == '__main__':
               "Please change the password!")
         admin_pwd = '0000'
         
-    iav_distortion = asyncio.run(main(admin_pwd))
+    main(admin_pwd)
 
