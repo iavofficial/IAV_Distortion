@@ -45,7 +45,12 @@
             </div>
 
             <div class="avatar">
-                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+
+                {% if not has_color %}
+                    <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+                {% else %}
+                    <canvas id="avatar"></canvas>
+                {% endif %}
             
                 <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
                     <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
@@ -192,6 +197,29 @@
                 document.getElementById("control").replaceChildren(newContent);
             }
         });
+
+        {% if has_color %}
+        var canvas = document.getElementById("avatar");
+        var ctx = canvas.getContext("2d");
+
+        const scale = canvas.width / 200;
+
+        const car_length = 82 * scale;
+        const car_width = 30 * scale;
+        const car_outline = 4 * scale;
+
+        c = {{ color | tojson }};
+
+        ctx.beginPath();
+        ctx.strokeStyle = c[1];
+        ctx.fillStyle = c[0];
+        ctx.lineWidth = car_outline;
+        ctx.rect(canvas.width / 2 - car_length / 2, canvas.height / 2 - car_width / 2, car_length, car_width);
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+
+        {% endif %}
 
     </script>
 

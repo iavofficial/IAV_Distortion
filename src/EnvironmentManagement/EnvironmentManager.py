@@ -7,6 +7,7 @@
 # file that should have been included as part of this package.
 #
 import logging
+import re
 from typing import List
 from collections import deque
 from flask_socketio import SocketIO
@@ -219,3 +220,14 @@ class EnvironmentManager:
             for d in colors:
                 full_map.append([d, c])
         return full_map
+
+    def get_player_color(self, player_id) -> List[str] | None:
+        car = self.get_car_from_player(player_id)
+        if car is None:
+            return None
+        match = re.search(r"Virtual Vehicle (\d+)", car.get_vehicle_id())
+        if match is None:
+            return None
+        number = int(match.group(1))
+        return self.get_car_color_map()[number]
+

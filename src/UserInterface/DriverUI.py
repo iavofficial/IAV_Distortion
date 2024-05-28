@@ -30,6 +30,7 @@ class DriverUI:
             vehicle = self.environment_mng.update_queues_and_get_vehicle(player)
             player_exists = False
             picture = ''  # default picture can be added here
+            color = None
             vehicle_information = {
                 'active_hacking_scenario': '0',
                 'speed_request': '0'
@@ -39,12 +40,13 @@ class DriverUI:
                 player_exists = True
                 picture = vehicle.vehicle_id
                 picture = picture.replace(":", "") + ".png"
+                color = environment_mng.get_player_color(player)
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
                 print(f'set callback for {player}')
 
             return render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
-                                   vehicle_information=vehicle_information)
+                                   vehicle_information=vehicle_information, has_color=(color is not None), color=color)
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
