@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, url_for
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 
 class CarMap:
@@ -8,7 +8,10 @@ class CarMap:
 
         def home_car_map():
             track = environment_manager.get_track().get_as_list()
-            return render_template("car_map.html", track=track, color_map=environment_manager.get_car_color_map())
+            img_map = []
+            for img in environment_manager.get_car_map():
+                img_map.append([img[1], url_for('static', filename=f"images/{img[1]}")])
+            return render_template("car_map.html", track=track, color_map=environment_manager.get_car_color_map(), top_images=img_map)
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
 
     def get_blueprint(self) -> Blueprint:

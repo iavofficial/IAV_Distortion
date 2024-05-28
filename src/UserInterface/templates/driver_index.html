@@ -49,7 +49,11 @@
                 {% if not has_color %}
                     <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
                 {% else %}
+                    {% if color[0] == "img" %}
+                    <img id="avatar" src="{{ color[1] }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+                    {% else %}
                     <canvas id="avatar"></canvas>
+                    {% endif %}
                 {% endif %}
             
                 <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
@@ -198,7 +202,7 @@
             }
         });
 
-        {% if has_color %}
+        {% if has_color and color[0] != "img" %}
         var canvas = document.getElementById("avatar");
         var ctx = canvas.getContext("2d");
 

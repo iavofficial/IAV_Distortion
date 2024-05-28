@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 
-from flask import Blueprint, render_template ,request
+from flask import Blueprint, render_template ,request, url_for
 import uuid
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
@@ -41,6 +41,8 @@ class DriverUI:
                 picture = vehicle.vehicle_id
                 picture = picture.replace(":", "") + ".png"
                 color = environment_mng.get_player_color(player)
+                if color is not None and color[0] == "img":
+                    color[1] = url_for('static', filename=f"images/{color[1]}")
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
                 print(f'set callback for {player}')

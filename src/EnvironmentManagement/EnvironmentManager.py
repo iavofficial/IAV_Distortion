@@ -11,6 +11,7 @@ import re
 from typing import List
 from collections import deque
 from flask_socketio import SocketIO
+from flask import url_for
 
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
@@ -213,9 +214,17 @@ class EnvironmentManager:
                 })
         return tmp
 
+    def get_car_map(self) -> List[List[str]]:
+        map = []
+        for c in ["D1FFAF51CB30_top.png"]:
+            map.append(["img", c])
+        return map
+
     def get_car_color_map(self) -> List[List[str]]:
         colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
-        full_map = []
+        # this ensures the first free cars are images
+        # TODO: Write the car images prescending the color boxes in a nicer way!
+        full_map = self.get_car_map()
         for c in colors:
             for d in colors:
                 full_map.append([d, c])
@@ -229,5 +238,4 @@ class EnvironmentManager:
         if match is None:
             return None
         number = int(match.group(1))
-        return self.get_car_color_map()[number]
-
+        return self.get_car_color_map()[number - 1]

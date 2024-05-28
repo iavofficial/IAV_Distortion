@@ -14,11 +14,17 @@
 
 <body>
     <canvas id="car_canvas"></canvas>
+    <div style="display:none;">
+        {% for img in top_images %}
+        <img id='{{ img[0] }}' }}' src='{{ img[1] }}' />
+        {% endfor %}
+    </div>
+
 
         <script type="text/javascript" charset="utf-8">
             var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-            const scale = 0.5;
+            const scale = 1;
 
             var canvas = document.getElementById("car_canvas");
             var ctx = canvas.getContext("2d");
@@ -50,12 +56,31 @@
                     var x = d.position.x;
                     var y = d.position.y;
                     var angle = d.angle;
-                    const num = getVehicleNum(name);
+                    const num = getVehicleNum(name) - 1;
                     const colors = colorCrossmap[num];
-                    // TODO: Draw preferably as image, if enough images are there
-                    drawCarBox(x, y, angle, colors[0], colors[1]);
+                    if (colors[0] == "img") {
+                        drawCarImg(x, y, angle, colors[1]);
+                    } else {
+                        drawCarBox(x, y, angle, colors[0], colors[1]);
+                    }
                 }
             });
+
+            function drawCarImg(x, y, angle, img_source) {
+                x *= scale;
+                y *= scale;
+                ctx.save();
+
+                rotationRadians = Math.PI * (angle - 90) / 180.0;
+                // do rotation for rect
+                ctx.translate(x, y);
+                ctx.rotate(rotationRadians);
+                ctx.translate(-x, -y);
+                const image = document.getElementById(img_source);
+                ctx.drawImage(image, x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
+
+                ctx.restore();
+            }
 
             function drawCarBox(x, y, angle, colorInner, colorOuter) {
                 x *= scale;
