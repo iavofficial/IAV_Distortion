@@ -114,7 +114,7 @@ class LocationService():
         offset: target offset where the car should drive in mm of
                 distance to the track center
         """
-        self._target_offset = offset * -1
+        self._target_offset = offset * -1 * self._direction_mult
 
     def _adjust_speed(self):
         """
