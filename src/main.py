@@ -19,7 +19,6 @@ from flask import Flask
 from flask_socketio import SocketIO
 
 import os
-import asyncio
 
 
 def main(admin_password: str):
@@ -61,5 +60,5 @@ if __name__ == '__main__':
               "Please change the password!")
         admin_pwd = '0000'
         
-    iav_distortion = asyncio.run(main(admin_pwd))
+    main(admin_pwd)
 
