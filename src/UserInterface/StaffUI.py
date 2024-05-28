@@ -81,7 +81,7 @@ class StaffUI:
             return render_template('staff_login.html', wrong_password=True)
 
         self.staffUI_blueprint.add_url_rule('/hacking_scenario', methods=['POST'], view_func=set_scenario)
-        self.staffUI_blueprint.add_url_rule('', methods=['GET', 'POST'], view_func=login_site)
+        self.staffUI_blueprint.add_url_rule('/', methods=['GET', 'POST'], view_func=login_site)
 
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
