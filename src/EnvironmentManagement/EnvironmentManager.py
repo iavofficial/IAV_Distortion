@@ -264,3 +264,11 @@ class EnvironmentManager:
                     'car': v.get_vehicle_id()
                 })
         return tmp
+
+    def get_car_color_map(self) -> List[List[str]]:
+        colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
+        full_map = []
+        for c in colors:
+            for d in colors:
+                full_map.append([d, c])
+        return full_map

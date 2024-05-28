@@ -8,7 +8,7 @@ class CarMap:
 
         def home_car_map():
             track = environment_manager.get_track().get_as_list()
-            return render_template("car_map.html", track=track)
+            return render_template("car_map.html", track=track, color_map=environment_manager.get_car_color_map())
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
 
     def get_blueprint(self) -> Blueprint:

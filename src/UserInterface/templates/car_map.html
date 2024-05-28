@@ -33,14 +33,7 @@
             const car_width = 30;
             const car_outline = 4;
 
-            const colorMap = new Map();
-            const colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"];
-            const colorCrossmap = [];
-            for (const c of colors) {
-                for (const d of colors) {
-                    colorCrossmap.push([d, c]);
-                }
-            }
+            const colorCrossmap = {{ color_map | tojson }};
 
             resizeCanvas();
             resetCanvas();
