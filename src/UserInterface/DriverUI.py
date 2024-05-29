@@ -61,12 +61,15 @@ class DriverUI:
                 # add to queue
                 self.environment_mng.add_player(player)
                 print(f'added {player} to queue')
-        @self.socketio.on('disconnected')
-        def handle_disconnected(data):
-            player=data["player"]
-            print(f"Driver {player} disconnected!")
-            self.environment_mng.remove_player_from_waitlist(player)
-            self.environment_mng.remove_player_from_vehicle(player)
+
+        # FIXME: This was commented out since the Chromium Webbrowser doesn't send this
+        # in a predictable time
+        #@self.socketio.on('disconnected')
+        #def handle_disconnected(data):
+        #    player=data["player"]
+        #    print(f"Driver {player} disconnected!")
+        #    self.environment_mng.remove_player_from_waitlist(player)
+        #    self.environment_mng.remove_player_from_vehicle(player)
 
         @self.socketio.on('slider_changed')
         def handle_slider_change(data) -> None:
