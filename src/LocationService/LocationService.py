@@ -119,12 +119,18 @@ class LocationService():
         Takes the target speed as argument
         Not Thread-safe
         """
+        max_change = self._acceleration / self._simulation_ticks_per_second
         if self._actual_speed < target_speed:
-            self._actual_speed += self._acceleration / self._simulation_ticks_per_second
+            self._actual_speed += max_change
+            # accelerated too much
+            if self._actual_speed > target_speed:
+                self._actual_speed = target_speed
 
-        # TODO: Use better slowdown approach
         if self._actual_speed > target_speed:
-            self._actual_speed = target_speed
+            self._actual_speed -= max_change
+            # decelerated too much
+            if self._actual_speed < target_speed:
+                self._actual_speed = target_speed
 
 
     def _adjust_offset(self, travel_distance: float) -> float:
