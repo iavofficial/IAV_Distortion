@@ -244,7 +244,7 @@ class EnvironmentManager:
 
     def get_car_map(self) -> List[List[str]]:
         map = []
-        for c in ["D1FFAF51CB30_top.png"]:
+        for c in ["FA14670F39FE_top.png", "F1760808C100_top.png", "DF8BDC022C23_top.png", "E87E9F34CF46_top.png", "E751D4F745EF_top.png", "E4FD708CB27D_top.png", "D1FFAF51CB30_top.png", "F4DBE7EA7B52_top.png"]:
             map.append(["img", c])
         return map
 
