@@ -141,7 +141,8 @@ class StaffUI:
                 return
             print(f'delete player {player}')
             self.logger.debug("Device deleted %s", player)
-            environment_mng.remove_player_from_vehicles_and_waitlist(player)
+            environment_mng.remove_player_from_vehicle(player)
+            environment_mng.remove_player_from_waitlist(player)
             return
 
         @self.socketio.on('delete_vehicle')
