@@ -137,17 +137,25 @@ class EnvironmentManager:
             print(self._player_queue_list)
         self._update_staff_ui()
 
-
-    def remove_player(self, player_id: str):
+    def remove_player_from_waitlist(self, player_id: str):
         """
-        Remove a player from the waiting queue and the car they are active in
+        Remove a player from the waiting queue
         """
-        for v in self._active_anki_cars:
-            if v.get_player() == player_id:
-                v.remove_player()
         if player_id in self._player_queue_list:
             self._player_queue_list.remove(player_id)
+        # TODO: Show other page when the user gets removed from here
         self._socketio.emit('player_removed', player_id)
+        self._update_staff_ui()
+
+    def remove_player_from_vehicle(self, player: str):
+        """
+        removes a player from the vehicle they are controlling
+        """
+        self.logger.info(f"Removing player with UUID {player} from vehicle")
+        for v in self._active_anki_cars:
+            if v.get_player() == player:
+                v.remove_player()
+                self._socketio.emit('player_removed', player)
         self._update_staff_ui()
 
     def add_vehicle(self, uuid: str):

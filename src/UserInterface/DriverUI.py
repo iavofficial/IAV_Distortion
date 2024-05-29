@@ -61,7 +61,7 @@ class DriverUI:
         def handle_disconnected(data):
             player=data["player"]
             print(f"Driver {player} disconnected!")
-            self.environment_mng.remove_player(player)
+            self.environment_mng.remove_player_from_waitlist(player)
 
         @self.socketio.on('slider_changed')
         def handle_slider_change(data) -> None:
