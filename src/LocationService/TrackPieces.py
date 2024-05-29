@@ -141,6 +141,8 @@ class CurvedPiece(TrackPiece):
             end = 0
         progress = end / travel_len
         angle = Angle(progress * 90)
+        if self._is_mirrored:
+            offset *= -1
         distance_to_middle = self._radius + offset
         position = Position(distance_to_middle * angle.get_x_mult(), distance_to_middle * angle.get_y_mult())
         position.add_offset(-self._size / 2, -self._size / 2)
@@ -150,6 +152,8 @@ class CurvedPiece(TrackPiece):
         return (left, position)
 
     def get_length(self, offset: float) -> float:
+        if self._is_mirrored:
+            offset *= -1
         return (self._radius + offset) * math.pi / 2
 
     def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
