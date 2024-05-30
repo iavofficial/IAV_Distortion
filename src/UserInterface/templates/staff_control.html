@@ -74,14 +74,14 @@
 
         // fill table with player and uuids
         for (let i in map_data) {
-            var c_map = map_data[i];
-            var row = document.createElement('tr');
+            let c_map = map_data[i];
+            let row = document.createElement('tr');
 
-            var cell_player = document.createElement('td');
-            var cell_uuid = document.createElement('td');
-            var cell_del = document.createElement('td');
-            var delPlayerButton = document.createElement('button');
-            var delVehicleButton = document.createElement('button');
+            let cell_player = document.createElement('td');
+            let cell_uuid = document.createElement('td');
+            let cell_del = document.createElement('td');
+            let delPlayerButton = document.createElement('button');
+            let delVehicleButton = document.createElement('button');
             delPlayerButton.textContent = 'Remove Player';
             delPlayerButton.className = 'button_small button_pink'
             delPlayerButton.onclick = function(){
