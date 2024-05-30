@@ -5,7 +5,7 @@ from LocationService.LocationService import LocationService
 from LocationService.Track import TrackPieceType, TrackPiece
 from LocationService.Trigo import Position, Angle
 
-def do_nothing(pos: Position, angle: Angle):
+def do_nothing(pos: Position, angle: Angle, data: dict):
     pass
 
 # Constants
