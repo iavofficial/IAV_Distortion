@@ -149,7 +149,8 @@ def test_offset(offset: float):
     for _ in range(0, 500):
         location_service._run_simulation_step_threadsafe()
     new_pos, _ = location_service._run_simulation_step_threadsafe()
-    exp_y = old_pos.get_y() + offset
+    # * - 1 since the track is going in the reverse direction
+    exp_y = old_pos.get_y() + offset * -1
     assert new_pos.get_y() == pytest.approx(exp_y)
 
 def test_position_rotation():
