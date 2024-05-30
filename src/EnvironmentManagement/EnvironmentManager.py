@@ -114,10 +114,10 @@ class EnvironmentManager:
     def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
         self._add_player_to_queue_if_appropiate(player_id)
         self._assign_players_to_vehicles()
+        self._update_staff_ui()
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 return v
-        self._update_staff_ui()
         return None
 
     def _add_player_to_queue_if_appropiate(self, player_id: str):
