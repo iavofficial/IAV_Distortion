@@ -76,6 +76,7 @@ class EnvironmentManager:
             self._active_anki_cars.remove(found_vehicle)
             found_vehicle.__del__()
 
+        self._assign_players_to_vehicles()
         self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
 
         self._update_staff_ui()
