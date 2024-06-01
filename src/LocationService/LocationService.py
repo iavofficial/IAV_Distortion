@@ -1,5 +1,6 @@
 import time
 import math
+import logging
 from typing import Tuple
 from threading import Event, Lock, Thread
 
@@ -46,6 +47,12 @@ class LocationService():
 
         self._stop_event: Event = Event()
         self._simulation_thread: Thread | None = None
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        console_handler = logging.StreamHandler()
+        self.logger.addHandler(console_handler)
+
 
         if start_immeaditly:
             self.start()
@@ -190,13 +197,12 @@ class LocationService():
         distance: Distance to travel
         returns: The new position and the Angle where the car is pointing
         """
+        # prevent "maximum recursion depth exceeded" Errors in case the simulation has a bug
         if self._direction_mult == -1 and distance > 0:
-            # TODO: Log as critical via Logger
-            print("Critical: The leftover distance is positive while driving in opposing direction. This would create a infinite recursion. Breaking the loop to prevent this!")
+            self.logger.critical("The leftover distance is positive while driving in opposing direction. This would create a infinite recursion. Breaking the loop to prevent this!")
             return (self._current_position, self._stop_direction)
         elif self._direction_mult == 1 and distance < 0:
-            # TODO: Log as critical via Logger
-            print("Critical: The leftover distance is negative while driving in default direction. This would create a infinite recursion. Breaking the loop to prevent this!")
+            self.logger.critical("The leftover distance is negative while driving in default direction. This would create a infinite recursion. Breaking the loop to prevent this!")
             return (self._current_position, self._stop_direction)
 
         old_pos = self._current_position
@@ -234,7 +240,7 @@ class LocationService():
         Start the thread that's responsible for the simulation
         """
         if self._simulation_thread is not None:
-            # TODO: Log error that the location service is already running!
+            self.logger.error("It was attempted to start an already running LocationService Thread. Ignoring the request!")
             return
         self._stop_event.clear()
         # TODO: Check if Flask-SocketIO's start_background_task is needed here
@@ -246,7 +252,7 @@ class LocationService():
         Stops the thread that's responsible for the simulation
         """
         if self._simulation_thread is None:
-            # TODO: Log that it was attempted to stop a stopped LocationService!
+            self.logger.error("It was attempted to stop an already stopped LocationService Thread. Ignoring the request!")
             return
         self._stop_event.set()
         self._simulation_thread.join()
