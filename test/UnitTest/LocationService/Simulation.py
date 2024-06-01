@@ -10,7 +10,7 @@ def STRAIGHT_PIECE_LENGTH():
     return TrackBuilder().STRAIGHT_PIECE_LENGTH
 
 def STRAIGHT_PIECE_DIAMETER():
-    return TrackBuilder().STRAIGHT_PIECE_DIAMETER
+    return TrackBuilder().PIECE_DIAMETER
 
 def CURVE_PIECE_SIZE():
     return TrackBuilder().CURVE_PIECE_SIZE
