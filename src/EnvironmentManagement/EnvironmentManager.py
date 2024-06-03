@@ -98,7 +98,7 @@ class EnvironmentManager:
         self._update_staff_ui()
         return None
 
-    def _add_player_to_queue_if_appropiate(self, player_id: str):
+    def _add_player_to_queue_if_appropiate(self, player_id: str) -> None:
         """
         Adds a player to the queue, if it's appropriate (as in the
             player isn't controlling a vehicle already and the player
@@ -111,8 +111,9 @@ class EnvironmentManager:
             if p == player_id:
                 return
         self._player_queue_list.append(player_id)
+        return
 
-    def _assign_players_to_vehicles(self):
+    def _assign_players_to_vehicles(self) -> None:
         """
         Assigns as many waiting players to vehicles as possible
         """
@@ -125,8 +126,9 @@ class EnvironmentManager:
                 self._socketio.emit('player_active', p)
                 v.set_player(p)
         self._update_staff_ui()
+        return
 
-    def add_player(self, player_id: str):
+    def add_player(self, player_id: str) -> None:
         """
         Add a player to the waiting queue.
         """
@@ -137,8 +139,9 @@ class EnvironmentManager:
             self._player_queue_list.append(player_id)
             print(self._player_queue_list)
         self._update_staff_ui()
+        return
 
-    def remove_player_from_waitlist(self, player_id: str):
+    def remove_player_from_waitlist(self, player_id: str) -> None:
         """
         Remove a player from the waiting queue
         """
@@ -147,8 +150,9 @@ class EnvironmentManager:
         # TODO: Show other page when the user gets removed from here
         self._socketio.emit('player_removed', player_id)
         self._update_staff_ui()
+        return
 
-    def remove_player_from_vehicle(self, player: str):
+    def remove_player_from_vehicle(self, player: str) -> None:
         """
         removes a player from the vehicle they are controlling
         """
@@ -158,8 +162,9 @@ class EnvironmentManager:
                 v.remove_player()
                 self._socketio.emit('player_removed', player)
         self._update_staff_ui()
+        return
 
-    def add_vehicle(self, uuid: str):
+    def add_vehicle(self, uuid: str) -> None:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
@@ -169,15 +174,16 @@ class EnvironmentManager:
         self._active_anki_cars.append(temp_vehicle)
         self._assign_players_to_vehicles()
         self._update_staff_ui()
+        return
 
-    def _update_staff_ui(self):
+    def _update_staff_ui(self) -> None:
         if self.staff_ui is not None:
             self.staff_ui.publish_new_data()
         else:
             print("staff_ui instance is not yet set!")
         return
 
-    def get_controlled_cars_list(self):
+    def get_controlled_cars_list(self) -> List[str]:
         """
         Returns a list of all vehicle names from vehicles that are
         controlled by a player
@@ -188,7 +194,7 @@ class EnvironmentManager:
                 l.append(v.get_vehicle_id())
         return l
 
-    def get_free_car_list(self):
+    def get_free_car_list(self) -> List[str]:
         """
         Returns a list of all cars that have no player controlling them
         """
@@ -198,7 +204,7 @@ class EnvironmentManager:
                 l.append(v.get_vehicle_id())
         return l
 
-    def get_waiting_player_list(self):
+    def get_waiting_player_list(self) -> List[str]:
         """
         Gets a list of all player that are waiting for a vehicle
         """
