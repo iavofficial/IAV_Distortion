@@ -125,6 +125,7 @@ class StaffUI:
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
+            return
 
         @self.socketio.on('delete_device')
         def handle_delete_player(device: str) -> None:
