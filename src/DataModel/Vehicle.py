@@ -14,13 +14,44 @@ import abc
 class Vehicle:
     def __init__(self, vehicle_id: str, controller: VehicleController = None) -> None:
         self.vehicle_id: str = vehicle_id
-        self.player: str = ""
+        self.player: str | None = None
 
         self._controller: VehicleController = controller
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback = None
 
         return
+
+    def set_player(self, key: str) -> None:
+        """
+        Sets the owner of the vehicle
+        """
+        self.player = key
+
+    def remove_player(self) -> None:
+        """
+        Removes the player occupation and marks the vehicle as free
+        """
+        self.player = None
+
+    def is_free(self) -> bool:
+        """
+        Returns whether the vehicle is free (has no active driver)
+        """
+        return self.player == None
+
+    def get_player(self) -> str | None:
+        """
+        Returns the player that is controlling they vehicle or None
+        """
+        return self.player
+
+    def get_vehicle_id(self) -> str | None:
+        """
+        Returns the name (for real vehicles UUID) of the vehicle
+        """
+        return self.vehicle_id
+
 
     @abc.abstractmethod
     def __del__(self) -> None:
