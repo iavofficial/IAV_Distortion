@@ -161,6 +161,7 @@ class EnvironmentManager:
             if v.get_player() == player:
                 v.remove_player()
                 self._socketio.emit('player_removed', player)
+                # TODO: define how to control vehicle without player
         self._update_staff_ui()
         return
 
