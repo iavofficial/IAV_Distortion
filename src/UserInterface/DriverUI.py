@@ -72,6 +72,7 @@ class DriverUI:
             player = data['player']
             value = float(data['value'])
             car_id = self.environment_mng.get_car_from_player(player).get_vehicle_id()
+            # TODO: add check for car_id not None
             self.behaviour_ctrl.request_speed_change_for(uuid=car_id, value_perc=value)
             return
 
