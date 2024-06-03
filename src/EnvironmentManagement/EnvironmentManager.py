@@ -151,13 +151,10 @@ class EnvironmentManager:
             anki_car_controller = AnkiController()
             temp_vehicle = ModelCar(uuid, anki_car_controller)
             temp_vehicle.initiate_connection(uuid)
-            temp_vehicle = True
-            if temp_vehicle:
-                self.set_player_uuid_mapping(player_id=player, uuid=uuid)
+            self.set_player_uuid_mapping(player_id=player, uuid=uuid)
 
-                temp_vehicle.player = player
-                self._active_anki_cars.append(temp_vehicle)
-            return
+            temp_vehicle.player = player
+            self._active_anki_cars.append(temp_vehicle)
 
     def _update_staff_ui(self):
         if self.staff_ui is not None:

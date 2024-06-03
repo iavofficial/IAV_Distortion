@@ -29,7 +29,10 @@ class DriverUI:
             vehicle = self.get_vehicle_by_player(player=player)
             player_exists = False
             picture = ''  # default picture can be added here
-            vehicle_information = {}
+            vehicle_information = {
+                'active_hacking_scenario': '0',
+                'speed_request': '0'
+            }
 
             if vehicle is not None:
                 player_exists = True

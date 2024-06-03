@@ -21,6 +21,8 @@ class StaffUI:
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
+        self.cybersecurity_mng = cybersecurity_mng
+
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
@@ -79,7 +81,7 @@ class StaffUI:
             return render_template('staff_login.html', wrong_password=True)
 
         self.staffUI_blueprint.add_url_rule('/hacking_scenario', methods=['POST'], view_func=set_scenario)
-        self.staffUI_blueprint.add_url_rule('', methods=['GET', 'POST'], view_func=login_site)
+        self.staffUI_blueprint.add_url_rule('/', methods=['GET', 'POST'], view_func=login_site)
 
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
@@ -122,7 +124,6 @@ class StaffUI:
             environment_mng.add_vehicle(device)
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
-            self.socketio.emit('device_added', device)
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
             return
 

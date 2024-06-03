@@ -135,22 +135,37 @@ class ModelCar(Vehicle):
     def lane_change(self) -> int:
         return self.__lane_change
 
+    def __update_own_langechane(self):
+        """
+        Updates the own current lane on the track. Needed to ensure
+        a lane change will go to the right offset
+        """
+        if self._offset_from_center > 55.625:
+            self.__lane_change = 3
+        elif self._offset_from_center > 33.375:
+            self.__lane_change = 2
+        elif self._offset_from_center > 11.125:
+            self.__lane_change = 1
+        elif self._offset_from_center > -11.125:
+            self.__lane_change = 0
+        elif self._offset_from_center > -33.375:
+            self.__lane_change = -1
+        elif self._offset_from_center > -55.625:
+            self.__lane_change = -2
+        else:
+            self.__lane_change = -3
+
     def __calculate_lane_change(self) -> None:
         if self.__lange_change_blocked:
             return
 
-        if 65.0 > self._offset_from_center > -65.0:
-            self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif 65.0 <= self._offset_from_center and self.__lane_change_request <= -1:
-            self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif 65.0 <= self._offset_from_center and self.__lane_change_request >= 1:
-            self.__lane_change = 3
-        elif -65.0 >= self._offset_from_center and self.__lane_change_request >= 1:
-            self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif -65.0 >= self._offset_from_center and self.__lane_change_request <= -1:
+        self.__update_own_langechane()
+        self.__lane_change += self.__lane_change_request
+
+        if self.__lane_change < -3:
             self.__lane_change = -3
-        else:
-            self.__lane_change = self.__lane_change
+        elif self.__lane_change > 3:
+            self.__lane_change = 3
 
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return

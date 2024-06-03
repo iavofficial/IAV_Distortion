@@ -19,7 +19,6 @@ from flask import Flask
 from flask_socketio import SocketIO
 
 import os
-import asyncio
 
 
 def main(admin_password: str):
@@ -38,13 +37,8 @@ def main(admin_password: str):
     # Todo: using async_mode='threading' makes flask use the development server instead of the eventlet server.
     #  change to use some production server
 
-   # driver_ui = DriverUI(vehicles=vehicles, map_of_uuids=player_uuid_map, behaviour_ctrl=behaviour_ctrl,
-   #                      socketio=socketio)
-
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng = environment_mng,socketio=socketio)
     driver_ui_blueprint = driver_ui.get_blueprint()
-   # staff_ui = StaffUI(map_of_uuids=player_uuid_map, cybersecurity_mng=cybersecurity_mng, socketio=socketio,
-    #                   environment_mng=environment_mng, password=admin_password)
     staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
 
@@ -61,5 +55,5 @@ if __name__ == '__main__':
               "Please change the password!")
         admin_pwd = '0000'
         
-    iav_distortion = asyncio.run(main(admin_pwd))
+    main(admin_pwd)
 
