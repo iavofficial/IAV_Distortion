@@ -271,6 +271,8 @@ class EnvironmentManager:
         num = 1
         for c in colors:
             for d in colors:
-                full_map.update({f"Virtual Vehicle {num}": [d, c]})
-                num += 1
+                # disallow same inner and outer color to preserve a contrast
+                if c != d:
+                    full_map.update({f"Virtual Vehicle {num}": [d, c]})
+                    num += 1
         return full_map
