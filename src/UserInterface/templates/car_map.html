@@ -51,9 +51,7 @@
                     var x = d.position.x;
                     var y = d.position.y;
                     var angle = d.angle;
-                    const num = getVehicleNum(name);
-                    const colors = colorCrossmap[num];
-                    // TODO: Implement drawing images too
+                    const colors = colorCrossmap[name];
                     drawCarBox(x, y, angle, colors[0], colors[1]);
                 }
             });
@@ -148,11 +146,6 @@
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-            }
-
-            const vehicleNumRe = /Virtual Vehicle (\d+)/;
-            function getVehicleNum(name) {
-                return name.match(vehicleNumRe)[1];
             }
         </script>
     </body>

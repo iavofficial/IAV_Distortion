@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 import logging
-from typing import List
+from typing import List, Dict
 from collections import deque
 from flask_socketio import SocketIO
 
@@ -265,10 +265,12 @@ class EnvironmentManager:
                 })
         return tmp
 
-    def get_car_color_map(self) -> List[List[str]]:
+    def get_car_color_map(self) -> Dict[str, List[str]]:
         colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
-        full_map = []
+        full_map: Dict[str, List[str]] = {}
+        num = 1
         for c in colors:
             for d in colors:
-                full_map.append([d, c])
+                full_map.update({f"Virtual Vehicle {num}": [d, c]})
+                num += 1
         return full_map
