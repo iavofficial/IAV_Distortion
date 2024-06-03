@@ -86,6 +86,7 @@ class EnvironmentManager:
         self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
 
         self._update_staff_ui()
+        return
 
     def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
         self._add_player_to_queue_if_appropiate(player_id)
