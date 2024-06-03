@@ -49,11 +49,10 @@ def _set_scenarios():
 
 class CyberSecurityManager:
 
-    def __init__(self, behaviour_ctrl: BehaviourController, vehicles: List[Vehicle]):
+    def __init__(self, behaviour_ctrl: BehaviourController):
         self._behaviour_ctrl = behaviour_ctrl
         self._hacking_scenarios = _set_scenarios()
         self._active_scenarios = {}
-        self._vehicles = vehicles
 
         return
 

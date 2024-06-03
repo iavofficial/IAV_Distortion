@@ -26,7 +26,6 @@ class StaffUI:
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
-        self.uuids = environment_mng.get_player_uuid_mapping()
         self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
         self.socketio: Any = socketio
         self.environment_mng = environment_mng
@@ -48,7 +47,7 @@ class StaffUI:
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
             # TODO: Show selection of choose hacking scenarios always sorted by player number
-            return render_template('staff_control.html', activeScenarios=active_scenarios, uuids=self.uuids,
+            return render_template('staff_control.html', activeScenarios=active_scenarios, uuids=environment_mng.get_controlled_cars_list(),
                                    names=names, descriptions=descriptions)
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
@@ -92,7 +91,7 @@ class StaffUI:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            self.update_map_of_uuids(self.uuids)
+            self.publish_new_data()
             return
 
         @self.socketio.on('connect')
@@ -102,7 +101,7 @@ class StaffUI:
                 return
             self.logger.info("Client connected")
             print('Client connected')
-            self.socketio.emit('update_uuids', self.uuids)
+            self.publish_new_data()
             return
 
         @self.socketio.on('search_cars')
@@ -125,15 +124,25 @@ class StaffUI:
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
+            return
 
-        @self.socketio.on('delete_device')
-        def handle_delete_player(device: str) -> None:
+        @self.socketio.on('delete_player')
+        def handle_delete_player(player: str) -> None:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            print(f'delete player {device}')
-            self.logger.debug("Device deleted %s", device)
-            environment_mng.remove_vehicle(device)
+            print(f'delete player {player}')
+            self.logger.debug("Device deleted %s", player)
+            environment_mng.remove_player_from_vehicle(player)
+            environment_mng.remove_player_from_waitlist(player)
+            return
+
+        @self.socketio.on('delete_vehicle')
+        def handle_delete_vehicle(vehicle_id: str) -> None:
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return
+            environment_mng.remove_vehicle(vehicle_id)
             return
 
         @self.socketio.on('get_update_hacking_scenarios')
@@ -143,7 +152,7 @@ class StaffUI:
                 return
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
-            data = {'activeScenarios': active_scenarios, 'uuids': self.uuids, 'names': names,
+            data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_cars_list(), 'names': names,
                     'descriptions': descriptions}
             self.logger.info("Updated hacking scenarios")
             self.socketio.emit('update_hacking_scenarios', data)
@@ -160,10 +169,9 @@ class StaffUI:
             scenario_descriptions.update({scenario['id']: scenario['description']})
         return scenario_names, scenario_descriptions
 
-    def update_map_of_uuids(self, map_of_uuids: dict) -> None:
-        self.uuids = map_of_uuids
-        self.socketio.emit('update_uuids', {"uuids": self.uuids, "car_queue": self.environment_mng._car_queue_list,
-                                            "player_queue": self.environment_mng.get_player_queue()})
+    def publish_new_data(self):
+        self.socketio.emit('update_uuids', {"car_map": self.environment_mng.get_mapped_cars(), "car_queue": self.environment_mng.get_free_car_list(),
+                                            "player_queue": self.environment_mng.get_waiting_player_list()})
         return
 
    # def update_uuids(self):
