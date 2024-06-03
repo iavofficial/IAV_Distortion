@@ -124,6 +124,7 @@ class StaffUI:
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
+            return
 
         @self.socketio.on('delete_player')
         def handle_delete_player(player: str) -> None:
@@ -142,6 +143,7 @@ class StaffUI:
                 self.logger.warning("Not authenticated")
                 return
             environment_mng.remove_vehicle(vehicle_id)
+            return
 
         @self.socketio.on('get_update_hacking_scenarios')
         def update_hacking_scenarios() -> None:
