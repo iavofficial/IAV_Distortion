@@ -172,7 +172,7 @@ class ModelCar(Vehicle):
         elif self.__lane_change > 3:
             self.__lane_change = 3
 
-        self._location_service.set_offset(self.__lane_change)
+        self._location_service.set_offset_int(self.__lane_change)
         self._location_service.set_speed_percent(self.__speed)
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
