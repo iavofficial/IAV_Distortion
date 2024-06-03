@@ -157,20 +157,6 @@ else
     fi
 fi
 
-# copy logo to images directory, if file exists in Pictures directory
-# define file of a logo. Has to be stored anywhere on the system, will automatically be copied to images directory for webinterfaces 
-logo_file_name="IAV-Logo-White.svg"
-
-images_directory="$working_directory/UserInterface/static/images"
-
-logo_file=$(find / -name $logo_file_name -print -quit 2>/dev/null)
-if [[ -n $logo_file ]]; then
-    cp "$logo_file" "$images_directory"
-    echo "$logo_file_name copied to $images_directory."
-else
-    echo -e "\033[0;33mWarning: File $logo_file_name not found. No logo will be shown on webinterfaces.\033[0m"
-fi
-
 # finish message
 echo "Finished. Please check for errors!"
 read
