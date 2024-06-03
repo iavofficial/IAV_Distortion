@@ -171,6 +171,7 @@ class EnvironmentManager:
         anki_car_controller = AnkiController()
         temp_vehicle = ModelCar(uuid, anki_car_controller)
         temp_vehicle.initiate_connection(uuid)
+        # TODO: add a check if connection was successful 
 
         self._active_anki_cars.append(temp_vehicle)
         self._assign_players_to_vehicles()
