@@ -57,11 +57,15 @@ class DriverUI:
                 # add to queue
                 self.environment_mng.add_player(player)
                 print(f'added {player} to queue')
+            return
+        
         @self.socketio.on('disconnected')
         def handle_disconnected(data):
             player=data["player"]
             print(f"Driver {player} disconnected!")
             self.environment_mng.remove_player_from_waitlist(player)
+            # TODO: check what happens to disconnected players assigned to a car
+            return
 
         @self.socketio.on('slider_changed')
         def handle_slider_change(data) -> None:
