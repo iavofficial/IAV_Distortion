@@ -4,11 +4,15 @@ from DataModel.Vehicle import Vehicle
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.VehicleController import Turns
 
+from LocationService.LocationService import LocationService
+from LocationService.Track import FullTrack
+
 
 class ModelCar(Vehicle):
-    def __init__(self, vehicle_id: str, controller: AnkiController) -> None:
+    def __init__(self, vehicle_id: str, controller: AnkiController, track: FullTrack) -> None:
         super().__init__(vehicle_id)
         self._controller: AnkiController = controller
+        self._location_service: LocationService = LocationService(track)
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -109,6 +113,7 @@ class ModelCar(Vehicle):
             self._speed_actual = 0
             self._on_driving_data_change()
 
+        self._location_service.set_speed_percent(self.__speed)
         self._controller.change_speed_to(int(self.__speed))
         return
 
@@ -167,6 +172,8 @@ class ModelCar(Vehicle):
         elif self.__lane_change > 3:
             self.__lane_change = 3
 
+        self._location_service.set_offset(self.__lane_change)
+        self._location_service.set_speed_percent(self.__speed)
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
@@ -195,6 +202,7 @@ class ModelCar(Vehicle):
         if self.__turn_blocked:
             return
 
+        self._location_service.do_uturn()
         self._controller.do_turn_with(Turns.A_UTURN)
         return
 

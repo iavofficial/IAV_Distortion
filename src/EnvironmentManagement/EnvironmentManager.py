@@ -17,6 +17,8 @@ from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
 
+from LocationService.TrackPieces import TrackBuilder, FullTrack
+from LocationService.Track import TrackPieceType
 
 class EnvironmentManager:
 
@@ -169,7 +171,7 @@ class EnvironmentManager:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = ModelCar(uuid, anki_car_controller)
+        temp_vehicle = ModelCar(uuid, anki_car_controller, self.get_track())
         temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
@@ -177,6 +179,18 @@ class EnvironmentManager:
         self._assign_players_to_vehicles()
         self._update_staff_ui()
         return
+
+    def get_track(self) -> FullTrack:
+        track: FullTrack = TrackBuilder()\
+            .append(TrackPieceType.STRAIGHT_WE)\
+            .append(TrackPieceType.CURVE_WS)\
+            .append(TrackPieceType.CURVE_NW)\
+            .append(TrackPieceType.STRAIGHT_EW)\
+            .append(TrackPieceType.CURVE_EN)\
+            .append(TrackPieceType.CURVE_SE)\
+            .build()
+
+        return track
 
     def _update_staff_ui(self) -> None:
         if self.staff_ui is not None:
