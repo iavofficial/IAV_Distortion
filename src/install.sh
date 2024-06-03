@@ -57,6 +57,9 @@ else
     configure_password
 fi
 
+# move pipfile to current working directory
+mv ../Pipfile .
+
 # install pipenv
 pipenv install --skip-lock
 
