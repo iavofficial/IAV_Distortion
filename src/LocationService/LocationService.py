@@ -231,7 +231,7 @@ class LocationService():
         if distance < 0.1:
             rot = self._stop_direction
         else:
-            rot = self._current_position.calculate_angle_to(old_pos)
+            rot = old_pos.calculate_angle_to(self._current_position)
             self._stop_direction = rot
         return (self._current_position, rot)
 

@@ -64,8 +64,8 @@ class Position():
         return Position(comb_x, comb_y)
 
     def __sub__(self, other):
-        comb_x = self._x - other._x
-        comb_y = self._y - other._y
+        comb_x = other._x - self._x
+        comb_y = other._y - self._y
         return Position(comb_x, comb_y)
 
     def add_offset(self, x, y):
