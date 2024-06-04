@@ -29,10 +29,6 @@ class Angle():
     def __str__(self):
         return f"{round(self._angle_degree)}"
 
-    def get_as_x_y(self) -> Tuple[float, float]:
-        deg = self._angle_degree - 90
-        return (math.cos(math.radians(deg)), math.sin(math.radians(deg)))
-
 
 class Position():
     """
@@ -47,10 +43,6 @@ class Position():
 
     def set_y(self, y):
         self._y = y
-
-    def add_offset_with_angle(self, change, angle):
-        self._x += angle.get_x_mult() * change
-        self._y += angle.get_y_mult() * change
 
     def get_x(self):
         return self._x
