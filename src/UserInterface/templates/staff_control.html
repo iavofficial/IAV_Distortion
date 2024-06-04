@@ -33,9 +33,12 @@
             <h2>List of Players/Cars:</h2>
             <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
 
-            <h3>Add cars... </h3>
+            <h3>Add physical cars... </h3>
             <button id="search_cars"> Search... </button>
             <ul class="flexbox-item flexbox-activeCars" id="devices"></ul>
+
+            <h3>Add virtual car</h3>
+            <button id="add_virtual_car"> Add</button>
         </div>
 
     </div>
@@ -217,10 +220,16 @@
     // buttons to search and add cars
     var search_cars = document.getElementById("search_cars");
     var add_car = document.getElementById("add_car");
+    var add_virtual_car = document.getElementById("add_virtual_car");
 
     search_cars.onclick = function() {
       socket.emit('search_cars');
     }
+
+    add_virtual_car.onclick = function() {
+      socket.emit('add_virtual_vehicle');
+    }
+
 
     var deviceList = document.getElementById("devices");
     socket.on('new_devices', function(devices){

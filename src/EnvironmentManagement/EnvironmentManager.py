@@ -7,12 +7,13 @@
 # file that should have been included as part of this package.
 #
 import logging
-from typing import List
+from typing import List, Dict
 from collections import deque
 from flask_socketio import SocketIO
 
-from DataModel.ModelCar import ModelCar
+from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
+from DataModel.VirtualCar import VirtualCar
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
@@ -36,6 +37,10 @@ class EnvironmentManager:
 
         # self.find_unpaired_anki_cars()
 
+        # number used for naming virtual vehicles
+        self._virtual_vehicle_num: int = 1
+
+        self._socketio: SocketIO = socketio
 
     def set_staff_ui(self, staff_ui):
         self.staff_ui = staff_ui
@@ -171,11 +176,22 @@ class EnvironmentManager:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = ModelCar(uuid, anki_car_controller, self.get_track())
+        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track(), self._socketio)
         temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
         self._active_anki_cars.append(temp_vehicle)
+        self._assign_players_to_vehicles()
+        self._update_staff_ui()
+        return
+
+    def add_virtual_vehicle(self):
+        # TODO: Add more better way of determining name numbers to allow reuse of already
+        # used numbers
+        name = f"Virtual Vehicle {self._virtual_vehicle_num}"
+        self._virtual_vehicle_num += 1
+        vehicle = VirtualCar(name, self.get_track(), self._socketio)
+        self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
         self._update_staff_ui()
         return
@@ -248,3 +264,15 @@ class EnvironmentManager:
                     'car': v.get_vehicle_id()
                 })
         return tmp
+
+    def get_car_color_map(self) -> Dict[str, List[str]]:
+        colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
+        full_map: Dict[str, List[str]] = {}
+        num = 1
+        for c in colors:
+            for d in colors:
+                # disallow same inner and outer color to preserve a contrast
+                if c != d:
+                    full_map.update({f"Virtual Vehicle {num}": [d, c]})
+                    num += 1
+        return full_map

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import List, Tuple
 
 from LocationService.Trigo import Position, Angle
 
@@ -68,6 +68,13 @@ class TrackPiece(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def to_dict(self) -> dict:
+        """
+        Get the piece represented as dict
+        """
+        raise NotImplementedError
+
 class TrackEntry():
     def __init__(self, track_piece, offset):
         self.track_piece: TrackPiece = track_piece
@@ -123,3 +130,15 @@ class FullTrack():
 
     def get_len(self):
         return len(self.track_entries)
+
+    def get_as_list(self) -> List[dict]:
+        l: list[dict] = []
+        for entry in self.track_entries:
+            piece = entry.get_piece()
+            offset = entry.get_global_offset()
+            l.append({
+                'offset': offset.to_dict(),
+                'piece': piece.to_dict()
+            })
+
+        return l

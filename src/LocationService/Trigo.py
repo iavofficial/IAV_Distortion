@@ -1,5 +1,5 @@
 import math
-from typing import Tuple
+from typing import Dict, Tuple
 
 class Angle():
     """
@@ -100,3 +100,6 @@ class Position():
 
     def clone(self):
         return Position(self._x, self._y)
+
+    def to_dict(self) -> dict:
+        return { 'x': self._x, 'y': self._y }

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car map</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	  <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- Include socket.io library -->
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+</head>
+
+<body>
+    <canvas id="car_canvas"></canvas>
+
+        <script type="text/javascript" charset="utf-8">
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            // TODO: Calculate scale based on track so it fits well on the page
+            const scale = 0.5;
+
+            var canvas = document.getElementById("car_canvas");
+            var ctx = canvas.getContext("2d");
+            const dataMap = new Map();
+
+            var track = {{track | tojson}};
+            const track_color = "#000000";
+            const track_width = 5;
+
+            const car_length = 82;
+            const car_width = 30;
+            const car_outline = 4;
+
+            const colorCrossmap = {{ color_map | tojson }};
+
+            resizeCanvas();
+            resetCanvas();
+            drawTrack();
+
+            socket.on('car_positions', function(data){
+                var carName = data.car;
+                dataMap.set(carName, data);
+                resizeCanvas();
+                resetCanvas();
+                drawTrack();
+                for (const car of dataMap) {
+                    const name = car[0];
+                    const d = car[1];
+                    var x = d.position.x;
+                    var y = d.position.y;
+                    var angle = d.angle;
+                    const colors = colorCrossmap[name];
+                    drawCarBox(x, y, angle, colors[0], colors[1]);
+                }
+            });
+
+            function drawCarBox(x, y, angle, colorInner, colorOuter) {
+                x *= scale;
+                y *= scale;
+                ctx.save();
+
+                rotationRadians = Math.PI * (angle - 90) / 180.0;
+                // do rotation for rect
+                ctx.translate(x, y);
+                ctx.rotate(rotationRadians);
+                ctx.translate(-x, -y);
+                ctx.beginPath();
+                ctx.strokeStyle = colorOuter;
+                ctx.fillStyle = colorInner;
+                ctx.lineWidth = car_outline * scale;
+                ctx.rect(x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
+                ctx.fill();
+                ctx.stroke();
+                ctx.closePath();
+                ctx.rotate(-Math.PI / 2);
+
+                ctx.restore();
+            }
+
+            function drawTrack() {
+                for (const piece of track) {
+                    piece_type = piece.piece.type;
+                    if (piece_type == "straight_piece") {
+                        drawStraightPiece(piece);
+                    } else if (piece_type == "curved_piece") {
+                        drawCurvedPiece(piece);
+                    }
+                }
+            }
+
+            function drawStraightTrackLine(x1, y1, x2, y2) {
+                ctx.lineWidth = track_width * scale;
+                ctx.strokeStyle = track_color;
+
+                ctx.beginPath();
+                ctx.moveTo(x1 * scale, y1 * scale);
+                ctx.lineTo(x2 * scale, y2 * scale);
+                ctx.stroke();
+            }
+
+            function drawCuvedTrackLine(x, y, radius, start_deg) {
+                start_rad = (start_deg - 90) * Math.PI / 180;
+                end_rad = start_rad + 0.5 * Math.PI;
+
+                ctx.lineWidth = track_width * scale;
+                ctx.strokeStyle = track_color * scale;
+
+                ctx.beginPath();
+                // x, y, radius, startAngle, endAngle
+                ctx.arc(x * scale, y * scale, radius * scale, start_rad, end_rad);
+                ctx.stroke();
+            }
+
+            function drawStraightPiece(piece) {
+                offset_x = piece.offset.x;
+                offset_y = piece.offset.y;
+                line_1_start_x = offset_x + piece.piece.line_1_start.x;
+                line_1_start_y = offset_y + piece.piece.line_1_start.y;
+                line_1_end_x = offset_x + piece.piece.line_1_end.x;
+                line_1_end_y = offset_y + piece.piece.line_1_end.y;
+
+                line_2_start_x = offset_x + piece.piece.line_2_start.x;
+                line_2_start_y = offset_y + piece.piece.line_2_start.y;
+                line_2_end_x = offset_x + piece.piece.line_2_end.x;
+                line_2_end_y = offset_y + piece.piece.line_2_end.y;
+                drawStraightTrackLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
+                drawStraightTrackLine(line_2_start_x, line_2_start_y, line_2_end_x, line_2_end_y);
+            }
+
+            function drawCurvedPiece(piece) {
+                start_point_x = piece.offset.x + piece.piece.point.x;
+                start_point_y = piece.offset.y + piece.piece.point.y;
+                radius_1 = piece.piece.radius_1;
+                radius_2 = piece.piece.radius_2;
+                start_angle = piece.piece.start_angle + 90;
+                drawCuvedTrackLine(start_point_x, start_point_y, radius_1, start_angle);
+                drawCuvedTrackLine(start_point_x, start_point_y, radius_2, start_angle);
+            }
+
+            function resetCanvas() { 
+                ctx.reset();
+            }
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        </script>
+    </body>
+</html>
