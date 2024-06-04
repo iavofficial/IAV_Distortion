@@ -50,7 +50,7 @@ This script will identify running processes of main.py and terminate them.
 This can interfere with other processes running other main.py scripts and terminate them.
 
 ### restart_system.sh
-tbd.
+This script will immediately restart the host system.
 
 ### restart_program.sh
 tbd.
