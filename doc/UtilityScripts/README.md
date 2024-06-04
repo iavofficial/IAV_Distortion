@@ -8,7 +8,7 @@ The subsequent utility scripts are intended for Unix environments and have been 
 During the installation and the update process an active internet connection is required.
 To be able to run all of the following scripts properly the following programs need to be installed on the system:
 - *git*
-- *wget* or *cur*
+- *wget* or *curl*
 
 
 ### installer.sh
