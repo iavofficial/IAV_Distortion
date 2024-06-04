@@ -9,6 +9,16 @@ The subsequent utility scripts are intended for Unix environments and have been 
 [!IMPORTANT]
 This script requires an active internet connection.
 
+This script serves as a sort of installer.
+It can be downloaded and run on the target system to obtain IAV-Distortion from GitHub and install it subsequently.
+The script performs the following tasks:
+1. Checks if a folder named "IAV-Distortion" already exists and asks if it should be used for installation. (**WARNING:** All data within this folder will be overwritten!)
+If no such folder exists or if the existing one should not be used for installation, it asks for the desired installation path.
+If multiple such folders exist, an additional warning is issued.
+2. Queries which branch from the IAV-Distortion repository should be used.
+3. Clones the desired branch from the repository.
+4. Makes the installation script executable.
+5. Optionally: Executes the installation script (refer to install.sh).
 
 ### install.sh
 [!IMPORTANT]
@@ -21,7 +31,8 @@ The script accomplishes the following tasks:
 3. Downloads further required external resources (such as JavaScript libraries).
 4. Creates a Desktop Item, from which IAV-Distortion can be initiated.
 5. Makes the remaining utility scripts executable.
-6. Optionally configures the program's auto-start feature (using a cron job).
+6. Checks for configured autostarts of other installations of IAV-Distortion and gives a warning if some were found.
+7. Optionally configures the program's auto-start feature (using a cron job).
 
 ### update.sh
 [!IMPORTANT]
