@@ -94,13 +94,12 @@ fi
 git clone -b $branch $repo_url "$dir/$repo_name"
 
 # Make all utility scripts in the /src directory executable
-install_script_path="$dir/$repo_name/src"
-cd $install_script_path
-find "$dir/$repo_name/src" -type f -iname "*.sh" -exec chmod +x {} \;
+find "$dir/$repo_name" -type f -iname "*.sh" -exec chmod +x {} \;
 
 # Ask if install script shall be executed
 read -p "Do you want to run the install script? (y/n) " -n 1 -r
 echo    # move to a new line
+cd "$dir/$repo_name/src"
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
