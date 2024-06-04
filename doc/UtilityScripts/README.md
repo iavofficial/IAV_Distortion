@@ -52,5 +52,8 @@ This can interfere with other processes running other main.py scripts and termin
 ### restart_system.sh
 This script will immediately restart the host system.
 
-### restart_program.sh
+### restart_IAV-Distortion.sh
+Restart IAV-Distortion by first terminating the running instances using *quit.sh* afterwards restart IAV-Distortion using *run_IAV-Distrotion.sh*.
+
+### shutdown_system.sh
 tbd.
