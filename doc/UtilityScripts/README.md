@@ -7,7 +7,7 @@ The subsequent utility scripts are intended for Unix environments and have been 
 
 ### installer.sh
 [!IMPORTANT]
-This script requires an active internet connection.
+This script requires an active internet connection and *git* installed on the system.
 
 This script serves as a sort of installer.
 It can be downloaded and run on the target system to obtain IAV-Distortion from GitHub and install it subsequently.
@@ -22,7 +22,7 @@ If multiple such folders exist, an additional warning is issued.
 
 ### install.sh
 [!IMPORTANT]
-This script requires an active internet connection.
+This script requires an active internet connection and *wget* or *curl* installed on the system
 
 This script undergoes the process to establishing all necessary preconditions and requirements to properly run IAV-Distortion.
 The script accomplishes the following tasks:
