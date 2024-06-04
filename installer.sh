@@ -93,10 +93,10 @@ fi
 # Clone git repository to previous defined drirectory
 git clone -b $branch $repo_url "$dir/$repo_name"
 
-# Make install script executable
+# Make all utility scripts in the /src directory executable
 install_script_path="$dir/$repo_name/src"
 cd $install_script_path
-chmod +x install.sh
+find "$dir/$repo_name/src" -type f -iname "*.sh" -exec chmod +x {} \;
 
 # Ask if install script shall be executed
 read -p "Do you want to run the install script? (y/n) " -n 1 -r

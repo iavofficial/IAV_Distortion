@@ -17,7 +17,7 @@ If no such folder exists or if the existing one should not be used for installat
 If multiple such folders exist, an additional warning is issued.
 2. Queries which branch from the IAV-Distortion repository should be used.
 3. Clones the desired branch from the repository.
-4. Makes the installation script executable.
+4. Makes utility scripts in /src directory executable.
 5. Optionally: Executes the installation script (refer to install.sh).
 
 ### install.sh
@@ -30,7 +30,7 @@ The script accomplishes the following tasks:
 2. Installs the virtual pipenv environment.
 3. Downloads further required external resources (such as JavaScript libraries).
 4. Creates a Desktop Item, from which IAV-Distortion can be initiated.
-5. Makes the remaining utility scripts executable.
+5. Makes the remaining utility scripts in the /src directory executable.
 6. Checks for configured autostarts of other installations of IAV-Distortion and gives a warning if some were found.
 7. Optionally configures the program's auto-start feature (using a cron job).
 

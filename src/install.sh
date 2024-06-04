@@ -117,10 +117,8 @@ echo "Type=Application" >> "$desktop_item"
 echo "Name[de_DE]=IAV Distortion" >> "$desktop_item"
 echo "Path=$working_directory" >> "$desktop_item"
 
-# make run_IAV-Distortion.sh, desktop-item and quit.sh executable
-chmod +x run_IAV-Distortion.sh
-chmod +x $desktop_item
-chmod +x quit.sh
+# make all utility scripts in current folder executable
+find . -type f -iname "*.sh" -exec chmod +x {} \;
 
 # add add run_IAV-Distortion.sh to autostart
 check_cronjobs=$(crontab -l | grep "run_IAV-Distortion.sh")
