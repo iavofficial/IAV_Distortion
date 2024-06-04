@@ -38,7 +38,7 @@ The script accomplishes the following tasks:
 [!IMPORTANT]
 This script requires an active internet connection.
 
-tbd.
+This script will update IAV-Distortion by pulling the latest verion of the installed branche.
 
 ### run_IAV-Distortion.sh
 This script will run IAV-Distortion in it's virtual pipenv environment.
