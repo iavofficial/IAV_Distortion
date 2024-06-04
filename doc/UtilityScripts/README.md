@@ -56,4 +56,4 @@ This script will immediately restart the host system.
 Restart IAV-Distortion by first terminating the running instances using *quit.sh* afterwards restart IAV-Distortion using *run_IAV-Distrotion.sh*.
 
 ### shutdown_system.sh
-tbd.
+Terminate all running instances of IAV-Distortion and shutdown the host system.
