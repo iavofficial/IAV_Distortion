@@ -185,6 +185,7 @@ class CurvedPiece(TrackPiece):
 class TrackBuilder():
     """
     Class to build an entire track by chaining append() calls with the desired direction
+    and finally build()
     """
     def __init__(self):
         self.piece_list: List[TrackPiece] = [] 
@@ -197,14 +198,24 @@ class TrackBuilder():
         self.CURVE_PIECE_SIZE = self.STRAIGHT_PIECE_LENGTH
 
     def append(self, track_piece: TrackPieceType):
+        """
+        Append a piece to the track. Whether the direction are right
+        *aren't* checked!
+        """
         self.piece_list.append(self._get_track_piece(track_piece))
         return self
 
     def build(self) -> FullTrack:
+        """
+        Converts the internally saved track to a FullTrack object
+        """
         return FullTrack(self.piece_list)
 
     # This isn't the best way but it works for now
     def _get_track_piece(self, track_piece_type: TrackPieceType) -> TrackPiece:
+        """
+        Internal function to quickly get the correct TrackPiece based on it's type
+        """
         match track_piece_type:
             # Straight
             case TrackPieceType.STRAIGHT_SN:

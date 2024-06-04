@@ -44,14 +44,24 @@ class TrackPiece(ABC):
 
     @abstractmethod
     def get_used_space_horiz(self):
+        """
+        Used space horizontally when looked at from above
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get_used_space_vert(self):
+        """
+        Used space vertically when looked at from above
+        """
         raise NotImplementedError
 
     @abstractmethod
     def get_next_attachment_direction(self) -> Direction:
+        """
+        Direction where the next track piece should be attached relative
+        to this piece
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -76,14 +86,24 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
 class TrackEntry():
+    """
+    Entry in a FullTrach that includes the piece itself and where
+    it's relativ to the whole Track
+    """
     def __init__(self, track_piece, offset):
         self.track_piece: TrackPiece = track_piece
         self.offset: Position = offset
 
     def get_piece(self) -> TrackPiece:
+        """
+        Get's the piece hold by this data structure
+        """
         return self.track_piece
 
     def get_global_offset(self) -> Position:
+        """
+        Get's the position of the piece relativ to the track / on a global field
+        """
         return self.offset
 
 class FullTrack():
@@ -125,13 +145,23 @@ class FullTrack():
             entry.get_global_offset().add_offset(diff_x, diff_y)
 
     def get_entry_tupel(self, num: int) -> Tuple[TrackPiece, Position]:
+        """
+        Get a TrackEntry (so TrackPiece and global position of it) based on it's index
+        """
         entry = self.track_entries[num]
         return (entry.get_piece(), entry.get_global_offset())
 
     def get_len(self):
+        """
+        Gets the number of track pieces in the whole track
+        """
         return len(self.track_entries)
 
     def get_as_list(self) -> List[dict]:
+        """
+        Get's the offsets and pieces as list of dicts. Try preferring other
+        functions if possible for type safety!
+        """
         l: list[dict] = []
         for entry in self.track_entries:
             piece = entry.get_piece()

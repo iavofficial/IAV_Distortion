@@ -197,6 +197,9 @@ class EnvironmentManager:
         return
 
     def get_track(self) -> FullTrack:
+        """
+        Get the used track in the simulation
+        """
         track: FullTrack = TrackBuilder()\
             .append(TrackPieceType.STRAIGHT_WE)\
             .append(TrackPieceType.CURVE_WS)\
