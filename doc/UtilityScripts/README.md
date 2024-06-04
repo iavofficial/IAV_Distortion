@@ -12,8 +12,8 @@ To be able to run all of the following scripts properly the following programs n
 
 
 ### installer.sh
-[!IMPORTANT]
-This script requires an active internet connection and *git* installed on the system.
+>[!IMPORTANT]
+>This script requires an active internet connection and *git* installed on the system.
 
 This script serves as a sort of installer.
 It can be downloaded and run on the target system to obtain IAV-Distortion from GitHub and install it subsequently.
@@ -27,8 +27,8 @@ If multiple such folders exist, an additional warning is issued.
 5. Optionally: Executes the installation script (refer to install.sh).
 
 ### install.sh
-[!IMPORTANT]
-This script requires an active internet connection.
+>[!IMPORTANT]
+>This script requires an active internet connection.
 
 This script undergoes the process to establishing all necessary preconditions and requirements to properly run IAV-Distortion.
 The script accomplishes the following tasks:
@@ -40,15 +40,15 @@ The script accomplishes the following tasks:
 6. Optionally configures the program's auto-start feature (using a cron job).
 
 ### update.sh
-[!IMPORTANT]
-This script requires an active internet connection.
+>[!IMPORTANT]
+>This script requires an active internet connection.
 
 This script will update IAV-Distortion by discard all local changes and pulling the latest verion of the installed branche. Add files like images of cars won't be affected.
 Afterwards *get_dependencies.sh* is executed to update external resources.
 
 ### get_dependencies.sh
-[!IMPORTANT]
-This script requires an active internet connection and *wget* or *curl* installed on the system.
+>[!IMPORTANT]
+>This script requires an active internet connection and *wget* or *curl* installed on the system.
 
 This script installs the virtual pipenv environment and will download further further required external resources (such as JavaScript libraries).
 
@@ -58,8 +58,8 @@ This script will run IAV-Distortion in it's virtual pipenv environment.
 ### quit.sh
 This script will identify running processes of main.py and terminate them.
 
-[!WARNING]
-This can interfere with other processes running other main.py scripts and terminate them.
+>[!WARNING]
+>This can interfere with other processes running other main.py scripts and terminate them.
 
 ### restart_system.sh
 This script will immediately restart the host system.
