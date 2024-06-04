@@ -5,6 +5,12 @@ The term "utility scripts" refers to (primarily) bash scripts which facilitate f
 ## Unix environment
 The subsequent utility scripts are intended for Unix environments and have been tested on Raspberry PI OS.
 
+During the installation and the update process an active internet connection is required.
+To be able to run all of the following scripts properly the following programs need to be installed on the system:
+- *git*
+- *wget* or *cur*
+
+
 ### installer.sh
 [!IMPORTANT]
 This script requires an active internet connection and *git* installed on the system.
@@ -22,23 +28,29 @@ If multiple such folders exist, an additional warning is issued.
 
 ### install.sh
 [!IMPORTANT]
-This script requires an active internet connection and *wget* or *curl* installed on the system
+This script requires an active internet connection.
 
 This script undergoes the process to establishing all necessary preconditions and requirements to properly run IAV-Distortion.
 The script accomplishes the following tasks:
 1. Configures the password for the StaffUI.
-2. Installs the virtual pipenv environment.
-3. Downloads further required external resources (such as JavaScript libraries).
-4. Creates a Desktop Item, from which IAV-Distortion can be initiated.
-5. Makes the remaining utility scripts in the /src directory executable.
-6. Checks for configured autostarts of other installations of IAV-Distortion and gives a warning if some were found.
-7. Optionally configures the program's auto-start feature (using a cron job).
+2. Execute *get_dependencies.sh* to install pipenv and download external resources
+3. Creates a Desktop Item, from which IAV-Distortion can be initiated.
+4. Makes the remaining utility scripts in the /src directory executable.
+5. Checks for configured autostarts of other installations of IAV-Distortion and gives a warning if some were found.
+6. Optionally configures the program's auto-start feature (using a cron job).
 
 ### update.sh
 [!IMPORTANT]
 This script requires an active internet connection.
 
-This script will update IAV-Distortion by pulling the latest verion of the installed branche.
+This script will update IAV-Distortion by discard all local changes and pulling the latest verion of the installed branche. Add files like images of cars won't be affected.
+Afterwards *get_dependencies.sh* is executed to update external resources.
+
+### get_dependencies.sh
+[!IMPORTANT]
+This script requires an active internet connection and *wget* or *curl* installed on the system.
+
+This script installs the virtual pipenv environment and will download further further required external resources (such as JavaScript libraries).
 
 ### run_IAV-Distortion.sh
 This script will run IAV-Distortion in it's virtual pipenv environment.
