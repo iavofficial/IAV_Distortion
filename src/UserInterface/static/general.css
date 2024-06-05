@@ -53,13 +53,6 @@ label{
     color: #001A54;
 }
 
-.custom_header{
-    background: #001A54;
-    justify-content: space-between;
-    align-items: center;
-    height: 64px;
-}
-
 input[type=submit] {
     min-width: 80px;
     height: 60px;

@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <title>Staff_Control</title>
 
-    <!-- general style sheet -->
+    <!-- general stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
 
-    <!-- specific style sheet -->
+    <!-- custom header stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- specific stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->
 
@@ -19,7 +23,15 @@
 </head>
 <body>
     <div class="flexbox-container custom_header">
-        <p class="header">IAV Distortion - Control</p>
+        <p class="header">IAV Distortion</p>
+        <div class="header_menu-container">
+            <div class="header_menu-item">
+                <a href="#">Control</a>
+            </div>
+            <div class="header_menu-item">
+                <a href="#">Configuration</a>
+            </div>
+        </div>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
