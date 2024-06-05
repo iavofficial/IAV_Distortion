@@ -167,6 +167,27 @@ class StaffUI:
             self.socketio.emit('update_hacking_scenarios', data)
             return
 
+        @self.staffUI_blueprint.route('/configuration')
+        def config_home():
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return login_redirect()
+            return render_template('staff_config_home.html')
+
+        @self.staffUI_blueprint.route('/config_update')
+        def config_update():
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return login_redirect()
+            return render_template('staff_config_update.html')
+
+        @self.staffUI_blueprint.route('/config_system_control')
+        def config_system_control():
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return login_redirect()
+            return render_template('staff_config_system_control.html')
+
     def get_blueprint(self) -> Blueprint:
         return self.staffUI_blueprint
 
