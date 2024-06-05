@@ -6,6 +6,10 @@ body{
     width: 100%;
 }
 
+.flexbox-container{
+    display:  flex;
+}
+
 /* text style*/
 h1{
     color: #001A54; /* color headline 1 */
@@ -54,7 +58,6 @@ label{
     justify-content: space-between;
     align-items: center;
     height: 64px;
-    margin-bottom: 2vh;
 }
 
 input[type=submit] {

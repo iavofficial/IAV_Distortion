@@ -1,1 +1,44 @@
+body{
+    background-color: #F2F4F4;
+}
 
+.sidebar {
+    max-width: 20%;
+    height: 95vh;
+    background-color: #f8f9fa;
+    overflow: auto;
+}
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    justify-content: flex-start;
+    flex-grow: 1;
+    padding: 10px;
+}
+
+ .sidebar ul {
+    list-style-type: none; /* removes bullet points */
+    padding: 0;
+    margin-block-start: 0em;
+}
+
+.sidebar li {
+    text-align: start;
+    padding: 10px 15px 10px 25px;
+}
+
+.sidebar li:hover {
+    background-color: #D6D9DE; /* changes color when hovering */
+}
+
+.sidebar li a {
+    display: block;
+    text-decoration: none;
+    color: black; /* text color */
+}
+
+.config_content {
+    background-color: white;
+    padding: 10px;
+}

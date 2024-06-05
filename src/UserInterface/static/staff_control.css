@@ -1,7 +1,3 @@
-.flexbox-container{
-    display:  flex;
-}
-
 .flexbox-item{
     min-width: 225px;
     margin: 10px;
