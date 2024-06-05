@@ -24,11 +24,18 @@ Custom header stylesheet:
 }
 
 .header_menu-item:hover {
-    background-color: #FFFFFF;
-    color: #001A54;
+    text-decoration: underline;
+
 }
 
 .header_menu-item a {
+
+    text-decoration: none;
+    color: inherit;
+}
+
+.header_menu-item.active {
+    background-color: #FFFFFF;
     text-decoration: none;
     color: inherit;
 }

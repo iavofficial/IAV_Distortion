@@ -286,6 +286,15 @@
     }
 }
 
+$(document).ready(function() {
+    var url = window.location.pathname; // Get current URL path
+    $('.header_menu-item > a').each(function() {
+        if ($(this).attr('href') === url) {
+            $(this).parent().addClass('active'); // Adds 'active' class to the parent div
+        }
+    });
+});
+
 
 </script>
 

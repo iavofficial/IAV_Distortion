@@ -16,16 +16,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_configuration.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/staff_configuration.css"/> <!-- link to stylesheet for development for working preview -->
 
+    <script src="{{ url_for('static', filename='external_resources/jquery-3.7.1.min.js')}}"></script>
+
 </head>
 <body>
     <div class="flexbox-container custom_header">
         <div class="flexbox-container custom_header">
             <p class="header">IAV Distortion</p>
             <div class="header_menu-container">
-                <div class="header_menu-item">
+                <div class="header_menu-item" id="control_menu">
                     <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
                 </div>
-                <div class="header_menu-item">
+                <div class="header_menu-item" id="config_menu">
                     <a href="{{ url_for('staffUI_bp.config_home') }}">Configuration</a>
                 </div>
             </div>
@@ -48,6 +50,15 @@
         {% block content %}{% endblock %}
     </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            var url = window.location.href; // get the current page URL
+                if(url.includes("/configuration/")){  // check if it includes '/configuration/'
+                    $("#config_menu").addClass("active");  // add class=active
+                }
+         });
+    </script>
 
 </body>
 </html>
