@@ -23,13 +23,15 @@
 </head>
 <body>
     <div class="flexbox-container custom_header">
-        <p class="header">IAV Distortion</p>
-        <div class="header_menu-container">
-            <div class="header_menu-item">
-                <a href="#">Control</a>
-            </div>
-            <div class="header_menu-item">
-                <a href="#">Configuration</a>
+        <div class="flexbox-container custom_header">
+            <p class="header">IAV Distortion</p>
+            <div class="header_menu-container">
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
+                </div>
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.config_home') }}">Configuration</a>
+                </div>
             </div>
         </div>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >

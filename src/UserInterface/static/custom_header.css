@@ -11,18 +11,21 @@ Custom header stylesheet:
 
 .header_menu-container {
     display: flex;
-    gap: 20px; /* Adjust as needed */
+    gap: 15px;
+    margin-left: 2vw;
 }
 
 .header_menu-item {
-    border: 1px solid #fff; /* Adjust color as needed */
-    padding: 10px; /* Adjust padding as needed */
+    padding: 8px 15px;
     text-align: center;
     transition: background-color 0.3s ease;
+    color: white;
+    font-size: 14px;
 }
 
 .header_menu-item:hover {
-    background-color: #ccc; /* Adjust hover color as needed */
+    background-color: #FFFFFF;
+    color: #001A54;
 }
 
 .header_menu-item a {
