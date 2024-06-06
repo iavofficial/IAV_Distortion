@@ -7,6 +7,7 @@ body{
     height: 95vh;
     background-color: #f8f9fa;
     overflow: auto;
+    padding: 4px;
 }
 .main-content {
     display: flex;
@@ -35,7 +36,15 @@ body{
 .sidebar li a {
     display: block;
     text-decoration: none;
-    color: black; /* text color */
+    color: #001A54; /* text color */
+}
+
+.sidebar li.active a {
+    color: #FFFFFF;
+}
+
+.sidebar li.active {
+    background-color: #001A54;
 }
 
 .config_content {

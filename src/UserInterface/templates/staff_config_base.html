@@ -57,6 +57,12 @@
                 if(url.includes("/configuration/")){  // check if it includes '/configuration/'
                     $("#config_menu").addClass("active");  // add class=active
                 }
+
+            $('.sidebar ul li a').each(function() {
+                if ($(this).attr('href') === window.location.pathname) {
+                    $(this).closest('li').addClass('active');
+                }
+            });
          });
     </script>
 
