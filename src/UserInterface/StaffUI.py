@@ -12,6 +12,8 @@ import re
 import secrets
 from typing import Any, Dict, Tuple, List
 import logging
+import subprocess
+import platform
 
 class StaffUI:
 
@@ -167,26 +169,86 @@ class StaffUI:
             self.socketio.emit('update_hacking_scenarios', data)
             return
 
-        @self.staffUI_blueprint.route('/configuration')
-        def config_home():
+        @self.staffUI_blueprint.route('/configuration/home')
+        def config_home() -> Any:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             return render_template('staff_config_home.html')
 
-        @self.staffUI_blueprint.route('/config_update')
-        def config_update():
+        @self.staffUI_blueprint.route('/configuration/config_update')
+        def config_update() -> Any:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             return render_template('staff_config_update.html')
 
-        @self.staffUI_blueprint.route('/config_system_control')
-        def config_system_control():
+        @self.staffUI_blueprint.route('/configuration/config_system_control')
+        def config_system_control() -> Any:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             return render_template('staff_config_system_control.html')
+
+        @self.staffUI_blueprint.route('/configuration/update_application')
+        def update_application() -> Any:
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return login_redirect()
+
+            if platform.system() == 'Linux':
+                self.logger.info("Update triggered")
+                subprocess.call('./update.sh')
+            else:
+                self.logger.warning("Update button pressed, but not running on Linux system")
+                print("Update button pressed. Function only available on Linux systems.")
+
+            return ('', 204) # TODO: redirect to an info page or popup
+
+        @self.staffUI_blueprint.route('/restart_program', methods=['POST'])
+        def restart_program() -> Any:
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return login_redirect()
+
+            if platform.system() == 'Linux':
+                self.logger.info("Program restart triggered")
+                subprocess.call('./restart_IAV-Distortion.sh')
+            else:
+                self.logger.warning("Program restart button pressed, but not running on Linux system")
+                print("Restart program button pressed. Function only available on Linux systems.")
+
+            return ('', 204) # TODO: redirect to an info page or popup
+
+        @self.staffUI_blueprint.route('/restart_system', methods=['POST'])
+        def restart_program() -> Any:
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return login_redirect()
+
+            if platform.system() == 'Linux':
+                self.logger.info("System restart triggered")
+                subprocess.call('./restart_system.sh')
+            else:
+                self.logger.warning("System restart button pressed, but not running on Linux system")
+                print("Restart system button pressed. Function only available on Linux systems.")
+
+            return ('', 204)  # TODO: redirect to an info page or popup
+
+        @self.staffUI_blueprint.route('/shutdown_system', methods=['POST'])
+        def restart_program() -> Any:
+            if not is_authenticated():
+                self.logger.warning("Not authenticated")
+                return login_redirect()
+
+            if platform.system() == 'Linux':
+                self.logger.info("System shutdown triggered")
+                subprocess.call('./shutdown_system.sh')
+            else:
+                self.logger.warning("System shutdown button pressed, but not running on Linux system")
+                print("Shutdown system button pressed. Function only available on Linux systems.")
+
+            return ('', 204)  # TODO: redirect to an info page or popup
 
     def get_blueprint(self) -> Blueprint:
         return self.staffUI_blueprint
