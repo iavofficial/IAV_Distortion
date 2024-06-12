@@ -10,32 +10,46 @@
 
 <script src="{{ url_for('static', filename='external_resources/jquery-3.7.1.min.js')}}"></script>
 <script>
+    /**
+    * Handles button press for 'Restart IAV Distortion' button.
+    * Popup for confirmation. Afterwards shows popup with the status of the request.
+    */
     $("#restart_program").click(function(){
-
         if(confirm("Are you sure you want to restart IAV Distortion?")) {
-            $.post("/staff/restart_program", {name: "dummy"},
+            $.post("/staff/restart_program",
                 function(data,status){
-                    alert("Data: " + data + "\nStatus: " + status);
+                    alert(data);
                 }
             );
         };
-
-        $('#restart_program').click(function() {
-        if (confirm("Are you sure?")) {
-            $.ajax({
-                url: '/restart_program',
-                type: 'POST',
-                success: function(response) {
-                    console.log(response);
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
-        }
-
     });
 
+    /**
+    * Handles button press for 'Restart System' button.
+    * Popup for confirmation. Afterwards shows popup with the status of the request.
+    */
+    $("#restart_system").click(function(){
+        if(confirm("Are you sure you want to restart the system?")) {
+            $.post("/staff/restart_system",
+                function(data,status){
+                    alert(data);
+                }
+            );
+        };
+    });
+
+    /**
+    * Handles button press for 'Shutdown system' button.
+    * Popup for confirmation. Afterwards shows popup with the status of the request.
+    */
+    $("#shutdown_system").click(function(){
+        if(confirm("Are you sure you want to shutdown the system?")) {
+            $.post("/staff/shutdown_system",
+                function(data,status){
+                    alert(data);
+                }
+            );
+        };
     });
 
 </script>

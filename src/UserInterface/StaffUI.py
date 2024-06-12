@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_socketio import SocketIO
 import re
 import secrets
@@ -383,12 +383,13 @@ class StaffUI:
 
             if platform.system() == 'Linux':
                 self.logger.info("Update triggered")
-                subprocess.call('./update.sh')
+                subprocess.call('../update.sh')
+                message = 'Update started. This will take a few moments. The system will restart afterwards.'
+                return message, 200
             else:
                 self.logger.warning("Update button pressed, but not running on Linux system")
-                print("Update button pressed. Function only available on Linux systems.")
-
-            return  # TODO: redirect to an info page or popup
+                message = 'Error starting the update. Function only available on linux systems.'
+                return message, 200
 
         @self.staffUI_blueprint.route('/restart_program', methods=['POST'])
         def restart_program() -> Any:
@@ -410,11 +411,12 @@ class StaffUI:
             if platform.system() == 'Linux':
                 self.logger.info("Program restart triggered")
                 subprocess.call('./restart_IAV-Distortion.sh')
+                message = "The program will restart now. This will take a moment please wait and reload the page."
+                return message, 200
             else:
                 self.logger.warning("Program restart button pressed, but not running on Linux system")
-                print("Restart program button pressed. Function only available on Linux systems.")
-
-            return  # TODO: redirect to an info page or popup
+                message = 'Error restarting IAV-Distortion. Function only available on linux systems.'
+                return message, 200
 
         @self.staffUI_blueprint.route('/restart_system', methods=['POST'])
         def restart_system() -> Any:
@@ -436,11 +438,13 @@ class StaffUI:
             if platform.system() == 'Linux':
                 self.logger.info("System restart triggered")
                 subprocess.call('./restart_system.sh')
+                message = "The system will restart now. This will take a moment. Please wait and reload the page " \
+                          "after the system rebooted"
+                return message, 200
             else:
                 self.logger.warning("System restart button pressed, but not running on Linux system")
-                print("Restart system button pressed. Function only available on Linux systems.")
-
-            return  # TODO: redirect to an info page or popup
+                message = 'Error restarting the system. Function only available on linux systems.'
+                return message, 200
 
         @self.staffUI_blueprint.route('/shutdown_system', methods=['POST'])
         def shutdown_system() -> Any:
@@ -462,11 +466,12 @@ class StaffUI:
             if platform.system() == 'Linux':
                 self.logger.info("System shutdown triggered")
                 subprocess.call('./shutdown_system.sh')
+                message = 'The system will be shut down now.'
+                return message, 200
             else:
                 self.logger.warning("System shutdown button pressed, but not running on Linux system")
-                print("Shutdown system button pressed. Function only available on Linux systems.")
-
-            return  # TODO: redirect to an info page or popup
+                message = 'Error shutting down the system. Function only available on linux systems.'
+                return message, 200
 
     def get_blueprint(self) -> Blueprint:
         """
