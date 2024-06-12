@@ -230,12 +230,20 @@ class StaffUI:
 
         @self.socketio.on('add_virtual_vehicle')
         def handle_add_virtual_vehicle() -> None:
+            """
+            Handles the 'add_virtual_vehicle' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it calls the function to add a virtual vehicle from the EnvironmentManager,
+            initiate its hacking scenario and send the 'added_device' event.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
             name = environment_mng.add_virtual_vehicle()
             self.socketio.emit('device_added', name)
             self.cybersecurity_mng._update_active_hacking_scenarios(name, '0')
+            return
 
         @self.socketio.on('delete_player')
         def handle_delete_player(player: str) -> None:
@@ -283,6 +291,14 @@ class StaffUI:
 
         @self.socketio.on('get_update_hacking_scenarios')
         def update_hacking_scenarios() -> None:
+            """
+            Handles the 'get_update_hacking_scenarios' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it gets sorted lists of hacking scenarios and their description as well as the
+            active scenario of each car. Logs an info and sends the information about the scenarios via the
+            'update_hacking_scenarios' event.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
@@ -296,6 +312,17 @@ class StaffUI:
 
         @self.staffUI_blueprint.route('/configuration/home')
         def config_home() -> Any:
+            """
+            Load configuration page.
+
+            If client is not authenticated, client is redirected to the login page.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the configuration page or a redirect to the login page, if not
+                authenticated.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
@@ -303,6 +330,17 @@ class StaffUI:
 
         @self.staffUI_blueprint.route('/configuration/config_update')
         def config_update() -> Any:
+            """
+            Load configuration page for SW-update.
+
+            If client is not authenticated, client is redirected to the login page.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the update page or a redirect to the login page, if not
+                authenticated.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
@@ -310,13 +348,35 @@ class StaffUI:
 
         @self.staffUI_blueprint.route('/configuration/config_system_control')
         def config_system_control() -> Any:
+            """
+            Load configuration page for system control.
+
+            If client is not authenticated, client is redirected to the login page.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the system control page or a redirect to the login page, if not
+                authenticated.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             return render_template('staff_config_system_control.html')
 
-        @self.staffUI_blueprint.route('/configuration/update_application')
+        @self.staffUI_blueprint.route('/configuration/update_application', methods=['POST'])
         def update_application() -> Any:
+            """
+            Handles post request send by 'update' button.
+
+            If client is not authenticated, client is redirected to the login page. If operating system is 'Linux' the
+            'update' utility script is called. Otherwise, a warning is logged.
+
+            Returns
+            -------
+            Response
+                # TODO: document returns
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
@@ -328,10 +388,21 @@ class StaffUI:
                 self.logger.warning("Update button pressed, but not running on Linux system")
                 print("Update button pressed. Function only available on Linux systems.")
 
-            return ('', 204) # TODO: redirect to an info page or popup
+            return  # TODO: redirect to an info page or popup
 
         @self.staffUI_blueprint.route('/restart_program', methods=['POST'])
         def restart_program() -> Any:
+            """"
+            Handles the post request send by the 'restart program' button.
+
+            If client is not authenticated, client is redirected to the login page. If operating system is 'Linux' the
+            'restart_IAV-Distortion' utility script is called. Otherwise, a warning is logged.
+
+            Returns
+            -------
+            Response
+                # TODO: document returns
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
@@ -343,10 +414,21 @@ class StaffUI:
                 self.logger.warning("Program restart button pressed, but not running on Linux system")
                 print("Restart program button pressed. Function only available on Linux systems.")
 
-            return ('', 204) # TODO: redirect to an info page or popup
+            return  # TODO: redirect to an info page or popup
 
         @self.staffUI_blueprint.route('/restart_system', methods=['POST'])
         def restart_system() -> Any:
+            """"
+            Handles the post request send by the 'restart system' button.
+
+            If client is not authenticated, client is redirected to the login page. If operating system is 'Linux' the
+            'restart_system' utility script is called. Otherwise, a warning is logged.
+
+            Returns
+            -------
+            Response
+                # TODO: document returns
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
@@ -358,10 +440,21 @@ class StaffUI:
                 self.logger.warning("System restart button pressed, but not running on Linux system")
                 print("Restart system button pressed. Function only available on Linux systems.")
 
-            return ('', 204)  # TODO: redirect to an info page or popup
+            return  # TODO: redirect to an info page or popup
 
         @self.staffUI_blueprint.route('/shutdown_system', methods=['POST'])
         def shutdown_system() -> Any:
+            """"
+            Handles the post request send by the 'shutdown sytem' button.
+
+            If client is not authenticated, client is redirected to the login page. If operating system is 'Linux' the
+            'shutdown_system' utility script is called. Otherwise, a warning is logged.
+
+            Returns
+            -------
+            Response
+                # TODO: document returns
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
@@ -373,12 +466,31 @@ class StaffUI:
                 self.logger.warning("System shutdown button pressed, but not running on Linux system")
                 print("Shutdown system button pressed. Function only available on Linux systems.")
 
-            return ('', 204)  # TODO: redirect to an info page or popup
+            return  # TODO: redirect to an info page or popup
 
     def get_blueprint(self) -> Blueprint:
+        """
+        Get the Blueprint object associated with the instance.
+
+        Returns
+        -------
+        Blueprint
+            The Blueprint object associated with the instance.
+        """
         return self.staffUI_blueprint
 
     def sort_scenarios(self) -> Tuple[dict, dict]:
+        """
+        Sort hacking scenario names and descriptions according to their id.
+
+        Returns
+        -------
+        scenario_names: dict
+            Dictionary of hacking scenario names according to the scenario IDs {'scenario_id': 'scenario_name'}
+        scenario_descriptions: dict
+            Dictionary of hacking scenario descriptions according to the scenario IDs
+            {'scenario_id': 'scenario_description'}
+        """
         scenario_names = {}
         scenario_descriptions = {}
         for scenario in self.scenarios:
@@ -387,10 +499,13 @@ class StaffUI:
         return scenario_names, scenario_descriptions
 
     def publish_new_data(self):
-        self.socketio.emit('update_uuids', {"car_map": self.environment_mng.get_mapped_cars(), "car_queue": self.environment_mng.get_free_car_list(),
+        """
+        Publish relevant data via 'update_uuids' websocket event.
+
+        Gathers information about the cars associated with players, free cars and the player queue and publish them via
+        websocket.
+        """
+        self.socketio.emit('update_uuids', {"car_map": self.environment_mng.get_mapped_cars(),
+                                            "car_queue": self.environment_mng.get_free_car_list(),
                                             "player_queue": self.environment_mng.get_waiting_player_list()})
         return
-
-   # def update_uuids(self):
-    #    self.socketio.emit('update_uuids', {"uuids": self.uuids, "car_queue": self.environment_mng._car_queue_list,
-     #                                       "player_queue": self.environment_mng.get_player_queue()})
