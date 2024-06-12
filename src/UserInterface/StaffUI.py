@@ -221,7 +221,7 @@ class StaffUI:
             return ('', 204) # TODO: redirect to an info page or popup
 
         @self.staffUI_blueprint.route('/restart_system', methods=['POST'])
-        def restart_program() -> Any:
+        def restart_system() -> Any:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
@@ -236,7 +236,7 @@ class StaffUI:
             return ('', 204)  # TODO: redirect to an info page or popup
 
         @self.staffUI_blueprint.route('/shutdown_system', methods=['POST'])
-        def restart_program() -> Any:
+        def shutdown_system() -> Any:
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
