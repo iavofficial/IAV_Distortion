@@ -8,57 +8,113 @@
 #
 
 from flask import Blueprint, render_template, request, redirect, url_for
+from flask_socketio import SocketIO
 import re
 import secrets
 from typing import Any, Dict, Tuple, List
 import logging
 import subprocess
 import platform
+from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
+from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+
 
 class StaffUI:
+    """
+    Provides the staff userinterface
 
+    Parameters
+    ----------
+    cybersecurity_mng: CyberSecurityManager
+        Provides access to information about current hacking scenarios and their control.
+    socketio: SocketIO
+        Flask extension to enable websocket connection.
+    environment_mng: EnvironmentManager
+        Access to the EnvironmentManager to exchange information about queues and add or remove players and vehicles.
+    password: str
+        Configured password to log in to the staff ui.
+    """
     def __init__(self, cybersecurity_mng, socketio, environment_mng, password: str):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
-        self.cybersecurity_mng = cybersecurity_mng
+        self.cybersecurity_mng: CyberSecurityManager = cybersecurity_mng
 
         self.password = password
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
         self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
-        self.socketio: Any = socketio
-        self.environment_mng = environment_mng
+        self.socketio: SocketIO = socketio
+        self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
 
         self.environment_mng.set_staff_ui(self)
 
         def is_authenticated() -> bool:
+            """
+            Check if client has been authenticated for the staff ui.
+
+            Returns
+            -------
+            bool
+                Status of authentication
+            """
             request_token = request.cookies.get('admin_token')
             return request_token is not None and request_token == self.admin_token
 
-        def login_redirect():
+        def login_redirect() -> Any:
+            """
+            Redirect client to the login page.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing a redirect to the login page.
+            """
             return redirect(url_for("staffUI_bp.login_site"))
 
         def home_staff_control() -> Any:
+            """
+            Load the default page of the staff ui.
+
+            Redirect the client to the login page if client is not authenticated. Gets information about hacking
+            scenarios from CyberSecurityManager as well as the list of controlled cars from the EnvironmentManager to
+            provide these to the staff ui.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the default staff ui page.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
             # TODO: Show selection of choose hacking scenarios always sorted by player number
-            return render_template('staff_control.html', activeScenarios=active_scenarios, uuids=environment_mng.get_controlled_cars_list(),
-                                   names=names, descriptions=descriptions)
+            return render_template('staff_control.html', activeScenarios=active_scenarios,
+                                   uuids=environment_mng.get_controlled_cars_list(), names=names,
+                                   descriptions=descriptions)
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
         def set_scenario() -> Any:
+            """
+            Set the hacking scenario of a controlled car.
+
+            Redirect the client to the login page if client is not authenticated. Set the scenario for the requested car
+            using the CyberSecurityManager.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing a redirect to the default staff ui page.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             selected_option = request.form.get('option')
-            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+|Virtual Vehicle [0-9]+)>"
+            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
             match = re.search(pattern, selected_option)
 
             scenario_id = match.group(1)
@@ -67,7 +123,18 @@ class StaffUI:
 
             return redirect(url_for('staffUI_bp.staff_control'))
 
-        def login_site():
+        def login_site() -> Any:
+            """
+            Load the login page.
+
+            Redirect to default staff ui page if already authenticated. Check entered password.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing a redirect to the default staff ui page or back to login
+                according to authentication status.
+            """
             if is_authenticated():
                 self.logger.info("Authenticated")
                 return redirect(url_for('staffUI_bp.staff_control'))
@@ -90,6 +157,12 @@ class StaffUI:
 
         @self.socketio.on('get_uuids')
         def update_uuids_staff_ui() -> None:
+            """
+            Handles the 'get_uuids' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it publishes new data using the `publish_new_data` method.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
@@ -98,6 +171,12 @@ class StaffUI:
 
         @self.socketio.on('connect')
         def initiate_uuids() -> None:
+            """
+            Handles the 'connect' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it logs an info publishes new data using the `publish_new_data` method.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
@@ -108,17 +187,38 @@ class StaffUI:
 
         @self.socketio.on('search_cars')
         def search_cars() -> None:
+            """
+            Handles the 'search_cars' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it calls the function to search for unpaired Anki cars from the EnvironmentManager.
+            Publishes the list of found cars via websocket. Logs the search and its result as an info.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            self.logger.info("Searching devices")
+            self.logger.info("Searching devices...")
             print("Searching devices")
             new_devices = environment_mng.find_unpaired_anki_cars()
+            self.logger.info(f'Found devices: {new_devices}')
             self.socketio.emit('new_devices', new_devices)
             return
 
         @self.socketio.on('add_device')
         def handle_add_device(device: str) -> None:
+            """
+            Handles the 'add_device' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it calls the function to add a car from the EnvironmentManager providing the
+            devices id, logs a debug for the added device and initiates the hacking scenario in the
+            CyberSecurityManager.
+
+            Parameters
+            ----------
+            device: str
+                Id of the device to be added.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
@@ -139,21 +239,46 @@ class StaffUI:
 
         @self.socketio.on('delete_player')
         def handle_delete_player(player: str) -> None:
+            """
+            Handles the 'delete_player' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it logs a debug for the removed player and calls the EnvironmentManager to remove
+            the player from the vehicle as well as from the player queue.
+
+            Parameters
+            ----------
+            player: str
+                ID of the player to be removed.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
             print(f'delete player {player}')
-            self.logger.debug("Device deleted %s", player)
             environment_mng.remove_player_from_vehicle(player)
             environment_mng.remove_player_from_waitlist(player)
+            self.logger.debug("Player deleted %s", player)
             return
 
         @self.socketio.on('delete_vehicle')
         def handle_delete_vehicle(vehicle_id: str) -> None:
+            """
+            Handles the 'delete_vehicle' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it logs a debug for the removed vehicle and calls the EnvironmentManager to remove
+            the vehicle from the game.
+
+            Parameters
+            ----------
+            vehicle_id: str
+                ID of the vehicle to be removed.
+            """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
             environment_mng.remove_vehicle(vehicle_id)
+            self.logger.debug("Vehicle deleted %s", vehicle_id)
             return
 
         @self.socketio.on('get_update_hacking_scenarios')
@@ -163,8 +288,8 @@ class StaffUI:
                 return
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
-            data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_cars_list(), 'names': names,
-                    'descriptions': descriptions}
+            data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_cars_list(),
+                    'names': names, 'descriptions': descriptions}
             self.logger.info("Updated hacking scenarios")
             self.socketio.emit('update_hacking_scenarios', data)
             return
