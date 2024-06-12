@@ -21,3 +21,4 @@ $working_directory/src/get_dependencies.sh
 # Wait for user input before closing
 echo "Update finished..."
 sleep 10
+$working_directory/src/restart_system.sh
