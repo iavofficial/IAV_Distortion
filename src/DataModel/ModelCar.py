@@ -69,7 +69,7 @@ class ModelCar(Vehicle):
             self._driving_data_callback(self.get_driving_data())
         return
 
-    def set_model_car_not_reachable_callback(self, function_name: Callable[[str, str, str], None]) -> None:
+    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str, str], None]) -> None:
         self._model_car_not_reachable_callback = function_name
         return
 

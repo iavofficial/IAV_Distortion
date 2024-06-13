@@ -70,11 +70,15 @@ class Vehicle:
         pass
 
     @abc.abstractmethod
-    def set_driving_data_callback(self, function_name) -> None:
+    def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         pass
 
     @abc.abstractmethod
-    def _on_driving_data_change(self) -> None:
+    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str, str], None]) -> None:
+        pass
+
+    @abc.abstractmethod
+    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
         pass
 
     @property
