@@ -403,7 +403,7 @@ class StaffUI:
 
             Returns
             -------
-            Response
+            Response or Tuple
                 If not authenticated, returns a Response object representing a redirect to the login page.
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
@@ -431,7 +431,7 @@ class StaffUI:
 
             Returns
             -------
-            Response
+            Response or Tuple
                 If not authenticated, returns a Response object representing a redirect to the login page.
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
@@ -460,7 +460,7 @@ class StaffUI:
 
             Returns
             -------
-            Response
+            Response or Tuple
                 If not authenticated, returns a Response object representing a redirect to the login page.
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
@@ -508,7 +508,7 @@ class StaffUI:
             scenario_descriptions.update({scenario['id']: scenario['description']})
         return scenario_names, scenario_descriptions
 
-    def publish_new_data(self):
+    def publish_new_data(self) -> None:
         """
         Publish relevant data via 'update_uuids' websocket event.
 

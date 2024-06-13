@@ -53,11 +53,17 @@
 
     <script>
         $(document).ready(function() {
+            /**
+            * Highlight the menu item in the header if active
+            */
             var url = window.location.href; // get the current page URL
                 if(url.includes("/configuration/")){  // check if it includes '/configuration/'
                     $("#config_menu").addClass("active");  // add class=active
                 }
 
+            /**
+            * Highlight the menu item in the sidebar if site is active.
+            */
             $('.sidebar ul li a').each(function() {
                 if ($(this).attr('href') === window.location.pathname) {
                     $(this).closest('li').addClass('active');
