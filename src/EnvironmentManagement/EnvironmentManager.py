@@ -68,7 +68,7 @@ class EnvironmentManager:
             self.logger.critical('Missing update_staff_ui_callback!')
         else:
             self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
-                                           self.get_waiting_player_list())
+                                            self.get_waiting_player_list())
         return
 
     def connect_all_anki_cars(self) -> list[Vehicle]:
