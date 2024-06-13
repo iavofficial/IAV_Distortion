@@ -1,3 +1,5 @@
+from typing import Callable
+
 from bleak import BleakClient
 from flask_socketio import SocketIO
 
@@ -46,7 +48,7 @@ class ModelCar(Vehicle):
         self._battery: str = ""
         self._version: str = ""
 
-        self._model_car_not_reachable_callback = None
+        self._model_car_not_reachable_callback: Callable[[str, str, str], None] | None = None
         return
 
     def __del__(self) -> None:
@@ -58,6 +60,15 @@ class ModelCar(Vehicle):
         return type(self._controller)
 
     def set_model_car_not_reachable_callback(self, function_name) -> None:
+    def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
+        self._driving_data_callback = function_name
+        return
+
+    def _on_driving_data_change(self) -> None:
+        if self._driving_data_callback is not None:
+            self._driving_data_callback(self.get_driving_data())
+        return
+
         self._model_car_not_reachable_callback = function_name
         return
 
