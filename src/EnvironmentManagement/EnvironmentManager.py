@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 import logging
-from typing import List, Dict
+from typing import List, Dict, Callable
 from collections import deque
 from flask_socketio import SocketIO
 
@@ -21,6 +21,7 @@ from VehicleManagement.VehicleController import VehicleController
 from LocationService.TrackPieces import TrackBuilder, FullTrack
 from LocationService.Track import TrackPieceType
 
+
 class EnvironmentManager:
 
     def __init__(self, fleet_ctrl: FleetController, socketio: SocketIO):
@@ -33,7 +34,7 @@ class EnvironmentManager:
         self._socketio: SocketIO = socketio
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
-        self.staff_ui = None
+        self.__update_staff_ui_callback = None
 
         # self.find_unpaired_anki_cars()
 
@@ -42,10 +43,33 @@ class EnvironmentManager:
 
         self._socketio: SocketIO = socketio
 
-    def set_staff_ui(self, staff_ui):
-        self.staff_ui = staff_ui
+    def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
+            -> None:
+        """
+        Sets callback function for staff_ui_update.
+
+        Parameters
+        ----------
+        function_name: Callable[[Dict[str, str], List[str], List[str]], None]
+            Callback function that takes three parameters:
+            1. A dictionary where keys and values are strings.
+            2. A list of strings.
+            3. Another list of strings.
+            The function should not return anything (None).
+        """
+        self.__update_staff_ui_callback = function_name
         return
 
+    def __update_staff_ui(self) -> None:
+        """
+        Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
+        """
+        if not callable(self._update_staff_ui_callback):
+            self.logger.critical('Missing update_staff_ui_callback!')
+        else:
+            self._update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
+                                           self.get_waiting_player_list())
+        return
 
     def connect_all_anki_cars(self) -> list[Vehicle]:
         found_anki_cars = self.find_unpaired_anki_cars()
@@ -200,23 +224,16 @@ class EnvironmentManager:
         """
         Get the used track in the simulation
         """
-        track: FullTrack = TrackBuilder()\
-            .append(TrackPieceType.STRAIGHT_WE)\
-            .append(TrackPieceType.CURVE_WS)\
-            .append(TrackPieceType.CURVE_NW)\
-            .append(TrackPieceType.STRAIGHT_EW)\
-            .append(TrackPieceType.CURVE_EN)\
-            .append(TrackPieceType.CURVE_SE)\
+        track: FullTrack = TrackBuilder() \
+            .append(TrackPieceType.STRAIGHT_WE) \
+            .append(TrackPieceType.CURVE_WS) \
+            .append(TrackPieceType.CURVE_NW) \
+            .append(TrackPieceType.STRAIGHT_EW) \
+            .append(TrackPieceType.CURVE_EN) \
+            .append(TrackPieceType.CURVE_SE) \
             .build()
 
         return track
-
-    def _update_staff_ui(self) -> None:
-        if self.staff_ui is not None:
-            self.staff_ui.publish_new_data()
-        else:
-            print("staff_ui instance is not yet set!")
-        return
 
     def get_controlled_cars_list(self) -> List[str]:
         """

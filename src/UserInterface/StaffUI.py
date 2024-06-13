@@ -51,7 +51,7 @@ class StaffUI:
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
 
-        self.environment_mng.set_staff_ui(self)
+        self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
 
         def is_authenticated() -> bool:
             """
@@ -508,14 +508,21 @@ class StaffUI:
             scenario_descriptions.update({scenario['id']: scenario['description']})
         return scenario_names, scenario_descriptions
 
-    def publish_new_data(self) -> None:
+    def publish_new_data(self, car_map, car_queue, player_queue) -> None:
         """
         Publish relevant data via 'update_uuids' websocket event.
 
         Gathers information about the cars associated with players, free cars and the player queue and publish them via
         websocket.
+
+        Parameters
+        ----------
+        car_map: dict
+            Player ID's assigned to vehicle ID's they are assigned to.
+        car_queue: list
+            Contains ID's of available and not by a player controlled vehicles.
+        player_queue: list
+            Contains ID's of players waiting in the queue.
         """
-        self.socketio.emit('update_uuids', {"car_map": self.environment_mng.get_mapped_cars(),
-                                            "car_queue": self.environment_mng.get_free_car_list(),
-                                            "player_queue": self.environment_mng.get_waiting_player_list()})
+        self.socketio.emit('update_uuids', {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue})
         return
