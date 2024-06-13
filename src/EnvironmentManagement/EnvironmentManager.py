@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 import logging
-from typing import List, Dict
+from typing import List, Dict, Callable
 from collections import deque
 from flask_socketio import SocketIO
 
@@ -21,6 +21,7 @@ from VehicleManagement.VehicleController import VehicleController
 from LocationService.TrackPieces import TrackBuilder, FullTrack
 from LocationService.Track import TrackPieceType
 
+
 class EnvironmentManager:
 
     def __init__(self, fleet_ctrl: FleetController, socketio: SocketIO):
@@ -33,7 +34,7 @@ class EnvironmentManager:
         self._socketio: SocketIO = socketio
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
-        self.staff_ui = None
+        self.__update_staff_ui_callback = None
 
         # self.find_unpaired_anki_cars()
 
@@ -42,10 +43,33 @@ class EnvironmentManager:
 
         self._socketio: SocketIO = socketio
 
-    def set_staff_ui(self, staff_ui):
-        self.staff_ui = staff_ui
+    def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
+            -> None:
+        """
+        Sets callback function for staff_ui_update.
+
+        Parameters
+        ----------
+        function_name: Callable[[Dict[str, str], List[str], List[str]], None]
+            Callback function that takes three parameters:
+            1. A dictionary where keys and values are strings.
+            2. A list of strings.
+            3. Another list of strings.
+            The function should not return anything (None).
+        """
+        self.__update_staff_ui_callback = function_name
         return
 
+    def update_staff_ui(self) -> None:
+        """
+        Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
+        """
+        if not callable(self.__update_staff_ui_callback):
+            self.logger.critical('Missing update_staff_ui_callback!')
+        else:
+            self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
+                                            self.get_waiting_player_list())
+        return
 
     def connect_all_anki_cars(self) -> list[Vehicle]:
         found_anki_cars = self.find_unpaired_anki_cars()
@@ -92,17 +116,17 @@ class EnvironmentManager:
         self._assign_players_to_vehicles()
         self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
 
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
         self._add_player_to_queue_if_appropiate(player_id)
         self._assign_players_to_vehicles()
-        self._update_staff_ui()
+        self.update_staff_ui()
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 return v
-        self._update_staff_ui()
+        self.update_staff_ui()
         return None
 
     def _add_player_to_queue_if_appropiate(self, player_id: str) -> None:
@@ -127,12 +151,12 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.is_free():
                 if len(self._player_queue_list) == 0:
-                    self._update_staff_ui()
+                    self.update_staff_ui()
                     return
                 p = self._player_queue_list.popleft()
                 self._socketio.emit('player_active', p)
                 v.set_player(p)
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def add_player(self, player_id: str) -> None:
@@ -145,7 +169,7 @@ class EnvironmentManager:
         else:
             self._player_queue_list.append(player_id)
             print(self._player_queue_list)
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def remove_player_from_waitlist(self, player_id: str) -> None:
@@ -156,7 +180,7 @@ class EnvironmentManager:
             self._player_queue_list.remove(player_id)
         # TODO: Show other page when the user gets removed from here
         self._socketio.emit('player_removed', player_id)
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def remove_player_from_vehicle(self, player: str) -> None:
@@ -169,7 +193,7 @@ class EnvironmentManager:
                 v.remove_player()
                 self._socketio.emit('player_removed', player)
                 # TODO: define how to control vehicle without player
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def add_vehicle(self, uuid: str) -> None:
@@ -182,7 +206,7 @@ class EnvironmentManager:
 
         self._active_anki_cars.append(temp_vehicle)
         self._assign_players_to_vehicles()
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def add_virtual_vehicle(self):
@@ -193,30 +217,23 @@ class EnvironmentManager:
         vehicle = VirtualCar(name, self.get_track(), self._socketio)
         self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def get_track(self) -> FullTrack:
         """
         Get the used track in the simulation
         """
-        track: FullTrack = TrackBuilder()\
-            .append(TrackPieceType.STRAIGHT_WE)\
-            .append(TrackPieceType.CURVE_WS)\
-            .append(TrackPieceType.CURVE_NW)\
-            .append(TrackPieceType.STRAIGHT_EW)\
-            .append(TrackPieceType.CURVE_EN)\
-            .append(TrackPieceType.CURVE_SE)\
+        track: FullTrack = TrackBuilder() \
+            .append(TrackPieceType.STRAIGHT_WE) \
+            .append(TrackPieceType.CURVE_WS) \
+            .append(TrackPieceType.CURVE_NW) \
+            .append(TrackPieceType.STRAIGHT_EW) \
+            .append(TrackPieceType.CURVE_EN) \
+            .append(TrackPieceType.CURVE_SE) \
             .build()
 
         return track
-
-    def _update_staff_ui(self) -> None:
-        if self.staff_ui is not None:
-            self.staff_ui.publish_new_data()
-        else:
-            print("staff_ui instance is not yet set!")
-        return
 
     def get_controlled_cars_list(self) -> List[str]:
         """

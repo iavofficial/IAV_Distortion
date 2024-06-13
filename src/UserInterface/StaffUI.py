@@ -51,7 +51,7 @@ class StaffUI:
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
 
-        self.environment_mng.set_staff_ui(self)
+        self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
 
         def is_authenticated() -> bool:
             """
@@ -116,7 +116,7 @@ class StaffUI:
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             selected_option = request.form.get('option')
-            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
+            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+|Virtual Vehicle [0-9]+)>"
             match = re.search(pattern, selected_option)
 
             scenario_id = match.group(1)
@@ -162,12 +162,12 @@ class StaffUI:
             Handles the 'get_uuids' websocket event.
 
             This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
-            client is authenticated, it publishes new data using the `publish_new_data` method.
+            client is authenticated, requests update from EnvironmentManager.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            self.publish_new_data()
+            self.environment_mng.update_staff_ui()
             return
 
         @self.socketio.on('connect')
@@ -176,14 +176,13 @@ class StaffUI:
             Handles the 'connect' websocket event.
 
             This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
-            client is authenticated, it logs an info publishes new data using the `publish_new_data` method.
+            client is authenticated, it logs an info and requests an update from the EnvironmentManager.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            self.logger.info("Client connected")
-            print('Client connected')
-            self.publish_new_data()
+            self.logger.debug("Client connected")
+            self.environment_mng.update_staff_ui()
             return
 
         @self.socketio.on('search_cars')
@@ -508,14 +507,21 @@ class StaffUI:
             scenario_descriptions.update({scenario['id']: scenario['description']})
         return scenario_names, scenario_descriptions
 
-    def publish_new_data(self) -> None:
+    def publish_new_data(self, car_map, car_queue, player_queue) -> None:
         """
         Publish relevant data via 'update_uuids' websocket event.
 
         Gathers information about the cars associated with players, free cars and the player queue and publish them via
         websocket.
+
+        Parameters
+        ----------
+        car_map: dict
+            Player ID's assigned to vehicle ID's they are assigned to.
+        car_queue: list
+            Contains ID's of available and not by a player controlled vehicles.
+        player_queue: list
+            Contains ID's of players waiting in the queue.
         """
-        self.socketio.emit('update_uuids', {"car_map": self.environment_mng.get_mapped_cars(),
-                                            "car_queue": self.environment_mng.get_free_car_list(),
-                                            "player_queue": self.environment_mng.get_waiting_player_list()})
+        self.socketio.emit('update_uuids', {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue})
         return
