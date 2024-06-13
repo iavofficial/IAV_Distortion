@@ -16,11 +16,14 @@
     */
     $("#restart_program").click(function(){
         if(confirm("Are you sure you want to restart IAV Distortion?")) {
-            $.post("/staff/restart_program",
-                function(data,status){
-                    alert(data);
+            $.post("/staff/restart_program",function(result, status){
+                if (result.redirect) {
+                   window.location.href = result.redirect;
                 }
-            );
+                else {
+                    alert(result);
+                }
+            });
         };
     });
 
@@ -30,11 +33,14 @@
     */
     $("#restart_system").click(function(){
         if(confirm("Are you sure you want to restart the system?")) {
-            $.post("/staff/restart_system",
-                function(data,status){
-                    alert(data);
+            $.post("/staff/restart_system",function(result, status){
+                if (result.redirect) {
+                   window.location.href = result.redirect;
                 }
-            );
+                else {
+                    alert(result);
+                }
+            });
         };
     });
 
@@ -44,11 +50,14 @@
     */
     $("#shutdown_system").click(function(){
         if(confirm("Are you sure you want to shutdown the system?")) {
-            $.post("/staff/shutdown_system",
-                function(data,status){
-                    alert(data);
+            $.post("/staff/shutdown_system",function(result, status){
+                if (result.redirect) {
+                   window.location.href = result.redirect;
                 }
-            );
+                else {
+                    alert(result);
+                }
+            });
         };
     });
 

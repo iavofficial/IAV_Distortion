@@ -5,8 +5,28 @@
 <div class="flexbox-item config_content">
     <p>To run an update an internet connection is required. <br>
         Please make sure that your system has an online connection.</p>
-    <button>Update</button>
+    <button id="update_program">Update</button>
 
 </div>
+
+
+<script>
+    /**
+    * Handles button press for 'Update system' button.
+    * Popup for confirmation. Afterwards shows popup with the status of the request.
+    */
+    $("#update_program").click(function(){
+        if(confirm("Are you sure you want to update the system? Make sure to have an online connection.")) {
+            $.post("/staff/update_program", function(result, status){
+                if (result.redirect) {
+                   window.location.href = result.redirect;
+                }
+                else {
+                    alert(result);
+                }
+            });
+        };
+    });
+</script>
 
 {% endblock %}

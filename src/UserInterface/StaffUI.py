@@ -34,6 +34,7 @@ class StaffUI:
     password: str
         Configured password to log in to the staff ui.
     """
+
     def __init__(self, cybersecurity_mng, socketio, environment_mng, password: str):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -96,6 +97,7 @@ class StaffUI:
             return render_template('staff_control.html', activeScenarios=active_scenarios,
                                    uuids=environment_mng.get_controlled_cars_list(), names=names,
                                    descriptions=descriptions)
+
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
         def set_scenario() -> Any:
@@ -153,7 +155,6 @@ class StaffUI:
 
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
-
 
         @self.socketio.on('get_uuids')
         def update_uuids_staff_ui() -> None:
@@ -364,7 +365,7 @@ class StaffUI:
                 return login_redirect()
             return render_template('staff_config_system_control.html')
 
-        @self.staffUI_blueprint.route('/configuration/update_application', methods=['POST'])
+        @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         def update_application() -> Any:
             """
             Handles post request send by 'update' button.
@@ -380,7 +381,7 @@ class StaffUI:
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
-                return login_redirect()
+                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("Update triggered")
@@ -408,7 +409,7 @@ class StaffUI:
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
-                return login_redirect()
+                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("Program restart triggered")
@@ -436,7 +437,7 @@ class StaffUI:
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
-                return login_redirect()
+                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("System restart triggered")
@@ -465,7 +466,7 @@ class StaffUI:
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
-                return login_redirect()
+                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("System shutdown triggered")

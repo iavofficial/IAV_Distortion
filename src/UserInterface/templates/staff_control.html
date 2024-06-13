@@ -60,10 +60,24 @@
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+    /**
+    * Handle 'connect' event.
+    *
+    * Send 'get_uuids' event to gather information about queues and active cars and players.
+    */
     socket.on('connect', function(){
         socket.emit('get_uuids');
     });
 
+    /**
+    * Handle 'update_uuids' event.
+    *
+    * Create and update the table of active cars, players and queues.
+    *
+    * @param {Object.<string, Array.<Object.<string, string>|string>>} data: Dict contains list of dictionary of active
+    *     cars and assigned players, list of free cars, list of players in the queue
+    *
+    */
     socket.on('update_uuids', function(data){
         var map_data = data["car_map"];
         var car_queue = data["car_queue"];
@@ -140,7 +154,7 @@
             uuids_table.appendChild(row);
         }
 
-                // fill table with player and uuids
+        // fill table with player and uuids
         for (let car in car_queue) {
             var row = document.createElement('tr');
 
@@ -159,7 +173,13 @@
        socket.emit('get_update_hacking_scenarios');
     });
 
-    // automatic update of section to choose hacking scenarios
+    /**
+    * Handles 'update_hacking_scenarios' event.
+    *
+    * Creates the overview and selection of the hacking scenarios for the active cars.
+    *
+    * @param {Object.<string, Object.<string, string>
+    */
     socket.on('update_hacking_scenarios', function(data){
         // update sections to chose hacking scenarios
         var uuids = data['uuids'];
