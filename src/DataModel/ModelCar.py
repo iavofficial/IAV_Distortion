@@ -20,7 +20,7 @@ class ModelCar(Vehicle):
     def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack, socketio: SocketIO) -> None:
         super().__init__(vehicle_id, socketio)
         self._controller = controller
-        self._location_service: LocationService = LocationService(track, self.__on_location_service_update)
+        self._location_service: LocationService = LocationService(track, self._on_virtual_location_update)
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -49,6 +49,7 @@ class ModelCar(Vehicle):
         self._version: str = ""
 
         self._model_car_not_reachable_callback: Callable[[str, str, str], None] | None = None
+        self._virtual_location_update_callback: Callable[[str, dict, float], None] | None = None
         return
 
     def __del__(self) -> None:
@@ -59,7 +60,6 @@ class ModelCar(Vehicle):
     def get_typ_of_controller(self):
         return type(self._controller)
 
-    def set_model_car_not_reachable_callback(self, function_name) -> None:
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         self._driving_data_callback = function_name
         return
@@ -69,6 +69,7 @@ class ModelCar(Vehicle):
             self._driving_data_callback(self.get_driving_data())
         return
 
+    def set_model_car_not_reachable_callback(self, function_name: Callable[[str, str, str], None]) -> None:
         self._model_car_not_reachable_callback = function_name
         return
 
@@ -77,9 +78,13 @@ class ModelCar(Vehicle):
             self._model_car_not_reachable_callback(self.vehicle_id, self.player, err_msg)
         return
 
-    def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
-            self._driving_data_callback(self.get_driving_data())
+    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
+        self._virtual_location_update_callback = function_name
+        return
+
+    def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict) -> None:
+        if self._virtual_location_update_callback is not None:
+            self._virtual_location_update_callback(self.vehicle_id, pos.to_dict(), angle.get_deg())
         return
 
     @property
@@ -271,12 +276,4 @@ class ModelCar(Vehicle):
         self._battery = str(value_tuple)
 
         self._on_driving_data_change()
-        return
-
-    def __on_location_service_update(self, pos: Position, angle: Angle, _: dict):
-        self._send_location_via_socketio(pos, angle)
-
-    def _send_location_via_socketio(self, pos: Position, angle: Angle) -> None:
-        data = { 'car': self.vehicle_id, 'position': pos.to_dict(), 'angle': angle.get_deg() }
-        self._socketio.emit("car_positions", data)
         return
