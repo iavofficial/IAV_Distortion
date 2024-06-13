@@ -60,14 +60,14 @@ class EnvironmentManager:
         self.__update_staff_ui_callback = function_name
         return
 
-    def __update_staff_ui(self) -> None:
+    def update_staff_ui(self) -> None:
         """
         Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
         """
-        if not callable(self._update_staff_ui_callback):
+        if not callable(self.__update_staff_ui_callback):
             self.logger.critical('Missing update_staff_ui_callback!')
         else:
-            self._update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
+            self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
                                            self.get_waiting_player_list())
         return
 
@@ -116,17 +116,17 @@ class EnvironmentManager:
         self._assign_players_to_vehicles()
         self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
 
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
         self._add_player_to_queue_if_appropiate(player_id)
         self._assign_players_to_vehicles()
-        self._update_staff_ui()
+        self.update_staff_ui()
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 return v
-        self._update_staff_ui()
+        self.update_staff_ui()
         return None
 
     def _add_player_to_queue_if_appropiate(self, player_id: str) -> None:
@@ -151,12 +151,12 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.is_free():
                 if len(self._player_queue_list) == 0:
-                    self._update_staff_ui()
+                    self.update_staff_ui()
                     return
                 p = self._player_queue_list.popleft()
                 self._socketio.emit('player_active', p)
                 v.set_player(p)
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def add_player(self, player_id: str) -> None:
@@ -169,7 +169,7 @@ class EnvironmentManager:
         else:
             self._player_queue_list.append(player_id)
             print(self._player_queue_list)
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def remove_player_from_waitlist(self, player_id: str) -> None:
@@ -180,7 +180,7 @@ class EnvironmentManager:
             self._player_queue_list.remove(player_id)
         # TODO: Show other page when the user gets removed from here
         self._socketio.emit('player_removed', player_id)
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def remove_player_from_vehicle(self, player: str) -> None:
@@ -193,7 +193,7 @@ class EnvironmentManager:
                 v.remove_player()
                 self._socketio.emit('player_removed', player)
                 # TODO: define how to control vehicle without player
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def add_vehicle(self, uuid: str) -> None:
@@ -206,7 +206,7 @@ class EnvironmentManager:
 
         self._active_anki_cars.append(temp_vehicle)
         self._assign_players_to_vehicles()
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def add_virtual_vehicle(self):
@@ -217,7 +217,7 @@ class EnvironmentManager:
         vehicle = VirtualCar(name, self.get_track(), self._socketio)
         self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
-        self._update_staff_ui()
+        self.update_staff_ui()
         return
 
     def get_track(self) -> FullTrack:

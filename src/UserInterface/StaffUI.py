@@ -162,12 +162,12 @@ class StaffUI:
             Handles the 'get_uuids' websocket event.
 
             This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
-            client is authenticated, it publishes new data using the `publish_new_data` method.
+            client is authenticated, requests update from EnvironmentManager.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            self.publish_new_data()
+            self.environment_mng.update_staff_ui()
             return
 
         @self.socketio.on('connect')
@@ -176,14 +176,13 @@ class StaffUI:
             Handles the 'connect' websocket event.
 
             This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
-            client is authenticated, it logs an info publishes new data using the `publish_new_data` method.
+            client is authenticated, it logs an info and requests an update from the EnvironmentManager.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
                 return
-            self.logger.info("Client connected")
-            print('Client connected')
-            self.publish_new_data()
+            self.logger.debug("Client connected")
+            self.environment_mng.update_staff_ui()
             return
 
         @self.socketio.on('search_cars')
