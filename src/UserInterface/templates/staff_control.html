@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <title>Staff_Control</title>
 
-    <!-- general style sheet -->
+    <!-- general stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
 
-    <!-- specific style sheet -->
+    <!-- custom header stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- specific stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->
 
@@ -19,7 +23,17 @@
 </head>
 <body>
     <div class="flexbox-container custom_header">
-        <p class="header">IAV Distortion - Control</p>
+        <div class="flexbox-container custom_header">
+            <p class="header">IAV Distortion</p>
+            <div class="header_menu-container">
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
+                </div>
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.config_home') }}">Configuration</a>
+                </div>
+            </div>
+        </div>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
@@ -46,10 +60,24 @@
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+    /**
+    * Handle 'connect' event.
+    *
+    * Send 'get_uuids' event to gather information about queues and active cars and players.
+    */
     socket.on('connect', function(){
         socket.emit('get_uuids');
     });
 
+    /**
+    * Handle 'update_uuids' event.
+    *
+    * Create and update the table of active cars, players and queues.
+    *
+    * @param {Object.<string, Array.<Object.<string, string>|string>>} data - Dict contains list of dictionary of active
+    *     cars and assigned players, list of free cars, list of players in the queue
+    *
+    */
     socket.on('update_uuids', function(data){
         var map_data = data["car_map"];
         var car_queue = data["car_queue"];
@@ -126,7 +154,7 @@
             uuids_table.appendChild(row);
         }
 
-                // fill table with player and uuids
+        // fill table with player and uuids
         for (let car in car_queue) {
             var row = document.createElement('tr');
 
@@ -145,7 +173,15 @@
        socket.emit('get_update_hacking_scenarios');
     });
 
-    // automatic update of section to choose hacking scenarios
+    /**
+    * Handles 'update_hacking_scenarios' event.
+    *
+    * Creates and updates the overview and selection of the hacking scenarios for the active cars.
+    *
+    * @param {Object.<string, Object.<string, string>|Array.<string>>} data - Contains dictionary of active hacking
+    *     scenarios for controlled cars, list of controlled cars, dictionary with names of hacking scenarios, dictionary
+    *     with description of hacking scenarios.
+    */
     socket.on('update_hacking_scenarios', function(data){
         // update sections to chose hacking scenarios
         var uuids = data['uuids'];
@@ -214,9 +250,6 @@
         }
     });
 
-    // Set scenario buttons
-
-
     // buttons to search and add cars
     var search_cars = document.getElementById("search_cars");
     var add_car = document.getElementById("add_car");
@@ -231,6 +264,13 @@
     }
 
 
+    /**
+    * Handles 'new_devices' event.
+    *
+    * Creates the list of found BLE devices and provides buttons to add them to the game.
+    *
+    * @param {Array.<string>} devices - List of uuids of found BLE devices.
+    */
     var deviceList = document.getElementById("devices");
     socket.on('new_devices', function(devices){
       while (deviceList.firstChild) {
@@ -248,19 +288,39 @@
       });
     });
 
+    /**
+    * Emits 'add_device' event and removes device from list of found devices.
+    *
+    * @param {string} device - uuid of device to be added to the game.
+    */
     function addDevice(device) {
       socket.emit('add_device', device);
       remove_from_found_devices(device);
     }
 
+    /**
+    * Emits 'delete_player' event.
+    *
+    * @param {string} player - ID of player to be removed from the game.
+    */
     function deletePlayer(player) {
       socket.emit('delete_player', player);
     }
 
+    /**
+    * Emits 'delete_vehicle' event.
+    *
+    * @param {string} vehicle - ID of vehicle to be removed from the game.
+    */
     function deleteVehicle(vehicle) {
         socket.emit('delete_vehicle',vehicle);
     }
 
+    /**
+    * Removes device from table of found BLE devices.
+    *
+    * @param {string} device - ID of BLE device to be removed from the table.
+    */
     function remove_from_found_devices(device) {
       var list = document.getElementById("devices");
       var items = list.getElementsByTagName('li');
@@ -271,6 +331,18 @@
         }
     }
 }
+
+/**
+* Highlights the menu item in the header menu.
+*/
+$(document).ready(function() {
+    var url = window.location.pathname; // Get current URL path
+    $('.header_menu-item > a').each(function() {
+        if ($(this).attr('href') === url) {
+            $(this).parent().addClass('active'); // Adds 'active' class to the parent div
+        }
+    });
+});
 
 
 </script>

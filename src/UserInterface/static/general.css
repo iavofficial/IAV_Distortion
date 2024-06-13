@@ -6,6 +6,10 @@ body{
     width: 100%;
 }
 
+.flexbox-container{
+    display:  flex;
+}
+
 /* text style*/
 h1{
     color: #001A54; /* color headline 1 */
@@ -47,14 +51,6 @@ p.header{
 
 label{
     color: #001A54;
-}
-
-.custom_header{
-    background: #001A54;
-    justify-content: space-between;
-    align-items: center;
-    height: 64px;
-    margin-bottom: 2vh;
 }
 
 input[type=submit] {
