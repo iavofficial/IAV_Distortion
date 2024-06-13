@@ -374,8 +374,9 @@ class StaffUI:
 
             Returns
             -------
-            Response
-                # TODO: document returns
+            Response or Tuple
+                If not authenticated, returns a Response object representing a redirect to the login page.
+                If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
@@ -402,7 +403,8 @@ class StaffUI:
             Returns
             -------
             Response
-                # TODO: document returns
+                If not authenticated, returns a Response object representing a redirect to the login page.
+                If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
@@ -429,7 +431,8 @@ class StaffUI:
             Returns
             -------
             Response
-                # TODO: document returns
+                If not authenticated, returns a Response object representing a redirect to the login page.
+                If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
@@ -457,7 +460,8 @@ class StaffUI:
             Returns
             -------
             Response
-                # TODO: document returns
+                If not authenticated, returns a Response object representing a redirect to the login page.
+                If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if not is_authenticated():
                 self.logger.warning("Not authenticated")
