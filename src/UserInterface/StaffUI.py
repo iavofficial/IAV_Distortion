@@ -116,7 +116,7 @@ class StaffUI:
                 self.logger.warning("Not authenticated")
                 return login_redirect()
             selected_option = request.form.get('option')
-            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+)>"
+            pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+|Virtual Vehicle [0-9]+)>"
             match = re.search(pattern, selected_option)
 
             scenario_id = match.group(1)
