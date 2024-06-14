@@ -34,10 +34,11 @@
             const track_color = "#000000";
             const track_width = 5;
 
-            const car_length = 82;
             const car_width = 30;
+            const car_length = car_width * 1.88;
             const car_outline = 4;
 
+            const car_pics = {{ car_pictures | tojson }};
             const colorCrossmap = {{ color_map | tojson }};
 
             resizeCanvas();
@@ -67,9 +68,73 @@
                     var y = d.position.y;
                     var angle = d.angle;
                     const colors = colorCrossmap[name];
-                    drawCarBox(x, y, angle, colors[0], colors[1]);
+
+                    if (name.startsWith('Virtual Vehicle')) {
+                        var numberPattern = /\d+/g;
+                        var numbers = name.match(numberPattern);
+                        if (numbers[0] <= Object.keys(car_pics).length){
+                            console.log(numbers[0]);
+                            var image_name = Object.keys(car_pics)[numbers[0]];
+                            var image_path = car_pics[image_name];
+                            insertCarPic(x, y, angle, image_name, image_path);
+
+                        }
+                        else {
+                            drawCarBox(x, y, angle, colors[0], colors[1]);
+                        }
+                    }
+                    else {
+                    // put visualization of real cars on the track here
+                    }
                 }
             });
+
+            /**
+            * Inserts a picture at given position and angle.
+            *
+            * @param {float} x - Horizontal position of the picture.
+            * @param {float} y - Vertical position of the picture.
+            * @param {float} angle - Rotation angle of the picture.
+            */
+            function insertCarPic(x, y, angle, image_name, image_path){
+                x *= scale;
+                y *= scale;
+                ctx.save();
+
+                rotationRadians = Math.PI * (angle - 90) / 180.0; // Convert angle to radians
+                ctx.translate(x, y);
+                ctx.rotate(rotationRadians);
+                ctx.translate(-x, -y);
+
+                var img = new Image();
+                img.src = get_image_src(image_name, image_path);
+
+                ctx.drawImage(img, x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
+                ctx.rotate(-Math.PI / 2);
+
+                ctx.restore();
+
+            }
+
+            /**
+            * Constructs image source.
+            *
+            * @param {string} image_name - File name of image.
+            * @param {string} image_path - Directory of image file, if empty string file is located in default
+            * 'static/images/' directory
+            *
+            * @return {string} src - Path of image file.
+            */
+            function get_image_src(image_name, image_path) {
+                if (image_path == ""){
+                    src = "/static/images/" + image_name;
+                    return src;
+                }
+                else {
+                    src = image_path + image_name;
+                    return src;
+                }
+            }
 
             /**
             * Draws a rectangle on given position, with given angle and colors.
