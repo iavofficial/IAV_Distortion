@@ -11,6 +11,7 @@ eventlet = "*"
 sphinx = "==7.3.7"
 pluggy = "==1.5.0"
 pytest = "==8.2.0"
+portalocker = {extras = ["redis"], version = "*"}
 
 [dev-packages]
 sphinx = "*"
