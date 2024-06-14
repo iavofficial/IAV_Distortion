@@ -8,7 +8,7 @@
 #
 import json
 from portalocker import RedisLock, LOCK_SH
-from logging import Logger, getLogger
+from logging import Logger, getLogger, DEBUG, StreamHandler
 
 
 class ConfigurationHandler:
@@ -20,6 +20,10 @@ class ConfigurationHandler:
     def __init__(self) -> None:
         self.lock: RedisLock = RedisLock('config_file')
         self.logger: Logger = getLogger(__name__)
+
+        self.logger.setLevel(DEBUG)
+        console_handler = StreamHandler()
+        self.logger.addHandler(console_handler)
         return
 
     def get_configuration(self) -> dict:
@@ -45,12 +49,11 @@ class ConfigurationHandler:
             For any other unexpected errors that may occur.
         """
         try:
-            with self.lock:
-                with open('config_file.json', 'r') as file:
-                    configuration = json.load(file)
-                    print(configuration)
+            # with self.lock:
+            with open('config_file.json', 'r') as file:
+                configuration = json.load(file)
 
-                    return configuration
+                return configuration
 
         except FileNotFoundError:
             self.logger.critical("Configuration file not found.")
