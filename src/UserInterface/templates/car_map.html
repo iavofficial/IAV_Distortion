@@ -74,12 +74,8 @@
                         var numbers = name.match(numberPattern);
 
                         if (Object.keys(car_pics).includes(name)){
-                            car_picture = car_pics[name]
-                            var image_name = Object.keys(car_picture)[0];
-                            
-                            var image_path = car_picture[image_name];
-                            insertCarPic(x, y, angle, image_name, image_path);
-
+                            var image_name = car_pics[name];
+                            insertCarPic(x, y, angle, image_name);
                         }
                         else {
                             drawCarBox(x, y, angle, colors[0], colors[1]);
@@ -98,7 +94,7 @@
             * @param {float} y - Vertical position of the picture.
             * @param {float} angle - Rotation angle of the picture.
             */
-            function insertCarPic(x, y, angle, image_name, image_path){
+            function insertCarPic(x, y, angle, image_name){
                 x *= scale;
                 y *= scale;
                 ctx.save();
@@ -109,33 +105,12 @@
                 ctx.translate(-x, -y);
 
                 var img = new Image();
-                img.src = get_image_src(image_name, image_path);
+                img.src = "/static/images/Virtual_Vehicles/" + image_name;
 
                 ctx.drawImage(img, x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
                 ctx.rotate(-Math.PI / 2);
 
                 ctx.restore();
-
-            }
-
-            /**
-            * Constructs image source.
-            *
-            * @param {string} image_name - File name of image.
-            * @param {string} image_path - Directory of image file, if empty string file is located in default
-            * 'static/images/' directory
-            *
-            * @return {string} src - Path of image file.
-            */
-            function get_image_src(image_name, image_path) {
-                if (image_path == ""){
-                    src = "/static/images/" + image_name;
-                    return src;
-                }
-                else {
-                    src = image_path + image_name;
-                    return src;
-                }
             }
 
             /**
