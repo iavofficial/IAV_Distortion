@@ -1,12 +1,12 @@
 {
 	"virtual_cars_pics": {
-		"Virtual Vehicle 1": {"D1FFAF51CB30_top.png": ""},
-    	"Virtual Vehicle 2": {"E4FD708CB27D_top.png": ""},
-		"Virtual Vehicle 3": {"DF8BDC022C23_top.png": ""},
-		"Virtual Vehicle 4": {"E751D4F745EF_top.png": ""},
-		"Virtual Vehicle 5": {"E87E9F34CF46_top.png": ""},
-		"Virtual Vehicle 6": {"F1760808C100_top.png": ""},
-		"Virtual Vehicle 7": {"F4DBE7EA7B52_top.png": ""},
-		"Virtual Vehicle 8": {"FA14670F39FE_top.png": ""}
+		"Virtual Vehicle 1": "D1FFAF51CB30_top.png",
+    	"Virtual Vehicle 2": "E4FD708CB27D_top.png",
+		"Virtual Vehicle 3": "DF8BDC022C23_top.png",
+		"Virtual Vehicle 4": "E751D4F745EF_top.png",
+		"Virtual Vehicle 5": "E87E9F34CF46_top.png",
+		"Virtual Vehicle 6": "F1760808C100_top.png",
+		"Virtual Vehicle 7": "F4DBE7EA7B52_top.png",
+		"Virtual Vehicle 8": "FA14670F39FE_top.png"
 	}
 }
