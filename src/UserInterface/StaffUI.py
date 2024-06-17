@@ -52,6 +52,8 @@ class StaffUI:
         self.devices: list = []
 
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
+        self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
+        self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
 
         def is_authenticated() -> bool:
             """
