@@ -29,7 +29,7 @@ def main(admin_password: str):
     #  change to use some production server
 
     fleet_ctrl = FleetController()
-    environment_mng = EnvironmentManager(fleet_ctrl, socketio)
+    environment_mng = EnvironmentManager(fleet_ctrl)
     vehicles = environment_mng.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)

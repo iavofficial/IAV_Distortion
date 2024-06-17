@@ -9,7 +9,6 @@
 import logging
 from typing import List, Dict, Callable
 from collections import deque
-from flask_socketio import SocketIO
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
@@ -24,14 +23,13 @@ from LocationService.Track import TrackPieceType
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController, socketio: SocketIO):
+    def __init__(self, fleet_ctrl: FleetController):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
         self._fleet_ctrl = fleet_ctrl
-        self._socketio: SocketIO = socketio
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
 
@@ -43,8 +41,6 @@ class EnvironmentManager:
 
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
-
-        self._socketio: SocketIO = socketio
 
     def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
             -> None:
@@ -257,7 +253,7 @@ class EnvironmentManager:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track(), self._socketio)
+        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
         temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
@@ -271,7 +267,7 @@ class EnvironmentManager:
         # used numbers
         name = f"Virtual Vehicle {self._virtual_vehicle_num}"
         self._virtual_vehicle_num += 1
-        vehicle = VirtualCar(name, self.get_track(), self._socketio)
+        vehicle = VirtualCar(name, self.get_track())
         self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
         self.update_staff_ui()
