@@ -72,10 +72,12 @@
                     if (name.startsWith('Virtual Vehicle')) {
                         var numberPattern = /\d+/g;
                         var numbers = name.match(numberPattern);
-                        if (numbers[0] <= Object.keys(car_pics).length){
-                            console.log(numbers[0]);
-                            var image_name = Object.keys(car_pics)[numbers[0]];
-                            var image_path = car_pics[image_name];
+
+                        if (Object.keys(car_pics).includes(name)){
+                            car_picture = car_pics[name]
+                            var image_name = Object.keys(car_picture)[0];
+                            
+                            var image_path = car_picture[image_name];
                             insertCarPic(x, y, angle, image_name, image_path);
 
                         }
