@@ -34,7 +34,10 @@ class EnvironmentManager:
         self._socketio: SocketIO = socketio
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
-        self.__update_staff_ui_callback = None
+
+        self.__update_staff_ui_callback: Callable[[Dict[str, str], List[str], List[str]], None] | None = None
+        self.__publish_removed_player_callback: Callable[[str], None] | None = None
+        self.__publish_player_active_callback: Callable[[str], None] | None = None
 
         # self.find_unpaired_anki_cars()
 
@@ -60,6 +63,30 @@ class EnvironmentManager:
         self.__update_staff_ui_callback = function_name
         return
 
+    def set_publish_removed_player_callback(self, function_name: Callable[[str], None]) -> None:
+        """
+        Sets callback function for publish_removed_player.
+
+        Parameters
+        ----------
+        function_name: Callable[[str], None]
+            Callback function that takes a string parameter.
+        """
+        self.__publish_removed_player_callback = function_name
+        return
+
+    def set_publish_player_active_callback(self, function_name: Callable[[str], None]) -> None:
+        """
+        Sets callback function for publish_player_active.
+
+        Parameters
+        ----------
+        function_name: Callable[[str], None]
+            Callback function that takes a string parameter.
+        """
+        self.__publish_player_active_callback = function_name
+        return
+
     def update_staff_ui(self) -> None:
         """
         Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
@@ -69,6 +96,36 @@ class EnvironmentManager:
         else:
             self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
                                             self.get_waiting_player_list())
+        return
+
+    def _publish_removed_player(self, player: str) -> None:
+        """
+        Sends which player has been removed from the game to the staff ui using a callback function.
+
+        Parameters
+        ----------
+        player: str
+            ID of player that has been removed.
+        """
+        if not callable(self.__publish_removed_player_callback):
+            self.logger.critical('Missing publish_removed_player_callback!')
+        else:
+            self.__publish_removed_player_callback(player)
+        return
+
+    def _publish_player_active(self, player: str) -> None:
+        """
+        Sends which player changed from waiting in the queue to be an active player in the game.
+
+        Parameters
+        ----------
+        player: str
+            ID of player who became active.
+        """
+        if not callable(self.__publish_player_active_callback):
+            self.logger.critical('Missing publish_player_active_callback!')
+        else:
+            self.__publish_player_active_callback(player)
         return
 
     def connect_all_anki_cars(self) -> list[Vehicle]:
