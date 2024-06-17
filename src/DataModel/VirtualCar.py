@@ -27,4 +27,4 @@ class VirtualCar(ModelCar):
             self._offset_from_center = offset
 
         self._on_driving_data_change()
-        self._send_location_via_socketio(pos, rot)
+        self._on_virtual_location_update(pos, rot, {})
