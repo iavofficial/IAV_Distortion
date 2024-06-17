@@ -165,7 +165,7 @@ class EnvironmentManager:
         if found_vehicle is not None:
             player = found_vehicle.get_player()
             if player is not None:
-                self._socketio.emit('player_removed', player)
+                self._publish_removed_player(player=player)
             found_vehicle.remove_player()
             self._active_anki_cars.remove(found_vehicle)
             found_vehicle.__del__()
@@ -211,7 +211,7 @@ class EnvironmentManager:
                     self.update_staff_ui()
                     return
                 p = self._player_queue_list.popleft()
-                self._socketio.emit('player_active', p)
+                self._publish_player_active(player=p)
                 v.set_player(p)
         self.update_staff_ui()
         return
@@ -236,7 +236,7 @@ class EnvironmentManager:
         if player_id in self._player_queue_list:
             self._player_queue_list.remove(player_id)
         # TODO: Show other page when the user gets removed from here
-        self._socketio.emit('player_removed', player_id)
+        self._publish_removed_player(player=player_id)
         self.update_staff_ui()
         return
 
@@ -248,7 +248,7 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.get_player() == player:
                 v.remove_player()
-                self._socketio.emit('player_removed', player)
+                self._publish_removed_player(player=player)
                 # TODO: define how to control vehicle without player
         self.update_staff_ui()
         return
