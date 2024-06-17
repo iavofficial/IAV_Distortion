@@ -9,8 +9,10 @@
 
 from flask import Blueprint, render_template ,request
 import uuid
+from logging import Logger, getLogger
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 class DriverUI:
 
@@ -20,6 +22,8 @@ class DriverUI:
         self.behaviour_ctrl = behaviour_ctrl
         self.socketio = socketio
         self.environment_mng: EnvironmentManager = environment_mng
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
+        self.logger: Logger = getLogger(__name__)
 
         def home_driver() -> str:
             player = request.cookies.get("player")
@@ -27,6 +31,7 @@ class DriverUI:
             if player is None:
                 player = str(uuid.uuid4())
 
+            config = self.config_handler.get_configuration()
             vehicle = self.environment_mng.update_queues_and_get_vehicle(player)
             player_exists = False
             picture = ''  # default picture can be added here
@@ -38,10 +43,16 @@ class DriverUI:
             if vehicle is not None:
                 player_exists = True
                 picture = vehicle.vehicle_id
-                picture = picture.replace(":", "") + ".png"
+                if vehicle.vehicle_id.startswith("Virtual Vehicle"):
+                    try:
+                        picture = 'Virtual_Vehicles/' + config["virtual_cars_pics"][vehicle.vehicle_id]
+                    except KeyError:
+                        self.logger.warning(f'No image configured for {vehicle.vehicle_id}.')
+                else:
+                    picture = 'Real_Vehicles/' + picture.replace(":", "") + ".png"
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
-                print(f'set callback for {player}')
+                self.logger.debug(f'Callback set for {player}')
 
             return render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
                                    vehicle_information=vehicle_information)
