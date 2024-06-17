@@ -34,11 +34,12 @@ def main(admin_password: str):
     behaviour_ctrl = BehaviourController(vehicles)
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
 
-    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng = environment_mng,socketio=socketio)
+    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, socketio=socketio)
     driver_ui_blueprint = driver_ui.get_blueprint()
-    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng, password=admin_password)
+    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng,
+                       password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
-    car_map = CarMap(environment_manager=environment_mng)
+    car_map = CarMap(environment_manager=environment_mng, socketio=socketio)
     car_map_blueprint = car_map.get_blueprint()
 
     app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')

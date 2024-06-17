@@ -25,7 +25,7 @@ class ModelCaIntegrationTest(TestCase):
         self.dummy_uuid = FleetController().scan_for_anki_cars()[0]
         self.anki_controller: AnkiController = AnkiController()
         self.mut: PhysicalCar = PhysicalCar(dummy_vehicleID, self.anki_controller, get_dummy_track())
-        self.mut.set_model_car_not_reachable_callback(dummy_callback)
+        self.mut.set_vehicle_not_reachable_callback(dummy_callback)
 
     def tearDown(self) -> None:
         del self.mut

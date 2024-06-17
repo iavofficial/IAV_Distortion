@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+from typing import Callable
 
 from flask_socketio import SocketIO
 
@@ -14,13 +15,15 @@ import abc
 
 
 class Vehicle:
-    def __init__(self, vehicle_id: str, socketio: SocketIO, controller: VehicleController = None) -> None:
+    def __init__(self, vehicle_id: str,
+                 socketio: SocketIO,
+                 controller: VehicleController = None) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
 
         self._controller: VehicleController = controller
         self._active_hacking_scenario: str = "0"
-        self._driving_data_callback = None
+        self._driving_data_callback: Callable[[dict], None] | None = None
 
         self._socketio = socketio
 
@@ -66,12 +69,16 @@ class Vehicle:
     def get_typ_of_controller(self):
         pass
 
-    def set_driving_data_callback(self, function_name) -> None:
-        self._driving_data_callback = function_name
-        return
+    @abc.abstractmethod
+    def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
+        pass
 
     @abc.abstractmethod
-    def _on_driving_data_change(self) -> None:
+    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str, str], None]) -> None:
+        pass
+
+    @abc.abstractmethod
+    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
         pass
 
     @property
