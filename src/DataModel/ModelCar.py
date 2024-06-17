@@ -1,7 +1,6 @@
 from typing import Callable
 
 from bleak import BleakClient
-from flask_socketio import SocketIO
 
 from DataModel.Vehicle import Vehicle
 from LocationService.Trigo import Angle, Position
@@ -17,8 +16,8 @@ class ModelCar(Vehicle):
     Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
     the controller, if appropriate
     """
-    def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack, socketio: SocketIO) -> None:
-        super().__init__(vehicle_id, socketio)
+    def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack) -> None:
+        super().__init__(vehicle_id)
         self._controller = controller
         self._location_service: LocationService = LocationService(track, self._on_virtual_location_update)
 

@@ -9,7 +9,6 @@
 import logging
 from typing import List, Dict, Callable
 from collections import deque
-from flask_socketio import SocketIO
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
@@ -24,24 +23,24 @@ from LocationService.Track import TrackPieceType
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController, socketio: SocketIO):
+    def __init__(self, fleet_ctrl: FleetController):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
         self._fleet_ctrl = fleet_ctrl
-        self._socketio: SocketIO = socketio
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
-        self.__update_staff_ui_callback = None
+
+        self.__update_staff_ui_callback: Callable[[Dict[str, str], List[str], List[str]], None] | None = None
+        self.__publish_removed_player_callback: Callable[[str], None] | None = None
+        self.__publish_player_active_callback: Callable[[str], None] | None = None
 
         # self.find_unpaired_anki_cars()
 
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
-
-        self._socketio: SocketIO = socketio
 
     def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
             -> None:
@@ -60,6 +59,30 @@ class EnvironmentManager:
         self.__update_staff_ui_callback = function_name
         return
 
+    def set_publish_removed_player_callback(self, function_name: Callable[[str], None]) -> None:
+        """
+        Sets callback function for publish_removed_player.
+
+        Parameters
+        ----------
+        function_name: Callable[[str], None]
+            Callback function that takes a string parameter.
+        """
+        self.__publish_removed_player_callback = function_name
+        return
+
+    def set_publish_player_active_callback(self, function_name: Callable[[str], None]) -> None:
+        """
+        Sets callback function for publish_player_active.
+
+        Parameters
+        ----------
+        function_name: Callable[[str], None]
+            Callback function that takes a string parameter.
+        """
+        self.__publish_player_active_callback = function_name
+        return
+
     def update_staff_ui(self) -> None:
         """
         Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
@@ -69,6 +92,36 @@ class EnvironmentManager:
         else:
             self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
                                             self.get_waiting_player_list())
+        return
+
+    def _publish_removed_player(self, player: str) -> None:
+        """
+        Sends which player has been removed from the game to the staff ui using a callback function.
+
+        Parameters
+        ----------
+        player: str
+            ID of player that has been removed.
+        """
+        if not callable(self.__publish_removed_player_callback):
+            self.logger.critical('Missing publish_removed_player_callback!')
+        else:
+            self.__publish_removed_player_callback(player)
+        return
+
+    def _publish_player_active(self, player: str) -> None:
+        """
+        Sends which player changed from waiting in the queue to be an active player in the game.
+
+        Parameters
+        ----------
+        player: str
+            ID of player who became active.
+        """
+        if not callable(self.__publish_player_active_callback):
+            self.logger.critical('Missing publish_player_active_callback!')
+        else:
+            self.__publish_player_active_callback(player)
         return
 
     def connect_all_anki_cars(self) -> list[Vehicle]:
@@ -108,7 +161,7 @@ class EnvironmentManager:
         if found_vehicle is not None:
             player = found_vehicle.get_player()
             if player is not None:
-                self._socketio.emit('player_removed', player)
+                self._publish_removed_player(player=player)
             found_vehicle.remove_player()
             self._active_anki_cars.remove(found_vehicle)
             found_vehicle.__del__()
@@ -154,7 +207,7 @@ class EnvironmentManager:
                     self.update_staff_ui()
                     return
                 p = self._player_queue_list.popleft()
-                self._socketio.emit('player_active', p)
+                self._publish_player_active(player=p)
                 v.set_player(p)
         self.update_staff_ui()
         return
@@ -179,7 +232,7 @@ class EnvironmentManager:
         if player_id in self._player_queue_list:
             self._player_queue_list.remove(player_id)
         # TODO: Show other page when the user gets removed from here
-        self._socketio.emit('player_removed', player_id)
+        self._publish_removed_player(player=player_id)
         self.update_staff_ui()
         return
 
@@ -191,7 +244,7 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.get_player() == player:
                 v.remove_player()
-                self._socketio.emit('player_removed', player)
+                self._publish_removed_player(player=player)
                 # TODO: define how to control vehicle without player
         self.update_staff_ui()
         return
@@ -200,7 +253,7 @@ class EnvironmentManager:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track(), self._socketio)
+        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
         temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
@@ -214,7 +267,7 @@ class EnvironmentManager:
         # used numbers
         name = f"Virtual Vehicle {self._virtual_vehicle_num}"
         self._virtual_vehicle_num += 1
-        vehicle = VirtualCar(name, self.get_track(), self._socketio)
+        vehicle = VirtualCar(name, self.get_track())
         self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
         self.update_staff_ui()

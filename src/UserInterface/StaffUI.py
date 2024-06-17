@@ -52,6 +52,8 @@ class StaffUI:
         self.devices: list = []
 
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
+        self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
+        self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
 
         def is_authenticated() -> bool:
             """
@@ -524,4 +526,28 @@ class StaffUI:
             Contains ID's of players waiting in the queue.
         """
         self.socketio.emit('update_uuids', {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue})
+        return
+
+    def publish_removed_player(self, player: str) -> None:
+        """
+        Sends 'player_removed' event.
+
+        Parameters
+        ----------
+        player: str
+            ID of the player which has been removed.
+        """
+        self.socketio.emit('player_removed', player)
+        return
+
+    def publish_player_active(self, player: str) -> None:
+        """
+        Sends 'player_active' event.
+
+        Parameters
+        ----------
+        player: str
+            ID of the player, who switched from the queue to be an active player.
+        """
+        self.socketio.emit('player_active', player)
         return
