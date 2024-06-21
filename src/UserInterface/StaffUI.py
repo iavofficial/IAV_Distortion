@@ -6,9 +6,10 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+import asyncio
 
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
-from flask_socketio import SocketIO
+from quart import Blueprint, render_template, request, redirect, url_for, jsonify, Response
+import socketio
 import re
 import secrets
 from typing import Any, Dict, Tuple, List
@@ -27,15 +28,16 @@ class StaffUI:
     ----------
     cybersecurity_mng: CyberSecurityManager
         Provides access to information about current hacking scenarios and their control.
-    socketio: SocketIO
-        Flask extension to enable websocket connection.
+    sio: socket
+        socketio to enable websocket connection.
     environment_mng: EnvironmentManager
         Access to the EnvironmentManager to exchange information about queues and add or remove players and vehicles.
     password: str
         Configured password to log in to the staff ui.
     """
 
-    def __init__(self, cybersecurity_mng, socketio, environment_mng, password: str):
+    def __init__(self, cybersecurity_mng: CyberSecurityManager, sio: socketio, environment_mng: EnvironmentManager,
+                 password: str):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
@@ -47,7 +49,7 @@ class StaffUI:
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
         self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
-        self.socketio: SocketIO = socketio
+        self._sio: socketio = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
 
@@ -55,17 +57,28 @@ class StaffUI:
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
 
-        def is_authenticated() -> bool:
+        self.loop = asyncio.get_event_loop()
+        print(f'Loop: {self.loop}')
+
+        @self.staffUI_blueprint.before_request
+        def is_authenticated() -> Response | None:
             """
-            Check if client has been authenticated for the staff ui.
+            Is executed before each request and checks if client is authenticated to access .../staff/... pages.
+
+            If client is not authenticated, the client will be redirected to the login page.
 
             Returns
             -------
-            bool
-                Status of authentication
+            Response or None
+                If not authenticated, returns a Response object representing a redirect to the login page.
+                If authenticated, returns None
             """
-            request_token = request.cookies.get('admin_token')
-            return request_token is not None and request_token == self.admin_token
+            if '/staff/' in request.path and request.path != '/staff/':
+                request_token = request.cookies.get('admin_token')
+                if request_token is None or request_token != self.admin_token:
+                    return redirect(url_for("staffUI_bp.login_site"))
+                else:
+                    return None
 
         def login_redirect() -> Any:
             """
@@ -78,7 +91,7 @@ class StaffUI:
             """
             return redirect(url_for("staffUI_bp.login_site"))
 
-        def home_staff_control() -> Any:
+        async def home_staff_control() -> Any:
             """
             Load the default page of the staff ui.
 
@@ -90,19 +103,19 @@ class StaffUI:
             -------
                 Returns a Response object representing a redirect to the default staff ui page.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return login_redirect()
+            # if not is_authenticated():
+            #    self.logger.warning("Not authenticated")
+            #    return login_redirect()
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
             # TODO: Show selection of choose hacking scenarios always sorted by player number
-            return render_template('staff_control.html', activeScenarios=active_scenarios,
-                                   uuids=environment_mng.get_controlled_cars_list(), names=names,
-                                   descriptions=descriptions)
+            return await render_template('staff_control.html', activeScenarios=active_scenarios,
+                                         uuids=environment_mng.get_controlled_cars_list(), names=names,
+                                         descriptions=descriptions)
 
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
-        def set_scenario() -> Any:
+        async def set_scenario() -> Any:
             """
             Set the hacking scenario of a controlled car.
 
@@ -114,10 +127,10 @@ class StaffUI:
             Response
                 Returns a Response object representing a redirect to the default staff ui page.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return login_redirect()
-            selected_option = request.form.get('option')
+            # if not is_authenticated():
+            #    self.logger.warning("Not authenticated")
+            #    return login_redirect()
+            selected_option = (await request.form).get('option')
             pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+|Virtual Vehicle [0-9]+)>"
             match = re.search(pattern, selected_option)
 
@@ -127,7 +140,7 @@ class StaffUI:
 
             return redirect(url_for('staffUI_bp.staff_control'))
 
-        def login_site() -> Any:
+        async def login_site() -> Any:
             """
             Load the login page.
 
@@ -139,18 +152,18 @@ class StaffUI:
                 Returns a Response object representing a redirect to the default staff ui page or back to login
                 according to authentication status.
             """
-            if is_authenticated():
-                self.logger.info("Authenticated")
-                return redirect(url_for('staffUI_bp.staff_control'))
+            # if is_authenticated():
+            #     self.logger.info("Authenticated")
+            #     return redirect(url_for('staffUI_bp.staff_control'))
             if request.method == 'GET':
-                return render_template('staff_login.html')
+                return await render_template('staff_login.html')
             # a password was submitted via POST
-            pwd = request.form.get('password')
+            pwd = (await request.form).get('password')
             if pwd is not None and pwd == self.password:
                 response = redirect(url_for('staffUI_bp.staff_control'))
                 response.set_cookie('admin_token', self.admin_token)
                 return response
-            return render_template('staff_login.html', wrong_password=True)
+            return await render_template('staff_login.html', wrong_password=True)
 
         self.staffUI_blueprint.add_url_rule('/hacking_scenario', methods=['POST'], view_func=set_scenario)
         self.staffUI_blueprint.add_url_rule('/', methods=['GET', 'POST'], view_func=login_site)
@@ -158,37 +171,37 @@ class StaffUI:
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
 
-        @self.socketio.on('get_uuids')
-        def update_uuids_staff_ui() -> None:
+        @self._sio.on('get_uuids')
+        async def update_uuids_staff_ui(sid) -> None:
             """
             Handles the 'get_uuids' websocket event.
 
             This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
             client is authenticated, requests update from EnvironmentManager.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             self.environment_mng.update_staff_ui()
             return
 
-        @self.socketio.on('connect')
-        def initiate_uuids() -> None:
+        @self._sio.on('connect')
+        async def initiate_uuids(sid, environ, auth) -> None:
             """
             Handles the 'connect' websocket event.
 
             This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
             client is authenticated, it logs an info and requests an update from the EnvironmentManager.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             self.logger.debug("Client connected")
             self.environment_mng.update_staff_ui()
             return
 
-        @self.socketio.on('search_cars')
-        def search_cars() -> None:
+        @self._sio.on('search_cars')
+        async def search_cars(sid) -> None:
             """
             Handles the 'search_cars' websocket event.
 
@@ -196,18 +209,18 @@ class StaffUI:
             client is authenticated, it calls the function to search for unpaired Anki cars from the EnvironmentManager.
             Publishes the list of found cars via websocket. Logs the search and its result as an info.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             self.logger.info("Searching devices...")
             print("Searching devices")
             new_devices = environment_mng.find_unpaired_anki_cars()
             self.logger.info(f'Found devices: {new_devices}')
-            self.socketio.emit('new_devices', new_devices)
+            await self._sio.emit('new_devices', new_devices)
             return
 
-        @self.socketio.on('add_device')
-        def handle_add_device(device: str) -> None:
+        @self._sio.on('add_device')
+        async def handle_add_device(sid, device: str) -> None:
             """
             Handles the 'add_device' websocket event.
 
@@ -221,17 +234,17 @@ class StaffUI:
             device: str
                 Id of the device to be added.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             environment_mng.add_vehicle(device)
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
             return
 
-        @self.socketio.on('add_virtual_vehicle')
-        def handle_add_virtual_vehicle() -> None:
+        @self._sio.on('add_virtual_vehicle')
+        async def handle_add_virtual_vehicle(sid) -> None:
             """
             Handles the 'add_virtual_vehicle' websocket event.
 
@@ -239,16 +252,16 @@ class StaffUI:
             client is authenticated, it calls the function to add a virtual vehicle from the EnvironmentManager,
             initiate its hacking scenario and send the 'added_device' event.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             name = environment_mng.add_virtual_vehicle()
-            self.socketio.emit('device_added', name)
+            await self._sio.emit('device_added', name)
             self.cybersecurity_mng._update_active_hacking_scenarios(name, '0')
             return
 
-        @self.socketio.on('delete_player')
-        def handle_delete_player(player: str) -> None:
+        @self._sio.on('delete_player')
+        async def handle_delete_player(sid, player: str) -> None:
             """
             Handles the 'delete_player' websocket event.
 
@@ -261,17 +274,17 @@ class StaffUI:
             player: str
                 ID of the player to be removed.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             print(f'delete player {player}')
             environment_mng.remove_player_from_vehicle(player)
             environment_mng.remove_player_from_waitlist(player)
             self.logger.debug("Player deleted %s", player)
             return
 
-        @self.socketio.on('delete_vehicle')
-        def handle_delete_vehicle(vehicle_id: str) -> None:
+        @self._sio.on('delete_vehicle')
+        async def handle_delete_vehicle(sid, vehicle_id: str) -> None:
             """
             Handles the 'delete_vehicle' websocket event.
 
@@ -284,15 +297,15 @@ class StaffUI:
             vehicle_id: str
                 ID of the vehicle to be removed.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             environment_mng.remove_vehicle(vehicle_id)
             self.logger.debug("Vehicle deleted %s", vehicle_id)
             return
 
-        @self.socketio.on('get_update_hacking_scenarios')
-        def update_hacking_scenarios() -> None:
+        @self._sio.on('get_update_hacking_scenarios')
+        async def update_hacking_scenarios(sid) -> None:
             """
             Handles the 'get_update_hacking_scenarios' websocket event.
 
@@ -301,19 +314,19 @@ class StaffUI:
             active scenario of each car. Logs an info and sends the information about the scenarios via the
             'update_hacking_scenarios' event.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
             data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_cars_list(),
                     'names': names, 'descriptions': descriptions}
             self.logger.info("Updated hacking scenarios")
-            self.socketio.emit('update_hacking_scenarios', data)
+            await self._sio.emit('update_hacking_scenarios', data)
             return
 
         @self.staffUI_blueprint.route('/configuration/home')
-        def config_home() -> Any:
+        async def config_home() -> Any:
             """
             Load configuration page.
 
@@ -325,13 +338,13 @@ class StaffUI:
                 Returns a Response object representing the configuration page or a redirect to the login page, if not
                 authenticated.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return login_redirect()
-            return render_template('staff_config_home.html')
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return login_redirect()
+            return await render_template('staff_config_home.html')
 
         @self.staffUI_blueprint.route('/configuration/config_update')
-        def config_update() -> Any:
+        async def config_update() -> Any:
             """
             Load configuration page for SW-update.
 
@@ -343,13 +356,13 @@ class StaffUI:
                 Returns a Response object representing the update page or a redirect to the login page, if not
                 authenticated.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return login_redirect()
-            return render_template('staff_config_update.html')
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return login_redirect()
+            return await render_template('staff_config_update.html')
 
         @self.staffUI_blueprint.route('/configuration/config_system_control')
-        def config_system_control() -> Any:
+        async def config_system_control() -> Any:
             """
             Load configuration page for system control.
 
@@ -361,13 +374,13 @@ class StaffUI:
                 Returns a Response object representing the system control page or a redirect to the login page, if not
                 authenticated.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return login_redirect()
-            return render_template('staff_config_system_control.html')
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return login_redirect()
+            return await render_template('staff_config_system_control.html')
 
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
-        def update_application() -> Any:
+        async def update_application() -> Any:
             """
             Handles post request send by 'update' button.
 
@@ -380,9 +393,9 @@ class StaffUI:
                 If not authenticated, returns a Response object representing a redirect to the login page.
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("Update triggered")
@@ -395,7 +408,7 @@ class StaffUI:
                 return message, 200
 
         @self.staffUI_blueprint.route('/restart_program', methods=['POST'])
-        def restart_program() -> Any:
+        async def restart_program() -> Any:
             """"
             Handles the post request send by the 'restart program' button.
 
@@ -408,9 +421,9 @@ class StaffUI:
                 If not authenticated, returns a Response object representing a redirect to the login page.
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("Program restart triggered")
@@ -423,7 +436,7 @@ class StaffUI:
                 return message, 200
 
         @self.staffUI_blueprint.route('/restart_system', methods=['POST'])
-        def restart_system() -> Any:
+        async def restart_system() -> Any:
             """"
             Handles the post request send by the 'restart system' button.
 
@@ -436,9 +449,9 @@ class StaffUI:
                 If not authenticated, returns a Response object representing a redirect to the login page.
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("System restart triggered")
@@ -452,7 +465,7 @@ class StaffUI:
                 return message, 200
 
         @self.staffUI_blueprint.route('/shutdown_system', methods=['POST'])
-        def shutdown_system() -> Any:
+        async def shutdown_system() -> Any:
             """"
             Handles the post request send by the 'shutdown sytem' button.
 
@@ -465,9 +478,9 @@ class StaffUI:
                 If not authenticated, returns a Response object representing a redirect to the login page.
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
-            if not is_authenticated():
-                self.logger.warning("Not authenticated")
-                return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
+            # if not is_authenticated():
+            #     self.logger.warning("Not authenticated")
+            #     return jsonify({'redirect': url_for('staffUI_bp.staff_control')})
 
             if platform.system() == 'Linux':
                 self.logger.info("System shutdown triggered")
