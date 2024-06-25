@@ -20,7 +20,7 @@ class AnkiController(VehicleController):
                                                    name="notification_thread",
                                                    args=(BleakGATTCharacteristic, bytearray))
 
-        self.__loop = asyncio.new_event_loop()
+        self.__loop = asyncio.get_event_loop()
 
         self.__MAX_ANKI_SPEED = 1200  # mm/s
         self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
@@ -36,14 +36,14 @@ class AnkiController(VehicleController):
         return
 
     def __del__(self) -> None:
-        self.__disconnect_from_vehicle()
+        self.__loop.create_task(self.__disconnect_from_vehicle())
 
     def __run_async_task(self, task):
         """
         Run a asyncio awaitable task
         task: awaitable task
         """
-        asyncio.run_coroutine_threadsafe(task, self.__loop).result()
+        self.__loop.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
 
     def set_callbacks(self,
@@ -61,18 +61,17 @@ class AnkiController(VehicleController):
         self.__car_not_reachable_callback = car_not_reachable_callback
         return
 
-    def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
+    async def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
         if ble_client is None or not isinstance(ble_client, BleakClient):
             self.logger.debug("Invalid client.")
             return False
 
         try:
-            Thread(target=self.__loop.run_forever).start()
-            self.__run_async_task(ble_client.connect())
+            await ble_client.connect()
 
             if ble_client.is_connected:
                 self._connected_car = ble_client
-                self._setup_car(start_notification)
+                await self._setup_car(start_notification)
                 self.logger.info("Car connected")
                 return True
             else:
@@ -81,7 +80,11 @@ class AnkiController(VehicleController):
         except BleakError:
             return False
 
-    def __send_command(self, command: bytes) -> bool:
+    def __send_command(self, command: bytes):
+        self.__run_async_task(self.__send_command_task(command))
+        return
+
+    async def __send_command_task(self, command: bytes) -> bool:
         success = False
 
         if self.task_in_progress:
@@ -91,9 +94,7 @@ class AnkiController(VehicleController):
             final_command = struct.pack("B", len(command)) + command
 
             try:
-                self.__run_async_task(
-                    self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command,
-                                                        None))
+                await self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None)
                 success = True
                 self.task_in_progress = False
             except BleakError:
@@ -104,11 +105,10 @@ class AnkiController(VehicleController):
 
             return success
 
-    def __start_notifications_now(self) -> bool:
+    async def __start_notifications_now(self) -> bool:
         try:
-            self._notification_thread.start()
-            self.__run_async_task(self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4",
-                                                                   self.__on_receive_data))
+            await self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4",
+                                                   self.__on_receive_data)
             return True
         except BleakError:
             if self.__car_not_reachable_callback is not None:
@@ -116,9 +116,9 @@ class AnkiController(VehicleController):
             else:
                 return False
 
-    def __stop_notifications_now(self) -> bool:
+    async def __stop_notifications_now(self) -> bool:
         try:
-            self.__run_async_task(self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4"))
+            await self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4")
             return True
         except BleakError:
             if self.__car_not_reachable_callback is not None:
@@ -160,9 +160,9 @@ class AnkiController(VehicleController):
         self.__send_command(command)
         return True
 
-    def _setup_car(self, start_notification: bool) -> bool:
+    async def _setup_car(self, start_notification: bool) -> bool:
         if start_notification:
-            self.__start_notifications_now()
+            await self.__start_notifications_now()
 
         self.__set_sdk_mode_to(True)
         self.__set_road_offset_on(0.0)
@@ -188,8 +188,8 @@ class AnkiController(VehicleController):
         self.__send_command(command)
         return True
 
-    def __disconnect_from_vehicle(self) -> bool:
-        self.__stop_notifications_now()
+    async def __disconnect_from_vehicle(self) -> bool:
+        await self.__stop_notifications_now()
 
         command = struct.pack("<B", 0xd)
         self.__send_command(command)

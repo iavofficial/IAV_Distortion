@@ -124,16 +124,16 @@ class EnvironmentManager:
             self.__publish_player_active_callback(player)
         return
 
-    def connect_all_anki_cars(self) -> list[Vehicle]:
-        found_anki_cars = self.find_unpaired_anki_cars()
+    async def connect_all_anki_cars(self) -> list[Vehicle]:
+        found_anki_cars = await self.find_unpaired_anki_cars()
         for vehicle_uuid in found_anki_cars:
             self.logger.info(f'Connecting to vehicle {vehicle_uuid}')
-            self.add_vehicle(vehicle_uuid)
+            await self.add_vehicle(vehicle_uuid)
         return self.get_vehicle_list()
 
-    def find_unpaired_anki_cars(self) -> list[str]:
+    async def find_unpaired_anki_cars(self) -> list[str]:
         self.logger.info("Searching for unpaired Anki cars")
-        found_devices = self._fleet_ctrl.scan_for_anki_cars()
+        found_devices = await self._fleet_ctrl.scan_for_anki_cars()
         # remove already active uuids:
         new_devices = []
         connected_devices = []
@@ -249,12 +249,12 @@ class EnvironmentManager:
         self.update_staff_ui()
         return
 
-    def add_vehicle(self, uuid: str) -> None:
+    async def add_vehicle(self, uuid: str) -> None:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
         temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
-        temp_vehicle.initiate_connection(uuid)
+        await temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
         self._active_anki_cars.append(temp_vehicle)

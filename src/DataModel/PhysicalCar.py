@@ -9,8 +9,8 @@ class PhysicalCar(ModelCar):
         super().__init__(vehicle_id, controller, track)
         self._controller: AnkiController = controller
 
-    def initiate_connection(self, uuid: str) -> bool:
-        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
+    async def initiate_connection(self, uuid: str) -> bool:
+        if await self._controller.connect_to_vehicle(BleakClient(uuid), True):
             self._controller.set_callbacks(self._receive_location,
                                            self._receive_transition,
                                            self._receive_offset_update,
