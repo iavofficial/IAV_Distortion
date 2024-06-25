@@ -57,7 +57,8 @@ class StaffUI:
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
 
-        self.loop = asyncio.get_event_loop()
+        #self.loop = asyncio.get_event_loop()
+        #print(self.loop)
 
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
@@ -537,6 +538,7 @@ class StaffUI:
         """
         data = {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue}
         self.__run_async_task(self.__emit_new_data(data))
+        print(data)
         return
 
     def publish_removed_player(self, player: str) -> None:
@@ -568,7 +570,7 @@ class StaffUI:
         Run a asyncio awaitable task
         task: awaitable task
         """
-        self.loop.create_task(task)
+        asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
 
     async def __emit_player_active(self, player: str) -> None:
@@ -589,6 +591,8 @@ class StaffUI:
         """
         TODO: doc
         """
+        print(f'sending data: {data}')
         await self._sio.emit('update_uuids', data)
+        print(f'data send: {data}')
         return
 

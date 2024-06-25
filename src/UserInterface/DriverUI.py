@@ -142,9 +142,7 @@ class DriverUI:
         Run a asyncio awaitable task
         task: awaitable task
         """
-        loop = asyncio.get_event_loop()
-        print(loop)
-        asyncio.run_coroutine_threadsafe(task, loop)
+        asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
 
     async def __emit_driving_data(self, driving_data: dict) -> None:

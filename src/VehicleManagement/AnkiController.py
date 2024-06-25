@@ -20,8 +20,6 @@ class AnkiController(VehicleController):
                                                    name="notification_thread",
                                                    args=(BleakGATTCharacteristic, bytearray))
 
-        self.__loop = asyncio.get_event_loop()
-
         self.__MAX_ANKI_SPEED = 1200  # mm/s
         self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
         self.__LANE_OFFSET = 22.25
@@ -36,14 +34,14 @@ class AnkiController(VehicleController):
         return
 
     def __del__(self) -> None:
-        self.__loop.create_task(self.__disconnect_from_vehicle())
+        asyncio.create_task(self.__disconnect_from_vehicle())
 
     def __run_async_task(self, task):
         """
         Run a asyncio awaitable task
         task: awaitable task
         """
-        self.__loop.create_task(task)
+        asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
 
     def set_callbacks(self,

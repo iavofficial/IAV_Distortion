@@ -25,7 +25,6 @@ class CarMap:
 
         self._sio: socketio = sio
 
-        self.__loop = asyncio.get_event_loop()
 
         async def home_car_map():
             """
@@ -75,7 +74,5 @@ class CarMap:
         Run a asyncio awaitable task
         task: awaitable task
         """
-        loop = asyncio.get_event_loop()
-        print(loop)
-        loop.create_task(task)
+        asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
