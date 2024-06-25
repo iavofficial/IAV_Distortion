@@ -538,7 +538,6 @@ class StaffUI:
         """
         data = {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue}
         self.__run_async_task(self.__emit_new_data(data))
-        print(data)
         return
 
     def publish_removed_player(self, player: str) -> None:
@@ -591,8 +590,6 @@ class StaffUI:
         """
         TODO: doc
         """
-        print(f'sending data: {data}')
         await self._sio.emit('update_uuids', data)
-        print(f'data send: {data}')
         return
 
