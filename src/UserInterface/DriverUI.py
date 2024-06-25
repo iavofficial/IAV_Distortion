@@ -28,6 +28,15 @@ class DriverUI:
         self.logger: Logger = getLogger(__name__)
 
         async def home_driver() -> str:
+            """
+            Load the driver ui page.
+
+            Gets the clients cookie for identification, provides driving data and car image information to the client.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the driver ui page.
+            """
             player = request.cookies.get("player")
             print(f"Driver {player} connected!")
             if player is None:
@@ -128,3 +137,16 @@ class DriverUI:
             # Todo: define error reaction if same player is assigned to different vehicles
             return None
 
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        loop = asyncio.get_event_loop()
+        print(loop)
+        asyncio.run_coroutine_threadsafe(task, loop)
+        # TODO: Log error, if the coroutine doesn't end successfully
+
+    async def __emit_driving_data(self, driving_data: dict) -> None:
+        await self._sio.emit('update_driving_data', driving_data)
+        return

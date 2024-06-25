@@ -58,7 +58,6 @@ class StaffUI:
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
 
         self.loop = asyncio.get_event_loop()
-        print(f'Loop: {self.loop}')
 
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
@@ -213,8 +212,7 @@ class StaffUI:
             #     self.logger.warning("Not authenticated")
             #     return
             self.logger.info("Searching devices...")
-            print("Searching devices")
-            new_devices = environment_mng.find_unpaired_anki_cars()
+            new_devices = await environment_mng.find_unpaired_anki_cars()
             self.logger.info(f'Found devices: {new_devices}')
             await self._sio.emit('new_devices', new_devices)
             return
@@ -237,7 +235,7 @@ class StaffUI:
             # if not is_authenticated():
             #     self.logger.warning("Not authenticated")
             #     return
-            environment_mng.add_vehicle(device)
+            await environment_mng.add_vehicle(device)
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
@@ -277,7 +275,6 @@ class StaffUI:
             # if not is_authenticated():
             #     self.logger.warning("Not authenticated")
             #     return
-            print(f'delete player {player}')
             environment_mng.remove_player_from_vehicle(player)
             environment_mng.remove_player_from_waitlist(player)
             self.logger.debug("Player deleted %s", player)
@@ -538,7 +535,8 @@ class StaffUI:
         player_queue: list
             Contains ID's of players waiting in the queue.
         """
-        self.socketio.emit('update_uuids', {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue})
+        data = {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue}
+        self.__run_async_task(self.__emit_new_data(data))
         return
 
     def publish_removed_player(self, player: str) -> None:
@@ -550,7 +548,7 @@ class StaffUI:
         player: str
             ID of the player which has been removed.
         """
-        self.socketio.emit('player_removed', player)
+        self.__run_async_task(self.__emit_player_removed(player))
         return
 
     def publish_player_active(self, player: str) -> None:
@@ -562,5 +560,35 @@ class StaffUI:
         player: str
             ID of the player, who switched from the queue to be an active player.
         """
-        self.socketio.emit('player_active', player)
+        self.__run_async_task(self.__emit_player_active(player))
         return
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        self.loop.create_task(task)
+        # TODO: Log error, if the coroutine doesn't end successfully
+
+    async def __emit_player_active(self, player: str) -> None:
+        """
+        TODO: doc
+        """
+        await self._sio.emit('player_active', player)
+        return
+
+    async def __emit_player_removed(self, player: str) -> None:
+        """
+        TODO: doc
+        """
+        await self._sio.emit('player_removed', player)
+        return
+
+    async def __emit_new_data(self, data: dict) -> None:
+        """
+        TODO: doc
+        """
+        await self._sio.emit('update_uuids', data)
+        return
+

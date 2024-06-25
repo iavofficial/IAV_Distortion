@@ -63,5 +63,19 @@ class CarMap:
 
     def update_virtual_location(self, vehicle_id: str, position: dict, angle: float) -> None:
         data = {'car': vehicle_id, 'position': position, 'angle': angle}
-        self._socketio.emit("car_positions", data)
+        self.__run_async_task(self.send_car_position(data))
         return
+
+    async def send_car_position(self, data):
+        await self._sio.emit('car_positions', data)
+        return
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        loop = asyncio.get_event_loop()
+        print(loop)
+        loop.create_task(task)
+        # TODO: Log error, if the coroutine doesn't end successfully
