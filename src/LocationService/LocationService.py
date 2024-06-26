@@ -1,9 +1,9 @@
 import asyncio
+from asyncio import Lock
 import time
 import math
 import logging
 from typing import Tuple, Callable
-from threading import Event, Lock, Thread
 
 from LocationService.Trigo import Position, Angle
 from LocationService.Track import FullTrack
@@ -56,7 +56,7 @@ class LocationService:
         first_piece, _ = self._track.get_entry_tupel(0)
         _, self._current_position = first_piece.process_update(0, 0, starting_offset)
 
-        self._stop_event: Event = Event()
+        # self._stop_event: Event = Event()
         # self._simulation_thread: Thread | None = None
 
         self.logger = logging.getLogger(__name__)
@@ -74,17 +74,18 @@ class LocationService:
         if self.__task is not None:
             self.stop()
 
-    def do_uturn(self):
+    async def do_uturn(self) -> None:
         """
         Do a U-Turn.
         Thread-Safe
         """
-        with self._value_mutex:
+        async with self._value_mutex:
             # block a U-Turn in a U-Turn
             if self._uturn_override is None:
                 self._uturn_override = UTurnOverride(self, self._actual_offset > 0)
+        return
 
-    def set_speed_percent(self, speed: int, acceleration: int = 1000):
+    async def set_speed_percent(self, speed: int, acceleration: int = 1000) -> None:
         """
         Updates the target speed of the car.
         Thread-safe
@@ -96,10 +97,11 @@ class LocationService:
         acceleration: int
             Used acceleration in mm/s^2.
         """
-        with self._value_mutex:
+        async with self._value_mutex:
             self._set_speed_mm(self.__MAX_ANKI_SPEED * speed / 100, acceleration)
+        return
 
-    def _set_speed_mm(self, speed_mm: float, acceleration: int = 1000):
+    def _set_speed_mm(self, speed_mm: float, acceleration: int = 1000) -> None:
         """
         Update the target speed of the car
         Not Thread-safe
@@ -113,8 +115,9 @@ class LocationService:
         """
         self._target_speed = speed_mm
         self._acceleration = acceleration
+        return
 
-    def set_offset_int(self, offset: int):
+    async def set_offset_int(self, offset: int) -> None:
         """
         Sets the targeted offset where the car should drive. Use positive
         values to go right and negative values to go left in the driving
@@ -126,11 +129,12 @@ class LocationService:
         offset: int
             Target offset where the car should drive (as int like in the AnkiController)
         """
-        with self._value_mutex:
+        async with self._value_mutex:
             # TODO: This doesn't check for out of bounds driving
             self._set_offset_mm(self.__LANE_OFFSET * offset)
+        return
 
-    def _set_offset_mm(self, offset: float):
+    def _set_offset_mm(self, offset: float) -> None:
         """
         Sets the targeted offset where the car should drive on the track.
         Not Thread-safe
@@ -141,15 +145,17 @@ class LocationService:
             Target offset where the car should drive in mm of distance to the track center.
         """
         self._target_offset = offset * -1 * self._direction_mult
+        return
 
-    def _adjust_speed(self):
+    def _adjust_speed(self) -> None:
         """
         Updates internal speed values for the simulation based on the acceleration.
         Not Thread-safe
         """
         self._adjust_speed_to(self._target_speed)
+        return
 
-    def _adjust_speed_to(self, target_speed: float):
+    def _adjust_speed_to(self, target_speed: float) -> None:
         """
         Updates internal speed values for the simulation based on the acceleration.
         Not Thread-safe
@@ -208,7 +214,7 @@ class LocationService:
         remaining_way = math.sqrt(travel_distance * travel_distance - change * change)
         return remaining_way
 
-    def _adjust_offset_on_piece(self, old_offset: float, new_offset: float):
+    def _adjust_offset_on_piece(self, old_offset: float, new_offset: float) -> None:
         """
         Adjusts the offset on the current piece.
         Not Thread-safe
@@ -224,8 +230,9 @@ class LocationService:
         self._progress_on_current_piece = piece.get_equivalent_progress_for_offset(old_offset, new_offset,
                                                                                    self._progress_on_current_piece)
         self._actual_offset = new_offset
+        return
 
-    def _run_simulation_step_threadsafe(self) -> Tuple[Position, Angle]:
+    async def _run_simulation_step_threadsafe(self) -> Tuple[Position, Angle]:
         """
         Runs a single simulation step by calling _run_simulation_step internally.
         Thread-safe
@@ -235,11 +242,12 @@ class LocationService:
         Tuple[Position, Angle]
             The new position and the Angle where the car is pointing.
         """
-        with self._value_mutex:
+        async with self._value_mutex:
             if self._uturn_override is not None:
                 trav_distance = self._uturn_override.override_simulation()
             else:
                 self._adjust_speed()
+                print(f'Speed: {self._actual_speed}')
                 trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
             return self._run_simulation_step(trav_distance * self._direction_mult)
 
@@ -291,13 +299,13 @@ class LocationService:
             self._stop_direction = rot
         return (self._current_position, rot)
 
-    async def _run_task(self):
+    async def _run_task(self) -> None:
         """
         Runs the simulation asynchronously in an asynchronous loop.
         """
         # while not self._stop_event.is_set():
         while True:
-            pos, rot = self._run_simulation_step_threadsafe()
+            pos, rot = await self._run_simulation_step_threadsafe()
             if self._on_update_callback is not None:
                 data: dict = {
                     'offset': self._actual_offset * self._direction_mult * -1,

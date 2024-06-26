@@ -1,4 +1,5 @@
 from typing import Callable
+import asyncio
 
 from bleak import BleakClient
 
@@ -19,7 +20,8 @@ class ModelCar(Vehicle):
     def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack) -> None:
         super().__init__(vehicle_id)
         self._controller = controller
-        self._location_service: LocationService = LocationService(track, self._on_virtual_location_update)
+        self._location_service: LocationService = LocationService(track, self._on_virtual_location_update, start_immediately=False)
+        print('A instance of ModelCar has been created!')
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -121,7 +123,7 @@ class ModelCar(Vehicle):
             self._speed_actual = 0
             self._on_driving_data_change()
 
-        self._location_service.set_speed_percent(self.__speed)
+        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
         self._controller.change_speed_to(int(self.__speed))
         return
 
@@ -180,8 +182,8 @@ class ModelCar(Vehicle):
         elif self.__lane_change > 3:
             self.__lane_change = 3
 
-        self._location_service.set_offset_int(self.__lane_change)
-        self._location_service.set_speed_percent(self.__speed)
+        asyncio.create_task(self._location_service.set_offset_int(self.__lane_change))
+        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
@@ -210,7 +212,7 @@ class ModelCar(Vehicle):
         if self.__turn_blocked:
             return
 
-        self._location_service.do_uturn()
+        asyncio.create_task(self._location_service.do_uturn())
         self._controller.do_turn_with(Turns.A_UTURN)
         return
 
