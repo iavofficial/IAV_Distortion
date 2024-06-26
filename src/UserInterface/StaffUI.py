@@ -7,6 +7,7 @@
 # file that should have been included as part of this package.
 #
 import asyncio
+from asyncio import Task
 
 from quart import Blueprint, render_template, request, redirect, url_for, jsonify, Response
 import socketio
@@ -564,31 +565,51 @@ class StaffUI:
         self.__run_async_task(self.__emit_player_active(player))
         return
 
-    def __run_async_task(self, task):
+    def __run_async_task(self, task: Task) -> None:
         """
-        Run a asyncio awaitable task
-        task: awaitable task
+        Run a asyncio awaitable task.
+
+        Parameters
+        ----------
+        task: Task
+            Coroutine to be scheduled as an asynchronous task.
         """
         asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
+        return
 
     async def __emit_player_active(self, player: str) -> None:
         """
-        TODO: doc
+        Emits the 'player_active' websocket event.
+
+        Parameters
+        ----------
+        player: str
+            ID of player that changed from being queued to being active.
         """
         await self._sio.emit('player_active', player)
         return
 
     async def __emit_player_removed(self, player: str) -> None:
         """
-        TODO: doc
+        Emits the 'player_removed' websocket event.
+
+        Parameters
+        ----------
+        player: str
+            ID of player that has been removed from the game.
         """
         await self._sio.emit('player_removed', player)
         return
 
     async def __emit_new_data(self, data: dict) -> None:
         """
-        TODO: doc
+        Emits the 'update_uuids' websocket event.
+
+        Parameters
+        ----------
+        data: dict
+            Dictionary including the active player/cars mapping, player and vehicle queue.
         """
         await self._sio.emit('update_uuids', data)
         return
