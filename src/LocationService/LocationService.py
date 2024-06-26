@@ -8,8 +8,9 @@ from LocationService.Trigo import Position, Angle
 from LocationService.Track import FullTrack
 
 
-class LocationService():
-    def __init__(self, track: FullTrack, on_update_callback: Callable[[Position, Angle, dict], None] | None, starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immeaditly: bool = False):
+class LocationService:
+    def __init__(self, track: FullTrack, on_update_callback: Callable[[Position, Angle, dict], None] | None,
+                 starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immediately: bool = False):
         """
         Init the location service
         track: List of all Track Pieces
@@ -26,6 +27,7 @@ class LocationService():
         """
         self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT = 0.30
         self._simulation_ticks_per_second = simulation_ticks_per_second
+        self.__start_immediately = start_immediately
 
         # Taken from AnkiController
         # TODO: Put this in a more central place where both the controller and the LocationService can get it
@@ -63,12 +65,14 @@ class LocationService():
 
         self._on_update_callback: Callable[[Position, Angle, dict], None] | None = on_update_callback
 
-        if start_immeaditly:
-            self.start()
+        if self.__start_immediately:
+            self.task = asyncio.create_task(self._run_task())
+            # self.start()
 
     def __del__(self):
-        if self._simulation_thread != None:
-            self.stop()
+        # if self._simulation_thread != None:
+        #    self.stop()
+        self.task.cancel()
 
     def do_uturn(self):
         """
