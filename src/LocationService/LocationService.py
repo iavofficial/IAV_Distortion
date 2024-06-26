@@ -247,7 +247,6 @@ class LocationService:
                 trav_distance = self._uturn_override.override_simulation()
             else:
                 self._adjust_speed()
-                print(f'Speed: {self._actual_speed}')
                 trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
             return self._run_simulation_step(trav_distance * self._direction_mult)
 
@@ -266,7 +265,6 @@ class LocationService:
         Tuple[Position, Angle]
             The new position and the Angle where the car is pointing.
         """
-        print(f'Distance: {distance}')
         # prevent "maximum recursion depth exceeded" Errors in case the simulation has a bug
         if self._direction_mult == -1 and distance > 0:
             self.logger.critical(
