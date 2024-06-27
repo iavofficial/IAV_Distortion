@@ -7,10 +7,11 @@ from VehicleManagement.EmptyController import EmptyController
 
 class VirtualCar(ModelCar):
     def __init__(self, vehicle_id: str, track: FullTrack) -> None:
-        super().__init__(vehicle_id, EmptyController(), track)
-        self._location_service: LocationService = LocationService(track, self.__location_service_update,
-                                                                  start_immediately=True)
-
+        super().__init__(vehicle_id,
+                         EmptyController(),
+                         LocationService(track, self.__location_service_update, start_immediately=True),
+                         track)
+        
     def __location_service_update(self, pos: Position, rot: Angle, data: dict):
         speed: float | None = data.get('speed')
         if speed is None:

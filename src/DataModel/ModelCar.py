@@ -17,11 +17,10 @@ class ModelCar(Vehicle):
     Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
     the controller, if appropriate
     """
-    def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack) -> None:
+    def __init__(self, vehicle_id: str, controller: VehicleController, location_service: LocationService, track: FullTrack) -> None:
         super().__init__(vehicle_id)
         self._controller = controller
-        self._location_service: LocationService = LocationService(track, self._on_virtual_location_update, start_immediately=False)
-        print('A instance of ModelCar has been created!')
+        self._location_service: LocationService = location_service
 
         self.__speed: int = 0
         self.__speed_request: int = 0
