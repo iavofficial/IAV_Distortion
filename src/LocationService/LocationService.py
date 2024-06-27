@@ -11,7 +11,7 @@ from LocationService.Track import FullTrack
 
 class LocationService:
     def __init__(self, track: FullTrack, on_update_callback: Callable[[Position, Angle, dict], None] | None,
-                 starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immediately: bool = True):
+                 starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immediately: bool = False):
         """
         Init the location service
         track: List of all Track Pieces
