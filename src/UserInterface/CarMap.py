@@ -1,6 +1,7 @@
 from quart import Blueprint, render_template
 import socketio
 import asyncio
+from asyncio import Task
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -61,18 +62,43 @@ class CarMap:
         return self.carMap_blueprint
 
     def update_virtual_location(self, vehicle_id: str, position: dict, angle: float) -> None:
+        """
+        Gathers the vehicle data and initiates sending it asynchronously.
+
+        Parameters
+        ----------
+        vehicle_id: str
+            ID of the vehicle belonging to the data.
+        position: dict
+            x and y coordinates, defining the vehicles position in the simulation.
+        angle: float
+            Angle of the vehicle, defining the direction the vehicle is facing in the simulation.
+        """
         data = {'car': vehicle_id, 'position': position, 'angle': angle}
         self.__run_async_task(self.send_car_position(data))
         return
 
-    async def send_car_position(self, data):
+    async def send_car_position(self, data: dict) -> None:
+        """
+        Sends the 'car_positions' websocket event.
+
+        Parameters
+        ----------
+        data: dict
+            Vehicle data including the vehicle id, position and direction.
+        """
         await self._sio.emit('car_positions', data)
         return
 
-    def __run_async_task(self, task):
+    def __run_async_task(self, task: Task) -> None:
         """
-        Run a asyncio awaitable task
-        task: awaitable task
+        Runs an asyncio awaitable task.
+
+        Parameters
+        ----------
+        task: Task
+            Coroutine to be scheduled as an asynchronous task.
         """
         asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
+        return
