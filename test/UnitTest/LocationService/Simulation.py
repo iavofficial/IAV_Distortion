@@ -42,7 +42,7 @@ def test_track_transistion():
     """
     Test the transition from one track piece onto the next one
     """
-    location_service = LocationService(get_two_straight_pieces(), do_nothing, simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service = LocationService(get_two_straight_pieces(), do_nothing, simulation_ticks_per_second=1, start_immediately=False)
     location_service._set_speed_mm(1, acceleration=1)
     for i in range(0, STRAIGHT_PIECE_LENGTH()):
         location_service._run_simulation_step_threadsafe()
@@ -60,7 +60,7 @@ def test_acceleration(speed, acceleration):
     """
     Test that the vehicle accelerates correctly
     """
-    location_service = LocationService(get_two_straight_pieces(), do_nothing, simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service = LocationService(get_two_straight_pieces(), do_nothing, simulation_ticks_per_second=1, start_immediately=False)
     location_service._set_speed_mm(speed, acceleration=acceleration)
     sum = 0
     for _ in range(0, int(speed / acceleration)):
@@ -116,7 +116,7 @@ def test_multiple_transitions(speed: float, offset: float):
     Test the transitions against jumping at a full track
     """
     track = get_loop_track()
-    location_service = LocationService(track, do_nothing, simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service = LocationService(track, do_nothing, simulation_ticks_per_second=1, start_immediately=False)
     location_service._set_speed_mm(speed, acceleration=1)
     location_service._set_offset_mm(offset)
     # progress a bit on the first piece
@@ -142,7 +142,7 @@ def test_offset(offset: float):
     """
     Test the offset changing on the track itself for different values
     """
-    location_service = LocationService(get_two_straight_pieces(), do_nothing, simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service = LocationService(get_two_straight_pieces(), do_nothing, simulation_ticks_per_second=1, start_immediately=False)
     location_service._set_speed_mm(1, acceleration=1)
     old_pos, _ = location_service._run_simulation_step_threadsafe()
     location_service._set_offset_mm(offset)
@@ -158,7 +158,7 @@ def test_position_rotation():
     Test the returned rotation value, where the car is pointing for plausibility
     """
     track = get_loop_track()
-    location_service = LocationService(track, do_nothing, simulation_ticks_per_second=1, start_immeaditly=False)
+    location_service = LocationService(track, do_nothing, simulation_ticks_per_second=1, start_immediately=False)
     location_service._set_speed_mm(1, acceleration=1)
     location_service._run_simulation_step_threadsafe()
     # for the 1st piece it should always be 90° (pointing right)

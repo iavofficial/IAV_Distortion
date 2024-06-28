@@ -1,14 +1,10 @@
+import abc
 from typing import Callable
-
-from bleak import BleakClient
+import asyncio
 
 from DataModel.Vehicle import Vehicle
 from LocationService.Trigo import Angle, Position
-from VehicleManagement.AnkiController import AnkiController
-from VehicleManagement.VehicleController import Turns, VehicleController
-
-from LocationService.LocationService import LocationService
-from LocationService.Track import FullTrack
+from VehicleManagement.VehicleController import Turns
 
 
 class ModelCar(Vehicle):
@@ -16,10 +12,8 @@ class ModelCar(Vehicle):
     Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
     the controller, if appropriate
     """
-    def __init__(self, vehicle_id: str, controller: VehicleController, track: FullTrack) -> None:
+    def __init__(self, vehicle_id: str) -> None:
         super().__init__(vehicle_id)
-        self._controller = controller
-        self._location_service: LocationService = LocationService(track, self._on_virtual_location_update)
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -52,12 +46,8 @@ class ModelCar(Vehicle):
         return
 
     def __del__(self) -> None:
-        self._controller.__del__()
-        self._location_service.__del__()
-        return
 
-    def get_typ_of_controller(self):
-        return type(self._controller)
+        return
 
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         self._driving_data_callback = function_name
@@ -121,7 +111,7 @@ class ModelCar(Vehicle):
             self._speed_actual = 0
             self._on_driving_data_change()
 
-        self._location_service.set_speed_percent(self.__speed)
+        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
         self._controller.change_speed_to(int(self.__speed))
         return
 
@@ -180,8 +170,8 @@ class ModelCar(Vehicle):
         elif self.__lane_change > 3:
             self.__lane_change = 3
 
-        self._location_service.set_offset_int(self.__lane_change)
-        self._location_service.set_speed_percent(self.__speed)
+        asyncio.create_task(self._location_service.set_offset_int(self.__lane_change))
+        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
@@ -210,7 +200,7 @@ class ModelCar(Vehicle):
         if self.__turn_blocked:
             return
 
-        self._location_service.do_uturn()
+        asyncio.create_task(self._location_service.do_uturn())
         self._controller.do_turn_with(Turns.A_UTURN)
         return
 

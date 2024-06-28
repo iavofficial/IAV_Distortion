@@ -13,9 +13,10 @@ from collections import deque
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
+from LocationService.LocationService import LocationService
 from VehicleManagement.AnkiController import AnkiController
+from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
-from VehicleManagement.VehicleController import VehicleController
 
 from LocationService.TrackPieces import TrackBuilder, FullTrack
 from LocationService.Track import TrackPieceType
@@ -124,16 +125,16 @@ class EnvironmentManager:
             self.__publish_player_active_callback(player)
         return
 
-    def connect_all_anki_cars(self) -> list[Vehicle]:
-        found_anki_cars = self.find_unpaired_anki_cars()
+    async def connect_all_anki_cars(self) -> list[Vehicle]:
+        found_anki_cars = await self.find_unpaired_anki_cars()
         for vehicle_uuid in found_anki_cars:
             self.logger.info(f'Connecting to vehicle {vehicle_uuid}')
-            self.add_vehicle(vehicle_uuid)
+            await self.add_vehicle(vehicle_uuid)
         return self.get_vehicle_list()
 
-    def find_unpaired_anki_cars(self) -> list[str]:
+    async def find_unpaired_anki_cars(self) -> list[str]:
         self.logger.info("Searching for unpaired Anki cars")
-        found_devices = self._fleet_ctrl.scan_for_anki_cars()
+        found_devices = await self._fleet_ctrl.scan_for_anki_cars()
         # remove already active uuids:
         new_devices = []
         connected_devices = []
@@ -249,12 +250,13 @@ class EnvironmentManager:
         self.update_staff_ui()
         return
 
-    def add_vehicle(self, uuid: str) -> None:
+    async def add_vehicle(self, uuid: str) -> None:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
-        temp_vehicle.initiate_connection(uuid)
+        location_service = LocationService(self.get_track(), start_immediately=True)
+        temp_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
+        await temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
         self._active_anki_cars.append(temp_vehicle)
@@ -267,7 +269,10 @@ class EnvironmentManager:
         # used numbers
         name = f"Virtual Vehicle {self._virtual_vehicle_num}"
         self._virtual_vehicle_num += 1
-        vehicle = VirtualCar(name, self.get_track())
+        dummy_controller = EmptyController()
+        location_service = LocationService(self.get_track(), start_immediately=True)
+        vehicle = VirtualCar(name, dummy_controller, location_service)
+
         self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
         self.update_staff_ui()
