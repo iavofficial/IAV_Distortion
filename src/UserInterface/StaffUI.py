@@ -386,7 +386,7 @@ class StaffUI:
 
             if platform.system() == 'Linux':
                 self.logger.info("Update triggered")
-                subprocess.call('../update.sh')
+                subprocess.run('../update.sh')
                 message = 'Update started. This will take a few moments. The system will restart afterwards.'
                 return message, 200
             else:
@@ -443,7 +443,7 @@ class StaffUI:
 
             if platform.system() == 'Linux':
                 self.logger.info("System restart triggered")
-                subprocess.call('./restart_system.sh')
+                subprocess.run('./restart_system.sh')
                 message = "The system will restart now. This will take a moment. Please wait and reload the page " \
                           "after the system rebooted"
                 return message, 200
@@ -472,7 +472,7 @@ class StaffUI:
 
             if platform.system() == 'Linux':
                 self.logger.info("System shutdown triggered")
-                subprocess.call('./shutdown_system.sh')
+                subprocess.run('./shutdown_system.sh')
                 message = 'The system will be shut down now.'
                 return message, 200
             else:
