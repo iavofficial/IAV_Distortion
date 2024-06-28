@@ -49,14 +49,6 @@ class ModelCar(Vehicle):
 
         return
 
-    @abc.abstractmethod
-    def get_typ_of_controller(self):
-        pass
-
-    @abc.abstractmethod
-    def get_typ_of_location_service(self):
-        pass
-
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         self._driving_data_callback = function_name
         return
