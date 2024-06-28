@@ -13,9 +13,10 @@ from collections import deque
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
+from LocationService.LocationService import LocationService
 from VehicleManagement.AnkiController import AnkiController
+from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
-from VehicleManagement.VehicleController import VehicleController
 
 from LocationService.TrackPieces import TrackBuilder, FullTrack
 from LocationService.Track import TrackPieceType
@@ -253,7 +254,8 @@ class EnvironmentManager:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        temp_vehicle = PhysicalCar(uuid, anki_car_controller, self.get_track())
+        location_service = LocationService(self.get_track(), start_immediately=True)
+        temp_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
         await temp_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
@@ -267,7 +269,10 @@ class EnvironmentManager:
         # used numbers
         name = f"Virtual Vehicle {self._virtual_vehicle_num}"
         self._virtual_vehicle_num += 1
-        vehicle = VirtualCar(name, self.get_track())
+        dummy_controller = EmptyController()
+        location_service = LocationService(self.get_track(), start_immediately=True)
+        vehicle = VirtualCar(name, dummy_controller, location_service)
+
         self._active_anki_cars.append(vehicle)
         self._assign_players_to_vehicles()
         self.update_staff_ui()

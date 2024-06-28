@@ -12,12 +12,11 @@ from VehicleManagement.VehicleController import VehicleController
 import abc
 
 
-class Vehicle:
-    def __init__(self, vehicle_id: str, controller: VehicleController = None) -> None:
+class Vehicle(abc):
+    def __init__(self, vehicle_id: str) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
 
-        self._controller: VehicleController = controller
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict], None] | None = None
 
@@ -52,7 +51,6 @@ class Vehicle:
         Returns the name (for real vehicles UUID) of the vehicle
         """
         return self.vehicle_id
-
 
     @abc.abstractmethod
     def __del__(self) -> None:

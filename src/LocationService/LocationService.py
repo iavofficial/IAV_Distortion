@@ -10,8 +10,11 @@ from LocationService.Track import FullTrack
 
 
 class LocationService:
-    def __init__(self, track: FullTrack, on_update_callback: Callable[[Position, Angle, dict], None] | None,
-                 starting_offset: float = 0, simulation_ticks_per_second: int = 24, start_immediately: bool = False):
+    def __init__(self,
+                 track: FullTrack,
+                 starting_offset: float = 0,
+                 simulation_ticks_per_second: int = 24,
+                 start_immediately: bool = False):
         """
         Init the location service
         track: List of all Track Pieces
@@ -56,15 +59,12 @@ class LocationService:
         first_piece, _ = self._track.get_entry_tupel(0)
         _, self._current_position = first_piece.process_update(0, 0, starting_offset)
 
-        # self._stop_event: Event = Event()
-        # self._simulation_thread: Thread | None = None
+        self._on_update_callback = None
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
-
-        self._on_update_callback: Callable[[Position, Angle, dict], None] | None = on_update_callback
 
         self.__task = None
         if self.__start_immediately:
@@ -73,6 +73,11 @@ class LocationService:
     def __del__(self):
         if self.__task is not None:
             self.stop()
+
+    def set_on_update_callback(self, callback_function: Callable[[Position, Angle, dict], None] ) -> None:
+        self._on_update_callback = callback_function
+
+        return
 
     async def do_uturn(self) -> None:
         """

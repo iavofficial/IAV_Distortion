@@ -1,15 +1,10 @@
+import abc
 from typing import Callable
 import asyncio
 
-from bleak import BleakClient
-
 from DataModel.Vehicle import Vehicle
 from LocationService.Trigo import Angle, Position
-from VehicleManagement.AnkiController import AnkiController
-from VehicleManagement.VehicleController import Turns, VehicleController
-
-from LocationService.LocationService import LocationService
-from LocationService.Track import FullTrack
+from VehicleManagement.VehicleController import Turns
 
 
 class ModelCar(Vehicle):
@@ -17,10 +12,8 @@ class ModelCar(Vehicle):
     Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
     the controller, if appropriate
     """
-    def __init__(self, vehicle_id: str, controller: VehicleController, location_service: LocationService, track: FullTrack) -> None:
+    def __init__(self, vehicle_id: str) -> None:
         super().__init__(vehicle_id)
-        self._controller = controller
-        self._location_service: LocationService = location_service
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -53,12 +46,16 @@ class ModelCar(Vehicle):
         return
 
     def __del__(self) -> None:
-        self._controller.__del__()
-        self._location_service.__del__()
+
         return
 
+    @abc.abstractmethod
     def get_typ_of_controller(self):
-        return type(self._controller)
+        pass
+
+    @abc.abstractmethod
+    def get_typ_of_location_service(self):
+        pass
 
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         self._driving_data_callback = function_name
