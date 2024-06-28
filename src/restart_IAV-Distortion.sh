@@ -4,7 +4,9 @@
 working_directory=$(pwd)
 
 # terminate running instances of IAV-Distortion
-$working_directory/quit.sh
+$working_directory/quit.sh &
+
+wait $!
 
 # start IAV-Distortion using the run_IAV-Distortion.sh
 echo "Restarting IAV-Distortion..."

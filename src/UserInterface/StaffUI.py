@@ -414,9 +414,10 @@ class StaffUI:
 
             if platform.system() == 'Linux':
                 self.logger.info("Program restart triggered")
-                subprocess.call('./restart_IAV-Distortion.sh')
+                subprocess.run(['lxterminal', '-e', 'bash ./restart_IAV-Distortion.sh'])
                 message = "The program will restart now. This will take a moment please wait and reload the page."
                 return message, 200
+                
             else:
                 self.logger.warning("Program restart button pressed, but not running on Linux system")
                 message = 'Error restarting IAV-Distortion. Function only available on linux systems.'
