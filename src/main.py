@@ -16,17 +16,19 @@ from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from UserInterface.DriverUI import DriverUI
 from UserInterface.StaffUI import StaffUI
 from UserInterface.CarMap import CarMap
-from flask import Flask
-from flask_socketio import SocketIO
+
+from quart import Quart
+from socketio import AsyncServer, ASGIApp
+from hypercorn.config import Config
+from hypercorn.asyncio import serve
+import asyncio
 
 import os
 
 
 def main(admin_password: str):
-    app = Flask('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
-    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
-    # Todo: using async_mode='threading' makes flask use the development server instead of the eventlet server.
-    #  change to use some production server
+    sio = AsyncServer(async_mode='asgi')
+    app = Quart('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
 
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl)
@@ -34,18 +36,23 @@ def main(admin_password: str):
     behaviour_ctrl = BehaviourController(vehicles)
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
 
-    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, socketio=socketio)
+    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=sio)
     driver_ui_blueprint = driver_ui.get_blueprint()
-    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, socketio=socketio, environment_mng=environment_mng,
+    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, sio=sio, environment_mng=environment_mng,
                        password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
-    car_map = CarMap(environment_manager=environment_mng, socketio=socketio)
+    car_map = CarMap(environment_manager=environment_mng, sio=sio)
     car_map_blueprint = car_map.get_blueprint()
 
     app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
     app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
     app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
-    socketio.run(app, debug=True, host='0.0.0.0', allow_unsafe_werkzeug=True)
+
+    app_asgi = ASGIApp(socketio_server=sio, other_asgi_app=app)
+
+    config = Config()
+    config.bind = ["0.0.0.0:5000"]
+    asyncio.run(serve(app_asgi, config))
 
 
 if __name__ == '__main__':
