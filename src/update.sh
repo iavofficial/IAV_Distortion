@@ -4,7 +4,7 @@
 working_directory=$(pwd)
 
 # terminate running instances of IAV-Distortion
-$working_directory/src/quit.sh
+$working_directory/quit.sh
 
 # discard all local changes, to prevent merge conflicts, won't delete added files (like .env)
 git checkout .
@@ -16,9 +16,9 @@ git pull --strategy-option theirs
 find "$working_directory" -type f -iname "*.sh" -exec chmod +x {} \;
 
 # get dependencies
-$working_directory/src/get_dependencies.sh
+$working_directory/get_dependencies.sh
 
 # Wait for user input before closing
 echo "Update finished..."
 sleep 10
-$working_directory/src/restart_system.sh
+$working_directory/restart_system.sh
