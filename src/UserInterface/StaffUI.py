@@ -388,7 +388,8 @@ class StaffUI:
             """
             if platform.system() == 'Linux':
                 self.logger.info("Program restart triggered")
-                subprocess.run(['lxterminal', '-e', 'bash ./restart_IAV-Distortion.sh'])
+                process = subprocess.Popen(['bash', './restart_IAV-Distortion.sh'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
                 message = "The program will restart now. This will take a moment please wait and reload the page."
                 return message, 200
                 
