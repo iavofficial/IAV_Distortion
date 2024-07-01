@@ -11,6 +11,7 @@ pytest = "==8.2.0"
 portalocker = {extras = ["redis"] }
 quart = "*"
 hypercorn = "*"
+python-socketio = "*"
 
 [dev-packages]
 sphinx = "*"
