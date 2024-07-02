@@ -4,7 +4,8 @@
 working_directory=$(pwd)
 
 # create/override logfile_restart.log that log the latest restart
-echo "This logfile documents only the latest restart event:" > logfile_restart.log 2>&1
+echo "This logfile documents only the latest restart event from $(date '+%m-%d-%Y %H:%M:%S'):" > logfile_restart.log 2>&1
+echo >> logfile_restart.log 2>&1
 
 # terminate running instances of IAV-Distortion
 $working_directory/quit.sh >> logfile_restart.log 2>&1
