@@ -11,11 +11,11 @@ working_directory=$(pwd)
 # terminate running instances of IAV-Distortion
 $working_directory/quit.sh
 
-# discard all local changes, to prevent merge conflicts, won't delete added files (like .env)
-git checkout .
+# fetch up to date version from the repository
+git fetch origin
 
-# pull the latest version of the installed branch
-git pull --strategy-option theirs
+# reset the working directory to the latest commit from the repository (additional files like .env or logfiles will not be affected)
+git reset --hard
 
 # make all utility scripts executable
 find "$working_directory" -type f -iname "*.sh" -exec chmod +x {} \;
