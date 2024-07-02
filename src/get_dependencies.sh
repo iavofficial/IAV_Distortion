@@ -1,6 +1,7 @@
 #!/bin/bash
 
 working_directory=$(pwd)
+echo "Working directory: $working_directory"
 
 # move pipfile to current working directory
 echo "Getting Pipfile from root directory..."
@@ -12,6 +13,9 @@ pipenv --rm
 if [ -f "Pipfile.lock" ]; then
     rm Pipfile.lock
 fi
+
+# restet VIRTUAL_ENV to cleat the path for pipenv environment
+export VIRTUAL_ENV=""
 
 # install pipenv
 echo "Installing pipenv..."
