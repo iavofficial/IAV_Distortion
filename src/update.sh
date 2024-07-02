@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # create/oferride logfile for latest update attempt
-exec > logfile_update.log 2>&1
+logfile_path="logfiles/"
+logfile_name="logfile_update.log"
+logfile=$logfile_path$logfile_name
+mkdir -p $logfile_path
+exec > $logfile 2>&1
 echo "This logfile documents only the latest update event from $(date '+%m-%d-%Y %H:%M:%S'):"
 echo
 
