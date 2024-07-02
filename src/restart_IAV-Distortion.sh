@@ -9,6 +9,9 @@ echo "This logfile documents only the latest restart event:" > logfile_restart.l
 # terminate running instances of IAV-Distortion
 $working_directory/quit.sh >> logfile_restart.log 2>&1
 
+# restart systems bluetooth interface
+sudo systemctl restart bluetooth
+
 
 port_process=$(sudo netstat -tulnp | grep :5000)
 echo "Process on port 5000: $port_process" >> logfile_restart.log 2>&1
