@@ -14,8 +14,11 @@ $working_directory/quit.sh
 # fetch up to date version from the repository
 git fetch origin
 
-# reset the working directory to the latest commit from the repository (additional files like .env or logfiles will not be affected)
+# reset changes in the local working directory (additional files like .env or logfiles will not be affected)
 git reset --hard
+
+# pull latest commit from the repository
+git pull
 
 # make all utility scripts executable
 find "$working_directory" -type f -iname "*.sh" -exec chmod +x {} \;
