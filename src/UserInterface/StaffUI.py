@@ -364,7 +364,9 @@ class StaffUI:
             """
             if platform.system() == 'Linux':
                 self.logger.info("Update triggered")
-                subprocess.run('../update.sh')
+                process = subprocess.Popen(['bash', './update.sh'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                # subprocess.run('../update.sh')
                 message = 'Update started. This will take a few moments. The system will restart afterwards.'
                 return message, 200
             else:
