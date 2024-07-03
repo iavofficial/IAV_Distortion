@@ -1,0 +1,1 @@
+This folder contains the original images in high resolution which are scaled down for usage in the application.

@@ -225,6 +225,7 @@ class StaffUI:
             """
             # TODO: authentication check for websocket events
             await environment_mng.add_vehicle(device)
+            await self._sio.emit('device_added', device)
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
@@ -281,6 +282,7 @@ class StaffUI:
             """
             # TODO: authentication check for websocket events
             environment_mng.remove_vehicle(vehicle_id)
+            await self._sio.emit('vehicle_removed', vehicle_id)
             self.logger.debug("Vehicle deleted %s", vehicle_id)
             return
 
