@@ -9,6 +9,7 @@
 import json
 from portalocker import RedisLock, LOCK_SH
 from logging import Logger, getLogger, DEBUG, StreamHandler
+from typing import Tuple, Any
 
 
 class ConfigurationHandler:
@@ -17,6 +18,7 @@ class ConfigurationHandler:
 
     Prevents simultaneous writing access.
     """
+
     def __init__(self) -> None:
         self.lock: RedisLock = RedisLock('config_file')
         self.logger: Logger = getLogger(__name__)
@@ -24,18 +26,18 @@ class ConfigurationHandler:
         self.logger.setLevel(DEBUG)
         console_handler = StreamHandler()
         self.logger.addHandler(console_handler)
+
+        self.__config_tup: Tuple[Any] = self.__read_configuration()
         return
 
-    def get_configuration(self) -> dict:
+    def __read_configuration(self) -> tuple[Any]:
         """
-        Read the configuration file and return the configuration data.
-
-        Using lock to safely access the file.
+        Read the configuration file and return it as a tuple.
 
         Returns
         -------
-        configuration: dict
-            Dictionary containing all configuration data.
+        Tuple [Any]
+            Configuration data in a tuple.
 
         Raises
         ------
@@ -52,8 +54,7 @@ class ConfigurationHandler:
             # with self.lock:
             with open('config_file.json', 'r') as file:
                 configuration = json.load(file)
-
-                return configuration
+                return configuration,
 
         except FileNotFoundError:
             self.logger.critical("Configuration file not found.")
@@ -62,5 +63,24 @@ class ConfigurationHandler:
         except PermissionError:
             self.logger.critical("No permission to read configuration file.")
         except Exception as e:
-            self.logger.critical(f"An unexpected error occured trying to read the configuration file: {e}")
+            self.logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
 
+    def get_configuration(self) -> dict:
+        """
+        Returns the internal saved configuration data as a dictionary.
+
+        Returns
+        -------
+        configuration: dict
+            Dictionary containing all configuration data.
+
+        Raises
+        ------
+        TypeError
+            If the configuration is not of type dict.
+        """
+        if not isinstance(self.__config_tup[0], dict):
+            self.logger.critical("Expected the configuration to be of type dict")
+            raise TypeError("Expected the configuration to be of type dict")
+        else:
+            return self.__config_tup[0]
