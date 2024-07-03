@@ -240,6 +240,20 @@
             }
 
             /**
+            * Reload the page when vehicle is added.
+            */
+            socket.on('device_added', function(data){
+                window.location.reload();
+            });
+
+            /**
+            * Reload page when vehicle has been removed.
+            */
+            socket.on('vehicle_removed', function(data){
+                window.location.reload();
+            });
+
+            /**
             * Resets the canvas.
             */
             function resetCanvas() { 
