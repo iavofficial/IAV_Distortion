@@ -4,8 +4,8 @@ body{
     overflow: hidden;
 }
 
-.disable-dbl-tap-zoom {
-  touch-action: manipulation;
+* {
+  touch-action: none;
 }
 
 /* container to arrange the elements on the page*/
