@@ -3,6 +3,11 @@ body{
     padding: 0;
     overflow: hidden;
 }
+
+.disable-dbl-tap-zoom {
+  touch-action: manipulation;
+}
+
 /* container to arrange the elements on the page*/
 .flexbox-container {
     justify-content: space-between;
