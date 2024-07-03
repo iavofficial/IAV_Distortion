@@ -16,6 +16,7 @@ import asyncio
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
+
 class DriverUI:
 
     def __init__(self, behaviour_ctrl, environment_mng, sio: socketio, name=__name__) -> None:
@@ -60,13 +61,14 @@ class DriverUI:
                     except KeyError:
                         self.logger.warning(f'No image configured for {vehicle.vehicle_id}.')
                 else:
-                    picture = 'Real_Vehicles/' + picture.replace(":", "") + ".png"
+                    picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
                 vehicle.set_driving_data_callback(self.update_driving_data)
                 vehicle_information = vehicle.get_driving_data()
                 self.logger.debug(f'Callback set for {player}')
 
-            return await render_template('driver_index.html', player=player, player_exists=player_exists, picture=picture,
-                                   vehicle_information=vehicle_information)
+            return await render_template('driver_index.html', player=player, player_exists=player_exists,
+                                         picture=picture,
+                                         vehicle_information=vehicle_information)
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
@@ -80,10 +82,10 @@ class DriverUI:
                 self.environment_mng.add_player(player)
                 print(f'added {player} to queue')
             return
-        
+
         @self._sio.on('disconnected')
         def handle_disconnected(sid, data):
-            player=data["player"]
+            player = data["player"]
             print(f"Driver {player} disconnected!")
             self.environment_mng.remove_player_from_waitlist(player)
             # TODO: check what happens to disconnected players assigned to a car
