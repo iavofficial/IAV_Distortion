@@ -1,11 +1,24 @@
 #!/bin/bash
 
 working_directory=$(pwd)
+echo "Working directory: $working_directory"
 
 # move pipfile to current working directory
+echo "Getting Pipfile from root directory..."
 mv ../Pipfile .
 
+# remove old pipenv
+echo "Removing old pipenv if existing..."
+pipenv --rm
+if [ -f "Pipfile.lock" ]; then
+    rm Pipfile.lock
+fi
+
+# restet VIRTUAL_ENV to cleat the path for pipenv environment
+export VIRTUAL_ENV=""
+
 # install pipenv
+echo "Installing pipenv..."
 pipenv install --skip-lock
 
 # get jquery dependencies
@@ -22,10 +35,12 @@ socketio_directory="$ui_resources_directory/socketio/$socketio_version"
 
 # remove old files if exist
 if [ -d "$ui_resources_directory" ]; then
+    echo "Removing old external recources..."
     rm -rf $ui_resources_directory
 fi
 
 # recreate directories
+echo "Creating directories for external resources..."
 if [ ! -d "$jquery_directory" ]; then
     mkdir -p $jquery_directory
 fi
@@ -34,6 +49,7 @@ if [ ! -d "$socketio_directory" ]; then
 fi
 
 # download resources - resources must be added here!
+echo "Downloading external resources..."
 if [ $(command -v wget) ]; then
     wget -P "$jquery_directory" "$jquery_url"
     wget -P "$socketio_directory" "$socketio_url"

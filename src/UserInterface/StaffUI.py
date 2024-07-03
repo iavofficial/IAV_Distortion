@@ -364,7 +364,8 @@ class StaffUI:
             """
             if platform.system() == 'Linux':
                 self.logger.info("Update triggered")
-                subprocess.call('../update.sh')
+                process = subprocess.Popen(['bash', './update.sh'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
                 message = 'Update started. This will take a few moments. The system will restart afterwards.'
                 return message, 200
             else:
@@ -388,9 +389,11 @@ class StaffUI:
             """
             if platform.system() == 'Linux':
                 self.logger.info("Program restart triggered")
-                subprocess.call('./restart_IAV-Distortion.sh')
+                process = subprocess.Popen(['bash', './restart_IAV-Distortion.sh'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
                 message = "The program will restart now. This will take a moment please wait and reload the page."
                 return message, 200
+                
             else:
                 self.logger.warning("Program restart button pressed, but not running on Linux system")
                 message = 'Error restarting IAV-Distortion. Function only available on linux systems.'
@@ -412,7 +415,7 @@ class StaffUI:
             """
             if platform.system() == 'Linux':
                 self.logger.info("System restart triggered")
-                subprocess.call('./restart_system.sh')
+                subprocess.run('./restart_system.sh')
                 message = "The system will restart now. This will take a moment. Please wait and reload the page " \
                           "after the system rebooted"
                 return message, 200
@@ -437,7 +440,7 @@ class StaffUI:
             """
             if platform.system() == 'Linux':
                 self.logger.info("System shutdown triggered")
-                subprocess.call('./shutdown_system.sh')
+                subprocess.run('./shutdown_system.sh')
                 message = 'The system will be shut down now.'
                 return message, 200
             else:
