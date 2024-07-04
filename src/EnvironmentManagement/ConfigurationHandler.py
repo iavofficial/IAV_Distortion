@@ -7,20 +7,31 @@
 # file that should have been included as part of this package.
 #
 import json
-from portalocker import RedisLock, LOCK_SH
 from logging import Logger, getLogger, DEBUG, StreamHandler
 from typing import Tuple, Any
 
 
-class ConfigurationHandler:
+class Singleton(type):
+    """
+    Metaclass to define a class as singleton.
+    Checks if instance of class already exists and returns it.
+    """
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class ConfigurationHandler(metaclass=Singleton):
     """
     Coordinates access to the configuration file.
 
-    Prevents simultaneous writing access.
+    Implemented as singleton to ensure globally consistent configuration data.
     """
 
     def __init__(self) -> None:
-        self.lock: RedisLock = RedisLock('config_file')
         self.logger: Logger = getLogger(__name__)
 
         self.logger.setLevel(DEBUG)
@@ -51,7 +62,6 @@ class ConfigurationHandler:
             For any other unexpected errors that may occur.
         """
         try:
-            # with self.lock:
             with open('config_file.json', 'r') as file:
                 configuration = json.load(file)
                 return configuration,
