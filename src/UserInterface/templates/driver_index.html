@@ -147,11 +147,13 @@
         });
 
 
-            window.onunload = function() {
-                socket.emit('disconnected', {player: '{{ player }}'});
-            }
+        window.onunload = function() {
+            socket.emit('disconnected', {player: '{{ player }}'});
+        }
 
-
+        setInterval(function(){
+            socket.emit('driver_heartbeat', {player: '{{ player }}'});
+        }, {{ heartbeat_interval }});
 
         <!-- driving data functions -->
         function get_driving_data(){

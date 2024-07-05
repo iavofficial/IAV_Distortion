@@ -68,7 +68,8 @@ class DriverUI:
 
             return await render_template('driver_index.html', player=player, player_exists=player_exists,
                                          picture=picture,
-                                         vehicle_information=vehicle_information)
+                                         vehicle_information=vehicle_information,
+                                         heartbeat_interval=config["driver"]["driver_heartbeat_interval_ms"])
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
