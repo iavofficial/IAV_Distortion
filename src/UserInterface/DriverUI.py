@@ -10,8 +10,10 @@
 from quart import Blueprint, render_template, request
 import socketio
 import uuid
-from logging import Logger, getLogger
+import logging
+from logging import Logger
 import asyncio
+import time
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -26,7 +28,21 @@ class DriverUI:
         self._sio: socketio = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
-        self.logger: Logger = getLogger(__name__)
+
+        self.logger: Logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        console_handler = logging.StreamHandler()
+        self.logger.addHandler(console_handler)
+
+        self.__latest_driver_heartbeats: dict = {}
+        self.__checking_heartbeats_flag: bool = False
+
+        try:
+            self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]["driver_heartbeat_timeout_s"])
+        except:
+            self.logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
+                                "value of 30 seconds")
+            self.__driver_heartbeat_timeout = 30
 
         async def home_driver() -> str:
             """
@@ -42,6 +58,10 @@ class DriverUI:
             print(f"Driver {player} connected!")
             if player is None:
                 player = str(uuid.uuid4())
+                self.__latest_driver_heartbeats[player] = time.time()
+            if not self.__checking_heartbeats_flag:
+                self.__run_async_task(self.__check_driver_heartbeat_timeout())
+                self.__checking_heartbeats_flag = True
 
             config = self.config_handler.get_configuration()
             vehicle = self.environment_mng.update_queues_and_get_vehicle(player)
@@ -87,9 +107,9 @@ class DriverUI:
         @self._sio.on('disconnected')
         def handle_disconnected(sid, data):
             player = data["player"]
-            print(f"Driver {player} disconnected!")
-            self.environment_mng.remove_player_from_waitlist(player)
-            # TODO: check what happens to disconnected players assigned to a car
+            self.logger.debug(f"Driver {player} disconnected!")
+            self.remove_player(player)
+            return
             return
 
         @self._sio.on('slider_changed')
@@ -123,6 +143,15 @@ class DriverUI:
             self.update_driving_data(driving_data)
             return
 
+        @self._sio.on('driver_heartbeat')
+        def update_last_heartbeat(sid, data: dict) -> None:
+            """
+            Updates timestamp of latest received heartbeat for the players.
+            """
+            player = data["player"]
+            self.__latest_driver_heartbeats[player] = time.time()
+            return
+
     def update_driving_data(self, driving_data: dict) -> None:
         self.__run_async_task(self.__emit_driving_data(driving_data))
         return
@@ -150,4 +179,33 @@ class DriverUI:
 
     async def __emit_driving_data(self, driving_data: dict) -> None:
         await self._sio.emit('update_driving_data', driving_data)
+        return
+
+    async def __check_driver_heartbeat_timeout(self):
+        """
+        Continuously checks driver heartbeats for timeouts.
+        """
+        while True:
+            await asyncio.sleep(1)
+            players = list(self.__latest_driver_heartbeats.keys())
+            for player in players:
+                if time.time() - self.__latest_driver_heartbeats.get(player, 0) > self.__driver_heartbeat_timeout:
+                    self.logger.info(f'Player {player} timed out. Removing player from the game...')
+                    self.remove_player(player)
+
+    def remove_player(self, player: str) -> None:
+        """
+        Remove player from the game.
+
+        Parameters
+        ----------
+        player: str
+            ID of player to be removed.
+        """
+        if player in self.__latest_driver_heartbeats:
+            del self.__latest_driver_heartbeats[player]
+        self.environment_mng.remove_player_from_waitlist(player)
+        # self.environment_mng.remove_player_from_vehicle(player)
+        # TODO: mechanism to remove players from cars.
+        # TODO: handle reloads of interfaces correctly -> don't disconnect from vehicle/queue on reload
         return
