@@ -9,6 +9,7 @@
 import logging
 from typing import List, Dict, Callable
 from collections import deque
+import asyncio
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
@@ -42,6 +43,8 @@ class EnvironmentManager:
 
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
+
+        self._remove_player_tasks: dict = {}
 
     def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
             -> None:
@@ -373,3 +376,49 @@ class EnvironmentManager:
                     full_map.update({f"Virtual Vehicle {num}": [d, c]})
                     num += 1
         return full_map
+
+    def schedule_remove_player_task(self, player: str) -> None:
+        """
+        Schedules asynchronous task to remove player.
+
+        Parameters
+        ----------
+        player str
+            ID of player to be removed.
+        """
+        self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period(player))
+        return
+
+    def __cancel_remove_player_task(self, player: str) -> None:
+        """
+        Cancels remove_player_task.
+
+        Parameters
+        ----------
+        player: str
+            ID of player for which a potential existing remove_player_task shall be canceled.
+
+        """
+        if player in self._remove_player_tasks.keys():
+            self._remove_player_tasks[player].cancel()
+            del self._remove_player_tasks[player]
+        return
+
+    async def __remove_player_after_grace_period(self, player: str, grace_period: int = 5) -> None:
+        """
+        Wait for grace period then removes player.
+
+        Parameters
+        ----------
+        player: str
+            ID of player to be removed.
+        grace_period: int
+            Time to wait in seconds until player is removed, in case of reconnect.
+        """
+        try:
+            await asyncio.sleep(grace_period)
+            self.remove_player_from_waitlist(player)
+            self.remove_player_from_vehicle(player)
+        except asyncio.CancelledError:
+            logging.debug(f"Player {player} reconnected. Removing player aborted.")
+        return
