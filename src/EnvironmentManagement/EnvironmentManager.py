@@ -387,16 +387,19 @@ class EnvironmentManager:
                     num += 1
         return full_map
 
-    def schedule_remove_player_task(self, player: str) -> None:
+    def schedule_remove_player_task(self, player: str, grace_period: int = 5) -> None:
         """
         Schedules asynchronous task to remove player.
 
         Parameters
         ----------
-        player str
+        player: str
             ID of player to be removed.
+        grace_period: int
+            Time to wait in seconds until player is removed, in case of reconnect.
         """
-        self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period(player))
+        self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period(player,
+                                                                                                        grace_period))
         return
 
     def __cancel_remove_player_task(self, player: str) -> None:
