@@ -207,15 +207,24 @@ class EnvironmentManager:
 
     def _add_player_to_queue_if_appropiate(self, player_id: str) -> None:
         """
-        Adds a player to the queue, if it's appropriate (as in the
-            player isn't controlling a vehicle already and the player
-            also isn't in the queue already)
+        Adds a player to the queue, if it's appropriate.
+
+        Player is added to the queue if the player isn't controlling a vehicle already and the player also isn't in the
+        queue already).
+        If player is already in the queue or assigned to a vehicle a potential task to remove the player is canceled.
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to be added to the queue if appropriate.
         """
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
+                self.__cancel_remove_player_task(player_id)
                 return
         for p in self._player_queue_list:
             if p == player_id:
+                self.__cancel_remove_player_task(player_id)
                 return
         self._player_queue_list.append(player_id)
         return
