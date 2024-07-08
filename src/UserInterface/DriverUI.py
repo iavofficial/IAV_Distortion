@@ -217,6 +217,6 @@ class DriverUI:
         """
         if player in self.__latest_driver_heartbeats:
             del self.__latest_driver_heartbeats[player]
-        grace_period = ConfigurationHandler.get_configuration()["driver_reconnect_grace_period_s"]
+        grace_period = self.config_handler.get_configuration()["driver"]["driver_reconnect_grace_period_s"]
         self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
         return

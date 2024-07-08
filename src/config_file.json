@@ -13,6 +13,6 @@
 		"driver_heartbeat_interval_ms": 5000,
 		"driver_heartbeat_timeout_s": 30,
 		"driver_page-active_timeout_s": 30,
-		"driver_reconnect_grace_period_s": 5,
+		"driver_reconnect_grace_period_s": 5
 	}
 }
