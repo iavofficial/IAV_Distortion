@@ -263,11 +263,12 @@ class EnvironmentManager:
         """
         removes a player from the vehicle they are controlling
         """
-        self.logger.info(f"Removing player with UUID {player} from vehicle")
         for v in self._active_anki_cars:
             if v.get_player() == player:
+                self.logger.info(f"Removing player with UUID {player} from vehicle")
                 v.remove_player()
                 self._publish_removed_player(player=player)
+                self._assign_players_to_vehicles()
                 # TODO: define how to control vehicle without player
         self.update_staff_ui()
         return
