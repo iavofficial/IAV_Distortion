@@ -94,14 +94,23 @@ class DriverUI:
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
         @self._sio.on('handle_connect')
-        def handle_connected(sid, data):
+        def handle_connected(sid: str, data: dict) -> None:
+            """
+            Calls environment manager function to update queues and vehicles.
+
+            Custom event triggered on connection of a client to the driver ui. Event needed to handle reloads of
+            driver ui properly. Receives the player id from client which is used by the environment manager to abort
+            removing of player if reconnected in a certain time (e.g. when reloading the page).
+
+            Parameters
+            ----------
+            sid: str
+                ID of websocket client
+            data: dict
+                Data received with websocket event.
+            """
             player = data["player"]
-            vehicle = self.get_vehicle_by_player(player=player)
-            print(f"Driver {player} connected with vehicle {vehicle}!")
-            if vehicle is None:
-                # add to queue
-                self.environment_mng.add_player(player)
-                print(f'added {player} to queue')
+            self.environment_mng.update_queues_and_get_vehicle(player)
             return
 
         @self._sio.on('disconnected')
@@ -110,6 +119,10 @@ class DriverUI:
             self.logger.debug(f"Driver {player} disconnected!")
             self.remove_player(player)
             return
+
+        @self._sio.on('disconnect')
+        def handle_clienet_disconnect(sid):
+            logging.debug(f"Client {sid} disconnected.")
             return
 
         @self._sio.on('slider_changed')
@@ -204,8 +217,5 @@ class DriverUI:
         """
         if player in self.__latest_driver_heartbeats:
             del self.__latest_driver_heartbeats[player]
-        self.environment_mng.remove_player_from_waitlist(player)
-        # self.environment_mng.remove_player_from_vehicle(player)
-        # TODO: mechanism to remove players from cars.
-        # TODO: handle reloads of interfaces correctly -> don't disconnect from vehicle/queue on reload
+        self.environment_mng.schedule_remove_player_task(player)
         return
