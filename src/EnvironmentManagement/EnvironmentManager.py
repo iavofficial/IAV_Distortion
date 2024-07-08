@@ -154,7 +154,12 @@ class EnvironmentManager:
 
     def remove_vehicle(self, uuid_to_remove: str):
         """
-        Remove both vehicle and the controlling player for a given vehicle
+        Remove both vehicle and the controlling player for a given vehicle.
+
+        Parameters
+        ----------
+        uuid_to_remove: str
+            ID of vehicle to be removed.
         """
         self.logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
 
@@ -174,13 +179,27 @@ class EnvironmentManager:
         return
 
     def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
+        """
+        Updates the player queue and assigns player to free vehicles.
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to update queue with.
+
+        Returns
+        -------
+        Vehicle | None
+            If a free vehicle is available, returns the vehicle object the player has been assigned to.
+            If no free vehicle is available, returns None.
+        """
         self._add_player_to_queue_if_appropiate(player_id)
         self._assign_players_to_vehicles()
         self.update_staff_ui()
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 return v
-        self.update_staff_ui()
+        # self.update_staff_ui()
         return None
 
     def _add_player_to_queue_if_appropiate(self, player_id: str) -> None:
