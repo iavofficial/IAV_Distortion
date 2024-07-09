@@ -18,7 +18,6 @@
     <!-- Include socket.io library -->
     <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
 
-
 </head>
 <body>
 
@@ -27,7 +26,8 @@
             <div class="info-title">
                 <h2>Information</h2>
             </div>
-            <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait...</p>
+            <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait... <br>
+                Please don't leave this page for more than {{background_grace_period}} seconds. Otherwise you will be removed from the game.</p>
             <button class="refresh-button" onclick="location.reload();"> <span class="reload_symbol">&circlearrowright;	</span> Refresh Page</button>
         </div>
     </div>
@@ -83,8 +83,6 @@
     <script type="text/javascript" charset="utf-8">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-        document.cookie = "player={{ player }}";
-
         <!-- slider to control velocity-->
 
         var slider = document.getElementById("speed_request");
@@ -118,6 +116,7 @@
 
         <!-- loading window -->
         window.onload = function() {
+            socket.emit('driver_active', {player: '{{player}}'});
             let playerExists = {{ player_exists | tojson }};
             if(!playerExists) {
                 document.getElementById("infoBoxOverlay").style.display = "flex";
@@ -137,7 +136,7 @@
 
         socket.on('connect', () => {
             socket.emit('handle_connect', {player: '{{ player }}'});
-            console.log('Connected to the server');
+            console.log('Websocket connected');
         });
 
 
@@ -183,6 +182,18 @@
                 newContent.style.margin = "auto auto";
                 newContent.style.fontSize = "32pt";
                 document.getElementById("control").replaceChildren(newContent);
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            console.log(document.visibilityState);
+            if (document.visibilityState === 'hidden') {
+                // e.g. changed to different tab
+                socket.emit('driver_inactive', {player: '{{player}}'});
+            }
+            else {
+            // The page is visible again
+                socket.emit('driver_active', {player: '{{player}}'});
             }
         });
 

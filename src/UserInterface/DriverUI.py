@@ -89,7 +89,8 @@ class DriverUI:
             return await render_template('driver_index.html', player=player, player_exists=player_exists,
                                          picture=picture,
                                          vehicle_information=vehicle_information,
-                                         heartbeat_interval=config["driver"]["driver_heartbeat_interval_ms"])
+                                         heartbeat_interval=config["driver"]["driver_heartbeat_interval_ms"],
+                                         background_grace_period=config["driver"]["driver_background_grace_period_s"])
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
@@ -122,7 +123,7 @@ class DriverUI:
 
         @self._sio.on('disconnect')
         def handle_clienet_disconnect(sid):
-            logging.debug(f"Client {sid} disconnected.")
+            self.logger.debug(f"Client {sid} disconnected.")
             return
 
         @self._sio.on('slider_changed')
@@ -163,6 +164,23 @@ class DriverUI:
             """
             player = data["player"]
             self.__latest_driver_heartbeats[player] = time.time()
+            return
+
+        @self._sio.on('driver_inactive')
+        def client_inactive(sid, data: dict) -> None:
+            player = data["player"]
+            grace_period = self.config_handler.get_configuration()["driver"]["driver_background_grace_period_s"]
+            self.logger.debug(f"Player {player} send the application to the background and will be removed in "
+                              f"{grace_period} seconds.")
+            self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
+            return
+
+        @self._sio.on('driver_active')
+        def client_active(sid, data: dict) -> None:
+            player = data["player"]
+            self.logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
+                              f"added to the queue again.")
+            self.environment_mng.update_queues_and_get_vehicle(player)
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
