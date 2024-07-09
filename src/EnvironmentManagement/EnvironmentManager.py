@@ -389,7 +389,7 @@ class EnvironmentManager:
 
     def schedule_remove_player_task(self, player: str, grace_period: int = 5) -> None:
         """
-        Schedules asynchronous task to remove player.
+        Schedules asynchronous task to remove player, only if no removal task exists for this player already.
 
         Parameters
         ----------
@@ -398,8 +398,12 @@ class EnvironmentManager:
         grace_period: int
             Time to wait in seconds until player is removed, in case of reconnect.
         """
-        self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period(player,
-                                                                                                        grace_period))
+        if player not in self._remove_player_tasks:
+            self.logger.debug(f'Scheduling player removal task for player: {player}')
+            self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period(player,
+                                                                                                            grace_period))
+        else:
+            self.logger.debug(f'Player removal task already scheduled for {player}')
         return
 
     def __cancel_remove_player_task(self, player: str) -> None:
