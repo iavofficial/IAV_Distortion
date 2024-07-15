@@ -83,6 +83,8 @@
     <script type="text/javascript" charset="utf-8">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+        document.cookie = "player={{ player }}";
+
         <!-- slider to control velocity-->
 
         var slider = document.getElementById("speed_request");
