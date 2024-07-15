@@ -14,7 +14,7 @@ if [ -f "Pipfile.lock" ]; then
     rm Pipfile.lock
 fi
 
-# restet VIRTUAL_ENV to cleat the path for pipenv environment
+# rest VIRTUAL_ENV to clean the path for pipenv environment
 export VIRTUAL_ENV=""
 
 # install pipenv
