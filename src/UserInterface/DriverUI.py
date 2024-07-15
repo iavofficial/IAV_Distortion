@@ -58,7 +58,8 @@ class DriverUI:
             print(f"Driver {player} connected!")
             if player is None:
                 player = str(uuid.uuid4())
-                self.__latest_driver_heartbeats[player] = time.time()
+
+            self.__latest_driver_heartbeats[player] = time.time()
             if not self.__checking_heartbeats_flag:
                 self.__run_async_task(self.__check_driver_heartbeat_timeout())
                 self.__checking_heartbeats_flag = True
@@ -118,7 +119,7 @@ class DriverUI:
         def handle_disconnected(sid, data):
             player = data["player"]
             self.logger.debug(f"Driver {player} disconnected!")
-            self.remove_player(player)
+            self.__remove_player(player)
             return
 
         @self._sio.on('disconnect')
@@ -222,9 +223,9 @@ class DriverUI:
             for player in players:
                 if time.time() - self.__latest_driver_heartbeats.get(player, 0) > self.__driver_heartbeat_timeout:
                     self.logger.info(f'Player {player} timed out. Removing player from the game...')
-                    self.remove_player(player)
+                    self.__remove_player(player)
 
-    def remove_player(self, player: str) -> None:
+    def __remove_player(self, player: str) -> None:
         """
         Remove player from the game.
 
