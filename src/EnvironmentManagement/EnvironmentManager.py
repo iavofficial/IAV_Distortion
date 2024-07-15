@@ -9,6 +9,7 @@
 import logging
 from typing import List, Dict, Callable
 from collections import deque
+import asyncio
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
@@ -42,6 +43,8 @@ class EnvironmentManager:
 
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
+
+        self._remove_player_tasks: dict = {}
 
     def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
             -> None:
@@ -154,7 +157,12 @@ class EnvironmentManager:
 
     def remove_vehicle(self, uuid_to_remove: str):
         """
-        Remove both vehicle and the controlling player for a given vehicle
+        Remove both vehicle and the controlling player for a given vehicle.
+
+        Parameters
+        ----------
+        uuid_to_remove: str
+            ID of vehicle to be removed.
         """
         self.logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
 
@@ -174,26 +182,49 @@ class EnvironmentManager:
         return
 
     def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
+        """
+        Updates the player queue and assigns player to free vehicles.
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to update queue with.
+
+        Returns
+        -------
+        Vehicle | None
+            If a free vehicle is available, returns the vehicle object the player has been assigned to.
+            If no free vehicle is available, returns None.
+        """
         self._add_player_to_queue_if_appropiate(player_id)
         self._assign_players_to_vehicles()
         self.update_staff_ui()
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 return v
-        self.update_staff_ui()
+        # self.update_staff_ui()
         return None
 
     def _add_player_to_queue_if_appropiate(self, player_id: str) -> None:
         """
-        Adds a player to the queue, if it's appropriate (as in the
-            player isn't controlling a vehicle already and the player
-            also isn't in the queue already)
+        Adds a player to the queue, if it's appropriate.
+
+        Player is added to the queue if the player isn't controlling a vehicle already and the player also isn't in the
+        queue already).
+        If player is already in the queue or assigned to a vehicle a potential task to remove the player is canceled.
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to be added to the queue if appropriate.
         """
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
+                self.__cancel_remove_player_task(player_id)
                 return
         for p in self._player_queue_list:
             if p == player_id:
+                self.__cancel_remove_player_task(player_id)
                 return
         self._player_queue_list.append(player_id)
         return
@@ -241,11 +272,12 @@ class EnvironmentManager:
         """
         removes a player from the vehicle they are controlling
         """
-        self.logger.info(f"Removing player with UUID {player} from vehicle")
         for v in self._active_anki_cars:
             if v.get_player() == player:
+                self.logger.info(f"Removing player with UUID {player} from vehicle")
                 v.remove_player()
                 self._publish_removed_player(player=player)
+                self._assign_players_to_vehicles()
                 # TODO: define how to control vehicle without player
         self.update_staff_ui()
         return
@@ -354,3 +386,56 @@ class EnvironmentManager:
                     full_map.update({f"Virtual Vehicle {num}": [d, c]})
                     num += 1
         return full_map
+
+    def schedule_remove_player_task(self, player: str, grace_period: int = 5) -> None:
+        """
+        Schedules asynchronous task to remove player, only if no removal task exists for this player already.
+
+        Parameters
+        ----------
+        player: str
+            ID of player to be removed.
+        grace_period: int
+            Time to wait in seconds until player is removed, in case of reconnect.
+        """
+        if player not in self._remove_player_tasks:
+            self.logger.debug(f'Scheduling player removal task for player: {player}')
+            self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period(player,
+                                                                                                            grace_period))
+        else:
+            self.logger.debug(f'Player removal task already scheduled for {player}')
+        return
+
+    def __cancel_remove_player_task(self, player: str) -> None:
+        """
+        Cancels remove_player_task.
+
+        Parameters
+        ----------
+        player: str
+            ID of player for which a potential existing remove_player_task shall be canceled.
+
+        """
+        if player in self._remove_player_tasks.keys():
+            self._remove_player_tasks[player].cancel()
+            del self._remove_player_tasks[player]
+        return
+
+    async def __remove_player_after_grace_period(self, player: str, grace_period: int = 5) -> None:
+        """
+        Wait for grace period then removes player.
+
+        Parameters
+        ----------
+        player: str
+            ID of player to be removed.
+        grace_period: int
+            Time to wait in seconds until player is removed, in case of reconnect.
+        """
+        try:
+            await asyncio.sleep(grace_period)
+            self.remove_player_from_waitlist(player)
+            self.remove_player_from_vehicle(player)
+        except asyncio.CancelledError:
+            logging.debug(f"Player {player} reconnected. Removing player aborted.")
+        return

@@ -188,7 +188,7 @@ class StaffUI:
             client is authenticated, it logs an info and requests an update from the EnvironmentManager.
             """
             # TODO: authentication check for websocket events
-            self.logger.debug("Client connected")
+            self.logger.debug(f"Client {sid} connected")
             self.environment_mng.update_staff_ui()
             return
 
@@ -301,7 +301,7 @@ class StaffUI:
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
             data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_cars_list(),
                     'names': names, 'descriptions': descriptions}
-            self.logger.info("Updated hacking scenarios")
+            self.logger.debug("Updated hacking scenarios")
             await self._sio.emit('update_hacking_scenarios', data)
             return
 

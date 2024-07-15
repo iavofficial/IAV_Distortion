@@ -8,5 +8,11 @@
 		"Virtual Vehicle 6": "F1760808C100_top.webp",
 		"Virtual Vehicle 7": "F4DBE7EA7B52_top.webp",
 		"Virtual Vehicle 8": "FA14670F39FE_top.webp"
+	},
+	"driver": {
+		"driver_heartbeat_interval_ms": 5000,
+		"driver_heartbeat_timeout_s": 30,
+		"driver_reconnect_grace_period_s": 5,
+		"driver_background_grace_period_s": 30
 	}
 }
