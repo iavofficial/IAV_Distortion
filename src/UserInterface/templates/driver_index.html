@@ -92,7 +92,7 @@
 
 
         slider.oninput = function() {
-          let percentValue = ((this.value - 20) / (100 - 20)) * 100;
+          let percentValue = 5+ ((this.value - 20) / (100 - 20)) * (95-5);
           this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ percentValue +'%, #ddd ' + percentValue + '%, #ddd 100%)';
           socket.emit('slider_changed', {player: '{{player}}', value: this.value});
         };
