@@ -1,7 +1,8 @@
 import asyncio
+from asyncio import Task
 import struct
 import logging
-from threading import Thread
+from typing import Callable
 from VehicleManagement.VehicleController import VehicleController, Turns, TurnTrigger
 from bleak import BleakClient, BleakGATTCharacteristic, BleakError
 
@@ -16,10 +17,6 @@ class AnkiController(VehicleController):
         super().__init__()
         self.task_in_progress: bool = False
 
-        self._notification_thread: Thread = Thread(target=self.__on_receive_data,
-                                                   name="notification_thread",
-                                                   args=(BleakGATTCharacteristic, bytearray))
-
         self.__MAX_ANKI_SPEED = 1200  # mm/s
         self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
         self.__LANE_OFFSET = 22.25
@@ -31,18 +28,36 @@ class AnkiController(VehicleController):
         self.__battery_callback = None
         self.__car_not_reachable_callback = None
 
+        self.__latest_command: bytes | None = None
+        self.__command_in_progress: bool = False
+
         return
 
     def __del__(self) -> None:
         asyncio.create_task(self.__disconnect_from_vehicle())
 
-    def __run_async_task(self, task):
+    def __run_async_task(self, task: Task) -> None:
         """
         Run a asyncio awaitable task
         task: awaitable task
         """
         asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
+
+    async def __process_latest_command(self) -> None:
+        """
+        Process the most recent command.
+
+        As long as new commands are received while another command is processed the most recent command will be
+        precessed next.
+        """
+        while self.__latest_command is not None:
+            current_command = self.__latest_command
+            self.__latest_command = None
+            task = asyncio.create_task(self.__send_command_task(current_command))
+            await task
+        self.__command_in_progress = False
+        return
 
     def set_callbacks(self,
                       location_callback,
@@ -80,6 +95,21 @@ class AnkiController(VehicleController):
 
     def __send_command(self, command: bytes):
         self.__run_async_task(self.__send_command_task(command))
+        return
+
+    def __send_latest_command(self, command: bytes) -> None:
+        """
+        Stores most recent command and starts loop to run most recent task if loop is not running.
+
+        Parameters
+        ----------
+        command: bytes
+            Command to be sent to the client.
+        """
+        self.__latest_command = command
+        if not self.__command_in_progress:
+            self.__command_in_progress = True
+            self.__run_async_task(self.__process_latest_command())
         return
 
     async def __send_command_task(self, command: bytes) -> bool:
@@ -131,7 +161,7 @@ class AnkiController(VehicleController):
 
         command = struct.pack("<BHHH", 0x24, speed_int, accel_int, limit_int)
         self.logger.debug("Changed speed to %i", speed_int)
-        self.__send_command(command)
+        self.__send_latest_command(command)
         return True
 
     def change_lane_to(self, change_direction: int, velocity: int, acceleration: int = 1000) -> bool:
