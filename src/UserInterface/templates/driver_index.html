@@ -39,7 +39,7 @@
 
     <div class="flexbox-container flexbox-controls" id="control">
         <div class="flexbox-item flexbox-slider">
-            <input type="range" min="20" max="100" class="slider" id="speed_request">
+            <input type="range" min="19" max="100" class="slider" id="speed_request">
         </div>
 
         <div class="flexbox-container_middle">
@@ -92,7 +92,7 @@
 
 
         slider.oninput = function() {
-          let percentValue = ((this.value - 20) / (100 - 20)) * 100;
+          let percentValue = 5+ ((this.value - 20) / (100 - 20)) * (95-5);
           this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ percentValue +'%, #ddd ' + percentValue + '%, #ddd 100%)';
           socket.emit('slider_changed', {player: '{{player}}', value: this.value});
         };
