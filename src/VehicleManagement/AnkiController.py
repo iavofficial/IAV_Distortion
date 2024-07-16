@@ -8,6 +8,9 @@ from bleak import BleakClient, BleakGATTCharacteristic, BleakError
 
 
 class AnkiController(VehicleController):
+    """
+    Controller class for the BLE interface for the Anki cars
+    """
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -39,7 +42,11 @@ class AnkiController(VehicleController):
     def __run_async_task(self, task: Task) -> None:
         """
         Run a asyncio awaitable task
-        task: awaitable task
+
+        Parameters
+        ----------
+        task: Task
+            awaitable task
         """
         asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
@@ -60,12 +67,30 @@ class AnkiController(VehicleController):
         return
 
     def set_callbacks(self,
-                      location_callback,
-                      transition_callback,
-                      offset_callback,
-                      version_callback,
-                      battery_callback,
-                      car_not_reachable_callback) -> None:
+                      location_callback: Callable,
+                      transition_callback: Callable,
+                      offset_callback: Callable,
+                      version_callback: Callable,
+                      battery_callback: Callable,
+                      car_not_reachable_callback: Callable) -> None:
+        """
+        Sets callback functions.
+
+        Parameters
+        ----------
+        location_callback: Callable
+            Callback function executed on location event.
+        transition_callback: Callable
+            Callback function executed on transition event.
+        offset_callback: Callable
+            Callback function executed on offset event.
+        version_callback: Callable
+            Callback function executed on version event.
+        battery_callback: Callable
+            Callback function executed on battery event.
+        car_not_reachable_callback: Callable
+            Callback function executed on car not reachable event.
+        """
         self.__location_callback = location_callback
         self.__transition_callback = transition_callback
         self.__offset_callback = offset_callback
@@ -75,6 +100,22 @@ class AnkiController(VehicleController):
         return
 
     async def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
+        """
+        Establishes BLE connection to Anki car.
+
+        Parameters
+        ----------
+        ble_client: BleakClient
+            Client to connect to.
+        start_notification: bool
+            Flag to start clients notification service.
+
+        Returns
+        -------
+        bool:
+            True, if connection established successfully.
+            False, if connection failed.
+        """
         if ble_client is None or not isinstance(ble_client, BleakClient):
             self.logger.debug("Invalid client.")
             return False
@@ -93,7 +134,15 @@ class AnkiController(VehicleController):
         except BleakError:
             return False
 
-    def __send_command(self, command: bytes):
+    def __send_command(self, command: bytes) -> None:
+        """
+        Constructs coroutine that will be created as async task.
+
+        Parameters
+        ----------
+        command: bytes
+            Command to be sent to the client.
+        """
         self.__run_async_task(self.__send_command_task(command))
         return
 
@@ -113,6 +162,23 @@ class AnkiController(VehicleController):
         return
 
     async def __send_command_task(self, command: bytes) -> bool:
+        """
+        Sends BLE command asynchronously.
+
+        Constructs final BLE command. Sends BLE command if no other task is still being progressed. If another task is
+        in progress, the current command is dropped.
+
+        Parameters
+        ----------
+        command: bytes
+            Command to be sent via bluetooth.
+
+        Returns
+        -------
+        success: bool
+            True, if sending the command was successful.
+            False, if sending the command failed.
+        """
         success = False
 
         if self.task_in_progress:
@@ -134,6 +200,15 @@ class AnkiController(VehicleController):
             return success
 
     async def __start_notifications_now(self) -> bool:
+        """
+        Constructs and sends BLE command to start the clients notification service.
+
+        Returns
+        -------
+        bool
+            True, if sending the command was successful.
+            False, if sending the command failed.
+        """
         try:
             await self._connected_car.start_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4",
                                                    self.__on_receive_data)
@@ -145,6 +220,15 @@ class AnkiController(VehicleController):
                 return False
 
     async def __stop_notifications_now(self) -> bool:
+        """
+        Constructs and sends BLE command to stop the clients notification service.
+
+        Returns
+        -------
+        bool
+            True, if sending the command was successful.
+            False, if sending the command failed.
+        """
         try:
             await self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4")
             return True
@@ -155,6 +239,23 @@ class AnkiController(VehicleController):
                 return False
 
     def change_speed_to(self, velocity: int, acceleration: int = 1000, respect_speed_limit: bool = True) -> bool:
+        """
+        Calculates target speed value, constructs and send BLE command to request this speed value.
+
+        Parameters
+        ----------
+        velocity: int
+            Target velocity.
+        acceleration: int
+            Acceleration to get to the target speed.
+        respect_speed_limit: bool
+            Flag to activate or deactivate the track speed limit.
+
+        Returns
+        -------
+        bool
+            True
+        """
         limit_int = int(respect_speed_limit)
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         accel_int = acceleration
@@ -165,6 +266,24 @@ class AnkiController(VehicleController):
         return True
 
     def change_lane_to(self, change_direction: int, velocity: int, acceleration: int = 1000) -> bool:
+        """
+        Calculates, constructs and sends the command to do a requested lane change.
+
+        Parameters
+        ----------
+        change_direction: int
+            -1: lane change to the left.
+            1: lane change to the right.
+        velocity: int
+            Velocity during lane change.
+        acceleration: int
+            Acceleration during lane change.
+
+        Returns
+        -------
+        bool
+            True
+        """
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         lane_direction = self.__LANE_OFFSET * change_direction
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
@@ -174,21 +293,65 @@ class AnkiController(VehicleController):
 
     def do_turn_with(self, direction: Turns,
                      turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE) -> bool:
+        """
+        Constructs and sends the command to do a u-turn.
+
+        Parameters
+        ----------
+        direction: Turns
+            Direction for the turn.
+        turntrigger: TurnTrigger
+            Trigger for the u-turn.
+
+        Returns
+        -------
+        bool
+            True
+        """
         command = struct.pack("<BHH", 0x32, direction.value[0], turntrigger.value[0])
         self.__send_command(command)
         return True
 
     def request_version(self) -> bool:
+        """
+        Constructs and sends command to request Anki cars SW version.
+
+        Returns
+        -------
+        bool
+            True
+        """
         command = struct.pack("<B", 0x18)
         self.__send_command(command)
         return True
 
     def request_battery(self) -> bool:
+        """
+        Constructs and sends the command to request the Anki cars battery status.
+
+        Returns
+        -------
+        bool
+            True
+        """
         command = struct.pack("<B", 0x1a)
         self.__send_command(command)
         return True
 
     async def _setup_car(self, start_notification: bool) -> bool:
+        """
+        Sets sdk mode and initilizes road_offset for the Anki car, optionally starts notification service.
+
+        Parameters
+        ----------
+        start_notification: bool
+            If True, starts notification service.
+
+        Returns
+        -------
+        bool
+            True
+        """
         if start_notification:
             await self.__start_notifications_now()
 
@@ -197,6 +360,20 @@ class AnkiController(VehicleController):
         return True
 
     def __set_sdk_mode_to(self, value: bool) -> bool:
+        """
+        Constructs and sends command to set the sdk mode.
+
+        Parameters
+        ----------
+        value: bool
+            If True, activates sdk mode.
+            If False, deactivate sdk mode.
+
+        Returns
+        -------
+        bool
+            True
+        """
         command_parameter: int
         if value:
             command_parameter = 0x01
@@ -207,16 +384,45 @@ class AnkiController(VehicleController):
         return True
 
     def __set_road_offset_on(self, value: float = 0.0) -> bool:
+        """
+        Constructs and sends command to set the road offset value.
+
+        Parameters
+        ----------
+        value: float
+            Value to set road offset to.
+
+        Returns
+        -------
+        bool
+            True
+        """
         command = struct.pack("<Bf", 0x2c, value)
         self.__send_command(command)
         return True
 
     def _update_road_offset(self) -> bool:
+        """
+        Constructs and sends command to update the road offset value.
+
+        Returns
+        -------
+        bool
+            True
+        """
         command = struct.pack("<B", 0x2d)
         self.__send_command(command)
         return True
 
     async def __disconnect_from_vehicle(self) -> bool:
+        """
+        Constructs and sends command to disconnect from the Anki car after stopping the notification service.
+
+        Returns
+        -------
+        bool
+            True
+        """
         await self.__stop_notifications_now()
 
         command = struct.pack("<B", 0xd)
@@ -224,6 +430,16 @@ class AnkiController(VehicleController):
         return True
 
     def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> None:
+        """
+        Processes received data and runs regarding callback functions according to data type.
+
+        Parameters
+        ----------
+        sender: BleakGATTCharacteristic
+            Sender of the received data.
+        data: bytearray
+            Received data payload.
+        """
         command_id = hex(data[1])
 
         # Version
@@ -258,6 +474,16 @@ class AnkiController(VehicleController):
         return
 
     def on_send_new_event(self, value_tuple: tuple, callback: classmethod) -> None:
+        """
+        Generic function to run a callback function.
+
+        Parameters
+        ----------
+        value_tuple: tuple
+            Arguments for callback function.
+        callback: classmethod
+            Callback function to be executed.
+        """
         if callback is not None:
             callback(value_tuple)
         return
