@@ -41,7 +41,7 @@ class Vehicle:
         """
         Returns whether the vehicle is free (has no active driver)
         """
-        return self.player == None
+        return self.player is None
 
     def get_player(self) -> str | None:
         """
@@ -86,6 +86,7 @@ class Vehicle:
     @hacking_scenario.setter
     def hacking_scenario(self, value: str) -> None:
         self._active_hacking_scenario = value
+        # TODO resolve warning
         self._on_driving_data_change()
 
     @abstractmethod

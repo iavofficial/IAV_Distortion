@@ -7,7 +7,6 @@
 # file that should have been included as part of this package.
 #
 
-import asyncio
 from bleak import BleakScanner
 
 

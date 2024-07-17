@@ -27,8 +27,6 @@ class TurnTrigger(Enum):
 class VehicleController:
     def __init__(self) -> None:
         self._connected_car = None
-
-
         return
 
     def __del__(self) -> None:
@@ -52,5 +50,3 @@ class VehicleController:
     def do_turn_with(self, direction: Turns,
                      turntrigger: TurnTrigger = TurnTrigger.VEHICLE_TURN_TRIGGER_IMMEDIATE) -> bool:
         pass
-
-

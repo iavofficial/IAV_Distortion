@@ -144,7 +144,7 @@ class EnvironmentManager:
         self.logger.info("Searching for unpaired Anki cars")
         found_devices = await self._fleet_ctrl.scan_for_anki_cars()
         # remove already active uuids:
-        new_devices = []
+
         connected_devices = []
         for v in self._active_anki_cars:
             connected_devices.append(v.get_vehicle_id())
@@ -160,7 +160,7 @@ class EnvironmentManager:
     def get_vehicle_list(self) -> list[Vehicle]:
         return self._active_anki_cars
 
-    def remove_vehicle(self, uuid_to_remove: str):
+    def remove_vehicle(self, uuid_to_remove: str) -> None:
         """
         Remove both vehicle and the controlling player for a given vehicle.
 
@@ -201,7 +201,7 @@ class EnvironmentManager:
             If a free vehicle is available, returns the vehicle object the player has been assigned to.
             If no free vehicle is available, returns None.
         """
-        self._add_player_to_queue_if_appropiate(player_id)
+        self._add_player_to_queue_if_appropriate(player_id)
         self._assign_players_to_vehicles()
         self.update_staff_ui()
         for v in self._active_anki_cars:
@@ -210,12 +210,12 @@ class EnvironmentManager:
         # self.update_staff_ui()
         return None
 
-    def _add_player_to_queue_if_appropiate(self, player_id: str) -> None:
+    def _add_player_to_queue_if_appropriate(self, player_id: str) -> None:
         """
         Adds a player to the queue, if it's appropriate.
 
         Player is added to the queue if the player isn't controlling a vehicle already and the player also isn't in the
-        queue already).
+        queue already.
         If player is already in the queue or assigned to a vehicle a potential task to remove the player is canceled.
 
         Parameters
@@ -248,7 +248,8 @@ class EnvironmentManager:
 
                 v.set_player(p)
 
-                timeout_interval = int(self.config_handler.get_configuration()["game_config"]["game_cfg_playing_time_limit_min"])
+                timeout_interval = int(self.config_handler.get_configuration()["game_config"]
+                                       ["game_cfg_playing_time_limit_min"])
                 if self.__check_playing_time_flag is False and timeout_interval != 0:
                     self.logger.debug('Playtime checker is activated.')
                     asyncio.create_task(self.__check_playing_time_is_up())
@@ -345,21 +346,21 @@ class EnvironmentManager:
         Returns a list of all vehicle names from vehicles that are
         controlled by a player
         """
-        l = []
-        for v in self._active_anki_cars:
-            if v.get_player() is not None:
-                l.append(v.get_vehicle_id())
-        return l
+        vehicle_list = []
+        for vehicle in self._active_anki_cars:
+            if vehicle.get_player() is not None:
+                vehicle_list.append(vehicle.get_vehicle_id())
+        return vehicle_list
 
     def get_free_car_list(self) -> List[str]:
         """
         Returns a list of all cars that have no player controlling them
         """
-        l = []
-        for v in self._active_anki_cars:
-            if v.get_player() is None:
-                l.append(v.get_vehicle_id())
-        return l
+        vehicle_list = []
+        for vehicle in self._active_anki_cars:
+            if vehicle.get_player() is None:
+                vehicle_list.append(vehicle.get_vehicle_id())
+        return vehicle_list
 
     def get_waiting_player_list(self) -> List[str]:
         """
@@ -409,7 +410,8 @@ class EnvironmentManager:
         while self.__check_playing_time_flag:
             await asyncio.sleep(10)
 
-            timeout_interval = int(self.config_handler.get_configuration()["game_config"]["game_cfg_playing_time_limit_min"])
+            timeout_interval = int(self.config_handler.get_configuration()["game_config"]
+                                   ["game_cfg_playing_time_limit_min"])
 
             active_players = [v for v in self._active_anki_cars if v.player is not None]
             for player in active_players:
@@ -433,8 +435,8 @@ class EnvironmentManager:
         """
         if player not in self._remove_player_tasks:
             self.logger.debug(f'Scheduling player removal task for player: {player}')
-            self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period(player,
-                                                                                                            grace_period))
+            self._remove_player_tasks[player] = asyncio.create_task(self.__remove_player_after_grace_period
+                                                                    (player, grace_period))
         else:
             self.logger.debug(f'Player removal task already scheduled for {player}')
         return
