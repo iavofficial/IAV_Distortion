@@ -65,12 +65,22 @@ Therefore chose the scenario for the car you want to apply the effect to, as soo
 
 <img src="./images/staffUI_activateScenario.png" alt="IAV-Distortion staff ui" style="width:100%;max-width:400px">
 
+Additional to the controls for the game itself, some system configurations and functions can be accessed by switching to the 'Configuration' tab.
+Here the system can be updated to the latest version available in the repository (of the installed branch) or functions like restarting IAV Distortion, the whole system (Raspberry Pi) or shutting down the system can be accessed.
+
+> [!IMPORTANT]
+> - These functions (Update, Restart IAV Distortion, Restart System and Shutdown System) are only available on Unix like systems.
+> - Running an update requires internet connection.
+
+<img src="./images/staffUI_configuration_systemControl.png" alt="IAV-Distortion staff ui - configuration - system control" style="width:100%;max-width:400px">
+
 ### Driver UI
 The driver ui can be accessed via [&lt;system_iP&gt;:5000/driver]().
 The player will automatically be sent to a waiting queue.
 As soon as a vehicle is free (not assigned to any other player), the player will be assigned to the vehicle and the controls are granted.
 The slider on the left controls the speed.
 With the buttons on the right the lanes can be changed or a u-turn can be performed.
+Player controlling a virtual car will get a top down view of the controlled vehicle (as displayed on the [virtual track](#Virtual-Racetrack)).
 
 <img src="./images/driverUI_noHacking.png" alt="IAV-Distortion driver ui" style="width:100%;max-width:600px">
 
@@ -98,8 +108,8 @@ There the (currently hardcoded) racetrack with the virtual cars is shown.
 
 ## Contributing
 -->
-## License
 
+## License
 ### Third party dependencies
 IAV-Distortion uses some third party dependencies.
 - Bleak (MIT License)
