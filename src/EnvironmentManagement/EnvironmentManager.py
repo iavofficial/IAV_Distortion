@@ -7,6 +7,7 @@
 # file that should have been included as part of this package.
 #
 import logging
+from datetime import datetime, timedelta
 from typing import List, Dict, Callable
 from collections import deque
 import asyncio
@@ -14,6 +15,7 @@ import asyncio
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.LocationService import LocationService
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.EmptyController import EmptyController
@@ -45,6 +47,9 @@ class EnvironmentManager:
         self._virtual_vehicle_num: int = 1
 
         self._remove_player_tasks: dict = {}
+
+        self.__check_playing_time_flag: bool = False
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
     def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
             -> None:
@@ -240,7 +245,17 @@ class EnvironmentManager:
                     return
                 p = self._player_queue_list.popleft()
                 self._publish_player_active(player=p)
+
                 v.set_player(p)
+
+                timeout_interval = int(self.config_handler.get_configuration()["game_config"]["game_cfg_playing_time_limit_min"])
+                if self.__check_playing_time_flag is False and timeout_interval != 0:
+                    self.logger.debug('Playtime checker is activated.')
+                    asyncio.create_task(self.__check_playing_time_is_up())
+                    self.__check_playing_time_flag = True
+                else:
+                    self.logger.debug('Playtime checker is not needed.')
+
         self.update_staff_ui()
         return
 
@@ -386,6 +401,24 @@ class EnvironmentManager:
                     full_map.update({f"Virtual Vehicle {num}": [d, c]})
                     num += 1
         return full_map
+
+    async def __check_playing_time_is_up(self) -> None:
+        """
+        Continuously checks playing time of each active player
+        """
+        while self.__check_playing_time_flag:
+            await asyncio.sleep(10)
+
+            timeout_interval = int(self.config_handler.get_configuration()["game_config"]["game_cfg_playing_time_limit_min"])
+
+            active_players = [v for v in self._active_anki_cars if v.player is not None]
+            for player in active_players:
+                time_difference: timedelta = datetime.now() - player.game_start
+                if time_difference >= timedelta(minutes=timeout_interval):
+                    self.logger.debug(f'playtime of {time_difference} for player {player.player} is over')
+                    self.remove_player_from_vehicle(player.player)
+
+        self.logger.debug('Playtime checker is deactivated.')
 
     def schedule_remove_player_task(self, player: str, grace_period: int = 5) -> None:
         """
