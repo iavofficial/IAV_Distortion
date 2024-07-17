@@ -27,7 +27,7 @@ Replace the parameters (see table above) with your chosen values.
 ```
 ~$ sudo nmcli con add type WiFi ifname wlan0 mode WP con-name <network_connection_name> SSID "<your_accesspoint_SSID_name>" AutoConnect true
 ```
-2. The following command configures the use of 2.4GHz (compatible with more devices) and specifies the IP address (<IP address of pi as access point>) of the access point.
+2. The following command configures the use of 2.4GHz (compatible with more devices) and specifies the IP address (<ip-address_of_pi_as_access_point>) of the access point.
 ```
 ~$ sudo nmcli con modify <network_connection_name> 802-11-wireless.band bg ipv4.method shared ipv4.address <ip-address_of_pi_as_accesspoint>/24
 ```
@@ -47,7 +47,7 @@ Replace the parameters (see table above) with your chosen values.
 ```
 ~$ sudo nmcli con modify <network_connection_name> connection.autoconnect yes connection.autoconnect-priority 0
 ```
-7. Activate client isolation*
+7. Activate client isolation.
 ```
 ~$ nmcli connection modify <network_connection_name> 802-11-wireless.ap isolation 1
 ```
