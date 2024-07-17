@@ -469,8 +469,8 @@ class AnkiController(VehicleController):
             self.on_send_new_event(offset_tuple, self.__offset_callback)
 
         else:
-            new_data = data.hex(" ", 1)
-            # print(f"{command_id} / {new_data[2:]}")
+            _ = data.hex(" ", 1)
+
         return
 
     def on_send_new_event(self, value_tuple: tuple, callback: classmethod) -> None:

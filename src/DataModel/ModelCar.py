@@ -1,4 +1,3 @@
-import abc
 from typing import Callable
 import asyncio
 
@@ -188,7 +187,7 @@ class ModelCar(Vehicle):
     def turn_blocked(self) -> bool:
         return self.__turn_blocked
 
-    @turn_request.setter
+    @turn_blocked.setter
     def turn_blocked(self, value: bool) -> None:
         self.__turn_blocked = value
 

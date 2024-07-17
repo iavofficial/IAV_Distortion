@@ -1,6 +1,5 @@
 import asyncio
 from asyncio import Lock
-import time
 import math
 import logging
 from typing import Tuple, Callable
@@ -18,7 +17,7 @@ class LocationService:
         """
         Init the location service
         track: List of all Track Pieces
-        simulation_ticks_per_second: how many steps should be ran per second. A higher value
+        simulation_ticks_per_second: how many steps should be calculated per second. A higher value
             increases accuracy and the required CPU time
         on_update_callback: Callback that gets executed every time a new position was
             calculated. It includes the global position, the global angle and a dict
@@ -46,7 +45,8 @@ class LocationService:
         # for this change in all function calls that read/write the offset
         self._actual_offset: float = 0
         self._target_offset: float = 0
-        # direction multiplier. 1 if going the default rotation (clockwise on a round track) and -1 if going the opposing direction
+        # direction multiplier. 1 if going the default rotation (clockwise on a round track) and
+        # -1 if going the opposing direction
         self._direction_mult: int = 1
         # used to save direction, if the car comes to a stop
         self._stop_direction: Angle = Angle(90)
@@ -74,7 +74,7 @@ class LocationService:
         if self.__task is not None:
             self.stop()
 
-    def set_on_update_callback(self, callback_function: Callable[[Position, Angle, dict], None] ) -> None:
+    def set_on_update_callback(self, callback_function: Callable[[Position, Angle, dict], None]) -> None:
         self._on_update_callback = callback_function
 
         return
@@ -273,12 +273,14 @@ class LocationService:
         # prevent "maximum recursion depth exceeded" Errors in case the simulation has a bug
         if self._direction_mult == -1 and distance > 0:
             self.logger.critical(
-                "The leftover distance is positive while driving in opposing direction. This would create a infinite recursion. Breaking the loop to prevent this!")
-            return (self._current_position, self._stop_direction)
+                "The leftover distance is positive while driving in opposing direction."
+                "This would create a infinite recursion. Breaking the loop to prevent this!")
+            return self._current_position, self._stop_direction
         elif self._direction_mult == 1 and distance < 0:
             self.logger.critical(
-                "The leftover distance is negative while driving in default direction. This would create a infinite recursion. Breaking the loop to prevent this!")
-            return (self._current_position, self._stop_direction)
+                "The leftover distance is negative while driving in default direction."
+                "This would create a infinite recursion. Breaking the loop to prevent this!")
+            return self._current_position, self._stop_direction
 
         old_pos = self._current_position
         piece, global_track_offset = self._track.get_entry_tupel(self._current_piece_index)
@@ -300,7 +302,7 @@ class LocationService:
         else:
             rot = old_pos.calculate_angle_to(self._current_position)
             self._stop_direction = rot
-        return (self._current_position, rot)
+        return self._current_position, rot
 
     async def _run_task(self) -> None:
         """
@@ -327,7 +329,8 @@ class LocationService:
         """
         self.__task = asyncio.create_task(self._run_task())
         #        if self._simulation_thread is not None:
-        #            self.logger.error("It was attempted to start an already running LocationService Thread. Ignoring the request!")
+        #            self.logger.error("It was attempted to start an already running LocationService Thread.
+        #            Ignoring the request!")
         #            return
         #        self._stop_event.clear()
         #        # TODO: Check if Flask-SocketIO's start_background_task is needed here
@@ -341,7 +344,8 @@ class LocationService:
         """
         self.__task.cancel()
         #        #if self._simulation_thread is None:
-        #        #    self.logger.error("It was attempted to stop an already stopped LocationService Thread. Ignoring the request!")
+        #        #    self.logger.error("It was attempted to stop an already stopped LocationService Thread.
+        #        Ignoring the request!")
         #        #    return
         #        self._stop_event.set()
         #        #self._simulation_thread.join()
@@ -349,7 +353,7 @@ class LocationService:
         return
 
 
-class UTurnOverride():
+class UTurnOverride:
     """
     Class that overrides the complete LocationService behavior to
     do a complete U-Turn
@@ -406,7 +410,7 @@ class UTurnOverride():
                         self._last_curve_pos.get_y() >= 0 and self._angle_multiplier == -1:
                     self._location_service._direction_mult *= -1
                     self._phase = 2
-                # this is done since dy could be negative for the last step which would create a infinite recursion
+                # this is done since dy could be negative for the last step which would create an infinite recursion
                 return abs(self._do_curve_step())
             # second half of the curve
             case 2:

@@ -14,5 +14,8 @@
 		"driver_heartbeat_timeout_s": 30,
 		"driver_reconnect_grace_period_s": 5,
 		"driver_background_grace_period_s": 30
+	},
+	"game_config": {
+		"game_cfg_playing_time_limit_min": 1
 	}
 }

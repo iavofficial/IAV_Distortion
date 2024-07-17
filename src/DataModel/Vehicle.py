@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+from datetime import datetime
 from typing import Callable
 
 from abc import abstractmethod
@@ -15,6 +16,7 @@ class Vehicle:
     def __init__(self, vehicle_id: str) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
+        self.game_start: datetime | None = None
 
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict], None] | None = None
@@ -26,18 +28,20 @@ class Vehicle:
         Sets the owner of the vehicle
         """
         self.player = key
+        self.game_start = datetime.now()
 
     def remove_player(self) -> None:
         """
         Removes the player occupation and marks the vehicle as free
         """
         self.player = None
+        self.game_start = None
 
     def is_free(self) -> bool:
         """
         Returns whether the vehicle is free (has no active driver)
         """
-        return self.player == None
+        return self.player is None
 
     def get_player(self) -> str | None:
         """
@@ -82,6 +86,7 @@ class Vehicle:
     @hacking_scenario.setter
     def hacking_scenario(self, value: str) -> None:
         self._active_hacking_scenario = value
+        # TODO resolve warning
         self._on_driving_data_change()
 
     @abstractmethod
