@@ -9,8 +9,7 @@ The IAV-Distortion project is an ideal exhibit for trade fairs or other similar 
 It thereby acts as a crowd-puller due to its exciting premise and the opportunity it offers for audience interaction.
 Through this initiative, we aspire to make the sometimes daunting world of cybersecurity accessible to a wider audience, fostering understanding and engagement.
 
-> [!IMPORTANT]
-> Add overview picture here!
+<img src="./images/IAV_Distortion_concept_illustration.jpg" alt="IAV-Distortion concept illustration" style="width:100%;max-width:500px">
 
 ## Getting Started
 ### Prerequisites
@@ -41,19 +40,19 @@ and run it. Executing the install script will...
 After setting up the project successfuly, you can control the system and the cars using any device wich can access a webbrowser and is connected to the same network or hotspot of the system.
 
 ### Staff Control
-The staff userinterface can be accessed via <system_iP>:5000/staff/staff_control.
+The staff userinterface can be accessed via &lt;system_iP&gt;:5000/staff/staff_control.
 On this side Anki cars can be added / connected via bluetooth.
 Aside from that the different hacking scenarios can be actiavted for the connected cars.
-> [!IMPORTANT]
-> Add picture of UI here!
+
+<img src="./images/staffUI_activateScenario.png" alt="IAV-Distortion staff ui" style="width:100%;max-width:400px">
 
 ### Driver UI
-The driver ui can be acessed via <system_iP>:5000/driver/<player>.
-This ui will only be available if the choosen <player> exists. (See staff ui).
+The driver ui can be acessed via &lt;system_iP&gt;:5000/driver/&lt;player&gt;.
+This ui will only be available if the choosen &lt;player&gt; exists. (See staff ui).
 The slider on the left controls the speed.
 With the buttons on the right the lanes can be changed.
-> [!IMPORTANT]
-> Add picture of UI here!
+
+<img src="./images/driverUI_noHacking.png" alt="IAV-Distortion driver ui" style="width:100%;max-width:600px">
 
 <!--## Roadmap
 
