@@ -27,11 +27,12 @@ Only if you want to get an update.
 > Information on [how to install Raspberry OS](https://www.raspberrypi.com/software/) can be found on the official Raspberry Pi website.
 
 1. Download the [installer.sh](installer.sh) script.
-2. Make the installer.sh script executable using the following command and run it afterwards in the terminal (double click -> run in terminal).
+2. Make the installer.sh script executable using the following command.
 ```
 sudo chmod +x <path/to/>installer.sh
 ```
-
+3. Run it afterwards in the terminal (double click -> run in terminal).
+   
 > [!NOTE]
 > During the installation process the following will happen:
 > 1. Search for existing local copies of the repository/folders with the repository name "IAV_Distortion".
