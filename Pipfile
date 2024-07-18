@@ -11,6 +11,7 @@ pytest = "==8.2.0"
 quart = "*"
 hypercorn = "*"
 python-socketio = "*"
+pytest-asyncio = "*"
 
 [dev-packages]
 sphinx = "*"
