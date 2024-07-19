@@ -8,11 +8,12 @@ from VehicleManagement.AnkiController import AnkiController
 from LocationService.TrackPieces import TrackBuilder, FullTrack
 from LocationService.Track import TrackPieceType
 
+
 def get_dummy_track() -> FullTrack:
-        track: FullTrack = TrackBuilder()\
-            .append(TrackPieceType.STRAIGHT_WE)\
-            .build()
-        return track
+    track: FullTrack = TrackBuilder() \
+        .append(TrackPieceType.STRAIGHT_WE) \
+        .build()
+    return track
 
 
 class ModelCarTest(TestCase):
