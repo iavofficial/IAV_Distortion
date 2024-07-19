@@ -118,6 +118,7 @@ IAV-Distortion uses some third party dependencies.
 - python-socketio (MIT License)
 - hypercorn (MIT License)
 - pytest (MIT License)
+- pytest-asyncio (Apache License 2.0)
 - pluggy (MIT License)
 - sphinx (BSD2 License)
 - jQuery (MIT License)
