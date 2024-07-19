@@ -131,7 +131,8 @@ class AnkiController(VehicleController):
             else:
                 self.logger.info("Not connected")
                 return False
-        except BleakError:
+        except BleakError as e:
+            self.logger.debug(f"Bleak Error: {e}")
             return False
 
     def __send_command(self, command: bytes) -> None:
