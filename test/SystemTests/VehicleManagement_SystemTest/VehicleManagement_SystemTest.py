@@ -8,42 +8,54 @@
 #
 import asyncio
 import pytest
+from unittest.mock import patch
 from bleak import BleakClient, BleakError
+from VehicleManagement.AnkiController import AnkiController
 
 
 @pytest.mark.asyncio
-async def test_spam_connection_requests(mac_address: str = 'E8:7E:9F:34:CF:46', connection_requests: int = 2) -> None:
-    client = BleakClient(mac_address)
+async def test_spam_connection_requests(mac_address: str = 'E8:7E:9F:34:CF:46', connection_requests: int = 2,
+                                        change_speed: bool = False) -> None:
+    """
+    Test if multiple BLE connections can be established with one Anki Overdrive car.
 
-    tasks = []
-    results = []
-    for i in range(connection_requests):
-        task = asyncio.create_task(client.connect())
-        tasks.append(task)
+    Expectation: It is possible to establish only ONE connection, further tries to connect to the vehicle fail.
 
-        try:
-            result = await task
-            results.append(result)
-        except BleakError as e:
-            # Assuming BleakError is raised for connection failures
-            results.append(e)
+    Parameters
+    ----------
+    mac_address: str
+        MAC address of the Anki car used for the test.
+    connection_requests: int
+        Amount of connection requests/clients.
+    change_speed: bool
+        If True: Send speed requests from different clients to the Anki car.
+    """
+    clients = []
+    controllers = []
+    with patch.object(AnkiController, '__del__', lambda x: None):
+        # patch AnkiController.__del__() to avoid errors due to asynchronous task in __del__ that is irrelevant for
+        # the test
+        for i in range(connection_requests):
+            clients.append(BleakClient(mac_address))
+            controllers.append(AnkiController())
 
+    results = {}
+    i = 0
+    for controller in controllers:
+        result = await controller.connect_to_vehicle(clients[i])
+        results[controller] = result
+        i += 1
 
-    #for task in asyncio.as_completed(tasks):
-    #    try:
-    #        result = await task
-    #        results.append(result)
-    #    except BleakError as e:
-    #        # Assuming BleakError is raised for connection failures
-    #        results.append(e)
+    if change_speed:
+        controllers[0].change_speed_to(60)
+        await asyncio.sleep(2)
+        controllers[1].change_speed_to(30)
+        await asyncio.sleep(2)
+        controllers[0].change_speed_to(0)
+        await asyncio.sleep(2)
 
-    print(results)
     # Assertions
-    assert results[0] is True, "First connection request should succeed"
-    assert isinstance(results[1], BleakError), "Second connection request should result in a BleakError"
-
-    # Clean up by disconnecting if connected
-    if client.is_connected:
-        await client.disconnect()
-
-# asyncio.run(test_spam_connection_requests(mac_address='E8:7E:9F:34:CF:46', connection_requests=10))
+    assert controllers[0]._connected_car.address == mac_address, \
+        "First connection request should succeed. Check if correct mac address is used and if vehicle is turned on."
+    for c in range(1, connection_requests):
+        assert controllers[c]._connected_car is None, "Any other connection attempt should fail"
