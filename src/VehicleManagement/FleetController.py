@@ -22,3 +22,18 @@ class FleetController:
             return _active_devices
         else:
             return []
+
+    def set_add_anki_car_callback(self, function_name: Callable[[str], None]) -> None:
+        """
+        Sets callback function to add Anki cars.
+
+        Parameters
+        ----------
+        function_name: Callable
+            Callback function.
+        """
+        logging.warning(f'Try to set {function_name} as callback')
+        self.__add_anki_car_callback = function_name
+        logging.warning(f'callback set to {self.__add_anki_car_callback}')
+        return
+
