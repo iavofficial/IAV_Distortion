@@ -32,8 +32,10 @@ class FleetController:
         function_name: Callable
             Callback function.
         """
-        logging.warning(f'Try to set {function_name} as callback')
-        self.__add_anki_car_callback = function_name
-        logging.warning(f'callback set to {self.__add_anki_car_callback}')
+        if not callable(function_name):
+            logging.warning("Tried to set non callable function as callback function.")
+        else:
+            self.__add_anki_car_callback = function_name
+        return
         return
 
