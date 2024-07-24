@@ -80,5 +80,21 @@ class FleetController:
         else:
             self.__add_anki_car_callback = function_name
         return
+
+    # TODO: Decide where to trigger start_auto_connect_anki_cars -> maybe when StaffUI is loaded?
+    async def start_auto_connect_anki_cars(self) -> None:
+        """
+        Starts auto connecting to Anki cars, if configured.
+        """
+        if self.__auto_connect_anki_cars_task is None:
+            asyncio.create_task(self.auto_discover_anki_vehicles())
         return
 
+    def stop_auto_connect_anki_cars(self) -> None:
+        """
+        Stops auto connecting to Anki cars.
+        """
+        if isinstance(self.__auto_connect_anki_cars_task, asyncio.Task):
+            self.__auto_connect_anki_cars_task.cancel()
+            self.__auto_connect_anki_cars_task = None
+        return
