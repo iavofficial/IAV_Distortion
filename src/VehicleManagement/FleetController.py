@@ -88,6 +88,7 @@ class FleetController:
         """
         if self.__auto_connect_anki_cars_task is None:
             asyncio.create_task(self.auto_discover_anki_vehicles())
+            logging.info("Auto discovery service for Anki cars activated.")
         return
 
     def stop_auto_connect_anki_cars(self) -> None:
@@ -97,4 +98,5 @@ class FleetController:
         if isinstance(self.__auto_connect_anki_cars_task, asyncio.Task):
             self.__auto_connect_anki_cars_task.cancel()
             self.__auto_connect_anki_cars_task = None
+            logging.info("Auto discovery service for Anki cars deactivated.")
         return
