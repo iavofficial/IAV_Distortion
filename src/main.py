@@ -12,6 +12,7 @@ from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from UserInterface.DriverUI import DriverUI
 from UserInterface.StaffUI import StaffUI
@@ -26,33 +27,37 @@ import asyncio
 import os
 
 
-def main(admin_password: str):
-    sio = AsyncServer(async_mode='asgi')
-    app = Quart('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
+def create_app(admin_password: str):
+    socket = AsyncServer(async_mode='asgi')
+    quart_app = Quart('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
 
+    config_handler = ConfigurationHandler()
     fleet_ctrl = FleetController()
     environment_mng = EnvironmentManager(fleet_ctrl)
+
+    @quart_app.before_serving
+    async def app_start_up():
+        if config_handler.get_configuration()["environment"]["env_auto_discover_anki_cars"]:
+            print("Add background task")
+            quart_app.add_background_task(fleet_ctrl.start_auto_connect_anki_cars)
+
     vehicles = environment_mng.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
     cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
 
-    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=sio)
+    driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=socket)
     driver_ui_blueprint = driver_ui.get_blueprint()
-    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, sio=sio, environment_mng=environment_mng,
+    staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, sio=socket, environment_mng=environment_mng,
                        password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
-    car_map = CarMap(environment_manager=environment_mng, sio=sio)
+    car_map = CarMap(environment_manager=environment_mng, sio=socket)
     car_map_blueprint = car_map.get_blueprint()
 
-    app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
-    app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
-    app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
+    quart_app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
+    quart_app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
+    quart_app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
 
-    app_asgi = ASGIApp(socketio_server=sio, other_asgi_app=app)
-
-    config = Config()
-    config.bind = ["0.0.0.0:5000"]
-    asyncio.run(serve(app_asgi, config))
+    return quart_app, socket
 
 
 if __name__ == '__main__':
@@ -62,6 +67,10 @@ if __name__ == '__main__':
         print("WARNING!!! No admin password supplied via Environment variable. Using '0000' as default password. "
               "Please change the password!")
         admin_pwd = '0000'
-        
-    main(admin_pwd)
 
+    app, sio = create_app(admin_pwd)
+    app_asgi = ASGIApp(socketio_server=sio, other_asgi_app=app)
+
+    config = Config()
+    config.bind = ["0.0.0.0:5000"]
+    asyncio.run(serve(app_asgi, config))
