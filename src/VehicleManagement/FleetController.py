@@ -45,7 +45,6 @@ class FleetController:
                 state = list(local_name.encode('utf-8'))[0]
                 if state == 16:
                     _active_devices.append(device[0].address)
-
         else:
             _active_devices = [d[0].address for d in ble_devices.values() if
                                d[0].name is not None and "Drive" in d[0].name]
@@ -60,7 +59,7 @@ class FleetController:
             anki_cars = await self.scan_for_anki_cars(only_ready=True)
             for uuid in anki_cars:
                 if not callable(self.__add_anki_car_callback):
-                    logging.warning('Missing callback to add vehicles. Auto discovery service will be terminated.')
+                    logging.warning('Missing callback to add vehicles. Auto discovery service will be deactivated.')
                     self.stop_auto_connect_anki_cars()
                 else:
                     await self.__add_anki_car_callback(uuid)
@@ -81,7 +80,6 @@ class FleetController:
             self.__add_anki_car_callback = function_name
         return
 
-    # TODO: Decide where to trigger start_auto_connect_anki_cars -> maybe when StaffUI is loaded?
     async def start_auto_connect_anki_cars(self) -> None:
         """
         Starts auto connecting to Anki cars, if configured.
