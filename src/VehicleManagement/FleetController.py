@@ -51,6 +51,21 @@ class FleetController:
                                d[0].name is not None and "Drive" in d[0].name]
         return _active_devices
 
+    async def auto_discover_anki_vehicles(self) -> None:
+        """
+        Periodically scan for Anki cars.
+        """
+        auto_connect = self.configHandler.get_configuration()["environment"]["env_auto_discover_anki_cars"]
+        while auto_connect:
+            anki_cars = await self.scan_for_anki_cars(only_ready=True)
+            for uuid in anki_cars:
+                if not callable(self.__add_anki_car_callback):
+                    logging.warning('Missing callback to add vehicles. Auto discovery service will be terminated.')
+                    self.stop_auto_connect_anki_cars()
+                else:
+                    await self.__add_anki_car_callback(uuid)
+            await asyncio.sleep(5)
+
     def set_add_anki_car_callback(self, function_name: Callable[[str], None]) -> None:
         """
         Sets callback function to add Anki cars.
