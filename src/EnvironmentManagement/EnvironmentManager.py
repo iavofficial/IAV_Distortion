@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Callable
 from collections import deque
 import asyncio
+from enum import Enum
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
@@ -23,6 +24,12 @@ from VehicleManagement.FleetController import FleetController
 
 from LocationService.TrackPieces import TrackBuilder, FullTrack
 from LocationService.Track import TrackPieceType
+
+
+class RemovalReason(Enum):
+    NONE = 0
+    PLAYING_TIME_IS_UP = 1
+    NOT_REACHABLE = 2
 
 
 class EnvironmentManager:
@@ -103,7 +110,7 @@ class EnvironmentManager:
                                             self.get_waiting_player_list())
         return
 
-    def _publish_removed_player(self, player: str) -> None:
+    def _publish_removed_player(self, player: str, reason: RemovalReason = RemovalReason.NONE) -> None:
         """
         Sends which player has been removed from the game to the staff ui using a callback function.
 
@@ -112,10 +119,18 @@ class EnvironmentManager:
         player: str
             ID of player that has been removed.
         """
+        message: str = ""
+        if reason is RemovalReason.NONE:
+            message = "Your player hase been removed from the game."
+        elif reason is RemovalReason.NOT_REACHABLE:
+            message = "Your player was removed from the game, because you were no longer reachable."
+        elif reason is RemovalReason.PLAYING_TIME_IS_UP:
+            message = "Your player was removed from the game, because your playing time is over."
+
         if not callable(self.__publish_removed_player_callback):
             self.logger.critical('Missing publish_removed_player_callback!')
         else:
-            self.__publish_removed_player_callback(player)
+            self.__publish_removed_player_callback(player=player, reason=message)
         return
 
     def _publish_player_active(self, player: str) -> None:
@@ -273,30 +288,40 @@ class EnvironmentManager:
         self.update_staff_ui()
         return
 
-    def remove_player_from_waitlist(self, player_id: str) -> None:
+    def manage_removal_from_game_for(self, player_id: str, reason: RemovalReason) -> bool:
+        is_player_removed: bool = False
+
+        is_player_removed = self.remove_player_from_waitlist(player_id)
+        is_player_removed = self.remove_player_from_vehicle(player_id)
+
+        if is_player_removed:
+            self._publish_removed_player(player=player_id, reason=reason)
+            self.update_staff_ui()
+            return True
+        else:
+            return False
+
+    def remove_player_from_waitlist(self, player_id: str) -> bool:
         """
         Remove a player from the waiting queue
         """
         if player_id in self._player_queue_list:
             self._player_queue_list.remove(player_id)
-        # TODO: Show other page when the user gets removed from here
-        self._publish_removed_player(player=player_id)
-        self.update_staff_ui()
-        return
+            return True
+        else:
+            return False
 
-    def remove_player_from_vehicle(self, player: str) -> None:
+    def remove_player_from_vehicle(self, player_id: str) -> bool:
         """
         removes a player from the vehicle they are controlling
         """
         for v in self._active_anki_cars:
-            if v.get_player() == player:
-                self.logger.info(f"Removing player with UUID {player} from vehicle")
+            if v.get_player() == player_id:
+                self.logger.info(f"Removing player with UUID {player_id} from vehicle")
                 v.remove_player()
-                self._publish_removed_player(player=player)
                 self._assign_players_to_vehicles()
-                # TODO: define how to control vehicle without player
-        self.update_staff_ui()
-        return
+                return True
+        return False
 
     async def add_vehicle(self, uuid: str) -> None:
         self.logger.debug(f"Adding vehicle with UUID {uuid}")
@@ -418,7 +443,8 @@ class EnvironmentManager:
                 time_difference: timedelta = datetime.now() - player.game_start
                 if time_difference >= timedelta(minutes=timeout_interval):
                     self.logger.debug(f'playtime of {time_difference} for player {player.player} is over')
-                    self.remove_player_from_vehicle(player.player)
+                    self.manage_removal_from_game_for(player_id=player.player,
+                                                      reason=RemovalReason.PLAYING_TIME_IS_UP)
 
         self.logger.debug('Playtime checker is deactivated.')
 
@@ -469,8 +495,8 @@ class EnvironmentManager:
         """
         try:
             await asyncio.sleep(grace_period)
-            self.remove_player_from_waitlist(player)
-            self.remove_player_from_vehicle(player)
+            self.manage_removal_from_game_for(player_id=player,
+                                              reason=RemovalReason.NOT_REACHABLE)
         except asyncio.CancelledError:
             logging.debug(f"Player {player} reconnected. Removing player aborted.")
         return
