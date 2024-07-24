@@ -178,9 +178,9 @@
         });
 
         socket.on('player_removed', function(data) {
-            if (data == "{{ player }}") {
+            if (data.player_id == "{{ player }}") {
                 newContent = document.createElement("span");
-                newContent.textContent = "Your driving time is sadly over";
+                newContent.textContent = data.message;
                 newContent.style.margin = "auto auto";
                 newContent.style.fontSize = "32pt";
                 document.getElementById("control").replaceChildren(newContent);

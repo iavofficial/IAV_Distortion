@@ -500,7 +500,7 @@ class StaffUI:
         self.__run_async_task(self.__emit_new_data(data))
         return
 
-    def publish_removed_player(self, player: str) -> None:
+    def publish_removed_player(self, player: str, reason: str = "") -> None:
         """
         Sends 'player_removed' event.
 
@@ -508,8 +508,10 @@ class StaffUI:
         ----------
         player: str
             ID of the player which has been removed.
+        reason: str
+            removal reason shown in the UI
         """
-        self.__run_async_task(self.__emit_player_removed(player))
+        self.__run_async_task(self.__emit_player_removed(player, reason))
         return
 
     def publish_player_active(self, player: str) -> None:
@@ -549,7 +551,7 @@ class StaffUI:
         await self._sio.emit('player_active', player)
         return
 
-    async def __emit_player_removed(self, player: str) -> None:
+    async def __emit_player_removed(self, player: str, reason: str = "") -> None:
         """
         Emits the 'player_removed' websocket event.
 
@@ -557,8 +559,15 @@ class StaffUI:
         ----------
         player: str
             ID of player that has been removed from the game.
+                    reason: str
+        reason: str
+            removal reason shown in the UI
         """
-        await self._sio.emit('player_removed', player)
+        data = {
+            "player_id": player,
+            "message": reason
+        }
+        await self._sio.emit('player_removed', data)
         return
 
     async def __emit_new_data(self, data: dict) -> None:
