@@ -80,18 +80,18 @@ class FleetController:
             self.__add_anki_car_callback = function_name
         return
 
-    async def start_auto_connect_anki_cars(self) -> None:
+    async def start_auto_discover_anki_cars(self) -> None:
         """
-        Starts auto connecting to Anki cars, if configured.
+        Starts auto discover service for Anki cars if not already running.
         """
         if self.__auto_connect_anki_cars_task is None:
             asyncio.create_task(self.auto_discover_anki_vehicles())
             logging.info("Auto discovery service for Anki cars activated.")
         return
 
-    def stop_auto_connect_anki_cars(self) -> None:
+    def stop_auto_discover_anki_cars(self) -> None:
         """
-        Stops auto connecting to Anki cars.
+        Stops auto discover service for Anki cars.
         """
         if isinstance(self.__auto_connect_anki_cars_task, asyncio.Task):
             self.__auto_connect_anki_cars_task.cancel()

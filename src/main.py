@@ -42,7 +42,7 @@ def create_app(admin_password: str):
         Function executed once during application start up.
         """
         if config_handler.get_configuration()["environment"]["env_auto_discover_anki_cars"]:
-            quart_app.add_background_task(fleet_ctrl.start_auto_connect_anki_cars)
+            quart_app.add_background_task(fleet_ctrl.start_auto_discover_anki_cars)
 
     vehicles = environment_mng.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
