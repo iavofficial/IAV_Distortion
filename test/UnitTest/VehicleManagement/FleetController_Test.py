@@ -118,6 +118,12 @@ async def test_auto_discover_anki_vehicles() -> None:
 async def test_auto_discover_anki_vehicles_invalid_callback() -> None:
     """
     Test if auto discovery service is terminated if invalid callback is used.
+
+    Precondition:
+    - no special preconditions required
+
+    Expectation:
+    - if no callable callback function is set, the stop_auto_discover_anki_cars is called to terminate the service
     """
     # Arrange
     test_config_handler = ConfigurationHandler('../src/config_file.json')  # use default config_file
@@ -132,4 +138,3 @@ async def test_auto_discover_anki_vehicles_invalid_callback() -> None:
 
         # Assert
         mock_stop_auto_discover.assert_called_once()
-        
