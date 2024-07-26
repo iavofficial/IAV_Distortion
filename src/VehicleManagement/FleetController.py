@@ -16,9 +16,9 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 class FleetController:
 
-    def __init__(self):
+    def __init__(self, config_handler: ConfigurationHandler = None):
         self._connected_cars = {}  # BleakClients
-        self.configHandler: ConfigurationHandler = ConfigurationHandler()
+        self.config_handler: ConfigurationHandler = config_handler if config_handler else ConfigurationHandler()
         self.__add_anki_car_callback: Callable[[str], None] | None = None
         self.__auto_connect_anki_cars_task: Task | None = None
 
