@@ -31,9 +31,10 @@ class ConfigurationHandler(metaclass=Singleton):
     Implemented as singleton to ensure globally consistent configuration data.
     """
 
-    def __init__(self) -> None:
-        self.logger: Logger = getLogger(__name__)
+    def __init__(self, config_file: str = "config_file.json") -> None:
+        self.config_file: str = config_file
 
+        self.logger: Logger = getLogger(__name__)
         self.logger.setLevel(DEBUG)
         console_handler = StreamHandler()
         self.logger.addHandler(console_handler)
@@ -62,7 +63,7 @@ class ConfigurationHandler(metaclass=Singleton):
             For any other unexpected errors that may occur.
         """
         try:
-            with open('config_file.json', 'r') as file:
+            with open(self.config_file, 'r') as file:
                 configuration = json.load(file)
                 return configuration,
 
