@@ -20,5 +20,7 @@ These parameters will be described in the following.
 |                         | "driver_background_grace_period_s" | 30                      | int  | Period until a player will be removed from the game because he navigated away from the driver ui, to prevent inactive players remain in the game.                                                  |
 | **"game_config"**       |                                    |                         |      | **Parameters regarding the game configuration.**                                                                                                                                                   |
 |                         | "game_cfg_playing_time_limit_min"  | 5                       | int  | Period until a player will be removed from the game, because of his playing time.                                                                                                                  |
+| **"environment"**       |                                    |                         |      | **Parameters regarding the game environment**                                                                                                                                                      |
+|                         | "env_auto_discover_anki_cars"      | 1                       | bool | If True, the system scans periodically for Anki cars and automatically connects to them if they are **not placed on the charger**.                                                                 |
 
 

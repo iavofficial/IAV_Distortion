@@ -34,14 +34,13 @@ class EnvironmentManager:
         self.logger.addHandler(console_handler)
 
         self._fleet_ctrl = fleet_ctrl
+
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
 
         self.__update_staff_ui_callback: Callable[[Dict[str, str], List[str], List[str]], None] | None = None
         self.__publish_removed_player_callback: Callable[[str], None] | None = None
         self.__publish_player_active_callback: Callable[[str], None] | None = None
-
-        # self.find_unpaired_anki_cars()
 
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
@@ -50,6 +49,8 @@ class EnvironmentManager:
 
         self.__check_playing_time_flag: bool = False
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
+
+        self._fleet_ctrl.set_add_anki_car_callback(self.add_vehicle)
 
     def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
             -> None:
