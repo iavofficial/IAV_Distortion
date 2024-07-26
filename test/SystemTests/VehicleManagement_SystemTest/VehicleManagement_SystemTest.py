@@ -13,6 +13,8 @@ from bleak import BleakClient, BleakError
 from VehicleManagement.AnkiController import AnkiController
 
 
+@pytest.mark.manual
+@pytest.mark.one_anki_car_needed
 @pytest.mark.asyncio
 async def test_spam_connection_requests(mac_address: str = 'E8:7E:9F:34:CF:46', connection_requests: int = 2,
                                         change_speed: bool = False) -> None:
