@@ -58,9 +58,6 @@ class StaffUI:
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
 
-        #self.loop = asyncio.get_event_loop()
-        #print(self.loop)
-
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
             """

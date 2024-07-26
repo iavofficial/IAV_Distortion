@@ -121,7 +121,7 @@ class EnvironmentManager:
         """
         message: str = ""
         if reason is RemovalReason.NONE:
-            message = "Your player hase been removed from the game."
+            message = "Your player has been removed from the game."
         elif reason is RemovalReason.NOT_REACHABLE:
             message = "Your player was removed from the game, because you were no longer reachable."
         elif reason is RemovalReason.PLAYING_TIME_IS_UP:
@@ -289,10 +289,8 @@ class EnvironmentManager:
         return
 
     def manage_removal_from_game_for(self, player_id: str, reason: RemovalReason) -> bool:
-        is_player_removed: bool = False
-
-        is_player_removed = self.remove_player_from_waitlist(player_id)
-        is_player_removed = self.remove_player_from_vehicle(player_id)
+        is_player_removed = (self.remove_player_from_waitlist(player_id)
+                             or self.remove_player_from_vehicle(player_id))
 
         if is_player_removed:
             self._publish_removed_player(player=player_id, reason=reason)
