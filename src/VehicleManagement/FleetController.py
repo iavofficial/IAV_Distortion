@@ -88,7 +88,7 @@ class FleetController:
         Starts auto discover service for Anki cars if not already running.
         """
         if self.__auto_connect_anki_cars_task is None:
-            asyncio.create_task(self.auto_discover_anki_vehicles())
+            self.__auto_connect_anki_cars_task = asyncio.create_task(self.auto_discover_anki_vehicles())
             logging.info("Auto discovery service for Anki cars activated.")
         return
 
