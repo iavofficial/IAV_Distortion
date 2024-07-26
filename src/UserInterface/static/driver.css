@@ -240,6 +240,12 @@ body{
     align-items: center;
 }
 
+.info-box-buttons{
+    flex-direction: row;
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .refresh-button{
     display: flex;
     align-items: center;

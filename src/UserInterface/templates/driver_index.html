@@ -179,11 +179,13 @@
 
         socket.on('player_removed', function(data) {
             if (data.player_id == "{{ player }}") {
-                newContent = document.createElement("span");
-                newContent.textContent = data.message;
-                newContent.style.margin = "auto auto";
-                newContent.style.fontSize = "32pt";
-                document.getElementById("control").replaceChildren(newContent);
+
+                var baseUrl = 'http://' + document.domain + ':' + location.port + '/driver/exit';
+                var player = data.player_id;
+                var reason = data.message;
+
+                var fullUrl = baseUrl + "?player_id=" + encodeURIComponent(player) + "&reason=" + encodeURIComponent(reason);
+                window.location.href = fullUrl;
             }
         });
 
