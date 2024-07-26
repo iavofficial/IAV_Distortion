@@ -16,6 +16,7 @@ from VehicleManagement.FleetController import FleetController
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 
+@pytest.mark.slow
 @pytest.mark.two_anki_cars_needed
 @pytest.mark.asyncio
 async def test_scan_for_anki_cars() -> None:
@@ -43,6 +44,7 @@ async def test_scan_for_anki_cars() -> None:
     assert len(found_devices) == 2
 
 
+@pytest.mark.slow
 @pytest.mark.two_anki_cars_needed
 @pytest.mark.anki_car_placed_on_charger
 @pytest.mark.anki_car_removed_from_charger
@@ -74,23 +76,18 @@ async def test_scan_for_ready_anki_cars() -> None:
     assert len(found_devices) == 1
 
 
-@pytest.mark.two_anki_cars_needed
-@pytest.mark.anki_car_placed_on_charger
-@pytest.mark.anki_car_removed_from_charger
+@pytest.mark.slow
 @pytest.mark.asyncio
 async def test_auto_discover_anki_vehicles() -> None:
     """
     Test the auto discovery function.
 
     Preconditions:
-    - one Anki car placed NOT on the charger
-    - one Anki car placed on the charger
-    - both Anki cars turned on and ready to connect (LED green)
+    - no special preconditions required
 
     Expectation:
     - auto_discover_anki_vehicles function will be started
-    - the Anki car not placed on the charger will be discovered
-    - the Anki car placed on the charger will not be discovered
+    - the mocked add_anki_car_callback will be called once with the mocked return_value of scan_for_anki_cars
 
     Note:
     - The following exception will appear during the test, because the event loop will be terminated with pending tasks.
@@ -100,18 +97,19 @@ async def test_auto_discover_anki_vehicles() -> None:
     # Arrange
     test_config_handler = ConfigurationHandler('TestResources/test_config_files/env_auto_discover_anki_cars-true.json')
     fleet_controller = FleetController(test_config_handler)
+    test_uuid = "uuid1"
+    fleet_controller.scan_for_anki_cars = AsyncMock(return_value=[test_uuid])
 
-    mock_callback = Mock()
+    mock_callback = AsyncMock()
     fleet_controller.set_add_anki_car_callback(mock_callback)
 
     # Act
     await fleet_controller.start_auto_discover_anki_cars()
-    await asyncio.sleep(7)  # wait some time to allow one BLE search
+    await asyncio.sleep(2)  # wait some time to allow one BLE search
+    fleet_controller.stop_auto_discover_anki_cars()
 
     # Assert
-    call_count = mock_callback.call_count
-    print(f'Callback was called {call_count} times')
-    assert call_count == 1
+    mock_callback.assert_called_once_with(test_uuid)
 
 
 @pytest.mark.asyncio
