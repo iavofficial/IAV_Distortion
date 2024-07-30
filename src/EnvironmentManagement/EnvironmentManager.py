@@ -28,7 +28,7 @@ from LocationService.Track import TrackPieceType
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController):
+    def __init__(self, fleet_ctrl: FleetController, configuration_handler: ConfigurationHandler = ConfigurationHandler()):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
@@ -50,7 +50,7 @@ class EnvironmentManager:
         self._remove_player_tasks: dict = {}
 
         self.__playing_time_checking_flag: bool = False
-        self.config_handler: ConfigurationHandler = ConfigurationHandler()
+        self.config_handler: ConfigurationHandler = configuration_handler
 
     # callbacks
     def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
@@ -136,20 +136,20 @@ class EnvironmentManager:
         return
 
     # Player management
-    def add_player(self, player_id: str) -> None:
+    def _add_player_to_queue(self, player_id: str) -> bool:
         """
         Add a player to the waiting queue.
         """
         if player_id in self._player_queue_list:
             # print(f'Player {player_id} is already in the queue!')
-            return
+            return False
         else:
             self._player_queue_list.append(player_id)
             # print(self._player_queue_list)
-        self.update_staff_ui()
-        return
+            self.update_staff_ui()
+            return True
 
-    def _add_player_to_queue_if_appropriate(self, player_id: str) -> None:
+    def _add_new_player(self, player_id: str) -> bool:
         """
         Adds a player to the queue, if it's appropriate.
 
@@ -165,16 +165,16 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 self.__cancel_remove_player_task(player_id)
-                return
+                return False
         for p in self._player_queue_list:
             if p == player_id:
                 self.__cancel_remove_player_task(player_id)
-                return
+                return False
 
-        self.add_player(player_id)
-        return
+        result = self._add_player_to_queue(player_id)
+        return result
 
-    def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
+    def put_player_on_next_free_spot(self, player_id: str) -> bool:
         """
         Updates the player queue and assigns player to free vehicles.
 
@@ -189,16 +189,12 @@ class EnvironmentManager:
             If a free vehicle is available, returns the vehicle object the player has been assigned to.
             If no free vehicle is available, returns None.
         """
-        self._add_player_to_queue_if_appropriate(player_id)
-        self._assign_players_to_vehicles()
+        _ = self._add_new_player(player_id)
+        result = self._assign_players_to_vehicles()
         self.update_staff_ui()
-        for v in self._active_anki_cars:
-            if v.get_player() == player_id:
-                return v
-        # self.update_staff_ui()
-        return None
+        return result
 
-    def _assign_players_to_vehicles(self) -> None:
+    def _assign_players_to_vehicles(self) -> bool:
         """
         Assigns as many waiting players to vehicles as possible
         """
@@ -206,23 +202,23 @@ class EnvironmentManager:
             if vehicle.is_free():
                 if len(self._player_queue_list) == 0:
                     self.update_staff_ui()
-                    return
-                next_player = self._player_queue_list.popleft()
-                self._publish_player_active(player=next_player)
-
-                vehicle.set_player(next_player)
-
-                timeout_interval = int(self.config_handler.get_configuration()["game_config"]
-                                       ["game_cfg_playing_time_limit_min"])
-                if self.__playing_time_checking_flag is False and timeout_interval != 0:
-                    self.logger.debug('Playtime checker is activated.')
-                    asyncio.create_task(self.__check_playing_time_is_up())
-                    self.__playing_time_checking_flag = True
+                    return False
                 else:
-                    self.logger.debug('Playtime checker is not needed.')
+                    next_player = self._player_queue_list.popleft()
+                    self._publish_player_active(player=next_player)
 
-        self.update_staff_ui()
-        return
+                    vehicle.set_player(next_player)
+
+                    timeout_interval = int(self.config_handler.get_configuration()["game_config"]
+                                           ["game_cfg_playing_time_limit_min"])
+                    if self.__playing_time_checking_flag is False and timeout_interval != 0:
+                        self.logger.debug('Playtime checker is activated.')
+                        self.start_playing_time_checker()
+                    else:
+                        self.logger.debug('Playtime checker is not needed.')
+                    self.update_staff_ui()
+                    return True
+        return False
 
     def remove_player_from_waitlist(self, player_id: str) -> None:
         """
@@ -258,9 +254,22 @@ class EnvironmentManager:
             tmp.append(p)
         return tmp
 
+    def start_playing_time_checker(self) -> bool:
+        if not self.__playing_time_checking_flag:
+            asyncio.create_task(self.__check_playing_time_is_up())
+            self.__playing_time_checking_flag = True
+            return True
+        else:
+            return False
+
+    def stop_running_playing_time_checker(self) -> bool:
+        self.__playing_time_checking_flag = False
+        return True
+
     async def __check_playing_time_is_up(self) -> None:
         """
-        Continuously checks playing time of each active player
+        Continuously checks playing time of each active player and
+        removes player from vehicle as soon as the playing time is up
         """
         while self.__playing_time_checking_flag:
             await asyncio.sleep(10)
@@ -453,7 +462,7 @@ class EnvironmentManager:
                 })
         return tmp
 
-    def get_car_from_player(self, player: str) -> Vehicle | None:
+    def get_vehicle_by_player_id(self, player: str) -> Vehicle | None:
         """
         Get the car that's controlled by a player or None, if the
         player doesn't control any car
