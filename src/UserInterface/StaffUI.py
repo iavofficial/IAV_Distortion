@@ -278,7 +278,7 @@ class StaffUI:
                 ID of the vehicle to be removed.
             """
             # TODO: authentication check for websocket events
-            environment_mng.remove_vehicle(vehicle_id)
+            environment_mng.remove_vehicle_by_id(vehicle_id)
             await self._sio.emit('vehicle_removed', vehicle_id)
             self.logger.debug("Vehicle deleted %s", vehicle_id)
             return

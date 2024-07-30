@@ -43,7 +43,7 @@ class Vehicle:
         """
         return self.player is None
 
-    def get_player(self) -> str | None:
+    def get_player_id(self) -> str | None:
         """
         Returns the player that is controlling they vehicle or None
         """

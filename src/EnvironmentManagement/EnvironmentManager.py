@@ -35,7 +35,8 @@ class RemovalReason(Enum):
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController, configuration_handler: ConfigurationHandler = ConfigurationHandler()):
+    def __init__(self, fleet_ctrl: FleetController,
+                 configuration_handler: ConfigurationHandler = ConfigurationHandler()):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
@@ -60,8 +61,11 @@ class EnvironmentManager:
 
         self._fleet_ctrl.set_add_anki_car_callback(self.add_vehicle)
 
-    def set_staff_ui_update_callback(self, function_name: Callable[[Dict[str, str], List[str], List[str]], None]) \
-            -> None:
+    def set_staff_ui_update_callback(self,
+                                     function_name: Callable[[Dict[str, str],
+                                                              List[str],
+                                                              List[str]],
+                                     None]) -> None:
         """
         Sets callback function for staff_ui_update.
 
@@ -112,14 +116,22 @@ class EnvironmentManager:
                                             self.get_waiting_player_list())
         return
 
-    def _publish_removed_player(self, player: str, reason: RemovalReason = RemovalReason.NONE) -> None:
+    def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> None:
         """
         Sends which player has been removed from the game to the staff ui using a callback function.
 
         Parameters
         ----------
-        player: str
-            ID of player that has been removed.
+        player_id: str
+            ID of player to update queue with.
+        reason: RemovalReason
+            This enum encodes the reason for deletion
+
+        Returns
+        -------
+        bool
+            is True if player was removed from queue or vehicle
+            is False if player could not be removed
         """
         message: str = ""
         if reason is RemovalReason.NONE:
@@ -132,7 +144,7 @@ class EnvironmentManager:
         if not callable(self.__publish_removed_player_callback):
             self.logger.critical('Missing publish_removed_player_callback!')
         else:
-            self.__publish_removed_player_callback(player=player, reason=message)
+            self.__publish_removed_player_callback(player=player_id, reason=message)
         return
 
     def _publish_player_active(self, player: str) -> None:
@@ -178,7 +190,7 @@ class EnvironmentManager:
             ID of player to be added to the queue if appropriate.
         """
         for v in self._active_anki_cars:
-            if v.get_player() == player_id:
+            if v.get_player_id() == player_id:
                 self.__cancel_remove_player_task(player_id)
                 return False
         for p in self._player_queue_list:
@@ -191,7 +203,8 @@ class EnvironmentManager:
 
     def put_player_on_next_free_spot(self, player_id: str) -> bool:
         """
-        Updates the player queue and assigns player to free vehicles.
+        Updates the player queue and
+        if applicable, allows players in the queue to move up or get a free vehicle.
 
         Parameters
         ----------
@@ -200,9 +213,9 @@ class EnvironmentManager:
 
         Returns
         -------
-        Vehicle | None
-            If a free vehicle is available, returns the vehicle object the player has been assigned to.
-            If no free vehicle is available, returns None.
+        bool
+            Is true, if a player could be assigned to a free vehicle.
+            Is False, if no player could be assigned to a free vehicle.
         """
         _ = self._add_new_player(player_id)
         result = self._assign_players_to_vehicles()
@@ -212,6 +225,12 @@ class EnvironmentManager:
     def _assign_players_to_vehicles(self) -> bool:
         """
         Assigns as many waiting players to vehicles as possible
+
+        Returns
+        -------
+        bool
+            Is true, if a player could be assigned to a free vehicle.
+            Is False, if no player could be assigned to a free vehicle.
         """
         for vehicle in self._active_anki_cars:
             if vehicle.is_free():
@@ -236,11 +255,28 @@ class EnvironmentManager:
         return False
 
     def manage_removal_from_game_for(self, player_id: str, reason: RemovalReason) -> bool:
-        is_player_removed = (self.remove_player_from_waitlist(player_id)
-                             or self.remove_player_from_vehicle(player_id))
+        """
+        This function organizes the deletion of the player ID, if necessary, from the waiting list
+        or a vehicle object and triggers the deletion event.
 
-        if is_player_removed:
-            self._publish_removed_player(player=player_id, reason=reason)
+        Parameters
+        ----------
+        player_id: str
+            ID of player to update queue with.
+        reason: RemovalReason
+            This enum encodes the reason for deletion
+
+        Returns
+        -------
+        bool
+            is True, if player was removed from queue or vehicle
+            is False, if player could not be removed
+        """
+        player_was_removed = (self.remove_player_from_waitlist(player_id) or
+                              self.remove_player_from_vehicle(player_id))
+
+        if player_was_removed:
+            self._publish_removed_player(player_id=player_id, reason=reason)
             self.update_staff_ui()
             return True
         else:
@@ -261,7 +297,7 @@ class EnvironmentManager:
         removes a player from the vehicle they are controlling
         """
         for v in self._active_anki_cars:
-            if v.get_player() == player_id:
+            if v.get_player_id() == player_id:
                 self.logger.info(f"Removing player with UUID {player_id} from vehicle")
                 v.remove_player()
                 self._assign_players_to_vehicles()
@@ -392,10 +428,7 @@ class EnvironmentManager:
 
         return new_devices
 
-    def get_vehicle_list(self) -> list[Vehicle]:
-        return self._active_anki_cars
-
-    def remove_vehicle(self, uuid_to_remove: str) -> None:
+    def remove_vehicle_by_id(self, uuid_to_remove: str) -> bool:
         """
         Remove both vehicle and the controlling player for a given vehicle.
 
@@ -407,19 +440,21 @@ class EnvironmentManager:
         self.logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
 
         found_vehicle = next((o for o in self._active_anki_cars if o.vehicle_id == uuid_to_remove), None)
-        if found_vehicle is not None:
-            player = found_vehicle.get_player()
-            if player is not None:
-                self._publish_removed_player(player=player)
-            found_vehicle.remove_player()
+        if found_vehicle is None:
+            return False
+        else:
+            player_id = found_vehicle.get_player_id()
+            if player_id is not None:
+                found_vehicle.remove_player()
+                self._publish_removed_player(player_id=player_id)
+
             self._active_anki_cars.remove(found_vehicle)
             found_vehicle.__del__()
 
-        self._assign_players_to_vehicles()
-        self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
-
-        self.update_staff_ui()
-        return
+            self._assign_players_to_vehicles()
+            self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
+            self.update_staff_ui()
+            return True
 
     async def connect_to_physical_car_by(self, uuid: str) -> None:
         self.logger.debug(f"Adding physical vehicle with UUID {uuid}")
@@ -455,6 +490,14 @@ class EnvironmentManager:
 
         return
 
+    # TODO check if all 4 return functions are needed:
+    #   - get_vehicle_list
+    #   - get_controlled_cars_list
+    #   - get_free_car_list
+    #   - get_mapped_cars
+    def get_vehicle_list(self) -> list[Vehicle] | None:
+        return self._active_anki_cars
+
     def get_controlled_cars_list(self) -> List[str]:
         """
         Returns a list of all vehicle names from vehicles that are
@@ -462,7 +505,7 @@ class EnvironmentManager:
         """
         vehicle_list = []
         for vehicle in self._active_anki_cars:
-            if vehicle.get_player() is not None:
+            if vehicle.get_player_id() is not None:
                 vehicle_list.append(vehicle.get_vehicle_id())
         return vehicle_list
 
@@ -472,16 +515,16 @@ class EnvironmentManager:
         """
         vehicle_list = []
         for vehicle in self._active_anki_cars:
-            if vehicle.get_player() is None:
+            if vehicle.get_player_id() is None:
                 vehicle_list.append(vehicle.get_vehicle_id())
         return vehicle_list
 
     def get_mapped_cars(self) -> List[dict]:
         tmp = []
         for v in self._active_anki_cars:
-            if v.get_player() is not None:
+            if v.get_player_id() is not None:
                 tmp.append({
-                    'player': v.get_player(),
+                    'player': v.get_player_id(),
                     'car': v.get_vehicle_id()
                 })
         return tmp
@@ -492,7 +535,7 @@ class EnvironmentManager:
         player doesn't control any car
         """
         for v in self._active_anki_cars:
-            if v.get_player() == player:
+            if v.get_player_id() == player:
                 return v
         return None
 
