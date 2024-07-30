@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Callable
 from collections import deque
 import asyncio
+from deprecated import deprecated
 from enum import Enum
 
 from DataModel.PhysicalCar import PhysicalCar
@@ -34,7 +35,7 @@ class RemovalReason(Enum):
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController):
+    def __init__(self, fleet_ctrl: FleetController, configuration_handler: ConfigurationHandler = ConfigurationHandler()):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
@@ -54,8 +55,8 @@ class EnvironmentManager:
 
         self._remove_player_tasks: dict = {}
 
-        self.__check_playing_time_flag: bool = False
-        self.config_handler: ConfigurationHandler = ConfigurationHandler()
+        self.__playing_time_checking_flag: bool = False
+        self.config_handler: ConfigurationHandler = configuration_handler
 
         self._fleet_ctrl.set_add_anki_car_callback(self.add_vehicle)
 
@@ -149,84 +150,21 @@ class EnvironmentManager:
             self.__publish_player_active_callback(player)
         return
 
-    async def connect_all_anki_cars(self) -> list[Vehicle]:
-        found_anki_cars = await self.find_unpaired_anki_cars()
-        for vehicle_uuid in found_anki_cars:
-            self.logger.info(f'Connecting to vehicle {vehicle_uuid}')
-            await self.add_vehicle(vehicle_uuid)
-        return self.get_vehicle_list()
-
-    async def find_unpaired_anki_cars(self) -> list[str]:
-        self.logger.info("Searching for unpaired Anki cars")
-        found_devices = await self._fleet_ctrl.scan_for_anki_cars()
-        # remove already active uuids:
-
-        connected_devices = []
-        for v in self._active_anki_cars:
-            connected_devices.append(v.get_vehicle_id())
-        new_devices = [device for device in found_devices if device not in connected_devices]
-
-        if new_devices:
-            self.logger.info(f"Found new devices: {new_devices}")
+    # Player management
+    def _add_player_to_queue(self, player_id: str) -> bool:
+        """
+        Add a player to the waiting queue.
+        """
+        if player_id in self._player_queue_list:
+            # print(f'Player {player_id} is already in the queue!')
+            return False
         else:
-            self.logger.info("No new devices found")
+            self._player_queue_list.append(player_id)
+            # print(self._player_queue_list)
+            self.update_staff_ui()
+            return True
 
-        return new_devices
-
-    def get_vehicle_list(self) -> list[Vehicle]:
-        return self._active_anki_cars
-
-    def remove_vehicle(self, uuid_to_remove: str) -> None:
-        """
-        Remove both vehicle and the controlling player for a given vehicle.
-
-        Parameters
-        ----------
-        uuid_to_remove: str
-            ID of vehicle to be removed.
-        """
-        self.logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
-
-        found_vehicle = next((o for o in self._active_anki_cars if o.vehicle_id == uuid_to_remove), None)
-        if found_vehicle is not None:
-            player = found_vehicle.get_player()
-            if player is not None:
-                self._publish_removed_player(player=player)
-            found_vehicle.remove_player()
-            self._active_anki_cars.remove(found_vehicle)
-            found_vehicle.__del__()
-
-        self._assign_players_to_vehicles()
-        self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
-
-        self.update_staff_ui()
-        return
-
-    def update_queues_and_get_vehicle(self, player_id: str) -> Vehicle | None:
-        """
-        Updates the player queue and assigns player to free vehicles.
-
-        Parameters
-        ----------
-        player_id: str
-            ID of player to update queue with.
-
-        Returns
-        -------
-        Vehicle | None
-            If a free vehicle is available, returns the vehicle object the player has been assigned to.
-            If no free vehicle is available, returns None.
-        """
-        self._add_player_to_queue_if_appropriate(player_id)
-        self._assign_players_to_vehicles()
-        self.update_staff_ui()
-        for v in self._active_anki_cars:
-            if v.get_player() == player_id:
-                return v
-        # self.update_staff_ui()
-        return None
-
-    def _add_player_to_queue_if_appropriate(self, player_id: str) -> None:
+    def _add_new_player(self, player_id: str) -> bool:
         """
         Adds a player to the queue, if it's appropriate.
 
@@ -242,52 +180,60 @@ class EnvironmentManager:
         for v in self._active_anki_cars:
             if v.get_player() == player_id:
                 self.__cancel_remove_player_task(player_id)
-                return
+                return False
         for p in self._player_queue_list:
             if p == player_id:
                 self.__cancel_remove_player_task(player_id)
-                return
-        self._player_queue_list.append(player_id)
-        return
+                return False
 
-    def _assign_players_to_vehicles(self) -> None:
+        result = self._add_player_to_queue(player_id)
+        return result
+
+    def put_player_on_next_free_spot(self, player_id: str) -> bool:
+        """
+        Updates the player queue and assigns player to free vehicles.
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to update queue with.
+
+        Returns
+        -------
+        Vehicle | None
+            If a free vehicle is available, returns the vehicle object the player has been assigned to.
+            If no free vehicle is available, returns None.
+        """
+        _ = self._add_new_player(player_id)
+        result = self._assign_players_to_vehicles()
+        self.update_staff_ui()
+        return result
+
+    def _assign_players_to_vehicles(self) -> bool:
         """
         Assigns as many waiting players to vehicles as possible
         """
-        for v in self._active_anki_cars:
-            if v.is_free():
+        for vehicle in self._active_anki_cars:
+            if vehicle.is_free():
                 if len(self._player_queue_list) == 0:
                     self.update_staff_ui()
-                    return
-                p = self._player_queue_list.popleft()
-                self._publish_player_active(player=p)
-
-                v.set_player(p)
-
-                timeout_interval = int(self.config_handler.get_configuration()["game_config"]
-                                       ["game_cfg_playing_time_limit_min"])
-                if self.__check_playing_time_flag is False and timeout_interval != 0:
-                    self.logger.debug('Playtime checker is activated.')
-                    asyncio.create_task(self.__check_playing_time_is_up())
-                    self.__check_playing_time_flag = True
+                    return False
                 else:
-                    self.logger.debug('Playtime checker is not needed.')
+                    next_player = self._player_queue_list.popleft()
+                    self._publish_player_active(player=next_player)
 
-        self.update_staff_ui()
-        return
+                    vehicle.set_player(next_player)
 
-    def add_player(self, player_id: str) -> None:
-        """
-        Add a player to the waiting queue.
-        """
-        if player_id in self._player_queue_list:
-            print(f'Player {player_id} is already in the queue!')
-            return
-        else:
-            self._player_queue_list.append(player_id)
-            print(self._player_queue_list)
-        self.update_staff_ui()
-        return
+                    timeout_interval = int(self.config_handler.get_configuration()["game_config"]
+                                           ["game_cfg_playing_time_limit_min"])
+                    if self.__playing_time_checking_flag is False and timeout_interval != 0:
+                        self.logger.debug('Playtime checker is activated.')
+                        self.start_playing_time_checker()
+                    else:
+                        self.logger.debug('Playtime checker is not needed.')
+                    self.update_staff_ui()
+                    return True
+        return False
 
     def manage_removal_from_game_for(self, player_id: str, reason: RemovalReason) -> bool:
         is_player_removed = (self.remove_player_from_waitlist(player_id)
@@ -322,70 +268,6 @@ class EnvironmentManager:
                 return True
         return False
 
-    async def add_vehicle(self, uuid: str) -> None:
-        self.logger.debug(f"Adding vehicle with UUID {uuid}")
-
-        anki_car_controller = AnkiController()
-        location_service = LocationService(self.get_track(), start_immediately=True)
-        temp_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
-        await temp_vehicle.initiate_connection(uuid)
-        # TODO: add a check if connection was successful 
-
-        self._active_anki_cars.append(temp_vehicle)
-        self._assign_players_to_vehicles()
-        self.update_staff_ui()
-        return
-
-    def add_virtual_vehicle(self):
-        # TODO: Add more better way of determining name numbers to allow reuse of already
-        # used numbers
-        name = f"Virtual Vehicle {self._virtual_vehicle_num}"
-        self._virtual_vehicle_num += 1
-        dummy_controller = EmptyController()
-        location_service = LocationService(self.get_track(), start_immediately=True)
-        vehicle = VirtualCar(name, dummy_controller, location_service)
-
-        self._active_anki_cars.append(vehicle)
-        self._assign_players_to_vehicles()
-        self.update_staff_ui()
-        return
-
-    def get_track(self) -> FullTrack:
-        """
-        Get the used track in the simulation
-        """
-        track: FullTrack = TrackBuilder() \
-            .append(TrackPieceType.STRAIGHT_WE) \
-            .append(TrackPieceType.CURVE_WS) \
-            .append(TrackPieceType.CURVE_NW) \
-            .append(TrackPieceType.STRAIGHT_EW) \
-            .append(TrackPieceType.CURVE_EN) \
-            .append(TrackPieceType.CURVE_SE) \
-            .build()
-
-        return track
-
-    def get_controlled_cars_list(self) -> List[str]:
-        """
-        Returns a list of all vehicle names from vehicles that are
-        controlled by a player
-        """
-        vehicle_list = []
-        for vehicle in self._active_anki_cars:
-            if vehicle.get_player() is not None:
-                vehicle_list.append(vehicle.get_vehicle_id())
-        return vehicle_list
-
-    def get_free_car_list(self) -> List[str]:
-        """
-        Returns a list of all cars that have no player controlling them
-        """
-        vehicle_list = []
-        for vehicle in self._active_anki_cars:
-            if vehicle.get_player() is None:
-                vehicle_list.append(vehicle.get_vehicle_id())
-        return vehicle_list
-
     def get_waiting_player_list(self) -> List[str]:
         """
         Gets a list of all player that are waiting for a vehicle
@@ -395,43 +277,24 @@ class EnvironmentManager:
             tmp.append(p)
         return tmp
 
-    def get_car_from_player(self, player: str) -> Vehicle | None:
-        """
-        Get the car that's controlled by a player or None, if the
-        player doesn't control any car
-        """
-        for v in self._active_anki_cars:
-            if v.get_player() == player:
-                return v
-        return None
+    def start_playing_time_checker(self) -> bool:
+        if not self.__playing_time_checking_flag:
+            asyncio.create_task(self.__check_playing_time_is_up())
+            self.__playing_time_checking_flag = True
+            return True
+        else:
+            return False
 
-    def get_mapped_cars(self) -> List[dict]:
-        tmp = []
-        for v in self._active_anki_cars:
-            if v.get_player() is not None:
-                tmp.append({
-                    'player': v.get_player(),
-                    'car': v.get_vehicle_id()
-                })
-        return tmp
-
-    def get_car_color_map(self) -> Dict[str, List[str]]:
-        colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
-        full_map: Dict[str, List[str]] = {}
-        num = 1
-        for c in colors:
-            for d in colors:
-                # disallow same inner and outer color to preserve a contrast
-                if c != d:
-                    full_map.update({f"Virtual Vehicle {num}": [d, c]})
-                    num += 1
-        return full_map
+    def stop_running_playing_time_checker(self) -> bool:
+        self.__playing_time_checking_flag = False
+        return True
 
     async def __check_playing_time_is_up(self) -> None:
         """
-        Continuously checks playing time of each active player
+        Continuously checks playing time of each active player and
+        removes player from vehicle as soon as the playing time is up
         """
-        while self.__check_playing_time_flag:
+        while self.__playing_time_checking_flag:
             await asyncio.sleep(10)
 
             timeout_interval = int(self.config_handler.get_configuration()["game_config"]
@@ -447,6 +310,7 @@ class EnvironmentManager:
 
         self.logger.debug('Playtime checker is deactivated.')
 
+    # player removal
     def schedule_remove_player_task(self, player: str, grace_period: int = 5) -> None:
         """
         Schedules asynchronous task to remove player, only if no removal task exists for this player already.
@@ -499,3 +363,163 @@ class EnvironmentManager:
         except asyncio.CancelledError:
             logging.debug(f"Player {player} reconnected. Removing player aborted.")
         return
+
+    # Vehicle Management
+    @deprecated(reason="Diese Methode ist veraltet."
+                       "Bitte verwende 'find_unpaired_anki_cars'"
+                       "in Verbindung mit 'connect_to_physical_car_by'.")
+    async def connect_all_anki_cars(self) -> list[Vehicle]:
+        found_anki_cars = await self.find_unpaired_anki_cars()
+        for vehicle_uuid in found_anki_cars:
+            self.logger.info(f'Connecting to vehicle {vehicle_uuid}')
+            await self.connect_to_physical_car_by(vehicle_uuid)
+        return self.get_vehicle_list()
+
+    async def find_unpaired_anki_cars(self) -> list[str]:
+        self.logger.info("Searching for unpaired Anki cars")
+        found_devices = await self._fleet_ctrl.scan_for_anki_cars()
+        # remove already active uuids:
+
+        connected_devices = []
+        for v in self._active_anki_cars:
+            connected_devices.append(v.get_vehicle_id())
+        new_devices = [device for device in found_devices if device not in connected_devices]
+
+        if new_devices:
+            self.logger.info(f"Found new devices: {new_devices}")
+        else:
+            self.logger.info("No new devices found")
+
+        return new_devices
+
+    def get_vehicle_list(self) -> list[Vehicle]:
+        return self._active_anki_cars
+
+    def remove_vehicle(self, uuid_to_remove: str) -> None:
+        """
+        Remove both vehicle and the controlling player for a given vehicle.
+
+        Parameters
+        ----------
+        uuid_to_remove: str
+            ID of vehicle to be removed.
+        """
+        self.logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
+
+        found_vehicle = next((o for o in self._active_anki_cars if o.vehicle_id == uuid_to_remove), None)
+        if found_vehicle is not None:
+            player = found_vehicle.get_player()
+            if player is not None:
+                self._publish_removed_player(player=player)
+            found_vehicle.remove_player()
+            self._active_anki_cars.remove(found_vehicle)
+            found_vehicle.__del__()
+
+        self._assign_players_to_vehicles()
+        self.logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
+
+        self.update_staff_ui()
+        return
+
+    async def connect_to_physical_car_by(self, uuid: str) -> None:
+        self.logger.debug(f"Adding physical vehicle with UUID {uuid}")
+
+        anki_car_controller = AnkiController()
+        location_service = LocationService(self.get_track(), start_immediately=True)
+        new_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
+        await new_vehicle.initiate_connection(uuid)
+        # TODO: add a check if connection was successful 
+
+        self._add_to_active_vehicle_list(new_vehicle)
+        return
+
+    def add_virtual_vehicle(self) -> None:
+        # TODO: Add more better way of determining name numbers to allow reuse of already
+        # used numbers
+        name = f"Virtual Vehicle {self._virtual_vehicle_num}"
+        self._virtual_vehicle_num += 1
+
+        self.logger.debug(f"Adding virtual vehicle with name {name}")
+
+        dummy_controller = EmptyController()
+        location_service = LocationService(self.get_track(), start_immediately=True)
+        new_vehicle = VirtualCar(name, dummy_controller, location_service)
+
+        self._add_to_active_vehicle_list(new_vehicle)
+        return
+
+    def _add_to_active_vehicle_list(self, new_vehicle: Vehicle) -> None:
+        self._active_anki_cars.append(new_vehicle)
+        self._assign_players_to_vehicles()
+        self.update_staff_ui()
+
+        return
+
+    def get_controlled_cars_list(self) -> List[str]:
+        """
+        Returns a list of all vehicle names from vehicles that are
+        controlled by a player
+        """
+        vehicle_list = []
+        for vehicle in self._active_anki_cars:
+            if vehicle.get_player() is not None:
+                vehicle_list.append(vehicle.get_vehicle_id())
+        return vehicle_list
+
+    def get_free_car_list(self) -> List[str]:
+        """
+        Returns a list of all cars that have no player controlling them
+        """
+        vehicle_list = []
+        for vehicle in self._active_anki_cars:
+            if vehicle.get_player() is None:
+                vehicle_list.append(vehicle.get_vehicle_id())
+        return vehicle_list
+
+    def get_mapped_cars(self) -> List[dict]:
+        tmp = []
+        for v in self._active_anki_cars:
+            if v.get_player() is not None:
+                tmp.append({
+                    'player': v.get_player(),
+                    'car': v.get_vehicle_id()
+                })
+        return tmp
+
+    def get_vehicle_by_player_id(self, player: str) -> Vehicle | None:
+        """
+        Get the car that's controlled by a player or None, if the
+        player doesn't control any car
+        """
+        for v in self._active_anki_cars:
+            if v.get_player() == player:
+                return v
+        return None
+
+    def get_car_color_map(self) -> Dict[str, List[str]]:
+        colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
+        full_map: Dict[str, List[str]] = {}
+        num = 1
+        for c in colors:
+            for d in colors:
+                # disallow same inner and outer color to preserve a contrast
+                if c != d:
+                    full_map.update({f"Virtual Vehicle {num}": [d, c]})
+                    num += 1
+        return full_map
+
+    # racetrack management
+    def get_track(self) -> FullTrack:
+        """
+        Get the used track in the simulation
+        """
+        track: FullTrack = TrackBuilder() \
+            .append(TrackPieceType.STRAIGHT_WE) \
+            .append(TrackPieceType.CURVE_WS) \
+            .append(TrackPieceType.CURVE_NW) \
+            .append(TrackPieceType.STRAIGHT_EW) \
+            .append(TrackPieceType.CURVE_EN) \
+            .append(TrackPieceType.CURVE_SE) \
+            .build()
+
+        return track
