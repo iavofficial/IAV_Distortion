@@ -5,17 +5,17 @@ name = "pypi"
 
 [packages]
 bleak = "*"
-portalocker = {extras = ["redis"] }
+sphinx = "==7.3.7"
+pluggy = "==1.5.0"
+pytest = "==8.2.0"
 quart = "*"
 hypercorn = "*"
 python-socketio = "*"
-deprecated = "*"
+pytest-asyncio = "*"
 
 [dev-packages]
 sphinx = "*"
 pytest = "*"
-pytest-asyncio = "*"
-pluggy = "==1.5.0"
 
 [requires]
 python_version = "3.11"
