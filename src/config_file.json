@@ -16,7 +16,7 @@
 		"driver_background_grace_period_s": 30
 	},
 	"game_config": {
-		"game_cfg_playing_time_limit_min": 1
+		"game_cfg_playing_time_limit_min": 5
 	},
 	"environment": {
 		"env_auto_discover_anki_cars": true
