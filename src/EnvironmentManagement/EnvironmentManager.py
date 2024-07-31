@@ -59,7 +59,7 @@ class EnvironmentManager:
         self.__playing_time_checking_flag: bool = False
         self.config_handler: ConfigurationHandler = configuration_handler
 
-        self._fleet_ctrl.set_add_anki_car_callback(self.add_vehicle)
+        self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
     def set_staff_ui_update_callback(self,
                                      function_name: Callable[[Dict[str, str],
