@@ -240,6 +240,12 @@ body{
     align-items: center;
 }
 
+.info-box-buttons{
+    flex-direction: row;
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .refresh-button{
     display: flex;
     align-items: center;
@@ -254,6 +260,11 @@ body{
 
 .reload_symbol{
     font-size: 20px;
+    color: #FFFFFF;
+}
+
+.exit_symbol{
+    font-size: 18px;
     color: #FFFFFF;
 }
 

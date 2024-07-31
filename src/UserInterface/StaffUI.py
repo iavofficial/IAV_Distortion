@@ -58,9 +58,6 @@ class StaffUI:
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
 
-        #self.loop = asyncio.get_event_loop()
-        #print(self.loop)
-
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
             """
@@ -261,8 +258,8 @@ class StaffUI:
                 ID of the player to be removed.
             """
             # TODO: authentication check for websocket events
-            environment_mng.remove_player_from_vehicle(player)
-            environment_mng.remove_player_from_waitlist(player)
+            environment_mng._remove_player_from_vehicle(player)
+            environment_mng._remove_player_from_waitlist(player)
             self.logger.debug("Player deleted %s", player)
             return
 
@@ -281,7 +278,7 @@ class StaffUI:
                 ID of the vehicle to be removed.
             """
             # TODO: authentication check for websocket events
-            environment_mng.remove_vehicle(vehicle_id)
+            environment_mng.remove_vehicle_by_id(vehicle_id)
             await self._sio.emit('vehicle_removed', vehicle_id)
             self.logger.debug("Vehicle deleted %s", vehicle_id)
             return
@@ -500,7 +497,7 @@ class StaffUI:
         self.__run_async_task(self.__emit_new_data(data))
         return
 
-    def publish_removed_player(self, player: str) -> None:
+    def publish_removed_player(self, player: str, reason: str = "") -> None:
         """
         Sends 'player_removed' event.
 
@@ -508,8 +505,10 @@ class StaffUI:
         ----------
         player: str
             ID of the player which has been removed.
+        reason: str
+            removal reason shown in the UI
         """
-        self.__run_async_task(self.__emit_player_removed(player))
+        self.__run_async_task(self.__emit_player_removed(player, reason))
         return
 
     def publish_player_active(self, player: str) -> None:
@@ -549,7 +548,7 @@ class StaffUI:
         await self._sio.emit('player_active', player)
         return
 
-    async def __emit_player_removed(self, player: str) -> None:
+    async def __emit_player_removed(self, player: str, reason: str = "") -> None:
         """
         Emits the 'player_removed' websocket event.
 
@@ -557,8 +556,15 @@ class StaffUI:
         ----------
         player: str
             ID of player that has been removed from the game.
+                    reason: str
+        reason: str
+            removal reason shown in the UI
         """
-        await self._sio.emit('player_removed', player)
+        data = {
+            "player_id": player,
+            "message": reason
+        }
+        await self._sio.emit('player_removed', data)
         return
 
     async def __emit_new_data(self, data: dict) -> None:

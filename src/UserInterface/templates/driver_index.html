@@ -178,12 +178,14 @@
         });
 
         socket.on('player_removed', function(data) {
-            if (data == "{{ player }}") {
-                newContent = document.createElement("span");
-                newContent.textContent = "Your driving time is sadly over";
-                newContent.style.margin = "auto auto";
-                newContent.style.fontSize = "32pt";
-                document.getElementById("control").replaceChildren(newContent);
+            if (data.player_id == "{{ player }}") {
+
+                var baseUrl = 'http://' + document.domain + ':' + location.port + '/driver/exit';
+                var player = data.player_id;
+                var reason = data.message;
+
+                var fullUrl = baseUrl + "?player_id=" + encodeURIComponent(player) + "&reason=" + encodeURIComponent(reason);
+                window.location.href = fullUrl;
             }
         });
 

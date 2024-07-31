@@ -88,13 +88,21 @@ class DriverUI:
                 vehicle_information = vehicle.get_driving_data()
                 self.logger.debug(f'Callback set for {player}')
 
-            return await render_template('driver_index.html', player=player, player_exists=player_exists,
+            return await render_template(template_name_or_list='driver_index.html', player=player, player_exists=player_exists,
                                          picture=picture,
                                          vehicle_information=vehicle_information,
                                          heartbeat_interval=config["driver"]["driver_heartbeat_interval_ms"],
                                          background_grace_period=config["driver"]["driver_background_grace_period_s"])
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
+
+        async def exit_driver() -> str:
+            player_id = request.args.get(key='player_id', type=str)
+            reason = request.args.get(key='reason', default="You have been removed.", type=str)
+
+            return await render_template(template_name_or_list='driver_exit.html', player=player_id, message=reason)
+
+        self.driverUI_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_driver)
 
         @self._sio.on('handle_connect')
         def handle_connected(sid: str, data: dict) -> None:
