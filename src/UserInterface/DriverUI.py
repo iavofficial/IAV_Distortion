@@ -64,15 +64,16 @@ class DriverUI:
                 self.__run_async_task(self.__check_driver_heartbeat_timeout())
                 self.__checking_heartbeats_flag = True
 
-            config = self.config_handler.get_configuration()
-            vehicle = self.environment_mng.update_queues_and_get_vehicle(player)
             player_exists = False
             picture = ''  # default picture can be added here
             vehicle_information = {
                 'active_hacking_scenario': '0',
                 'speed_request': '0'
             }
-
+            config = self.config_handler.get_configuration()
+            vehicle = None
+            if self.environment_mng.put_player_on_next_free_spot(player):
+                vehicle = self.environment_mng.get_vehicle_by_player_id(player)
             if vehicle is not None:
                 player_exists = True
                 picture = vehicle.vehicle_id
@@ -112,7 +113,7 @@ class DriverUI:
                 Data received with websocket event.
             """
             player = data["player"]
-            self.environment_mng.update_queues_and_get_vehicle(player)
+            self.environment_mng.put_player_on_next_free_spot(player)
             return
 
         @self._sio.on('disconnected')
@@ -131,7 +132,7 @@ class DriverUI:
         def handle_slider_change(sid, data) -> None:
             player = data['player']
             value = float(data['value'])
-            car_id = self.environment_mng.get_car_from_player(player).get_vehicle_id()
+            car_id = self.environment_mng.get_vehicle_by_player_id(player).get_vehicle_id()
             # TODO: add check for car_id not None
             self.behaviour_ctrl.request_speed_change_for(uuid=car_id, value_perc=value)
             return
@@ -140,14 +141,14 @@ class DriverUI:
         def change_lane(sid, data: dict) -> None:
             player = data['player']
             direction = data['direction']
-            car_id = self.environment_mng.get_car_from_player(player).get_vehicle_id()
+            car_id = self.environment_mng.get_vehicle_by_player_id(player).get_vehicle_id()
             self.behaviour_ctrl.request_lane_change_for(uuid=car_id, value=direction)
             return
 
         @self._sio.on('make_uturn')
         def make_uturn(sid, data: dict) -> None:
             player = data['player']
-            car_id = self.environment_mng.get_car_from_player(player).get_vehicle_id()
+            car_id = self.environment_mng.get_vehicle_by_player_id(player).get_vehicle_id()
             self.behaviour_ctrl.request_uturn_for(uuid=car_id)
             return
 
@@ -181,7 +182,7 @@ class DriverUI:
             player = data["player"]
             self.logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                               f"added to the queue again.")
-            self.environment_mng.update_queues_and_get_vehicle(player)
+            self.environment_mng.put_player_on_next_free_spot(player)
             return
 
     def update_driving_data(self, driving_data: dict) -> None:

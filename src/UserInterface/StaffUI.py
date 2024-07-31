@@ -224,7 +224,7 @@ class StaffUI:
                 Id of the device to be added.
             """
             # TODO: authentication check for websocket events
-            await environment_mng.add_vehicle(device)
+            await environment_mng.connect_to_physical_car_by(device)
             await self._sio.emit('device_added', device)
             self.logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
