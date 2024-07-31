@@ -133,6 +133,7 @@ class EnvironmentManager:
             is True if player was removed from queue or vehicle
             is False if player could not be removed
         """
+        # TODO check if reason is instance of Removalreason otherwise set value to NONE
         message: str = ""
         if reason is RemovalReason.NONE:
             message = "Your player has been removed from the game."
@@ -286,6 +287,12 @@ class EnvironmentManager:
     def _remove_player_from_waitlist(self, player_id: str) -> bool:
         """
         Remove a player from the waiting queue
+
+        Returns
+        -------
+        bool
+            is True, if player was removed from queue
+            is False, if player could not be removed
         """
         if player_id in self._player_queue_list:
             self._player_queue_list.remove(player_id)
@@ -296,6 +303,12 @@ class EnvironmentManager:
     def _remove_player_from_vehicle(self, player_id: str) -> bool:
         """
         removes a player from the vehicle they are controlling
+
+        Returns
+        -------
+        bool
+            is True, if player was removed from vehicle
+            is False, if player could not be removed
         """
         for v in self._active_anki_cars:
             if v.get_player_id() == player_id:
@@ -314,7 +327,17 @@ class EnvironmentManager:
             tmp.append(p)
         return tmp
 
+#TODO kommentare
     def start_playing_time_checker(self) -> bool:
+        """
+        starts the play time checker for all player, if not started yet
+
+        Returns
+        -------
+        bool
+            is True, if no play time checker has been started yet.
+            is False, if a play time checker has been already been started.
+        """
         if not self.__playing_time_checking_flag:
             asyncio.create_task(self.__check_playing_time_is_up())
             self.__playing_time_checking_flag = True
@@ -323,6 +346,15 @@ class EnvironmentManager:
             return False
 
     def stop_running_playing_time_checker(self) -> bool:
+        """
+        stops the play time checker for all player, before the next execution
+
+        Returns
+        -------
+        bool
+            is always True
+            is never False
+        """
         self.__playing_time_checking_flag = False
         return True
 
