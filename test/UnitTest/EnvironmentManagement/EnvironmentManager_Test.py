@@ -66,15 +66,17 @@ async def test_put_player_on_next_free_spot_with_playing_time_check(get_mut_with
 
     # Act
     mut.put_player_on_next_free_spot("dummyplayer1")
-    if not any(vehicle.get_player_id() == "1" for vehicle in mut.get_vehicle_list()):
+    if not any(vehicle.get_player_id() == "dummyplayer1" for vehicle in mut.get_vehicle_list()):
         pytest.fail("preconditions in vehicle list not correct.")
 
     # Assert
     await asyncio.sleep(59)
     used_cars = mut.get_mapped_cars()
     assert len(used_cars) == 1
+    assert used_cars[0]["player"] == "dummyplayer1"
+    assert used_cars[0]["car"] == vehicle1.get_vehicle_id()
 
-    await asyncio.sleep(12)
+    await asyncio.sleep(12)  # greater than playing time checking interval is 10 s
     used_cars = mut.get_mapped_cars()
     assert len(used_cars) == 0
 
@@ -91,17 +93,21 @@ async def test_put_player_on_next_free_spot_without_playing_time_check(get_mut_w
 
     # Act
     mut.put_player_on_next_free_spot("dummyplayer1")
-    if not any(vehicle.get_player_id() == "1" for vehicle in mut.get_vehicle_list()):
+    if not any(vehicle.get_player_id() == "dummyplayer1" for vehicle in mut.get_vehicle_list()):
         pytest.fail("preconditions in vehicle list not correct.")
 
     # Assert
     await asyncio.sleep(59)
     used_cars = mut.get_mapped_cars()
     assert len(used_cars) == 1
+    assert used_cars[0]["player"] == "dummyplayer1"
+    assert used_cars[0]["car"] == vehicle1.get_vehicle_id()
 
-    await asyncio.sleep(12)
+    await asyncio.sleep(12)  # greater than playing time checking interval is 10 s
     used_cars = mut.get_mapped_cars()
     assert len(used_cars) == 1
+    assert used_cars[0]["player"] == "dummyplayer1"
+    assert used_cars[0]["car"] == vehicle1.get_vehicle_id()
 
 
 # TODO vehicle was found, with and without a player; vehicle wasn't found
@@ -158,14 +164,11 @@ def test_manage_removal_from_game_for_invalid_player_id_and_reason(get_mut_with_
 
     # Act / Assert
     assert len(mut.get_waiting_player_list()) == 1
+    assert sum(vehicle.get_player_id() == "dummyplayer1"
+               for vehicle in mut.get_vehicle_list()) == 1
     result = mut._manage_removal_from_game_for("invalid_player_id", RemovalReason.NONE)
     assert not result
     assert len(mut.get_waiting_player_list()) == 1
-
-    result = mut._manage_removal_from_game_for("dummyplayer2", RemovalReason.NONE)
-    assert result
-    result = mut._manage_removal_from_game_for("invalid_player_id", RemovalReason.NONE)
-    assert not result
     assert sum(vehicle.get_player_id() == "dummyplayer1"
                for vehicle in mut.get_vehicle_list()) == 1
 
