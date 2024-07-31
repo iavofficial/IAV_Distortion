@@ -1,10 +1,19 @@
 from unittest import TestCase
 
-from DataModel.ModelCar import ModelCar
+from DataModel.PhysicalCar import PhysicalCar
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 
+from LocationService.TrackPieces import TrackBuilder, FullTrack
+from LocationService.Track import TrackPieceType
+
 dummy_vehicleID = "123456789"
+
+def get_dummy_track() -> FullTrack:
+        track: FullTrack = TrackBuilder()\
+            .append(TrackPieceType.STRAIGHT_WE)\
+            .build()
+        return track
 
 
 def dummy_callback(vehicle_id: str, player: str, err_msg: str):
@@ -15,8 +24,8 @@ class ModelCaIntegrationTest(TestCase):
     def setUp(self) -> None:
         self.dummy_uuid = FleetController().scan_for_anki_cars()[0]
         self.anki_controller: AnkiController = AnkiController()
-        self.mut: ModelCar = ModelCar(dummy_vehicleID, self.anki_controller)
-        self.mut.set_model_car_not_reachable_callback(dummy_callback)
+        self.mut: PhysicalCar = PhysicalCar(dummy_vehicleID, self.anki_controller, get_dummy_track())
+        self.mut.set_vehicle_not_reachable_callback(dummy_callback)
 
     def tearDown(self) -> None:
         del self.mut

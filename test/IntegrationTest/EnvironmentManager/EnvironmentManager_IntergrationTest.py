@@ -14,7 +14,7 @@ class EnvironmentManagerIntergrationTest(TestCase):
         connected_cars = mut.connect_all_anki_cars()
         print(connected_cars)
         # Act
-        mut.remove_vehicle(connected_cars[0].vehicle_id)
+        mut.remove_vehicle_by_id(connected_cars[0].vehicle_id)
         print(connected_cars)
 
         # Assert

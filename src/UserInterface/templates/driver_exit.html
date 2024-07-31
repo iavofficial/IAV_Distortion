@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver Exit {{player}}</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- custom header stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+</head>
+<body>
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box">
+            <div class="info-title">
+                <h2>Information</h2>
+            </div>
+            <p id="infoBoxContent"> {{message}}</p>
+            <p id="exit_text"> </p>
+            <div class="info-box-buttons">
+                <button id="back_to_queue_button" class="button"> <span class="reload_symbol">&circlearrowright; </span> Go back to queue</button>
+                <button id="close_tab_button" class="button button_pink"> <span class="exit_symbol">x </span> Exit game</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flexbox-container custom_header">
+        <p class="header">Player {{player}}</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+
+    <script type="text/javascript" charset="utf-8">
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const close_tab_button = document.getElementById('close_tab_button');
+            if (window.opener != null) { //window was opened thru javascript
+                close_tab_button.style.display = 'block';
+                document.getElementById('exit_text').textContent = "choose...";}
+            else {
+                close_tab_button.style.display = 'none';
+                document.getElementById('exit_text').textContent = "You can close the window/tab or ...";}
+
+            close_tab_button.addEventListener('click', function() {
+                window.close();
+            });
+
+            const back_to_queue_button = document.getElementById('back_to_queue_button');
+            back_to_queue_button.addEventListener('click', function() {
+                window.location.href='/driver';
+            });
+        });
+    </script>
+</body>
+</html>

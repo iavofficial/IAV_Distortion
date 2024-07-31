@@ -1,0 +1,65 @@
+{% extends 'staff_config_base.html' %}
+
+{% block content %}
+
+<div class="flexbox-item config_content">
+    <button id="restart_program">Restart IAV Distortion</button>
+    <button id="restart_system">Restart System</button>
+    <button id="shutdown_system" class="button_pink">Shutdown System</button>
+</div>
+
+<script>
+    /**
+    * Handles button press for 'Restart IAV Distortion' button.
+    * Popup for confirmation. Afterwards shows popup with the status of the request.
+    */
+    $("#restart_program").click(function(){
+        if(confirm("Are you sure you want to restart IAV Distortion?")) {
+            $.post("/staff/restart_program",function(result, status){
+                if (result.redirect) {
+                   window.location.href = result.redirect;
+                }
+                else {
+                    alert(result);
+                }
+            });
+        };
+    });
+
+    /**
+    * Handles button press for 'Restart System' button.
+    * Popup for confirmation. Afterwards shows popup with the status of the request.
+    */
+    $("#restart_system").click(function(){
+        if(confirm("Are you sure you want to restart the system?")) {
+            $.post("/staff/restart_system",function(result, status){
+                if (result.redirect) {
+                   window.location.href = result.redirect;
+                }
+                else {
+                    alert(result);
+                }
+            });
+        };
+    });
+
+    /**
+    * Handles button press for 'Shutdown system' button.
+    * Popup for confirmation. Afterwards shows popup with the status of the request.
+    */
+    $("#shutdown_system").click(function(){
+        if(confirm("Are you sure you want to shutdown the system?")) {
+            $.post("/staff/shutdown_system",function(result, status){
+                if (result.redirect) {
+                   window.location.href = result.redirect;
+                }
+                else {
+                    alert(result);
+                }
+            });
+        };
+    });
+
+</script>
+
+{% endblock %}

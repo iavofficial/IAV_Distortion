@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- specific stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- specific style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='staff_configuration.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/staff_configuration.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <script src="{{ url_for('static', filename='external_resources/jquery-3.7.1.min.js')}}"></script>
+
+</head>
+<body>
+    <div class="flexbox-container custom_header">
+        <div class="flexbox-container custom_header">
+            <p class="header">IAV Distortion</p>
+            <div class="header_menu-container">
+                <div class="header_menu-item" id="control_menu">
+                    <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
+                </div>
+                <div class="header_menu-item" id="config_menu">
+                    <a href="{{ url_for('staffUI_bp.config_home') }}">Configuration</a>
+                </div>
+            </div>
+        </div>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+
+    <div class="flexbox-container">
+    <div class="sidebar"><!-- Navigation links -->
+        <ul>
+            <li><a href="{{ url_for('staffUI_bp.config_home') }}">Home</a></li>
+            <li><a href="{{ url_for('staffUI_bp.config_update') }}">Update</a></li>
+            <li><a href="{{ url_for('staffUI_bp.config_system_control') }}">System Control</a></li>
+
+            <!-- Add more tabs as needed -->
+        </ul>
+    </div>
+
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            /**
+            * Highlight the menu item in the header if active
+            */
+            var url = window.location.href; // get the current page URL
+                if(url.includes("/configuration/")){  // check if it includes '/configuration/'
+                    $("#config_menu").addClass("active");  // add class=active
+                }
+
+            /**
+            * Highlight the menu item in the sidebar if site is active.
+            */
+            $('.sidebar ul li a').each(function() {
+                if ($(this).attr('href') === window.location.pathname) {
+                    $(this).closest('li').addClass('active');
+                }
+            });
+         });
+    </script>
+
+</body>
+</html>

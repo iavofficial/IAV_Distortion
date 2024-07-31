@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car map</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- custom header stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+
+    <!-- Include socket.io library -->
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+</head>
+
+<body>
+    <canvas id="car_canvas"></canvas>
+
+        <script type="text/javascript" charset="utf-8">
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            // TODO: Calculate scale based on track so it fits well on the page
+            const scale = 0.5;
+
+            var canvas = document.getElementById("car_canvas");
+            var ctx = canvas.getContext("2d");
+            const dataMap = new Map();
+
+            var track = {{track | tojson}};
+            const track_color = "#000000";
+            const track_width = 5;
+
+            const car_width = 30;
+            const car_length = car_width * 1.88;
+            const car_outline = 4;
+
+            const car_pics = {{ car_pictures | tojson }};
+            const colorCrossmap = {{ color_map | tojson }};
+
+            resizeCanvas();
+            resetCanvas();
+            drawTrack();
+
+            /**
+            * Handles 'car_position' event.
+            *
+            * Receives position data of cars, containing vehicle ID, x and y coordinates and the angle. Places a colored
+            * rectangle on the position directed according to the angle.
+            *
+            * @param {Object.<string, (string|Object.<string, float>|float)>} data - Contains vehicle ID, x and y
+            *     position and angle
+            *     structure: {'car': 'vehicle_id', 'position': {'x': x_pos, 'y': y_pos}, 'angle': angle}
+            */
+            socket.on('car_positions', function(data){
+                var carName = data.car;
+                dataMap.set(carName, data);
+                resizeCanvas();
+                resetCanvas();
+                drawTrack();
+                for (const car of dataMap) {
+                    const name = car[0];
+                    const d = car[1];
+                    var x = d.position.x;
+                    var y = d.position.y;
+                    var angle = d.angle;
+                    const colors = colorCrossmap[name];
+
+                    if (name.startsWith('Virtual Vehicle')) {
+                        var numberPattern = /\d+/g;
+                        var numbers = name.match(numberPattern);
+
+                        if (Object.keys(car_pics).includes(name)){
+                            var image_name = car_pics[name];
+                            insertCarPic(x, y, angle, image_name);
+                        }
+                        else {
+                            drawCarBox(x, y, angle, colors[0], colors[1]);
+                        }
+                    }
+                    else {
+                    // put visualization of real cars on the track here
+                    }
+                }
+            });
+
+            /**
+            * Inserts a picture at given position and angle.
+            *
+            * @param {float} x - Horizontal position of the picture.
+            * @param {float} y - Vertical position of the picture.
+            * @param {float} angle - Rotation angle of the picture.
+            */
+            function insertCarPic(x, y, angle, image_name){
+                x *= scale;
+                y *= scale;
+                ctx.save();
+
+                rotationRadians = Math.PI * (angle - 90) / 180.0; // Convert angle to radians
+                ctx.translate(x, y);
+                ctx.rotate(rotationRadians);
+                ctx.translate(-x, -y);
+
+                var img = new Image();
+                img.src = "/static/images/Virtual_Vehicles/" + image_name;
+
+                ctx.drawImage(img, x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
+                ctx.rotate(-Math.PI / 2);
+
+                ctx.restore();
+            }
+
+            /**
+            * Draws a rectangle on given position, with given angle and colors.
+            *
+            * @param {float} x - Horizontal position of the rectangle.
+            * @param {float} y - Vertical position of the rectangle.
+            * @param {float} angle - Rotation angle of the rectangle.
+            * @param {string} colorInner - Hex color value applied to the rectangle.
+            * @param {string} colorOuter - Hex color value applied to the border of the rectangle.
+            */
+            function drawCarBox(x, y, angle, colorInner, colorOuter) {
+                x *= scale;
+                y *= scale;
+                ctx.save();
+
+                rotationRadians = Math.PI * (angle - 90) / 180.0;
+                // do rotation for rect
+                ctx.translate(x, y);
+                ctx.rotate(rotationRadians);
+                ctx.translate(-x, -y);
+                ctx.beginPath();
+                ctx.strokeStyle = colorOuter;
+                ctx.fillStyle = colorInner;
+                ctx.lineWidth = car_outline * scale;
+                ctx.rect(x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
+                ctx.fill();
+                ctx.stroke();
+                ctx.closePath();
+                ctx.rotate(-Math.PI / 2);
+
+                ctx.restore();
+            }
+
+            /**
+            * Cycles through all track pieces in the track definition to draw the race track.
+            */
+            function drawTrack() {
+                for (const piece of track) {
+                    piece_type = piece.piece.type;
+                    if (piece_type == "straight_piece") {
+                        drawStraightPiece(piece);
+                    } else if (piece_type == "curved_piece") {
+                        drawCurvedPiece(piece);
+                    }
+                }
+            }
+
+            /**
+            * Draws single outline of a straight track piece.
+            *
+            * @param {float} x1 - x coordinate to start to draw the line.
+            * @param {float} y1 - y coordinate to start to draw the line.
+            * @param {float} x2 - x coordinate to end the line.
+            * @param {float} y2 - y coordinate to end the line.
+            */
+            function drawStraightTrackLine(x1, y1, x2, y2) {
+                ctx.lineWidth = track_width * scale;
+                ctx.strokeStyle = track_color;
+
+                ctx.beginPath();
+                ctx.moveTo(x1 * scale, y1 * scale);
+                ctx.lineTo(x2 * scale, y2 * scale);
+                ctx.stroke();
+            }
+
+            /**
+            * Draws single outline of curved track piece.
+            *
+            * @param {float} x - x coordinate to start to draw the line.
+            * @param {float} y - y coordinate to start to draw the line.
+            * @param {float} radius - Radius of the line.
+            * @param {float} start_deg - Starting orientation of the line.
+            */
+            function drawCurvedTrackLine(x, y, radius, start_deg) {
+                start_rad = (start_deg - 90) * Math.PI / 180;
+                end_rad = start_rad + 0.5 * Math.PI;
+
+                ctx.lineWidth = track_width * scale;
+                ctx.strokeStyle = track_color * scale;
+
+                ctx.beginPath();
+                // x, y, radius, startAngle, endAngle
+                ctx.arc(x * scale, y * scale, radius * scale, start_rad, end_rad);
+                ctx.stroke();
+            }
+
+            /**
+            * Draws straight track piece.
+            *
+            * Calculates start and end points of the borders for the track piece and calls function to draw lines.
+            *
+            * @param {StraightPiece} piece - Instance of a StraightPiece.
+            */
+            function drawStraightPiece(piece) {
+                offset_x = piece.offset.x;
+                offset_y = piece.offset.y;
+                line_1_start_x = offset_x + piece.piece.line_1_start.x;
+                line_1_start_y = offset_y + piece.piece.line_1_start.y;
+                line_1_end_x = offset_x + piece.piece.line_1_end.x;
+                line_1_end_y = offset_y + piece.piece.line_1_end.y;
+
+                line_2_start_x = offset_x + piece.piece.line_2_start.x;
+                line_2_start_y = offset_y + piece.piece.line_2_start.y;
+                line_2_end_x = offset_x + piece.piece.line_2_end.x;
+                line_2_end_y = offset_y + piece.piece.line_2_end.y;
+                drawStraightTrackLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
+                drawStraightTrackLine(line_2_start_x, line_2_start_y, line_2_end_x, line_2_end_y);
+            }
+
+            /**
+            * Draws curved track piece.
+            *
+            * Calculates start points, radius and start angle of the borders for the track piece and calls function to
+            * draw lines.
+            *
+            * @param {CurvedPiece} piece - Instance of a CurvedPiece.
+            */
+            function drawCurvedPiece(piece) {
+                start_point_x = piece.offset.x + piece.piece.point.x;
+                start_point_y = piece.offset.y + piece.piece.point.y;
+                radius_1 = piece.piece.radius_1;
+                radius_2 = piece.piece.radius_2;
+                start_angle = piece.piece.start_angle + 90;
+                drawCurvedTrackLine(start_point_x, start_point_y, radius_1, start_angle);
+                drawCurvedTrackLine(start_point_x, start_point_y, radius_2, start_angle);
+            }
+
+            /**
+            * Reload the page when vehicle is added.
+            */
+            socket.on('device_added', function(data){
+                window.location.reload();
+            });
+
+            /**
+            * Reload page when vehicle has been removed.
+            */
+            socket.on('vehicle_removed', function(data){
+                window.location.reload();
+            });
+
+            /**
+            * Resets the canvas.
+            */
+            function resetCanvas() { 
+                ctx.reset();
+            }
+
+            /**
+            * Resizes the canvas according to the window size.
+            */
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        </script>
+    </body>
+</html>

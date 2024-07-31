@@ -1,0 +1,41 @@
+/*
+Custom header stylesheet:
+    This stylesheet contains the style definition used for the header on top of every html page.
+*/
+.custom_header{
+    background: #001A54;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+}
+
+.header_menu-container {
+    display: flex;
+    gap: 15px;
+    margin-left: 2vw;
+}
+
+.header_menu-item {
+    padding: 8px 15px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    color: white;
+    font-size: 14px;
+}
+
+.header_menu-item:hover {
+    text-decoration: underline;
+
+}
+
+.header_menu-item a {
+
+    text-decoration: none;
+    color: inherit;
+}
+
+.header_menu-item.active {
+    background-color: #FFFFFF;
+    text-decoration: none;
+    color: inherit;
+}

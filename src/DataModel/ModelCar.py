@@ -1,14 +1,18 @@
-from bleak import BleakClient
+from typing import Callable
+import asyncio
 
 from DataModel.Vehicle import Vehicle
-from VehicleManagement.AnkiController import AnkiController
+from LocationService.Trigo import Angle, Position
 from VehicleManagement.VehicleController import Turns
 
 
 class ModelCar(Vehicle):
-    def __init__(self, vehicle_id: str, controller: AnkiController) -> None:
+    """
+    Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
+    the controller, if appropriate
+    """
+    def __init__(self, vehicle_id: str) -> None:
         super().__init__(vehicle_id)
-        self._controller: AnkiController = controller
 
         self.__speed: int = 0
         self.__speed_request: int = 0
@@ -36,31 +40,24 @@ class ModelCar(Vehicle):
         self._battery: str = ""
         self._version: str = ""
 
-        self._model_car_not_reachable_callback = None
+        self._model_car_not_reachable_callback: Callable[[str, str, str], None] | None = None
+        self._virtual_location_update_callback: Callable[[str, dict, float], None] | None = None
         return
 
     def __del__(self) -> None:
-        self._controller.__del__()
+
         return
 
-    def get_typ_of_controller(self):
-        return type(self._controller)
+    def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
+        self._driving_data_callback = function_name
+        return
 
-    def initiate_connection(self, uuid: str) -> bool:
-        if self._controller.connect_to_vehicle(BleakClient(uuid), True):
-            self._controller.set_callbacks(self.__receive_location,
-                                           self.__receive_transition,
-                                           self.__receive_offset_update,
-                                           self.__receive_version,
-                                           self.__receive_battery,
-                                           self._on_model_car_not_reachable)
-            self._controller.request_version()
-            self._controller.request_battery()
-            return True
-        else:
-            return False
+    def _on_driving_data_change(self) -> None:
+        if self._driving_data_callback is not None:
+            self._driving_data_callback(self.get_driving_data())
+        return
 
-    def set_model_car_not_reachable_callback(self, function_name) -> None:
+    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str, str], None]) -> None:
         self._model_car_not_reachable_callback = function_name
         return
 
@@ -69,9 +66,13 @@ class ModelCar(Vehicle):
             self._model_car_not_reachable_callback(self.vehicle_id, self.player, err_msg)
         return
 
-    def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
-            self._driving_data_callback(self.get_driving_data())
+    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
+        self._virtual_location_update_callback = function_name
+        return
+
+    def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict) -> None:
+        if self._virtual_location_update_callback is not None:
+            self._virtual_location_update_callback(self.vehicle_id, pos.to_dict(), angle.get_deg())
         return
 
     @property
@@ -109,6 +110,7 @@ class ModelCar(Vehicle):
             self._speed_actual = 0
             self._on_driving_data_change()
 
+        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
         self._controller.change_speed_to(int(self.__speed))
         return
 
@@ -135,23 +137,40 @@ class ModelCar(Vehicle):
     def lane_change(self) -> int:
         return self.__lane_change
 
+    def __update_own_langechane(self):
+        """
+        Updates the own current lane on the track. Needed to ensure
+        a lane change will go to the right offset
+        """
+        if self._offset_from_center > 55.625:
+            self.__lane_change = 3
+        elif self._offset_from_center > 33.375:
+            self.__lane_change = 2
+        elif self._offset_from_center > 11.125:
+            self.__lane_change = 1
+        elif self._offset_from_center > -11.125:
+            self.__lane_change = 0
+        elif self._offset_from_center > -33.375:
+            self.__lane_change = -1
+        elif self._offset_from_center > -55.625:
+            self.__lane_change = -2
+        else:
+            self.__lane_change = -3
+
     def __calculate_lane_change(self) -> None:
         if self.__lange_change_blocked:
             return
 
-        if 65.0 > self._offset_from_center > -65.0:
-            self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif 65.0 <= self._offset_from_center and self.__lane_change_request <= -1:
-            self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif 65.0 <= self._offset_from_center and self.__lane_change_request >= 1:
-            self.__lane_change = 3
-        elif -65.0 >= self._offset_from_center and self.__lane_change_request >= 1:
-            self.__lane_change = self.__lane_change + self.__lane_change_request
-        elif -65.0 >= self._offset_from_center and self.__lane_change_request <= -1:
-            self.__lane_change = -3
-        else:
-            self.__lane_change = self.__lane_change
+        self.__update_own_langechane()
+        self.__lane_change += self.__lane_change_request
 
+        if self.__lane_change < -3:
+            self.__lane_change = -3
+        elif self.__lane_change > 3:
+            self.__lane_change = 3
+
+        asyncio.create_task(self._location_service.set_offset_int(self.__lane_change))
+        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
@@ -168,7 +187,7 @@ class ModelCar(Vehicle):
     def turn_blocked(self) -> bool:
         return self.__turn_blocked
 
-    @turn_request.setter
+    @turn_blocked.setter
     def turn_blocked(self, value: bool) -> None:
         self.__turn_blocked = value
 
@@ -180,6 +199,7 @@ class ModelCar(Vehicle):
         if self.__turn_blocked:
             return
 
+        asyncio.create_task(self._location_service.do_uturn())
         self._controller.do_turn_with(Turns.A_UTURN)
         return
 
@@ -209,7 +229,7 @@ class ModelCar(Vehicle):
         }
         return driving_info_dic
 
-    def __receive_location(self, value_tuple) -> None:
+    def _receive_location(self, value_tuple) -> None:
         location, piece, offset, speed, clockwise = value_tuple
         self._road_location = location
         self._road_piece = piece
@@ -223,7 +243,7 @@ class ModelCar(Vehicle):
         self._on_driving_data_change()
         return
 
-    def __receive_transition(self, value_tuple) -> None:
+    def _receive_transition(self, value_tuple) -> None:
         piece, piece_prev, offset, direction = value_tuple
         self._road_piece = piece
         self._prev_road_piece = piece_prev
@@ -231,16 +251,16 @@ class ModelCar(Vehicle):
         self._direction = direction
         return
 
-    def __receive_offset_update(self, value_tuple) -> None:
+    def _receive_offset_update(self, value_tuple) -> None:
         offset = value_tuple[0]
         self._offset_from_center = offset
         return
 
-    def __receive_version(self, value_tuple) -> None:
+    def _receive_version(self, value_tuple) -> None:
         self._version = str(value_tuple)
         return
 
-    def __receive_battery(self, value_tuple) -> None:
+    def _receive_battery(self, value_tuple) -> None:
         self._battery = str(value_tuple)
 
         self._on_driving_data_change()

@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <title>Staff_Control</title>
 
-    <!-- general style sheet -->
+    <!-- general stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
 
-    <!-- specific style sheet -->
+    <!-- custom header stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- specific stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->
 
@@ -19,7 +23,17 @@
 </head>
 <body>
     <div class="flexbox-container custom_header">
-        <p class="header">IAV Distortion - Control</p>
+        <div class="flexbox-container custom_header">
+            <p class="header">IAV Distortion</p>
+            <div class="header_menu-container">
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
+                </div>
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.config_home') }}">Configuration</a>
+                </div>
+            </div>
+        </div>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
@@ -30,12 +44,15 @@
         </div>
 
         <div id="data" class="flexbox-item flexbox-manageCars">
-            <h2>Active cars:</h2>
+            <h2>List of Players/Cars:</h2>
             <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
 
-            <h3>Add cars... </h3>
+            <h3>Add physical cars... </h3>
             <button id="search_cars"> Search... </button>
             <ul class="flexbox-item flexbox-activeCars" id="devices"></ul>
+
+            <h3>Add virtual car</h3>
+            <button id="add_virtual_car"> Add</button>
         </div>
 
     </div>
@@ -43,11 +60,28 @@
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+    /**
+    * Handle 'connect' event.
+    *
+    * Send 'get_uuids' event to gather information about queues and active cars and players.
+    */
     socket.on('connect', function(){
         socket.emit('get_uuids');
     });
 
+    /**
+    * Handle 'update_uuids' event.
+    *
+    * Create and update the table of active cars, players and queues.
+    *
+    * @param {Object.<string, Array.<Object.<string, string>|string>>} data - Dict contains list of dictionary of active
+    *     cars and assigned players, list of free cars, list of players in the queue
+    *
+    */
     socket.on('update_uuids', function(data){
+        var map_data = data["car_map"];
+        var car_queue = data["car_queue"];
+        var player_queue=data["player_queue"];
         $('#table-container').empty();
         var uuids_table = document.createElement('table');
 
@@ -67,30 +101,71 @@
         uuids_table.appendChild(thead);
 
         // fill table with player and uuids
-        for (let player in data) {
-            var row = document.createElement('tr');
+        for (let i in map_data) {
+            let c_map = map_data[i];
+            let row = document.createElement('tr');
 
-            var cell_player = document.createElement('td');
-            var cell_uuid = document.createElement('td');
-            var cell_del = document.createElement('td');
-            var delButton = document.createElement('button');
-            delButton.textContent = 'delet';
-            delButton.className = 'button_small button_pink'
-            delButton.onclick = function(){
-                if(confirm(`Are you sure you want to delete the device with the id: ${data[player]}?`)) {
-                    deleteDevice(data[player])
+            let cell_player = document.createElement('td');
+            let cell_uuid = document.createElement('td');
+            let cell_del = document.createElement('td');
+            let delPlayerButton = document.createElement('button');
+            let delVehicleButton = document.createElement('button');
+            delPlayerButton.textContent = 'Remove Player';
+            delPlayerButton.className = 'button_small button_pink'
+            delPlayerButton.onclick = function(){
+                if(confirm(`Are you sure you want to delete the player with the id: ${c_map.player}?`)) {
+                    deletePlayer(c_map.player);
                 }
             };
 
-            cell_player.innerText = player;
-            cell_uuid.innerText = data[player];
+            delVehicleButton.textContent = 'Remove Vehicle';
+            delVehicleButton.className = 'button_small button_pink'
+            delVehicleButton.onclick = function(){
+                if(confirm(`Are you sure you want to delete the vehicle with the id: ${c_map.car}?`)) {
+                    deleteVehicle(c_map.car);
+                }
+            };
+
+            cell_player.innerText = c_map.player;
+            cell_uuid.innerText = c_map.car;
 
 
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
-            row.appendChild(delButton);
+            row.appendChild(delPlayerButton);
+            row.appendChild(delVehicleButton);
 
 
+            uuids_table.appendChild(row);
+        }
+
+        // fill table with player and uuids
+        for (let player in player_queue) {
+            var row = document.createElement('tr');
+
+            var cell_player = document.createElement('td');
+            var cell_uuid = document.createElement('td');
+
+            cell_player.innerText = player_queue[player];
+            cell_uuid.innerText = "None";
+
+            row.appendChild(cell_player);
+            row.appendChild(cell_uuid);
+            uuids_table.appendChild(row);
+        }
+
+        // fill table with player and uuids
+        for (let car in car_queue) {
+            var row = document.createElement('tr');
+
+            var cell_player = document.createElement('td');
+            var cell_uuid = document.createElement('td');
+
+            cell_player.innerText = "None";
+            cell_uuid.innerText = car_queue[car];
+
+            row.appendChild(cell_player);
+            row.appendChild(cell_uuid);
             uuids_table.appendChild(row);
         }
         document.getElementById('table-container').appendChild(uuids_table);
@@ -98,7 +173,15 @@
        socket.emit('get_update_hacking_scenarios');
     });
 
-    // automatic update of section to choose hacking scenarios
+    /**
+    * Handles 'update_hacking_scenarios' event.
+    *
+    * Creates and updates the overview and selection of the hacking scenarios for the active cars.
+    *
+    * @param {Object.<string, Object.<string, string>|Array.<string>>} data - Contains dictionary of active hacking
+    *     scenarios for controlled cars, list of controlled cars, dictionary with names of hacking scenarios, dictionary
+    *     with description of hacking scenarios.
+    */
     socket.on('update_hacking_scenarios', function(data){
         // update sections to chose hacking scenarios
         var uuids = data['uuids'];
@@ -167,17 +250,27 @@
         }
     });
 
-    // Set scenario buttons
-
-
     // buttons to search and add cars
     var search_cars = document.getElementById("search_cars");
     var add_car = document.getElementById("add_car");
+    var add_virtual_car = document.getElementById("add_virtual_car");
 
     search_cars.onclick = function() {
       socket.emit('search_cars');
     }
 
+    add_virtual_car.onclick = function() {
+      socket.emit('add_virtual_vehicle');
+    }
+
+
+    /**
+    * Handles 'new_devices' event.
+    *
+    * Creates the list of found BLE devices and provides buttons to add them to the game.
+    *
+    * @param {Array.<string>} devices - List of uuids of found BLE devices.
+    */
     var deviceList = document.getElementById("devices");
     socket.on('new_devices', function(devices){
       while (deviceList.firstChild) {
@@ -195,15 +288,39 @@
       });
     });
 
+    /**
+    * Emits 'add_device' event and removes device from list of found devices.
+    *
+    * @param {string} device - uuid of device to be added to the game.
+    */
     function addDevice(device) {
       socket.emit('add_device', device);
       remove_from_found_devices(device);
     }
 
-    function deleteDevice(device) {
-      socket.emit('delete_device', device);
+    /**
+    * Emits 'delete_player' event.
+    *
+    * @param {string} player - ID of player to be removed from the game.
+    */
+    function deletePlayer(player) {
+      socket.emit('delete_player', player);
     }
 
+    /**
+    * Emits 'delete_vehicle' event.
+    *
+    * @param {string} vehicle - ID of vehicle to be removed from the game.
+    */
+    function deleteVehicle(vehicle) {
+        socket.emit('delete_vehicle',vehicle);
+    }
+
+    /**
+    * Removes device from table of found BLE devices.
+    *
+    * @param {string} device - ID of BLE device to be removed from the table.
+    */
     function remove_from_found_devices(device) {
       var list = document.getElementById("devices");
       var items = list.getElementsByTagName('li');
@@ -214,6 +331,18 @@
         }
     }
 }
+
+/**
+* Highlights the menu item in the header menu.
+*/
+$(document).ready(function() {
+    var url = window.location.pathname; // Get current URL path
+    $('.header_menu-item > a').each(function() {
+        if ($(this).attr('href') === url) {
+            $(this).parent().addClass('active'); // Adds 'active' class to the parent div
+        }
+    });
+});
 
 
 </script>
