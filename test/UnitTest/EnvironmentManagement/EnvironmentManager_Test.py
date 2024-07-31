@@ -179,7 +179,7 @@ def test_manage_removal_from_game_for_invalid_player_id_and_reason(get_mut_with_
                                                              "because your playing time is over."),
                           (RemovalReason.NOT_REACHABLE, "Your player was removed from the game, "
                                                         "because you were no longer reachable.")])
-def test_publish_removed_player(get_mut_with_endless_playing_time, reason_parameter, expected):
+def test_publish_removed_player_with_valid_data(get_mut_with_endless_playing_time, reason_parameter, expected):
     # Arrange
     remove_player_callback_mock = Mock()
     mut: EnvironmentManager = get_mut_with_endless_playing_time
@@ -191,3 +191,29 @@ def test_publish_removed_player(get_mut_with_endless_playing_time, reason_parame
     # Assert
     assert result
     remove_player_callback_mock.assert_called_with(player="dummyplayer1", reason=expected)
+
+
+def test_publish_removed_player_with_invalid_string_reason(get_mut_with_endless_playing_time):
+    # Arrange
+    remove_player_callback_mock = Mock()
+    mut: EnvironmentManager = get_mut_with_endless_playing_time
+    mut.set_publish_removed_player_callback(remove_player_callback_mock)
+
+    # Act
+    result = mut._publish_removed_player("dummyplayer1", "invald_reason")
+
+    # Assert
+    assert not result
+
+
+def test_publish_removed_player_with_invalid_int_reason(get_mut_with_endless_playing_time):
+    # Arrange
+    remove_player_callback_mock = Mock()
+    mut: EnvironmentManager = get_mut_with_endless_playing_time
+    mut.set_publish_removed_player_callback(remove_player_callback_mock)
+
+    # Act
+    result = mut._publish_removed_player("dummyplayer1", 10)
+
+    # Assert
+    assert not result
