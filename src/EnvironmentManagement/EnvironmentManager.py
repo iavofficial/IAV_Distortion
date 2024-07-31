@@ -133,7 +133,10 @@ class EnvironmentManager:
             is True if player was removed from queue or vehicle
             is False if player could not be removed
         """
-        # TODO check if reason is instance of Removalreason otherwise set value to NONE
+
+        if not isinstance(reason, RemovalReason):
+            return False
+
         message: str = ""
         if reason is RemovalReason.NONE:
             message = "Your player has been removed from the game."
@@ -327,7 +330,6 @@ class EnvironmentManager:
             tmp.append(p)
         return tmp
 
-#TODO kommentare
     def start_playing_time_checker(self) -> bool:
         """
         starts the play time checker for all player, if not started yet
