@@ -34,7 +34,7 @@ class FleetController:
         Returns
         -------
         list
-            List uuids of found Anki cars.
+            list uuids of found Anki cars.
         """
         ble_devices = await BleakScanner.discover(return_adv=True)
         _active_devices = []

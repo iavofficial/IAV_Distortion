@@ -258,8 +258,8 @@ class StaffUI:
                 ID of the player to be removed.
             """
             # TODO: authentication check for websocket events
-            environment_mng.remove_player_from_vehicle(player)
-            environment_mng.remove_player_from_waitlist(player)
+            environment_mng._remove_player_from_vehicle(player)
+            environment_mng._remove_player_from_waitlist(player)
             self.logger.debug("Player deleted %s", player)
             return
 
