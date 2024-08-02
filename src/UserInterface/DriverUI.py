@@ -71,9 +71,8 @@ class DriverUI:
                 'speed_request': '0'
             }
             config = self.config_handler.get_configuration()
-            vehicle = None
-            if self.environment_mng.put_player_on_next_free_spot(player):
-                vehicle = self.environment_mng.get_vehicle_by_player_id(player)
+            self.environment_mng.put_player_on_next_free_spot(player)
+            vehicle = self.environment_mng.get_vehicle_by_player_id(player)
             if vehicle is not None:
                 player_exists = True
                 picture = vehicle.vehicle_id
