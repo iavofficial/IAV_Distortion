@@ -177,13 +177,29 @@ class EnvironmentManager:
     def _add_player_to_queue(self, player_id: str) -> bool:
         """
         Add a player to the waiting queue.
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to be added to the queue if appropriate.
+
+        Returns
+        -------
+        bool
+            Is true, if the player was added to the queue.
+            Is False, if player was not added to the queue, because it is already in the queue or empty or no string.
         """
-        if player_id in self._player_queue_list:
-            # print(f'Player {player_id} is already in the queue!')
+        if not isinstance(player_id, str) :
+            return False
+
+        striped_player_id = player_id.strip()
+        if not striped_player_id or re.fullmatch(r'\W+', striped_player_id):
+            return False
+
+        if striped_player_id in self._player_queue_list:
             return False
         else:
-            self._player_queue_list.append(player_id)
-            # print(self._player_queue_list)
+            self._player_queue_list.append(striped_player_id)
             self.update_staff_ui()
             return True
 
