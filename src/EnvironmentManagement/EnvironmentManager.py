@@ -261,6 +261,7 @@ class EnvironmentManager:
             Is true, if a player could be assigned to a free vehicle.
             Is False, if no player could be assigned to a free vehicle.
         """
+        assigned_any_player: bool = False
         for vehicle in self._active_anki_cars:
             if vehicle.is_free():
                 if len(self._player_queue_list) == 0:
@@ -280,8 +281,8 @@ class EnvironmentManager:
                     else:
                         self.logger.debug('Playtime checker is not needed.')
                     self.update_staff_ui()
-                    return True
-        return False
+                    assigned_any_player = True
+        return assigned_any_player
 
     def _manage_removal_from_game_for(self, player_id: str, reason: RemovalReason) -> bool:
         """
