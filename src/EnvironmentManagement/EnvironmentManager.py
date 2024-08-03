@@ -7,22 +7,26 @@
 # file that should have been included as part of this package.
 #
 import logging
+import asyncio
+import re
+
+from enum import Enum
 from datetime import datetime, timedelta
 from typing import List, Dict, Callable
 from collections import deque
-import asyncio
 from deprecated import deprecated
-from enum import Enum
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
+
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
-from LocationService.LocationService import LocationService
+
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
 
+from LocationService.LocationService import LocationService
 from LocationService.TrackPieces import TrackBuilder, FullTrack
 from LocationService.Track import TrackPieceType
 
@@ -61,11 +65,12 @@ class EnvironmentManager:
 
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
+    # set Callbacks
     def set_staff_ui_update_callback(self,
                                      function_name: Callable[[Dict[str, str],
                                                               List[str],
                                                               List[str]],
-                                     None]) -> None:
+                                                             None]) -> None:
         """
         Sets callback function for staff_ui_update.
 
@@ -105,6 +110,7 @@ class EnvironmentManager:
         self.__publish_player_active_callback = function_name
         return
 
+    # Publish interface
     def update_staff_ui(self) -> None:
         """
         Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
