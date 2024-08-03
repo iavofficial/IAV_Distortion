@@ -215,13 +215,15 @@ class EnvironmentManager:
         ----------
         player_id: str
             ID of player to be added to the queue if appropriate.
+
+        Returns
+        -------
+        bool
+            Is true, if the player was added to the queue.
+            Is False, if player was not added to the queue, because it is already known.
         """
         for v in self._active_anki_cars:
             if v.get_player_id() == player_id:
-                self.__cancel_remove_player_task(player_id)
-                return False
-        for p in self._player_queue_list:
-            if p == player_id:
                 self.__cancel_remove_player_task(player_id)
                 return False
 

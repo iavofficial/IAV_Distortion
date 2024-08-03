@@ -105,3 +105,31 @@ class AddPlayerToQueueTest:
         assert added == expected
 
 
+class TestAddNewPlayer:
+    @pytest.fixture(autouse=True)
+    def value_init(self):
+        self.dummy_player1 = "123"
+
+    def test_by_adding_same_new_player_twice(self, get_mut_with_endless_playing_time):
+        # Arrange
+        mut: EnvironmentManager = get_mut_with_endless_playing_time
+
+        # Act / Assert
+        added = mut._add_new_player(self.dummy_player1)
+        assert added is True
+
+        added = mut._add_new_player(self.dummy_player1)
+        assert added is False
+
+    def test_by_adding_same_player_as_in_vehicle(self, get_mut_with_endless_playing_time):
+        # Arrange
+        mut: EnvironmentManager = get_mut_with_endless_playing_time
+        dummy_vehicle = Vehicle("vehicle1")
+        dummy_vehicle.set_player(self.dummy_player1)
+        mut._add_to_active_vehicle_list(dummy_vehicle)
+
+        # Act / Assert
+        added = mut._add_new_player(self.dummy_player1)
+        assert added is False
+
+
