@@ -67,22 +67,16 @@
                     var x = d.position.x;
                     var y = d.position.y;
                     var angle = d.angle;
-                    const colors = colorCrossmap[name];
 
-                    if (name.startsWith('Virtual Vehicle')) {
-                        var numberPattern = /\d+/g;
-                        var numbers = name.match(numberPattern);
-
-                        if (Object.keys(car_pics).includes(name)){
+                    if (Object.keys(car_pics).includes(name)) {
                             var image_name = car_pics[name];
                             insertCarPic(x, y, angle, image_name);
-                        }
-                        else {
+                    } else if (name.startsWith('Virtual Vehicle')) {
+                            const colors = colorCrossmap[name];
                             drawCarBox(x, y, angle, colors[0], colors[1]);
-                        }
-                    }
-                    else {
-                    // put visualization of real cars on the track here
+                    } else {
+                            // fallback for unidentifiable vehicles
+                            drawCarBox(x, y, angle, '#0091ff', '#ff73fa');
                     }
                 }
             });
