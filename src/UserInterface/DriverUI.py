@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+from typing import Tuple, Any, Dict
 
 from quart import Blueprint, render_template, request
 import socketio
@@ -55,43 +56,20 @@ class DriverUI:
                 Returns a Response object representing a redirect to the driver ui page.
             """
             player = request.cookies.get("player")
-            print(f"Driver {player} connected!")
             if player is None:
                 player = str(uuid.uuid4())
 
-            self.__latest_driver_heartbeats[player] = time.time()
-            if not self.__checking_heartbeats_flag:
-                self.__run_async_task(self.__check_driver_heartbeat_timeout())
-                self.__checking_heartbeats_flag = True
-
-            player_exists = False
-            picture = ''  # default picture can be added here
-            vehicle_information = {
-                'active_hacking_scenario': '0',
-                'speed_request': '0'
-            }
             config = self.config_handler.get_configuration()
-            self.environment_mng.put_player_on_next_free_spot(player)
-            vehicle = self.environment_mng.get_vehicle_by_player_id(player)
-            if vehicle is not None:
-                player_exists = True
-                picture = vehicle.vehicle_id
-                if vehicle.vehicle_id.startswith("Virtual Vehicle"):
-                    try:
-                        picture = 'Virtual_Vehicles/' + config["virtual_cars_pics"][vehicle.vehicle_id]
-                    except KeyError:
-                        self.logger.warning(f'No image configured for {vehicle.vehicle_id}.')
-                else:
-                    picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
-                vehicle.set_driving_data_callback(self.update_driving_data)
-                vehicle_information = vehicle.get_driving_data()
-                self.logger.debug(f'Callback set for {player}')
+
+            heartbeat_interval = config["driver"]["driver_heartbeat_interval_ms"]
+            background_grace_period = config["driver"]["driver_background_grace_period_s"]
+            player_exists, picture, vehicle_information = self._prepare_html_data(player)
 
             return await render_template(template_name_or_list='driver_index.html', player=player, player_exists=player_exists,
                                          picture=picture,
                                          vehicle_information=vehicle_information,
-                                         heartbeat_interval=config["driver"]["driver_heartbeat_interval_ms"],
-                                         background_grace_period=config["driver"]["driver_background_grace_period_s"])
+                                         heartbeat_interval=heartbeat_interval,
+                                         background_grace_period=background_grace_period)
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
@@ -247,3 +225,50 @@ class DriverUI:
         grace_period = self.config_handler.get_configuration()["driver"]["driver_reconnect_grace_period_s"]
         self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
         return
+
+    def _prepare_html_data(self, player: str) -> tuple[bool, str, dict[str, str]]:
+        """
+        Update queue and get all required data to render a template for a player
+
+        Parameters
+        ----------
+        player: str
+            ID of the player for which the site should be rendered
+
+        Returns
+        -------
+            Tuple consisting of
+                - boolean whether the player has a vehicle assigned
+                - string of the picture path or empty string
+                - vehicle driving information
+        """
+        print(f"Driver {player} connected!")
+
+        self.__latest_driver_heartbeats[player] = time.time()
+        if not self.__checking_heartbeats_flag:
+            self.__run_async_task(self.__check_driver_heartbeat_timeout())
+            self.__checking_heartbeats_flag = True
+
+        config = self.config_handler.get_configuration()
+
+        picture = ''  # default picture can be added here
+        vehicle_information = {
+            'active_hacking_scenario': '0',
+            'speed_request': '0'
+        }
+        self.environment_mng.put_player_on_next_free_spot(player)
+        vehicle = self.environment_mng.get_vehicle_by_player_id(player)
+
+        if vehicle is not None:
+            picture = vehicle.vehicle_id
+            if vehicle.vehicle_id.startswith("Virtual Vehicle"):
+                try:
+                    picture = 'Virtual_Vehicles/' + config["virtual_cars_pics"][vehicle.vehicle_id]
+                except KeyError:
+                    self.logger.warning(f'No image configured for {vehicle.vehicle_id}.')
+            else:
+                picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
+            vehicle.set_driving_data_callback(self.update_driving_data)
+            vehicle_information = vehicle.get_driving_data()
+            self.logger.debug(f'Callback set for {player}')
+        return vehicle is not None, picture, vehicle_information
