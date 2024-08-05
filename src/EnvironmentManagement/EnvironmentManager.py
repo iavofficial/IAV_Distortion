@@ -41,6 +41,7 @@ class EnvironmentManager:
 
     def __init__(self, fleet_ctrl: FleetController,
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()):
+
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
@@ -119,7 +120,7 @@ class EnvironmentManager:
             self.logger.critical('Missing update_staff_ui_callback!')
         else:
             self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
-                                            self.get_waiting_player_list())
+                                            self.get_waiting_players())
         return
 
     def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
@@ -284,7 +285,9 @@ class EnvironmentManager:
                     assigned_any_player = True
         return assigned_any_player
 
-    def _manage_removal_from_game_for(self, player_id: str, reason: RemovalReason) -> bool:
+    def manage_removal_from_game_for(self,
+                                     player_id: str,
+                                     reason: RemovalReason = RemovalReason.NONE) -> bool:
         """
         This function organizes the deletion of the player ID, if necessary, from the waiting list
         or a vehicle object and triggers the deletion event.
@@ -302,8 +305,8 @@ class EnvironmentManager:
             is True, if player was removed from queue or vehicle
             is False, if player could not be removed
         """
-        player_was_removed = (self._remove_player_from_waitlist(player_id) or
-                              self._remove_player_from_vehicle(player_id))
+        player_was_removed = (self.__remove_player_from_waitlist(player_id) or
+                              self.__remove_player_from_vehicle(player_id))
 
         if player_was_removed:
             self._publish_removed_player(player_id=player_id, reason=reason)
@@ -312,7 +315,7 @@ class EnvironmentManager:
         else:
             return False
 
-    def _remove_player_from_waitlist(self, player_id: str) -> bool:
+    def __remove_player_from_waitlist(self, player_id: str) -> bool:
         """
         Remove a player from the waiting queue
 
@@ -328,7 +331,7 @@ class EnvironmentManager:
         else:
             return False
 
-    def _remove_player_from_vehicle(self, player_id: str) -> bool:
+    def __remove_player_from_vehicle(self, player_id: str) -> bool:
         """
         removes a player from the vehicle they are controlling
 
@@ -346,11 +349,11 @@ class EnvironmentManager:
                 return True
         return False
 
-    def get_waiting_player_list(self) -> List[str]:
+    def get_waiting_players(self) -> List[str]:
         """
         Gets a list of all player that are waiting for a vehicle
         """
-        tmp = []
+        tmp: list[str] = []
         for p in self._player_queue_list:
             tmp.append(p)
         return tmp
@@ -401,8 +404,8 @@ class EnvironmentManager:
                 time_difference: timedelta = datetime.now() - player.game_start
                 if time_difference >= timedelta(minutes=timeout_interval):
                     self.logger.debug(f'playtime of {time_difference} for player {player.player} is over')
-                    self._manage_removal_from_game_for(player_id=player.player,
-                                                       reason=RemovalReason.PLAYING_TIME_IS_UP)
+                    self.manage_removal_from_game_for(player_id=player.player,
+                                                      reason=RemovalReason.PLAYING_TIME_IS_UP)
 
         self.logger.debug('Playtime checker is deactivated.')
 
@@ -454,8 +457,8 @@ class EnvironmentManager:
         """
         try:
             await asyncio.sleep(grace_period)
-            self._manage_removal_from_game_for(player_id=player,
-                                               reason=RemovalReason.NOT_REACHABLE)
+            self.manage_removal_from_game_for(player_id=player,
+                                              reason=RemovalReason.NOT_REACHABLE)
         except asyncio.CancelledError:
             logging.debug(f"Player {player} reconnected. Removing player aborted.")
         return

@@ -76,7 +76,7 @@ def create_inputs(input_values: list[str] = None) -> list[(str, bool)]:
     return testparameter
 
 
-class AddPlayerToQueueTest:
+class TestAddPlayerToQueue:
     @pytest.fixture(autouse=True)
     def value_init(self):
         self.dummy_player1 = "123"
@@ -88,7 +88,7 @@ class AddPlayerToQueueTest:
         # Act / Assert
         added = mut._add_player_to_queue(self.dummy_player1)
         assert added is True
-        assert mut.get_waiting_player_list()[0] is self.dummy_player1
+        assert mut.get_waiting_players()[0] is self.dummy_player1
 
         added = mut._add_player_to_queue(self.dummy_player1)
         assert added is False
@@ -243,6 +243,14 @@ class TestAssignPlayersToVehicles:
             assert temp_result is False
 
 
+class TestStartPlayingTimeChecker:
+    pass
+
+
+class TestStopRunningPlayingTimeChecker:
+    pass
+
+
 class TestManageRemovalFromGame:
     @pytest.mark.asyncio
     def test_for_valid_player_id_and_reason(self, get_mut_with_endless_playing_time,
@@ -262,16 +270,16 @@ class TestManageRemovalFromGame:
             pytest.fail("preconditions in vehicle list not correct.")
 
         if not any(player == "dummyplayer2"
-                   for player in mut.get_waiting_player_list()):
+                   for player in mut.get_waiting_players()):
             pytest.fail("preconditions in vehicle list not correct.")
 
         # Act / Assert
-        assert len(mut.get_waiting_player_list()) == 1
-        result = mut._manage_removal_from_game_for("dummyplayer2", RemovalReason.NONE)
+        assert len(mut.get_waiting_players()) == 1
+        result = mut.manage_removal_from_game_for("dummyplayer2", RemovalReason.NONE)
         assert result
-        assert len(mut.get_waiting_player_list()) == 0
+        assert len(mut.get_waiting_players()) == 0
 
-        result = mut._manage_removal_from_game_for("dummyplayer1", RemovalReason.NONE)
+        result = mut.manage_removal_from_game_for("dummyplayer1", RemovalReason.NONE)
         assert result
         assert all(vehicle.get_player_id() is None
                    for vehicle in mut.get_vehicle_list())
@@ -291,16 +299,16 @@ class TestManageRemovalFromGame:
         mut.put_player_on_next_free_spot("dummyplayer2")
         if not any(vehicle.get_player_id() == "dummyplayer1" for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
-        if not any(player == "dummyplayer2" for player in mut.get_waiting_player_list()):
+        if not any(player == "dummyplayer2" for player in mut.get_waiting_players()):
             pytest.fail("preconditions in vehicle list not correct.")
 
         # Act / Assert
-        assert len(mut.get_waiting_player_list()) == 1
+        assert len(mut.get_waiting_players()) == 1
         assert sum(vehicle.get_player_id() == "dummyplayer1"
                    for vehicle in mut.get_vehicle_list()) == 1
-        result = mut._manage_removal_from_game_for("invalid_player_id", RemovalReason.NONE)
+        result = mut.manage_removal_from_game_for("invalid_player_id", RemovalReason.NONE)
         assert not result
-        assert len(mut.get_waiting_player_list()) == 1
+        assert len(mut.get_waiting_players()) == 1
         assert sum(vehicle.get_player_id() == "dummyplayer1"
                    for vehicle in mut.get_vehicle_list()) == 1
 
