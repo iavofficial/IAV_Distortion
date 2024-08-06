@@ -242,6 +242,9 @@ class AnkiController(VehicleController):
             else:
                 return False
 
+    def __convert_speed_percent_to_absolute(self, velocity_percent: int) -> int:
+        return int(self.__MAX_ANKI_SPEED * velocity_percent / 100)
+
     def change_speed_to(self, velocity: int, acceleration: int = 1000, respect_speed_limit: bool = True) -> bool:
         """
         Calculates target speed value, constructs and send BLE command to request this speed value.
@@ -260,12 +263,15 @@ class AnkiController(VehicleController):
         bool
             True
         """
-        limit_int = int(respect_speed_limit)
-        speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
-        accel_int = acceleration
+        if velocity < 0:
+            return False
 
-        command = struct.pack("<BHHH", 0x24, speed_int, accel_int, limit_int)
-        self.logger.debug("Changed speed to %i", speed_int)
+        speed: int = self.__convert_speed_percent_to_absolute(velocity)
+        limit: int = int(respect_speed_limit)
+        accel: int = acceleration
+
+        command = struct.pack("<BHHH", 0x24, speed, accel, limit)
+        self.logger.debug("Changed speed to %i", speed)
         self.__send_latest_command(command)
         return True
 
@@ -288,7 +294,7 @@ class AnkiController(VehicleController):
         bool
             True
         """
-        speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
+        speed_int = self.__convert_speed_percent_to_absolute(velocity)
         lane_direction = self.__LANE_OFFSET * change_direction
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
         self.logger.debug("Changed lane direction %i", lane_direction)
@@ -477,7 +483,7 @@ class AnkiController(VehicleController):
 
         return
 
-    def on_send_new_event(self, value_tuple: tuple, callback: classmethod) -> None:
+    def on_send_new_event(self, value_tuple: tuple, callback: Callable) -> None:
         """
         Generic function to run a callback function.
 
