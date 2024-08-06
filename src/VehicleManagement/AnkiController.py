@@ -411,7 +411,7 @@ class AnkiController(VehicleController):
         self.__send_command(command)
         return True
 
-    def _update_road_offset(self) -> bool:
+    def __update_road_offset(self) -> bool:
         """
         Constructs and sends command to update the road offset value.
 

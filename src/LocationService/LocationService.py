@@ -28,9 +28,9 @@ class LocationService:
                 going_clockwise: true, if the car is going clockwise (assuming a round track)
                 uturn_in_progress: True, if it's currently doing a U-Turn
         """
-        self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT = 0.30
-        self._simulation_ticks_per_second = simulation_ticks_per_second
-        self.__start_immediately = start_immediately
+        self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT: float = 0.30
+        self._simulation_ticks_per_second: int = simulation_ticks_per_second
+        self.__start_immediately: bool = start_immediately
 
         # Taken from AnkiController
         # TODO: Put this in a more central place where both the controller and the LocationService can get it
@@ -59,7 +59,7 @@ class LocationService:
         first_piece, _ = self._track.get_entry_tupel(0)
         _, self._current_position = first_piece.process_update(0, 0, starting_offset)
 
-        self._on_update_callback = None
+        self._on_update_callback: Callable | None = None
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)

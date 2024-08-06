@@ -25,6 +25,7 @@ class LocationServiceController(VehicleController):
         self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
         self.__LANE_OFFSET = 22.25
 
+        self._location_service: LocationService | None = None
         return
 
     def __del__(self) -> None:
