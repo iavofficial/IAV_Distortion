@@ -26,18 +26,18 @@ class AnkiController(VehicleController):
         self.logger.addHandler(console_handler)
 
         super().__init__()
-        self.task_in_progress: bool = False
+        self.__task_in_progress: bool = False
 
-        self.__MAX_ANKI_SPEED = 1200  # mm/s
-        self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
-        self.__LANE_OFFSET = 22.25
+        self.__MAX_ANKI_SPEED: int = 1200  # mm/s
+        self.__MAX_ANKI_ACCELERATION: int = 2500  # mm/s^2
+        self.__LANE_OFFSET: float = 22.25
 
-        self.__location_callback = None
-        self.__transition_callback = None
-        self.__offset_callback = None
-        self.__version_callback = None
-        self.__battery_callback = None
-        self.__car_not_reachable_callback = None
+        self.__location_callback: Callable | None = None
+        self.__transition_callback: Callable | None = None
+        self.__offset_callback: Callable | None = None
+        self.__version_callback: Callable | None = None
+        self.__battery_callback: Callable | None = None
+        self.__car_not_reachable_callback: Callable | None = None
 
         self.__latest_command: bytes | None = None
         self.__command_in_progress: bool = False
@@ -107,7 +107,7 @@ class AnkiController(VehicleController):
         self.__car_not_reachable_callback = car_not_reachable_callback
         return
 
-    async def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
+    async def connect_to(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
         """
         Establishes BLE connection to Anki car.
 
@@ -190,19 +190,19 @@ class AnkiController(VehicleController):
         """
         success = False
 
-        if self.task_in_progress:
+        if self.__task_in_progress:
             return success
         else:
-            self.task_in_progress = True
+            self.__task_in_progress = True
             final_command = struct.pack("B", len(command)) + command
 
             try:
                 await self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None)
                 success = True
-                self.task_in_progress = False
+                self.__task_in_progress = False
             except BleakError:
                 success = False
-                self.task_in_progress = False
+                self.__task_in_progress = False
                 if self.__car_not_reachable_callback is not None:
                     self.__car_not_reachable_callback("Anki car is not reachable. Can not send command.")
 

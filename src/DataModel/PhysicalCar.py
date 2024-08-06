@@ -21,7 +21,7 @@ class PhysicalCar(ModelCar):
         super().__del__()
 
     async def initiate_connection(self, uuid: str) -> bool:
-        if await self._controller.connect_to_vehicle(BleakClient(uuid), True):
+        if await self._controller.connect_to(BleakClient(uuid), True):
             self._controller.set_callbacks(self._receive_location,
                                            self._receive_transition,
                                            self._receive_offset_update,

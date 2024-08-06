@@ -90,7 +90,7 @@ class LocationService:
                 self._uturn_override = UTurnOverride(self, self._actual_offset > 0)
         return
 
-    async def set_speed_percent(self, speed: int, acceleration: int = 1000) -> None:
+    async def set_speed_absolute(self, speed: float, acceleration: int = 1000) -> None:
         """
         Updates the target speed of the car.
         Thread-safe
@@ -103,7 +103,7 @@ class LocationService:
             Used acceleration in mm/s^2.
         """
         async with self._value_mutex:
-            self._set_speed_mm(self.__MAX_ANKI_SPEED * speed / 100, acceleration)
+            self._set_speed_mm(speed, acceleration)
         return
 
     def _set_speed_mm(self, speed_mm: float, acceleration: int = 1000) -> None:

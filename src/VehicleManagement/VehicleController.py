@@ -7,8 +7,11 @@
 # file that should have been included as part of this package.
 #
 
-from enum import Enum
 import abc
+import logging
+from enum import Enum
+
+from DataModel.Vehicle import Vehicle
 
 
 class Turns(Enum):
@@ -26,7 +29,7 @@ class TurnTrigger(Enum):
 
 class VehicleController:
     def __init__(self) -> None:
-        self._connected_car = None
+        self._connected_car: Vehicle = None
         return
 
     def __del__(self) -> None:

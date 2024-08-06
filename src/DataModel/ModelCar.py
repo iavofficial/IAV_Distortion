@@ -110,7 +110,7 @@ class ModelCar(Vehicle):
             self._speed_actual = 0
             self._on_driving_data_change()
 
-        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
+        asyncio.create_task(self._location_service.set_speed_absolute(self.__speed))
         self._controller.change_speed_to(int(self.__speed))
         return
 
@@ -170,7 +170,7 @@ class ModelCar(Vehicle):
             self.__lane_change = 3
 
         asyncio.create_task(self._location_service.set_offset_int(self.__lane_change))
-        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
+        asyncio.create_task(self._location_service.set_speed_absolute(self.__speed))
         self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
