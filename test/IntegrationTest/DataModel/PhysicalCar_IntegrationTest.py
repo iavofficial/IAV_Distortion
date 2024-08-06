@@ -34,8 +34,8 @@ async def test_physical_vehicle_publishes_location(initialise_dependencies, mac_
     assert len(vehicles) == 1
 
     car = vehicles[0]
-    mock = Mock()
-    car.set_virtual_location_update_callback(mock)
+    virtual_location_update_callback_mock = Mock()
+    car.set_virtual_location_update_callback(virtual_location_update_callback_mock)
     await asyncio.sleep(1)
-    mock.assert_called()
-    assert mock.call_count > 3
+    virtual_location_update_callback_mock.assert_called()
+    assert virtual_location_update_callback_mock.call_count > 3
