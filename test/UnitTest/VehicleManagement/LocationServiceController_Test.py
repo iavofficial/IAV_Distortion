@@ -1,0 +1,3 @@
+import pytest
+
+from VehicleManagement.LocationServiceController import LocationService
