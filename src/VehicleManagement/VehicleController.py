@@ -27,7 +27,7 @@ class TurnTrigger(Enum):
     VEHICLE_TURN_TRIGGER_INTERSECTION = 1
 
 
-class VehicleController:
+class VehicleController(abc):
     def __init__(self) -> None:
         self._connected_car: Vehicle = None
         return

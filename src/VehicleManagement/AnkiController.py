@@ -20,11 +20,6 @@ class AnkiController(VehicleController):
     Controller class for the BLE interface for the Anki cars
     """
     def __init__(self) -> None:
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        console_handler = logging.StreamHandler()
-        self.logger.addHandler(console_handler)
-
         super().__init__()
         self.__task_in_progress: bool = False
 
