@@ -26,7 +26,7 @@ class AnkiControllerIntegrationTest(TestCase):
         # Arrange
         self.mut.set_callbacks(None, None, None, None, None, self.dummy_callback)
         # Act
-        if not self.mut.connect_to_vehicle(BleakClient(self.ankiCarMacs[0])):
+        if not self.mut.connect_to(BleakClient(self.ankiCarMacs[0])):
             assert False
 
         self.mut.request_version()
@@ -38,7 +38,7 @@ class AnkiControllerIntegrationTest(TestCase):
         # Arrange
 
         # Act
-        if not self.mut.connect_to_vehicle(BleakClient(self.ankiCarMacs[0])):
+        if not self.mut.connect_to(BleakClient(self.ankiCarMacs[0])):
             assert False
 
         self. mut.change_speed_to(100)

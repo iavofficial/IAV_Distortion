@@ -44,7 +44,7 @@ async def test_spam_connection_requests(mac_address: str = 'E8:7E:9F:34:CF:46', 
     results = {}
     i = 0
     for controller in controllers:
-        result = await controller.connect_to_vehicle(clients[i])
+        result = await controller.connect_to(clients[i])
         results[controller] = result
         i += 1
 
