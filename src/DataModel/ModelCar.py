@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Dict
 import asyncio
 
 from DataModel.Vehicle import Vehicle
@@ -17,7 +17,7 @@ class ModelCar(Vehicle):
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
-        self.__min_speed_thr = 20
+        self.__min_speed_thr: int = 20
 
         self.__lane_change: int = 0
         self.__lane_change_request: int = 0
@@ -210,7 +210,7 @@ class ModelCar(Vehicle):
     def set_safemode(self, value: bool) -> None:
         self.__is_safemode_on = value
 
-    def get_driving_data(self) -> dict:
+    def get_driving_data(self) -> Dict[str, str | bool | int | float]:
         driving_info_dic = {
             'vehicle_id': self.vehicle_id,
             'player': self.player,
