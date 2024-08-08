@@ -29,8 +29,15 @@ class TrackPiece(ABC):
     """
     Single TrackPiece class that allows calculating progress on itself and holds some metadata like it's size.
     """
-    def __init__(self, rotation_deg: int):
+    def __init__(self, rotation_deg: int, physical_id):
         self._rotation = Angle(rotation_deg)
+        self.__physical_id: int | None = physical_id
+
+    def set_physical_id(self, physical_id: int | None) -> None:
+        self.__physical_id = physical_id
+
+    def get_physical_id(self) -> int | None:
+        return self.__physical_id
 
     @abstractmethod
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
@@ -75,6 +82,14 @@ class TrackPiece(ABC):
     def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
         """
         Get the current progress on the track for changing the offset
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_progress_based_on_location(self, location: int, offset: float) -> float:
+        """
+        Get the progress in mm based on the sent location data from a physical car. This assumes the piece
+        is laid down in a way that in clockwise direction it counts down
         """
         raise NotImplementedError
 
@@ -172,3 +187,10 @@ class FullTrack():
             })
 
         return l
+
+    def find_piece_index_with_physical_id(self, physical_id: int) -> int | None:
+        for i in range(0, self.get_len()):
+            piece: TrackPiece = self.track_entries[i].get_piece()
+            if piece.get_physical_id() == physical_id:
+                return i
+        return None
