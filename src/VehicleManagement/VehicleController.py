@@ -8,9 +8,9 @@
 #
 
 import abc
-import logging
 from enum import Enum
 
+import logging
 from DataModel.Vehicle import Vehicle
 
 
@@ -27,14 +27,19 @@ class TurnTrigger(Enum):
     VEHICLE_TURN_TRIGGER_INTERSECTION = 1
 
 
-class VehicleController(abc):
+class VehicleController(abc.ABC):
     def __init__(self) -> None:
-        self._connected_car: Vehicle = None
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        console_handler = logging.StreamHandler()
+        self.logger.addHandler(console_handler)
+
+        self._connected_car: Vehicle | None = None
         return
 
     def __del__(self) -> None:
-        self.loop.stop()
-
+        return
+    
     def __str__(self):
         return "Connected Car" + str(self._connected_car)
 

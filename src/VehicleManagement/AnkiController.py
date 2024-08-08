@@ -10,7 +10,7 @@ import asyncio
 from asyncio import Task
 import struct
 import logging
-from typing import Callable
+from typing import Callable, Coroutine
 from VehicleManagement.VehicleController import VehicleController, Turns, TurnTrigger
 from bleak import BleakClient, BleakGATTCharacteristic, BleakError
 
@@ -19,13 +19,13 @@ class AnkiController(VehicleController):
     """
     Controller class for the BLE interface for the Anki cars
     """
-    def __init__(self) -> None:
+    def __init__(self, max_anki_speed: int = 1200, max_anki_acc: int = 2500, lane_offset: float= 22.5) -> None:
         super().__init__()
         self.__task_in_progress: bool = False
 
-        self.__MAX_ANKI_SPEED: int = 1200  # mm/s
-        self.__MAX_ANKI_ACCELERATION: int = 2500  # mm/s^2
-        self.__LANE_OFFSET: float = 22.25
+        self.__MAX_ANKI_SPEED: int = max_anki_speed  # mm/s
+        self.__MAX_ANKI_ACCELERATION: int = max_anki_acc  # mm/s^2
+        self.__LANE_OFFSET: float = lane_offset
 
         self.__location_callback: Callable | None = None
         self.__transition_callback: Callable | None = None
@@ -42,7 +42,7 @@ class AnkiController(VehicleController):
     def __del__(self) -> None:
         asyncio.create_task(self.__disconnect_from_vehicle())
 
-    def __run_async_task(self, task: Task) -> None:
+    def __run_coroutine_as_async_task(self, coro: Coroutine) -> None:
         """
         Run a asyncio awaitable task
 
@@ -51,7 +51,7 @@ class AnkiController(VehicleController):
         task: Task
             awaitable task
         """
-        asyncio.create_task(task)
+        asyncio.create_task(coro)
         # TODO: Log error, if the coroutine doesn't end successfully
 
     async def __process_latest_command(self) -> None:
@@ -147,10 +147,10 @@ class AnkiController(VehicleController):
         command: bytes
             Command to be sent to the client.
         """
-        self.__run_async_task(self.__send_command_task(command))
+        self.__run_coroutine_as_async_task(self.__send_command_task(command))
         return
 
-    def __send_latest_command(self, command: bytes) -> None:
+    def __send_latest_command(self, command: bytes) -> bool:
         """
         Stores most recent command and starts loop to run most recent task if loop is not running.
 
@@ -162,8 +162,9 @@ class AnkiController(VehicleController):
         self.__latest_command = command
         if not self.__command_in_progress:
             self.__command_in_progress = True
-            self.__run_async_task(self.__process_latest_command())
-        return
+            self.__run_coroutine_as_async_task(self.__process_latest_command())
+            return True
+        return False
 
     async def __send_command_task(self, command: bytes) -> bool:
         """
