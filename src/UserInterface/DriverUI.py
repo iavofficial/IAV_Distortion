@@ -69,7 +69,8 @@ class DriverUI:
                                          picture=picture,
                                          vehicle_information=vehicle_information,
                                          heartbeat_interval=heartbeat_interval,
-                                         background_grace_period=background_grace_period)
+                                         background_grace_period=background_grace_period,
+                                         color_map=environment_mng.get_car_color_map())
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 

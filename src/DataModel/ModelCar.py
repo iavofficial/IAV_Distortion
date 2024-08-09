@@ -265,3 +265,23 @@ class ModelCar(Vehicle):
 
         self._on_driving_data_change()
         return
+
+    def _location_service_update(self, pos: Position, rot: Angle, data: dict):
+        """
+        Default callback to be called when the location service has a new calculated vehicle position.
+        It invokes the virtual location update which publishes the driving data via socketio
+        """
+        speed: float | None = data.get('speed')
+        if speed is None:
+            # TODO: Log via real logger
+            print("Error: Location service callback didn't include the speed!")
+        else:
+            self._speed_actual = int(speed)
+
+        offset: float | None = data.get('offset')
+        if offset is None:
+            print("Error: Location service callback didn't include the offset!")
+        else:
+            self._offset_from_center = offset
+
+        self._on_virtual_location_update(pos, rot, {})
