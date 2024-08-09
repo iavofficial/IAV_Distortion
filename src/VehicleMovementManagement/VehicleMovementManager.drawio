@@ -1,0 +1,19 @@
+<mxfile host="Electron" modified="2024-08-09T08:31:25.104Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.5.3 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="6XkUrNummVZcWcDkqh3-" version="24.5.3" type="device">
+  <diagram name="Seite-1" id="_4eobGkAnbKbv3fhOB56">
+    <mxGraphModel dx="2868" dy="2008" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bvd2_E3XBQkl3XygdmqH-1" value="VehicleMovementManagement" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;" vertex="1" parent="1">
+          <mxGeometry x="20" y="60" width="390" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="bvd2_E3XBQkl3XygdmqH-2" value="BehaviourController" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="160" width="200" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="bvd2_E3XBQkl3XygdmqH-3" value="Processes user inputs and hacking impacts and determines resulting vehicle control." style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="bvd2_E3XBQkl3XygdmqH-2">
+          <mxGeometry y="26" width="200" height="74" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

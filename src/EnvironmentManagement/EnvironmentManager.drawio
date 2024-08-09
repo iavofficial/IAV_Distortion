@@ -1,0 +1,72 @@
+<mxfile host="Electron" modified="2024-08-09T08:29:33.742Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.5.3 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="QYek6SzTS5e9Ug3uC4yh" version="24.5.3" type="device">
+  <diagram name="Seite-1" id="AiCN5Q_24HWqCGqmMZWi">
+    <mxGraphModel dx="4945" dy="1825" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="LqknbGMkndK6xSMICAX0-1" value="EnvironmentManagment" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;" vertex="1" parent="1">
+          <mxGeometry x="-1050" y="60" width="1010" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-2" value="EnvironmentManager" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-1040" y="134" width="480" height="480" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-3" value="all" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="LqknbGMkndK6xSMICAX0-2">
+          <mxGeometry y="26" width="480" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-4" value="&lt;div&gt;+ None &lt;b&gt;set_staff_ui_update_callback&lt;/b&gt;(Callable[[Dict[str, str], List[str], List[str]], None])&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;set_publish_removed_player_callback&lt;/b&gt;(Callable[[str], None])&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;set_publish_player_active_callback&lt;/b&gt;(Callable[[str], None])&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;update_staff_ui&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;- None &lt;b&gt;_publish_removed_player&lt;/b&gt;(str)&lt;/div&gt;&lt;div&gt;- None &lt;b&gt;_publish_player_active&lt;/b&gt;(str)&lt;/div&gt;&lt;div&gt;+ list[Vehicle] &lt;i&gt;async &lt;/i&gt;&lt;b&gt;connect_all_anki_cars&lt;/b&gt;()&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ list[str] &lt;i&gt;async &lt;/i&gt;&lt;b&gt;def find_unpaired_anki_cars&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ list[Vehicle] &lt;b&gt;get_vehicle_list&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;remove_vehicle&lt;/b&gt;(uuid_to_remove: str)&lt;/div&gt;&lt;div&gt;+ Vehicle &lt;b&gt;update_queues_and_get_vehicle&lt;/b&gt;(player_id: str)&lt;/div&gt;&lt;div&gt;- None &lt;b&gt;_add_player_to_queue_if_appropriate&lt;/b&gt;(player_id: str)&lt;/div&gt;&lt;div&gt;- None &lt;b&gt;_assign_players_to_vehicles&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;add_player&lt;/b&gt;(player_id: str)&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;remove_player_from_waitlist&lt;/b&gt;(player_id: str)&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;remove_player_from_vehicle&lt;/b&gt;(player: str)&lt;/div&gt;&lt;div&gt;+ None &lt;i&gt;async &lt;/i&gt;&lt;b&gt;add_vehicle&lt;/b&gt;(uuid: str)&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;add_virtual_vehicle&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ FullTrack &lt;b&gt;get_track&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ List[str] &lt;b&gt;get_controlled_cars_list&lt;/b&gt;()&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ List[str] &lt;b&gt;get_free_car_list&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ List[str] &lt;b&gt;get_waiting_player_list&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ Vehicle &lt;b&gt;get_car_from_player&lt;/b&gt;(player: str)&lt;/div&gt;&lt;div&gt;+ List[dict] &lt;b&gt;get_mapped_cars&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ Dict[str, List[str]] &lt;b&gt;get_car_color_map&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;- None &lt;i&gt;async&lt;/i&gt; &lt;b&gt;__check_playing_time_is_up&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+ None &lt;b&gt;schedule_remove_player_task&lt;/b&gt;(player: str, grace_period: int = 5)&lt;/div&gt;&lt;div&gt;- None &lt;b&gt;__cancel_remove_player_task&lt;/b&gt;(player: str)&lt;/div&gt;&lt;div&gt;- None &lt;i&gt;async&lt;/i&gt; &lt;b&gt;__remove_player_after_grace_period&lt;/b&gt;(player: str, grace_period: int = 5)&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=default;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="LqknbGMkndK6xSMICAX0-2">
+          <mxGeometry y="52" width="480" height="428" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-5" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="LqknbGMkndK6xSMICAX0-4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-1080" y="229.70731707317077" as="sourcePoint" />
+            <mxPoint x="-1100" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-6" value="FleetControler" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="LqknbGMkndK6xSMICAX0-5">
+          <mxGeometry x="0.6571" y="-1" relative="1" as="geometry">
+            <mxPoint x="-52" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-7" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" vertex="1" parent="1">
+          <mxGeometry x="-960" y="196" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-8" value="TrackBuilder" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-430" y="170" width="210" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-9" value="Creates the description of the virtual track." style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="LqknbGMkndK6xSMICAX0-8">
+          <mxGeometry y="26" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-10" value="VehicleListManager" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-510" y="380" width="210" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-11" value="Create, add and remove vehicles from the vehicle list. Makes the queue available." style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="LqknbGMkndK6xSMICAX0-10">
+          <mxGeometry y="26" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-12" value="PlayerQueueManager" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-260" y="380" width="210" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-13" value="Add and remove player from the player queue. Makes the queue available." style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="LqknbGMkndK6xSMICAX0-12">
+          <mxGeometry y="26" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-14" value="PlayerVehicleAssigner" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-430" y="530" width="210" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-15" value="Assign waiting players to waiting vehicles. Remove players from cars. Remove vehicles from vehicle list and send player back to queue." style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="LqknbGMkndK6xSMICAX0-14">
+          <mxGeometry y="26" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-16" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="LqknbGMkndK6xSMICAX0-14" target="LqknbGMkndK6xSMICAX0-10">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-680" y="460" as="sourcePoint" />
+            <mxPoint x="-630" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LqknbGMkndK6xSMICAX0-17" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1" source="LqknbGMkndK6xSMICAX0-14" target="LqknbGMkndK6xSMICAX0-12">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-680" y="460" as="sourcePoint" />
+            <mxPoint x="-630" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
