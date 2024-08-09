@@ -42,9 +42,11 @@ class LocationServiceController(VehicleController):
         asyncio.create_task(coro)
         # TODO: Log error, if the coroutine doesn't end successfully
 
-    def set_callback(self, virtual_pos_callback: Callable) -> None:
+    def set_callback(self, virtual_pos_callback: Callable) -> bool:
+        if not callable(virtual_pos_callback):
+            return False
         self._virtual_position_data_callback = virtual_pos_callback
-        return
+        return True
 
     def connect_to(self, location_service: LocationService) -> bool:
 

@@ -39,7 +39,7 @@ class VehicleController(abc.ABC):
 
     def __del__(self) -> None:
         return
-    
+
     def __str__(self):
         return "Connected Car" + str(self._connected_car)
 

@@ -369,7 +369,7 @@ class UTurnOverride:
         self._CIRCLE_RADIUS = 22.5
         self._CIRCLE_LENGTH = self._CIRCLE_RADIUS * math.pi
         self._DEGREE_PER_STEP = (self._SPEED_FOR_UTURN * 180) / (
-                self._CIRCLE_LENGTH * location_service._simulation_ticks_per_second) * -1
+                self._CIRCLE_LENGTH * location_service.__simulation_ticks_per_second) * -1
 
         self._location_service = location_service
 
@@ -402,7 +402,7 @@ class UTurnOverride:
                     self._phase = 1
                     return self.override_simulation()
                 self._location_service._adjust_speed_to(self._SPEED_FOR_UTURN)
-                return self._location_service._actual_speed / self._location_service._simulation_ticks_per_second
+                return self._location_service._actual_speed / self._location_service.__simulation_ticks_per_second
             # first half of the curve
             case 1:
                 # check if we entered the 2nd half already
