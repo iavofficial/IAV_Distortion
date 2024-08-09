@@ -1,17 +1,25 @@
 from bleak import BleakClient
 from DataModel.ModelCar import ModelCar
 from LocationService.LocationService import LocationService
+from LocationService.PhysicalLocationService import PhysicalLocationService
 from VehicleManagement.AnkiController import AnkiController
+
+
+def clamp(val: float, minimum: float, maximum: float) -> float:
+    """
+    Restricts the value range of value to a minimum and maximum boundary
+    """
+    return min(maximum, max(minimum, val))
 
 
 class PhysicalCar(ModelCar):
     def __init__(self,
                  vehicle_id: str,
                  controller: AnkiController,
-                 location_service: LocationService) -> None:
+                 location_service: PhysicalLocationService) -> None:
         super().__init__(vehicle_id)
         self._controller: AnkiController = controller
-        self._location_service: LocationService = location_service
+        self._location_service: PhysicalLocationService = location_service
         self._location_service.set_on_update_callback(self._location_service_update)
 
     def __del__(self):
@@ -38,3 +46,15 @@ class PhysicalCar(ModelCar):
 
     def get_typ_of_location_service(self) -> LocationService:
         return type(self._location_service)
+
+    def _receive_location(self, value_tuple) -> None:
+        super()._receive_location(value_tuple)
+        location, piece, offset, _, _ = value_tuple
+        offset = clamp(offset, -66.5, 66.5)
+        self._location_service.notify_location_event(piece, location, offset, self._speed_actual)
+
+    def _receive_transition(self, value_tuple) -> None:
+        super()._receive_transition(value_tuple)
+        _, _, offset, _ = value_tuple
+        offset = clamp(offset, -66.5, 66.5)
+        self._location_service.notify_transition_event(offset)
