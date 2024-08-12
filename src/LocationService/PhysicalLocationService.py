@@ -59,3 +59,99 @@ class PhysicalLocationService(LocationService):
         self._progress_on_current_piece = new_piece.get_progress_based_on_location(location, offset)
 
         self._run_simulation_step(self._actual_speed * self._BLE_LATENCY_CORRECTION * self._direction_mult)
+    def _calculate_distance_to_position(self, other_index: int, other_progress: float) -> float:
+        """
+        Calculates the difference between the simulation and another given position.
+        A positive value means the simulation is in front of the other position. A negative value means the simulation
+        is behind of the other position
+        """
+        if self._current_piece_index == other_index:
+            return self._calculate_distance_on_same_piece(other_progress)
+
+        forward_distance = self._calculate_distance_to_position_forward(other_index, other_progress)
+        backward_distance = self._calculate_distance_to_position_backward(other_index, other_progress)
+
+        # return smaller
+        if abs(forward_distance) > abs(backward_distance):
+            return backward_distance
+        return forward_distance
+
+    def _calculate_distance_to_position_forward(self, other_index: int, other_progress: float) -> float:
+        """
+        Calculate the distance to another position in the driving direction. The result signs are the same as in
+        `_calculate_distance_to_position`
+        """
+        # progress on own piece
+        diff: float
+        if self._direction_mult == 1:
+            diff = self._calculate_distance_to_end(self._current_piece_index, self._progress_on_current_piece)
+        else:
+            diff = self._calculate_distance_from_start(self._progress_on_current_piece)
+
+        # add full length of all pieces between
+        i = self._current_piece_index
+        while True:
+            i = (i + self._direction_mult) % self._track.get_len()
+            if i == other_index:
+                break
+            piece, _ = self._track.get_entry_tupel(i)
+            diff += piece.get_length(self._actual_offset)
+
+        # add progress of the other car
+        if self._direction_mult == 1:
+            diff += self._calculate_distance_from_start(other_progress)
+        else:
+            diff += self._calculate_distance_to_end(i, other_progress)
+
+        return diff
+
+    # TODO: Check redundancy with _calculate_distance_to_position_forward
+    def _calculate_distance_to_position_backward(self, other_index: int, other_progress: float) -> float:
+        """
+        Calculate the distance to another position against the driving direction. The result signs are the same as in
+        `_calculate_distance_to_position`
+        """
+        # progress on own piece
+        diff: float
+        if self._direction_mult == 1:
+            diff = self._calculate_distance_from_start(self._progress_on_current_piece)
+        else:
+            diff = self._calculate_distance_to_end(self._current_piece_index, self._progress_on_current_piece)
+
+        # add full length of all pieces between
+        i = self._current_piece_index
+        while True:
+            i = (i - self._direction_mult) % self._track.get_len()
+            if i == other_index:
+                break
+            piece, _ = self._track.get_entry_tupel(i)
+            diff += piece.get_length(self._actual_offset)
+
+        # add progress of the other car
+        if self._direction_mult == 1:
+            diff += self._calculate_distance_to_end(i, other_progress)
+        else:
+            diff += self._calculate_distance_from_start(other_progress)
+        return diff * -1
+
+    def _calculate_distance_on_same_piece(self, other_position: float) -> float:
+        """
+        Calculates the distance to another position assuming we are on the same piece. The result signs are the same as
+        in `_calculate_distance_to_position`
+        """
+        return (other_position - self._progress_on_current_piece) * self._direction_mult
+
+    def _calculate_distance_from_start(self, progress: float):
+        """
+        Calculates how far the car is on the current piece. This function only returns its argument and exists
+        purely for code readability
+        """
+        _ = self
+        return progress
+
+    def _calculate_distance_to_end(self, piece_index: int, progress: float) -> float:
+        """
+        Calculates how far the car is away from the end of a piece
+        """
+        piece, _ = self._track.get_entry_tupel(piece_index)
+        return piece.get_length(self._actual_offset) - progress
