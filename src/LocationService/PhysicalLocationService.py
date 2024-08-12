@@ -23,11 +23,12 @@ class PhysicalLocationService(LocationService):
         new_speed = target_speed + self._speed_correcture
         # we don't want to apply speed correctures here since they break the expected behaviour
         if self._uturn_override is not None or target_speed < 10:
-            new_speed = target_speed
+            return super()._adjust_speed_to(target_speed)
         # prevent negative values since the speed needs to always be a positive value
-        elif new_speed < 0:
-            new_speed = 0
-        super()._adjust_speed_to(new_speed)
+        if new_speed < 0:
+            return super()._adjust_speed_to(0)
+
+        return super()._adjust_speed_to(new_speed)
 
     # ignore offset change requests and only use car values
     async def set_offset_int(self, offset: int) -> None:
