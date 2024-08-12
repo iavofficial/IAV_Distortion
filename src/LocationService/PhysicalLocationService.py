@@ -29,6 +29,11 @@ class PhysicalLocationService(LocationService):
             new_speed = 0
         super()._adjust_speed_to(new_speed)
 
+    # ignore offset change requests and only use car values
+    async def set_offset_int(self, offset: int) -> None:
+        _ = offset
+        return
+
     def _notification_offset_to_internal_offset(self, offset: float) -> float:
         return offset * -1 * self._direction_mult
 
