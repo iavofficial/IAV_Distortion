@@ -14,6 +14,21 @@ class PhysicalLocationService(LocationService):
         # amount of time the BLE message should take. Based on that additional travelling distance will be added to
         self._BLE_LATENCY_CORRECTION = 0.1
 
+        # alpha filter to smoothen the correcture
+        self._speed_correcture: float = 0
+        self._ALPHA_VALUE = 0.5
+
+    # overwritten method to implement a speed correcture based on the sent data
+    def _adjust_speed_to(self, target_speed: float) -> None:
+        new_speed = target_speed + self._speed_correcture
+        # we don't want to apply speed correctures here since they break the expected behaviour
+        if self._uturn_override is not None or self._target_speed < 10:
+            new_speed = target_speed
+        # prevent negative values since the speed needs to always be a positive value
+        elif new_speed < 0:
+            new_speed = 0
+        super()._adjust_speed_to(new_speed)
+
     def _notification_offset_to_internal_offset(self, offset: float) -> float:
         return offset * -1 * self._direction_mult
 
@@ -29,15 +44,21 @@ class PhysicalLocationService(LocationService):
 
         self._target_offset = internal_offset
         self._physical_piece = piece_index
-        self._current_piece_index = piece_index
 
+        simulation_difference: float
         if self._direction_mult == 1:
-            self._progress_on_current_piece = 0
+            simulation_difference = self._calculate_distance_to_position(piece_index,
+                                                                         self._actual_speed
+                                                                         * self._BLE_LATENCY_CORRECTION)
         else:
-            new_piece, _ = self._track.get_entry_tupel(self._current_piece_index)
-            self._progress_on_current_piece = new_piece.get_length(internal_offset)
+            piece, _ = self._track.get_entry_tupel(piece_index)
+            simulation_difference = self._calculate_distance_to_position(piece_index,
+                                                                         piece.get_length(internal_offset)
+                                                                         - self._actual_speed
+                                                                         * self._BLE_LATENCY_CORRECTION)
 
-        self._run_simulation_step(self._actual_speed * self._BLE_LATENCY_CORRECTION * self._direction_mult)
+        self._speed_correcture = (simulation_difference * self._ALPHA_VALUE) +\
+                                 ((1 - self._ALPHA_VALUE) * self._speed_correcture)
 
     def notify_location_event(self, piece: int, location: int, offset: float, speed: int) -> None:
         """
