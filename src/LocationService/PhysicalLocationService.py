@@ -12,7 +12,7 @@ class PhysicalLocationService(LocationService):
         # watch piece indices from location events separately so it doesn't get changed by the default location service
         self._physical_piece: int | None = None
         # amount of time the BLE message should take. Based on that additional travelling distance will be added to
-        self._BLE_LATENCY_CORRECTION = 0.1
+        self._BLE_LATENCY_CORRECTION = 0.05
 
         # alpha filter to smoothen the correcture
         self._speed_correcture: float = 0
