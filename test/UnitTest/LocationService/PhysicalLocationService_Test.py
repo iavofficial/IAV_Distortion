@@ -118,3 +118,46 @@ def test_calculation_brings_right_tesult(get_physical_location_service):
     backward_result = service._calculate_distance_to_position_backward(1, 300)
     automatically_chosen = service._calculate_distance_to_position(1, 300)
     assert pytest.approx(backward_result) == automatically_chosen
+
+
+def test_unknown_piece_results_in_early_return(get_physical_location_service):
+    """
+    Test that the _physical_piece variable isn't overwritten when wrong data is sent by the car
+    """
+    service = get_physical_location_service
+    service.notify_location_event(99, 10, 20, 99)
+    assert service._physical_piece is None
+
+
+@pytest.mark.asyncio
+async def test_adjust_speed_override_for_special_cases(get_physical_location_service):
+    """
+    Test that the overwritten method only manipulates the speed when there is no special case
+    """
+    service = get_physical_location_service
+    await service.set_speed_percent(50, 1200)
+    service._speed_correcture = 400
+
+    # here the correcture should be applied
+    old_speed = service._actual_speed
+    service._adjust_speed_to(30)
+    assert pytest.approx(old_speed + 30 + 400) == service._actual_speed
+
+    # it shouldn't be applied here since the request is too low
+    service._actual_speed = 0
+    service._adjust_speed_to(5)
+    assert pytest.approx(5) == service._actual_speed
+    service._adjust_speed_to(0)
+    assert pytest.approx(0) == service._actual_speed
+
+    # it shouldn't be applied here since the car is doing a U-Turn
+    await service.do_uturn()
+    assert service._uturn_override is not None
+    service._adjust_speed_to(20)
+    assert pytest.approx(20) == service._actual_speed
+    service._uturn_override = None
+
+    # here the result would be negative so it should be reduced to 0
+    service._speed_correcture = -2000
+    service._adjust_speed_to(20)
+    assert service._actual_speed == 0
