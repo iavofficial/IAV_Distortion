@@ -55,11 +55,7 @@ class PhysicalLocationService(LocationService):
 
         new_piece, _ = self._track.get_entry_tupel(piece_index)
         self._physical_piece = piece_index
-        self._current_piece_index = piece_index
 
-        self._progress_on_current_piece = new_piece.get_progress_based_on_location(location, offset)
-
-        self._run_simulation_step(self._actual_speed * self._BLE_LATENCY_CORRECTION * self._direction_mult)
     def _calculate_distance_to_position(self, other_index: int, other_progress: float) -> float:
         """
         Calculates the difference between the simulation and another given position.
