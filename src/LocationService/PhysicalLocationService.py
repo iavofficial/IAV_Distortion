@@ -22,7 +22,7 @@ class PhysicalLocationService(LocationService):
     def _adjust_speed_to(self, target_speed: float) -> None:
         new_speed = target_speed + self._speed_correcture
         # we don't want to apply speed correctures here since they break the expected behaviour
-        if self._uturn_override is not None or self._target_speed < 10:
+        if self._uturn_override is not None or target_speed < 10:
             new_speed = target_speed
         # prevent negative values since the speed needs to always be a positive value
         elif new_speed < 0:
