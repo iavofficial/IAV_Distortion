@@ -51,6 +51,7 @@ class PhysicalLocationService(LocationService):
         if piece_index is None:
             self.logger.warn(
                 "Couldn't find a piece matching the physical ID %d we got from the location event. Ignoring it", piece)
+            return
 
         new_piece, _ = self._track.get_entry_tupel(piece_index)
         self._physical_piece = piece_index
