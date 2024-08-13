@@ -23,8 +23,11 @@
         <script type="text/javascript" charset="utf-8">
             var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-            // TODO: Calculate scale based on track so it fits well on the page
-            const scale = 0.5;
+            const required_space = {{ used_space | tojson }};
+            const required_vertically = required_space.used_space_vertically;
+            const required_horizontally = required_space.used_space_horizontally;
+
+            let scale = 1;
 
             var canvas = document.getElementById("car_canvas");
             var ctx = canvas.getContext("2d");
@@ -40,6 +43,13 @@
 
             const car_pics = {{ car_pictures | tojson }};
             const colorCrossmap = {{ color_map | tojson }};
+
+            addEventListener("resize", (event) => {
+                resizeCanvas();
+                resetCanvas();
+                drawTrack();
+                // TODO: Put car drawing in own function and call it here!
+            });
 
             resizeCanvas();
             resetCanvas();
@@ -58,7 +68,6 @@
             socket.on('car_positions', function(data){
                 var carName = data.car;
                 dataMap.set(carName, data);
-                resizeCanvas();
                 resetCanvas();
                 drawTrack();
                 for (const car of dataMap) {
@@ -260,6 +269,9 @@
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                let ratio_vertically = window.innerHeight / required_vertically;
+                let ratio_horizontally = window.innerWidth / required_horizontally;
+                scale = Math.min(ratio_horizontally, ratio_vertically);
             }
         </script>
     </body>

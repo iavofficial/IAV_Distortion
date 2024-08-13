@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from LocationService.Trigo import Position, Angle
 
@@ -197,3 +197,23 @@ class FullTrack():
             if piece.get_physical_id() == physical_id:
                 return True
         return False
+
+    def get_used_space_as_dict(self) -> Dict[str, int]:
+        """
+        Returns a dict with the used horizontal and vertical space. The keys are
+        `used_space_vertically` and `used_space_horizontally`
+        """
+        max_vert: int = 0
+        max_horiz: int = 0
+        for entry in self.track_entries:
+            piece = entry.get_piece()
+            offset = entry.get_global_offset()
+            local_max_x = piece.get_used_space_vert() / 2 + offset.get_x()
+            local_max_y = piece.get_used_space_horiz() / 2 + offset.get_y()
+            max_vert = max(max_vert, local_max_x)
+            max_horiz = max(max_horiz, local_max_y)
+
+        return {
+            'used_space_vertically': max_horiz,
+            'used_space_horizontally': max_vert
+        }

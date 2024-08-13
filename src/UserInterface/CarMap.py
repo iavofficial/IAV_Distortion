@@ -46,7 +46,8 @@ class CarMap:
 
             car_pictures = self.config_handler.get_configuration()["virtual_cars_pics"]
             return await render_template("car_map.html", track=track, car_pictures=car_pictures,
-                                   color_map=environment_manager.get_car_color_map())
+                                   color_map=environment_manager.get_car_color_map(),
+                                   used_space=environment_manager.get_track().get_used_space_as_dict())
 
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
 
