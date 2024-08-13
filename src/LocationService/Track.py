@@ -188,9 +188,12 @@ class FullTrack():
 
         return l
 
-    def find_piece_index_with_physical_id(self, physical_id: int) -> int | None:
+    def contains_physical_piece(self, physical_id: int) -> bool:
+        """
+        Returns whether the track contains a piece with the given physical ID
+        """
         for i in range(0, self.get_len()):
             piece: TrackPiece = self.track_entries[i].get_piece()
             if piece.get_physical_id() == physical_id:
-                return i
-        return None
+                return True
+        return False

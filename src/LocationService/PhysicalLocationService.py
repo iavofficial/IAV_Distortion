@@ -1,3 +1,5 @@
+from typing import List
+
 from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
 
@@ -17,6 +19,12 @@ class PhysicalLocationService(LocationService):
         # alpha filter to smoothen the correcture
         self._speed_correcture: float = 0
         self._ALPHA_VALUE = 0.5
+
+        # list that tracks the history of pieces so we can figure out the position even when there are duplicate IDs
+        # It always has a int or None for indices that are also in the track
+        self._piece_history: List[int | None] = list()
+        self._piece_history_index: int = 0
+        self._reset_piece_history()
 
     # overwritten method to implement a speed correcture based on the sent data
     def _adjust_speed_to(self, target_speed: float) -> None:
@@ -42,6 +50,7 @@ class PhysicalLocationService(LocationService):
         """
         Function that should be called when a physical car sent a transition event message
         """
+        self._piece_history_index = (self._piece_history_index + self._direction_mult) % self._track.get_len()
         if self._physical_piece is None:
             return
         # offset in a simulation format
@@ -74,14 +83,19 @@ class PhysicalLocationService(LocationService):
         self._target_offset = offset
         self._target_speed = speed
 
-        piece_index = self._track.find_piece_index_with_physical_id(piece)
-        if piece_index is None:
+        if not self._track.contains_physical_piece(piece):
             self.logger.warn(
                 "Couldn't find a piece matching the physical ID %d we got from the location event. Ignoring it", piece)
             return
 
-        new_piece, _ = self._track.get_entry_tupel(piece_index)
-        self._physical_piece = piece_index
+        old_piece: int | None = self._piece_history[self._piece_history_index]
+        if old_piece is not None and old_piece != piece:
+            self.logger.warn("The piece history had another piece in this position. Clearing the list!")
+            self._reset_piece_history()
+
+        self._piece_history[self._piece_history_index] = piece
+
+        self._find_physical_location()
 
     def _calculate_distance_to_position(self, other_index: int, other_progress: float) -> float:
         """
@@ -179,3 +193,52 @@ class PhysicalLocationService(LocationService):
         """
         piece, _ = self._track.get_entry_tupel(piece_index)
         return piece.get_length(self._actual_offset) - progress
+
+    def _reset_piece_history(self) -> None:
+        """
+        Resets the own piece_history list to have None in every position
+        to avoid out of bounds exceptions
+        """
+        self._piece_history.clear()
+        for _ in range(0, self._track.get_len()):
+            self._piece_history.append(None)
+
+    def _find_physical_location(self) -> None:
+        """
+        Matches the piece history with the track piece IDs to figure out where we are
+        on the track
+        """
+        possible_start_indices: List[int] = list()
+        track_len = self._track.get_len()
+
+        for starting_offset in range(0, track_len):
+            if self._test_history_matches_track_with_offset(starting_offset):
+                possible_start_indices.append(starting_offset)
+
+        if len(possible_start_indices) == 1:
+            self._physical_piece = (self._piece_history_index + possible_start_indices[0]) % track_len
+            return
+
+        if len(possible_start_indices) == 0:
+            self.logger.warn("The piece history doesn't match the track with any offset. Resetting the piece history")
+            self._reset_piece_history()
+            return
+
+        self.logger.info("Didn't get enough data to determine the physical position yet. "
+                         "Number of possible starting points: %d", len(possible_start_indices))
+
+    def _test_history_matches_track_with_offset(self, offset: int) -> bool:
+        """
+        Test whether the piece history matches the track at every point when using a certain offset.
+        Missing pieces in the piece history are ignored and considered matching
+        """
+        track_len = self._track.get_len()
+        for i in range(0, track_len):
+            track_index: int
+            track_index = (i + offset) % track_len
+            track_piece, _ = self._track.get_entry_tupel(track_index)
+            history_id: int
+            history_id = self._piece_history[i]
+            if history_id is not None and track_piece.get_physical_id() != self._piece_history[i]:
+                return False
+        return True
