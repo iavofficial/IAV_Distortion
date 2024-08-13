@@ -25,6 +25,21 @@ def get_physical_location_service() -> PhysicalLocationService:
     return service
 
 
+@pytest.fixture
+def get_physical_location_service_duplicate_ids() -> PhysicalLocationService:
+    track: FullTrack = TrackBuilder() \
+        .append(TrackPieceType.STRAIGHT_WE, 40) \
+        .append(TrackPieceType.CURVE_WS, 18) \
+        .append(TrackPieceType.CURVE_NW, 18) \
+        .append(TrackPieceType.STRAIGHT_EW, 40) \
+        .append(TrackPieceType.CURVE_EN, 18) \
+        .append(TrackPieceType.CURVE_SE, 20) \
+        .build()
+
+    service: PhysicalLocationService = PhysicalLocationService(track, simulation_ticks_per_second=1)
+    return service
+
+
 def test_length_calculation_same_piece(get_physical_location_service):
     """
     This test tests whether the distance calculation on the same piece is correct for both driving directions
@@ -161,3 +176,122 @@ async def test_adjust_speed_override_for_special_cases(get_physical_location_ser
     service._speed_correcture = -2000
     service._adjust_speed_to(20)
     assert service._actual_speed == 0
+
+
+def test_piece_history_collection(get_physical_location_service_duplicate_ids):
+    """
+    Test that the piece IDs are collected in the default case
+    """
+    service = get_physical_location_service_duplicate_ids
+    service.notify_location_event(40, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    history = service._piece_history
+    assert history[0] == 40
+    assert history[1] == 18
+    assert history[4] == 18
+
+
+def test_piece_history_resetting_when_not_matching(get_physical_location_service_duplicate_ids):
+    """
+    Test that the piece history is reset when a wrong datapoint is encountered
+    """
+    service = get_physical_location_service_duplicate_ids
+    service.notify_location_event(40, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    # This needs to be 40
+    service.notify_location_event(18, 0, 0, 0)
+    history = service._piece_history
+    assert history.count(None) == 6
+
+
+def test_piece_history_resetting_when_history_has_other_data(get_physical_location_service_duplicate_ids):
+    """
+    Test that the piece history is reset when trying to write a number into a position that already has another number
+    """
+    service = get_physical_location_service_duplicate_ids
+    service.notify_location_event(40, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    # loop one time around the track
+    for _ in range(0, service._track.get_len() - 1):
+        service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+
+    history = service._piece_history
+    assert history.count(None) == 5
+
+
+def test_piece_history_length_is_always_right(get_physical_location_service_duplicate_ids):
+    """
+    Test that the history always has enough None|int data to avoid out of bounds accesses
+    """
+    service = get_physical_location_service_duplicate_ids
+    assert service._piece_history.count(None) == 6
+    assert len(service._piece_history) == 6
+
+    service.notify_location_event(40, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    assert len(service._piece_history) == 6
+
+    service._reset_piece_history()
+    assert service._piece_history.count(None) == 6
+    assert len(service._piece_history) == 6
+
+
+def test_find_physical_location(get_physical_location_service_duplicate_ids):
+    """
+    Test that the history can be matched to the track with enough data
+    """
+    service = get_physical_location_service_duplicate_ids
+    service.notify_location_event(40, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_location_event(20, 0, 0, 0)
+    assert service._physical_piece == 5
+    service.notify_transition_event(0)
+    assert service._physical_piece == 0
+
+
+def test_find_physical_location_not_enought_data(get_physical_location_service_duplicate_ids):
+    """
+    Test that the history doesn't get matched to the track, if there isn't enough data
+    """
+    service = get_physical_location_service_duplicate_ids
+    service.notify_location_event(40, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_transition_event(0)
+    service.notify_location_event(18, 0, 0, 0)
+    service.notify_transition_event(0)
+    assert service._physical_piece is None
+
+
+def test_history_matching_for_offset(get_physical_location_service_duplicate_ids):
+    """
+    Test that the history can or can't get matched to the track correctly based on a given offset
+    """
+    service = get_physical_location_service_duplicate_ids
+    service._piece_history = [None, None, 40, 18, None, None]
+    assert service._test_history_matches_track_with_offset(4)
+    assert service._test_history_matches_track_with_offset(1)
+    assert not service._test_history_matches_track_with_offset(0)
