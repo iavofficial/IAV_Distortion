@@ -621,7 +621,8 @@ class EnvironmentManager:
         Get the used track in the simulation
         """
         track: FullTrack = TrackBuilder() \
-            .append(TrackPieceType.STRAIGHT_WE, 40) \
+            .append(TrackPieceType.START_PIECE_BEFORE_LINE_WE, 34) \
+            .append(TrackPieceType.START_PIECE_AFTER_LINE_WE, 33) \
             .append(TrackPieceType.CURVE_WS, 18) \
             .append(TrackPieceType.CURVE_NW, 23) \
             .append(TrackPieceType.STRAIGHT_EW, 39) \

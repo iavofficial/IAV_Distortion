@@ -23,7 +23,16 @@ class TrackPieceType(Enum):
     CURVE_SE = 6,
     CURVE_WN = 10, # mirrored
     CURVE_WS = 7,
-    CURVE_NE = 11 # mirrored
+    CURVE_NE = 11, # mirrored
+
+    START_PIECE_BEFORE_LINE_WE = 12,
+    START_PIECE_BEFORE_LINE_NS = 13,
+    START_PIECE_BEFORE_LINE_EW = 14,
+    START_PIECE_BEFORE_LINE_SN = 15,
+    START_PIECE_AFTER_LINE_WE = 16,
+    START_PIECE_AFTER_LINE_NS = 17,
+    START_PIECE_AFTER_LINE_EW = 18,
+    START_PIECE_AFTER_LINE_SN = 19,
 
 class TrackPiece(ABC):
     """
