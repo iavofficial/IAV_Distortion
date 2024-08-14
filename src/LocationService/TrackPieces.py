@@ -6,8 +6,8 @@ from LocationService.Trigo import Position, Angle
 
 
 class StraightPiece(TrackPiece):
-    def __init__(self, length, diameter, rotation):
-        super().__init__(rotation)
+    def __init__(self, length, diameter, rotation, physical_id=None):
+        super().__init__(rotation, physical_id=physical_id)
         if rotation == 0 or rotation == 180:
             self._horiz_length = diameter
             self._vert_length = length
@@ -58,6 +58,9 @@ class StraightPiece(TrackPiece):
     def get_equivalent_progress_for_offset(self, old_offset: float, new_offset: float, old_progress: float) -> float:
         return old_progress
 
+    def get_progress_based_on_location(self, location: int, offset: float) -> float:
+        return self.get_length(offset) * 0.25 * (3 - location % 3)
+
     def to_dict(self) -> dict:
         line_1_start = Position(-self._diameter / 2, -self._length / 2)
         line_1_end = Position(-self._diameter / 2, self._length / 2)
@@ -92,8 +95,8 @@ class StraightPiece(TrackPiece):
         }
 
 class CurvedPiece(TrackPiece):
-    def __init__(self, square_size, diameter: int, rot: int, mirror: bool):
-        super().__init__(rot)
+    def __init__(self, square_size, diameter: int, rot: int, mirror: bool, physical_id=None):
+        super().__init__(rot, physical_id=physical_id)
         self._size = square_size
         self._radius = square_size / 2
         self._diameter = diameter
@@ -160,6 +163,11 @@ class CurvedPiece(TrackPiece):
         percent = old_progress / self.get_length(old_offset)
         return percent * self.get_length(new_offset)
 
+    def get_progress_based_on_location(self, location: int, offset: float) -> float:
+        if location < 20:
+            return 0.33 * (2 - location % 2) * self.get_length(offset)
+        return 0.25 * (3 - (location - 20) % 3) * self.get_length(offset)
+
     def to_dict(self) -> dict:
         start_angle: int = int(self._rotation.get_deg())
         if self._is_mirrored:
@@ -197,12 +205,14 @@ class TrackBuilder():
         # piece we have fulfills this requirement the case isn't handled
         self.CURVE_PIECE_SIZE = self.STRAIGHT_PIECE_LENGTH
 
-    def append(self, track_piece: TrackPieceType):
+    def append(self, track_piece: TrackPieceType, physical_id=None):
         """
         Append a piece to the track. Whether the direction are right
         *aren't* checked!
         """
-        self.piece_list.append(self._get_track_piece(track_piece))
+        piece = self._get_track_piece(track_piece)
+        piece.set_physical_id(physical_id)
+        self.piece_list.append(piece)
         return self
 
     def build(self) -> FullTrack:

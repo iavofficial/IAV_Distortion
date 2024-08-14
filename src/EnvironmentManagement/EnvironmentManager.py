@@ -21,6 +21,7 @@ from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from LocationService.PhysicalLocationService import PhysicalLocationService
 
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.EmptyController import EmptyController
@@ -523,7 +524,7 @@ class EnvironmentManager:
         self.logger.debug(f"Adding physical vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        location_service = LocationService(self.get_track(), start_immediately=True)
+        location_service = PhysicalLocationService(self.get_track(), start_immediately=True)
         new_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
         await new_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
@@ -620,12 +621,12 @@ class EnvironmentManager:
         Get the used track in the simulation
         """
         track: FullTrack = TrackBuilder() \
-            .append(TrackPieceType.STRAIGHT_WE) \
-            .append(TrackPieceType.CURVE_WS) \
-            .append(TrackPieceType.CURVE_NW) \
-            .append(TrackPieceType.STRAIGHT_EW) \
-            .append(TrackPieceType.CURVE_EN) \
-            .append(TrackPieceType.CURVE_SE) \
+            .append(TrackPieceType.STRAIGHT_WE, 40) \
+            .append(TrackPieceType.CURVE_WS, 18) \
+            .append(TrackPieceType.CURVE_NW, 23) \
+            .append(TrackPieceType.STRAIGHT_EW, 39) \
+            .append(TrackPieceType.CURVE_EN, 17) \
+            .append(TrackPieceType.CURVE_SE, 20) \
             .build()
 
         return track

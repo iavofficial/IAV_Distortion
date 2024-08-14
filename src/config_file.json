@@ -1,13 +1,13 @@
 {
 	"virtual_cars_pics": {
-		"Virtual Vehicle 1": "D1FFAF51CB30_top.webp",
-    	"Virtual Vehicle 2": "E4FD708CB27D_top.webp",
-		"Virtual Vehicle 3": "DF8BDC022C23_top.webp",
-		"Virtual Vehicle 4": "E751D4F745EF_top.webp",
-		"Virtual Vehicle 5": "E87E9F34CF46_top.webp",
-		"Virtual Vehicle 6": "F1760808C100_top.webp",
-		"Virtual Vehicle 7": "F4DBE7EA7B52_top.webp",
-		"Virtual Vehicle 8": "FA14670F39FE_top.webp"
+		"D1:FF:AF:51:CB:30": "D1FFAF51CB30_top.webp",
+    	"E4:FD:70:8C:B2:7D": "E4FD708CB27D_top.webp",
+		"DF:8B:DC:02:2C:23": "DF8BDC022C23_top.webp",
+		"E7:51:D4:F7:45:EF": "E751D4F745EF_top.webp",
+		"E8:7E:9F:34:CF:46": "E87E9F34CF46_top.webp",
+		"F1:76:08:08:C1:00": "F1760808C100_top.webp",
+		"F4:DB:E7:EA:7B:52": "F4DBE7EA7B52_top.webp",
+		"FA:14:67:0F:39:FE": "FA14670F39FE_top.webp"
 	},
 	"driver": {
 		"driver_heartbeat_interval_ms": 5000,
