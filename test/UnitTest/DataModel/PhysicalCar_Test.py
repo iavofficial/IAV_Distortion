@@ -46,4 +46,4 @@ def test_wrong_track_piece_returns_none(searched_physical_id: int):
         .append(TrackPieceType.CURVE_EN, 17) \
         .append(TrackPieceType.CURVE_SE, 20) \
         .build()
-    assert track.find_piece_index_with_physical_id(searched_physical_id) is None
+    assert not track.contains_physical_piece(searched_physical_id)
