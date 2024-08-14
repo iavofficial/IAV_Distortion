@@ -160,3 +160,10 @@ class Position():
         Returns the data as dict with the fields 'x' and 'y'
         """
         return { 'x': self._x, 'y': self._y }
+
+
+class Distance(Position):
+    """
+    Class that represents a distance. It's the same as a point and only exists for clarity reasons
+    """
+    pass

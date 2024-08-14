@@ -2,7 +2,7 @@ from typing import List, Tuple
 import math
 
 from LocationService.Track import Direction, FullTrack, TrackPiece, TrackPieceType
-from LocationService.Trigo import Position, Angle
+from LocationService.Trigo import Position, Angle, Distance
 
 
 class StraightPiece(TrackPiece):
@@ -24,7 +24,25 @@ class StraightPiece(TrackPiece):
     def get_used_space_horiz(self):
         return self._horiz_length
 
-    def get_next_attachment_direction(self) -> Direction:
+    def get_outgoing_offset(self) -> Distance:
+        match self._rotation.get_deg():
+            case 0:
+                return Distance(0, -self._vert_length / 2)
+        match self._rotation.get_deg():
+            case 90:
+                return Distance(self._horiz_length / 2, 0)
+        match self._rotation.get_deg():
+            case 180:
+                return Distance(0, self._vert_length / 2)
+        match self._rotation.get_deg():
+            case 270:
+                return Distance(-self._horiz_length / 2, 0)
+        raise NotImplementedError
+
+    def get_incoming_offset(self) -> Distance:
+        return self.get_outgoing_offset()
+
+    def get_outgoing_direction(self) -> Direction:
         match self._rotation.get_deg():
             case 0:
                 return Direction.NORTH
@@ -34,6 +52,18 @@ class StraightPiece(TrackPiece):
                 return Direction.SOUTH
             case 270:
                 return Direction.WEST
+        raise NotImplementedError
+
+    def get_incoming_direction(self) -> Direction:
+        match self._rotation.get_deg():
+            case 0:
+                return Direction.SOUTH
+            case 90:
+                return Direction.WEST
+            case 180:
+                return Direction.NORTH
+            case 270:
+                return Direction.EAST
         raise NotImplementedError
 
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
@@ -108,7 +138,31 @@ class CurvedPiece(TrackPiece):
     def get_used_space_vert(self):
         return self._size
 
-    def get_next_attachment_direction(self) -> Direction:
+    def get_outgoing_offset(self) -> Distance:
+        match self.get_outgoing_direction():
+            case Direction.NORTH:
+                return Distance(0, -self._size / 2)
+            case Direction.WEST:
+                return Distance(-self._size / 2, 0)
+            case Direction.SOUTH:
+                return Distance(0, self._size / 2)
+            case Direction.EAST:
+                return Distance(self._size / 2, 0)
+        raise NotImplementedError
+
+    def get_incoming_offset(self) -> Distance:
+        match self.get_incoming_direction():
+            case Direction.NORTH:
+                return Distance(0, self._size / 2)
+            case Direction.WEST:
+                return Distance(self._size / 2, 0)
+            case Direction.SOUTH:
+                return Distance(0, -self._size / 2)
+            case Direction.EAST:
+                return Distance(-self._size / 2, 0)
+        raise NotImplementedError
+
+    def get_outgoing_direction(self) -> Direction:
         if not self._is_mirrored:
             match self._rotation.get_deg():
                 case 0:
@@ -129,6 +183,29 @@ class CurvedPiece(TrackPiece):
                     return Direction.NORTH
                 case 270:
                     return Direction.EAST
+        raise NotImplementedError
+
+    def get_incoming_direction(self) -> Direction:
+        if not self._is_mirrored:
+            match self._rotation.get_deg():
+                case 0:
+                    return Direction.NORTH
+                case 90:
+                    return Direction.EAST
+                case 180:
+                    return Direction.SOUTH
+                case 270:
+                    return Direction.WEST
+        else:
+            match self._rotation.get_deg():
+                case 0:
+                    return Direction.EAST
+                case 90:
+                    return Direction.SOUTH
+                case 180:
+                    return Direction.WEST
+                case 270:
+                    return Direction.NORTH
         raise NotImplementedError
 
     def process_update(self, start_progress: float, distance: float, offset: float):
@@ -200,9 +277,7 @@ class TrackBuilder():
         # Constants
         self.STRAIGHT_PIECE_LENGTH = 559
         self.PIECE_DIAMETER = 184
-        # This has to be the same as STRAIGHT_PIECE_LENGTH; otherwise the simulation
-        # would need extra calculations to do the transition onto the piece; since every
-        # piece we have fulfills this requirement the case isn't handled
+        # This should be the same as STRAIGHT_PIECE_LENGTH to match the real pieces closely
         self.CURVE_PIECE_SIZE = self.STRAIGHT_PIECE_LENGTH
 
     def append(self, track_piece: TrackPieceType, physical_id=None):
