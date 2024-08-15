@@ -40,13 +40,18 @@ class TrackPiece(ABC):
     """
     def __init__(self, rotation_deg: int, physical_id):
         self._rotation = Angle(rotation_deg)
-        self.__physical_id: int | None = physical_id
+        self._physical_id: int | None = physical_id
 
     def set_physical_id(self, physical_id: int | None) -> None:
-        self.__physical_id = physical_id
+        self._physical_id = physical_id
 
     def get_physical_id(self) -> int | None:
-        return self.__physical_id
+        return self._physical_id
+
+    def __eq__(self, other):
+        return type(self) == type(other) \
+            and self._rotation == other._rotation \
+            and self._physical_id == other._physical_id
 
     @abstractmethod
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
