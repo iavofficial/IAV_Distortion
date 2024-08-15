@@ -43,7 +43,7 @@ class ScannedPiece:
     def __init__(self, piece_id: int, location: int):
         self._piece_id: int = piece_id
         self._locations: List[int] = list()
-        self._locations.append(location)
+        self._locations.append(_raw_location_to_normalized_location(piece_id, location))
 
     def get_id(self) -> int | None:
         """
