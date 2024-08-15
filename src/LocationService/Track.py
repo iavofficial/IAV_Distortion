@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple, Dict
 
-from LocationService.Trigo import Position, Angle
+from LocationService.Trigo import Position, Angle, Distance
 
 from enum import Enum
 
@@ -23,7 +23,16 @@ class TrackPieceType(Enum):
     CURVE_SE = 6,
     CURVE_WN = 10, # mirrored
     CURVE_WS = 7,
-    CURVE_NE = 11 # mirrored
+    CURVE_NE = 11, # mirrored
+
+    START_PIECE_BEFORE_LINE_WE = 12,
+    START_PIECE_BEFORE_LINE_NS = 13,
+    START_PIECE_BEFORE_LINE_EW = 14,
+    START_PIECE_BEFORE_LINE_SN = 15,
+    START_PIECE_AFTER_LINE_WE = 16,
+    START_PIECE_AFTER_LINE_NS = 17,
+    START_PIECE_AFTER_LINE_EW = 18,
+    START_PIECE_AFTER_LINE_SN = 19,
 
 class TrackPiece(ABC):
     """
@@ -64,10 +73,31 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_next_attachment_direction(self) -> Direction:
+    def get_outgoing_offset(self) -> Distance:
+        """
+        Gets the offset in x and y required to go from the center to the end of the piece
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_incoming_offset(self) -> Distance:
+        """
+        Gets the offset in x and y required to go from the incoming direction to the center
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_outgoing_direction(self) -> Direction:
         """
         Direction where the next track piece should be attached relative
         to this piece
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_incoming_direction(self) -> Direction:
+        """
+        Direction from where the previous track piece should go into this
         """
         raise NotImplementedError
 
@@ -128,36 +158,33 @@ class FullTrack():
     """
     def __init__(self, pieces: list[TrackPiece]):
         self.track_entries: list[TrackEntry] = list()
-        cur_y = 0
-        cur_x = 0
+        offset = Position(0, 0)
+        last_piece = pieces[0]
+        self.track_entries.append(TrackEntry(last_piece, offset.clone()))
+        for piece in pieces[1:]:
+            offset += last_piece.get_outgoing_offset()
+            offset += piece.get_incoming_offset()
+            last_piece = piece
+            self.track_entries.append(TrackEntry(last_piece, offset.clone()))
+
+        # this section is here to move the top left corner of the top left piece to (0, 0)
         min_x = 0
         min_y = 0
-        max_used_horiz = 0
-        max_used_vert = 0
-        for track in pieces:
-            self.track_entries.append(TrackEntry(track, Position(cur_x, cur_y)))
-            match track.get_next_attachment_direction():
-                case Direction.WEST:
-                    cur_x -= track.get_used_space_horiz()
-                case Direction.NORTH:
-                    cur_y -= track.get_used_space_vert()
-                case Direction.EAST:
-                    cur_x += track.get_used_space_horiz()
-                case Direction.SOUTH:
-                    cur_y += track.get_used_space_vert()
-            if cur_x < min_x:
-                min_x = cur_x
-            if cur_y < min_y:
-                min_y = cur_y
-            if track.get_used_space_horiz() > max_used_horiz:
-                max_used_horiz = track.get_used_space_horiz()
-            if track.get_used_space_vert() > max_used_vert:
-                max_used_vert = track.get_used_space_vert()
-        # change positions so that the top left corner of the top left piece is at (0, 0)
-        diff_x = -min_x + max_used_horiz / 2
-        diff_y = -min_y + max_used_vert / 2
         for entry in self.track_entries:
-            entry.get_global_offset().add_offset(diff_x, diff_y)
+            piece = entry.get_piece()
+            offset = entry.get_global_offset()
+            local_x = offset.get_x() - piece.get_used_space_horiz() / 2
+            local_y = offset.get_y() - piece.get_used_space_vert() / 2
+            min_x = min(min_x, local_x)
+            min_y = min(min_y, local_y)
+
+        # the change is negative but a positive value needs to be applied so we use abs
+        change_x = abs(min_x)
+        change_y = abs(min_y)
+
+        for entry in self.track_entries:
+            entry.get_global_offset().add_offset(change_x, change_y)
+
 
     def get_entry_tupel(self, num: int) -> Tuple[TrackPiece, Position]:
         """

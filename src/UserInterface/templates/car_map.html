@@ -36,6 +36,8 @@
             var track = {{track | tojson}};
             const track_color = "#000000";
             const track_width = 5;
+            const start_line_width = 12;
+            const start_line_color = "#515151";
 
             const car_width = 30;
             const car_length = car_width * 1.88;
@@ -181,6 +183,24 @@
             }
 
             /**
+            * Draws a start line on the piece
+            *
+            * @param {float} x1 - x coordinate to start to draw the line.
+            * @param {float} y1 - y coordinate to start to draw the line.
+            * @param {float} x2 - x coordinate to end the line.
+            * @param {float} y2 - y coordinate to end the line.
+            */
+            function drawStartLine(x1, y1, x2, y2) {
+                ctx.lineWidth = start_line_width * scale;
+                ctx.strokeStyle = start_line_color;
+
+                ctx.beginPath();
+                ctx.moveTo(x1 * scale, y1 * scale);
+                ctx.lineTo(x2 * scale, y2 * scale);
+                ctx.stroke();
+            }
+
+            /**
             * Draws single outline of curved track piece.
             *
             * @param {float} x - x coordinate to start to draw the line.
@@ -220,6 +240,16 @@
                 line_2_start_y = offset_y + piece.piece.line_2_start.y;
                 line_2_end_x = offset_x + piece.piece.line_2_end.x;
                 line_2_end_y = offset_y + piece.piece.line_2_end.y;
+                
+                if (piece.piece.start_line_start !== undefined) {
+                    startline_start_x = offset_x + piece.piece.start_line_start.x;
+                    startline_start_y = offset_y + piece.piece.start_line_start.y;
+                    startline_end_x = offset_x + piece.piece.start_line_end.x;
+                    startline_end_y = offset_y + piece.piece.start_line_end.y;
+
+                    drawStartLine(startline_start_x, startline_start_y, startline_end_x, startline_end_y);
+                }
+
                 drawStraightTrackLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
                 drawStraightTrackLine(line_2_start_x, line_2_start_y, line_2_end_x, line_2_end_y);
             }

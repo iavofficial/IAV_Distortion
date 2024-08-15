@@ -2,7 +2,7 @@ from typing import List, Tuple
 import math
 
 from LocationService.Track import Direction, FullTrack, TrackPiece, TrackPieceType
-from LocationService.Trigo import Position, Angle
+from LocationService.Trigo import Position, Angle, Distance
 
 
 class StraightPiece(TrackPiece):
@@ -24,7 +24,25 @@ class StraightPiece(TrackPiece):
     def get_used_space_horiz(self):
         return self._horiz_length
 
-    def get_next_attachment_direction(self) -> Direction:
+    def get_outgoing_offset(self) -> Distance:
+        match self._rotation.get_deg():
+            case 0:
+                return Distance(0, -self._vert_length / 2)
+        match self._rotation.get_deg():
+            case 90:
+                return Distance(self._horiz_length / 2, 0)
+        match self._rotation.get_deg():
+            case 180:
+                return Distance(0, self._vert_length / 2)
+        match self._rotation.get_deg():
+            case 270:
+                return Distance(-self._horiz_length / 2, 0)
+        raise NotImplementedError
+
+    def get_incoming_offset(self) -> Distance:
+        return self.get_outgoing_offset()
+
+    def get_outgoing_direction(self) -> Direction:
         match self._rotation.get_deg():
             case 0:
                 return Direction.NORTH
@@ -34,6 +52,18 @@ class StraightPiece(TrackPiece):
                 return Direction.SOUTH
             case 270:
                 return Direction.WEST
+        raise NotImplementedError
+
+    def get_incoming_direction(self) -> Direction:
+        match self._rotation.get_deg():
+            case 0:
+                return Direction.SOUTH
+            case 90:
+                return Direction.WEST
+            case 180:
+                return Direction.NORTH
+            case 270:
+                return Direction.EAST
         raise NotImplementedError
 
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
@@ -108,7 +138,31 @@ class CurvedPiece(TrackPiece):
     def get_used_space_vert(self):
         return self._size
 
-    def get_next_attachment_direction(self) -> Direction:
+    def get_outgoing_offset(self) -> Distance:
+        match self.get_outgoing_direction():
+            case Direction.NORTH:
+                return Distance(0, -self._size / 2)
+            case Direction.WEST:
+                return Distance(-self._size / 2, 0)
+            case Direction.SOUTH:
+                return Distance(0, self._size / 2)
+            case Direction.EAST:
+                return Distance(self._size / 2, 0)
+        raise NotImplementedError
+
+    def get_incoming_offset(self) -> Distance:
+        match self.get_incoming_direction():
+            case Direction.NORTH:
+                return Distance(0, self._size / 2)
+            case Direction.WEST:
+                return Distance(self._size / 2, 0)
+            case Direction.SOUTH:
+                return Distance(0, -self._size / 2)
+            case Direction.EAST:
+                return Distance(-self._size / 2, 0)
+        raise NotImplementedError
+
+    def get_outgoing_direction(self) -> Direction:
         if not self._is_mirrored:
             match self._rotation.get_deg():
                 case 0:
@@ -129,6 +183,29 @@ class CurvedPiece(TrackPiece):
                     return Direction.NORTH
                 case 270:
                     return Direction.EAST
+        raise NotImplementedError
+
+    def get_incoming_direction(self) -> Direction:
+        if not self._is_mirrored:
+            match self._rotation.get_deg():
+                case 0:
+                    return Direction.NORTH
+                case 90:
+                    return Direction.EAST
+                case 180:
+                    return Direction.SOUTH
+                case 270:
+                    return Direction.WEST
+        else:
+            match self._rotation.get_deg():
+                case 0:
+                    return Direction.EAST
+                case 90:
+                    return Direction.SOUTH
+                case 180:
+                    return Direction.WEST
+                case 270:
+                    return Direction.NORTH
         raise NotImplementedError
 
     def process_update(self, start_progress: float, distance: float, offset: float):
@@ -190,6 +267,46 @@ class CurvedPiece(TrackPiece):
         }
 
 
+class StartPieceBeforeLine(StraightPiece):
+    """
+    Class that represents the part of a start piece before the line
+    """
+    def get_progress_based_on_location(self, location: int, offset: float) -> float:
+        return 0.33 * (2 - location % 2) * self.get_length(offset)
+
+
+class StartPieceAfterLine(StraightPiece):
+    """
+    Class that represents the part of a start piece after the line (including the line itself)
+    """
+    def __init__(self, length, diameter, rotation, start_line_width: int, physical_id=None):
+        super().__init__(length, diameter, rotation, physical_id)
+        self._start_line_width = start_line_width
+
+    def get_progress_based_on_location(self, location: int, offset: float) -> float:
+        _ = location
+        _ = offset
+        return 0.5 * self.get_length(offset)
+
+    def to_dict(self) -> dict:
+        startline_start = Position(self._diameter / 2, self._length / 2 - self._start_line_width / 2)
+        startline_end = Position(-self._diameter / 2, self._length / 2 - self._start_line_width / 2)
+        startline_start.rotate_around_0_0(self._rotation)
+        startline_end.rotate_around_0_0(self._rotation)
+        orig = super().to_dict()
+        orig.update({
+            'start_line_start': {
+                'x': startline_start.get_x(),
+                'y': startline_start.get_y()
+            },
+            'start_line_end': {
+                'x': startline_end.get_x(),
+                'y': startline_end.get_y()
+            }
+        })
+        return orig
+
+
 class TrackBuilder():
     """
     Class to build an entire track by chaining append() calls with the desired direction
@@ -200,10 +317,12 @@ class TrackBuilder():
         # Constants
         self.STRAIGHT_PIECE_LENGTH = 559
         self.PIECE_DIAMETER = 184
-        # This has to be the same as STRAIGHT_PIECE_LENGTH; otherwise the simulation
-        # would need extra calculations to do the transition onto the piece; since every
-        # piece we have fulfills this requirement the case isn't handled
+        # This should be the same as STRAIGHT_PIECE_LENGTH to match the real pieces closely
         self.CURVE_PIECE_SIZE = self.STRAIGHT_PIECE_LENGTH
+        self.START_PIECE_BEFORE_LINE_LENGTH = 349
+        # The after line part contains the line itself
+        self.START_PIECE_AFTER_LINE_LENGTH = 210
+        self.START_LINE_WIDTH = 21
 
     def append(self, track_piece: TrackPieceType, physical_id=None):
         """
@@ -256,3 +375,27 @@ class TrackBuilder():
                 return CurvedPiece(self.CURVE_PIECE_SIZE, self.PIECE_DIAMETER, 180, True)
             case TrackPieceType.CURVE_NE:
                 return CurvedPiece(self.CURVE_PIECE_SIZE, self.PIECE_DIAMETER, 270, True)
+
+            # start piece first part
+            case TrackPieceType.START_PIECE_BEFORE_LINE_SN:
+                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 0)
+            case TrackPieceType.START_PIECE_BEFORE_LINE_WE:
+                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 90)
+            case TrackPieceType.START_PIECE_BEFORE_LINE_NS:
+                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 180)
+            case TrackPieceType.START_PIECE_BEFORE_LINE_EW:
+                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 270)
+
+            # start piece second part
+            case TrackPieceType.START_PIECE_AFTER_LINE_SN:
+                return StartPieceAfterLine(self.START_PIECE_AFTER_LINE_LENGTH, self.PIECE_DIAMETER, 0,
+                                           self.START_LINE_WIDTH)
+            case TrackPieceType.START_PIECE_AFTER_LINE_WE:
+                return StartPieceAfterLine(self.START_PIECE_AFTER_LINE_LENGTH, self.PIECE_DIAMETER, 90,
+                                           self.START_LINE_WIDTH)
+            case TrackPieceType.START_PIECE_AFTER_LINE_NS:
+                return StartPieceAfterLine(self.START_PIECE_AFTER_LINE_LENGTH, self.PIECE_DIAMETER, 180,
+                                           self.START_LINE_WIDTH)
+            case TrackPieceType.START_PIECE_AFTER_LINE_EW:
+                return StartPieceAfterLine(self.START_PIECE_AFTER_LINE_LENGTH, self.PIECE_DIAMETER, 270,
+                                           self.START_LINE_WIDTH)
