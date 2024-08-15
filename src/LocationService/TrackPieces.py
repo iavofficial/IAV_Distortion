@@ -266,6 +266,9 @@ class CurvedPiece(TrackPiece):
             }
         }
 
+    def __eq__(self, other):
+        return super().__eq__(other) and self._is_mirrored == other._is_mirrored
+
 
 class StartPieceBeforeLine(StraightPiece):
     """

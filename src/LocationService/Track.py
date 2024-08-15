@@ -53,6 +53,9 @@ class TrackPiece(ABC):
             and self._rotation == other._rotation \
             and self._physical_id == other._physical_id
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     @abstractmethod
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
         """
@@ -249,3 +252,17 @@ class FullTrack():
             'used_space_vertically': max_horiz,
             'used_space_horizontally': max_vert
         }
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+
+        if self.get_len() != other.get_len():
+            return False
+
+        for i in range(0, self.get_len()):
+            own_piece, _ = self.get_entry_tupel(i)
+            other_piece, _ = other.get_entry_tupel(i)
+            if own_piece != other_piece:
+                return False
+        return True
