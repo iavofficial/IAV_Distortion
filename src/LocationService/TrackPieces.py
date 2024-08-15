@@ -91,7 +91,7 @@ class StraightPiece(TrackPiece):
     def get_progress_based_on_location(self, location: int, offset: float) -> float:
         return self.get_length(offset) * 0.25 * (3 - location % 3)
 
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         line_1_start = Position(-self._diameter / 2, -self._length / 2)
         line_1_end = Position(-self._diameter / 2, self._length / 2)
         line_1_start.rotate_around_0_0(self._rotation)
@@ -245,7 +245,7 @@ class CurvedPiece(TrackPiece):
             return 0.33 * (2 - location % 2) * self.get_length(offset)
         return 0.25 * (3 - (location - 20) % 3) * self.get_length(offset)
 
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         start_angle: int = int(self._rotation.get_deg())
         if self._is_mirrored:
             start_angle = (start_angle + 180) % 360
@@ -291,12 +291,12 @@ class StartPieceAfterLine(StraightPiece):
         _ = offset
         return 0.5 * self.get_length(offset)
 
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         startline_start = Position(self._diameter / 2, self._length / 2 - self._start_line_width / 2)
         startline_end = Position(-self._diameter / 2, self._length / 2 - self._start_line_width / 2)
         startline_start.rotate_around_0_0(self._rotation)
         startline_end.rotate_around_0_0(self._rotation)
-        orig = super().to_dict()
+        orig = super().to_html_dict()
         orig.update({
             'start_line_start': {
                 'x': startline_start.get_x(),

@@ -132,9 +132,9 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         """
-        Get the piece represented as dict
+        Get the piece in a representation that can be used in JS to draw the track
         """
         raise NotImplementedError
 
@@ -218,7 +218,7 @@ class FullTrack():
             offset = entry.get_global_offset()
             l.append({
                 'offset': offset.to_dict(),
-                'piece': piece.to_dict()
+                'piece': piece.to_html_dict()
             })
 
         return l
