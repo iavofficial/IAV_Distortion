@@ -496,3 +496,9 @@ class AnkiController(VehicleController):
         if callback is not None:
             callback(value_tuple)
         return
+
+    def set_car_not_reachable_callback(self, car_not_reachable_callback: Callable[[str], None]):
+        """
+        Sets a callback that should be executed when the car is not reachable
+        """
+        self.__car_not_reachable_callback = car_not_reachable_callback
