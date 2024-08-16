@@ -616,7 +616,7 @@ class EnvironmentManager:
         return full_map
 
     # racetrack management
-    def get_track(self) -> FullTrack:
+    def get_track(self) -> FullTrack | None:
         """
         Get the used track in the simulation
         """
