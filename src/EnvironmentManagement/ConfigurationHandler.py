@@ -76,6 +76,19 @@ class ConfigurationHandler(metaclass=Singleton):
         except Exception as e:
             self.logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
 
+    def write_configuration(self) -> None:
+        """
+        Writes the current configuration into a configuration file
+        """
+        try:
+            with open(self.config_file, 'w') as file:
+                json.dump(self.__config_tup[0], file, indent='\t')
+
+        except PermissionError:
+            self.logger.critical("No permission to write configuration file.")
+        except Exception as e:
+            self.logger.critical(f"An unexpected error occurred trying to write the configuration file: {e}")
+
     def get_configuration(self) -> dict:
         """
         Returns the internal saved configuration data as a dictionary.
