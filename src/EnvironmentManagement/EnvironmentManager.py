@@ -22,14 +22,14 @@ from DataModel.VirtualCar import VirtualCar
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.PhysicalLocationService import PhysicalLocationService
+from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException
 
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
 
 from LocationService.LocationService import LocationService
-from LocationService.TrackPieces import TrackBuilder, FullTrack
-from LocationService.Track import TrackPieceType
+from LocationService.TrackPieces import FullTrack
 
 
 class RemovalReason(Enum):
@@ -620,14 +620,12 @@ class EnvironmentManager:
         """
         Get the used track in the simulation
         """
-        track: FullTrack = TrackBuilder() \
-            .append(TrackPieceType.START_PIECE_BEFORE_LINE_WE, 34) \
-            .append(TrackPieceType.START_PIECE_AFTER_LINE_WE, 33) \
-            .append(TrackPieceType.CURVE_WS, 18) \
-            .append(TrackPieceType.CURVE_NW, 23) \
-            .append(TrackPieceType.STRAIGHT_EW, 39) \
-            .append(TrackPieceType.CURVE_EN, 17) \
-            .append(TrackPieceType.CURVE_SE, 20) \
-            .build()
-
-        return track
+        track = self.config_handler.get_configuration().get('track')
+        if track is None:
+            return None
+        try:
+            full_track = parse_list_of_dicts_to_full_track(track)
+            return full_track
+        except PieceDecodingException as e:
+            self.logger.error("Couldn't parse track from config: %s", e)
+        return None
