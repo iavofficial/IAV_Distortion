@@ -118,8 +118,12 @@ class DriverUI:
         def handle_slider_change(sid, data) -> None:
             player = data['player']
             value = float(data['value'])
-            car_id = self.environment_mng.get_vehicle_by_player_id(player).get_vehicle_id()
-            # TODO: add check for car_id not None
+            car = self.environment_mng.get_vehicle_by_player_id(player)
+            if car is None:
+                self.logger.warning("Player %s tried to change their own vehicle speed but they don't have a vehicle. "
+                                    "Ignoring the request", player)
+                return
+            car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_speed_change_for(uuid=car_id, value_perc=value)
             return
 
@@ -127,14 +131,24 @@ class DriverUI:
         def change_lane(sid, data: dict) -> None:
             player = data['player']
             direction = data['direction']
-            car_id = self.environment_mng.get_vehicle_by_player_id(player).get_vehicle_id()
+            car = self.environment_mng.get_vehicle_by_player_id(player)
+            if car is None:
+                self.logger.warning("Player %s tried to change their lane but they don't have a vehicle. "
+                                    "Ignoring the request", player)
+                return
+            car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_lane_change_for(uuid=car_id, value=direction)
             return
 
         @self._sio.on('make_uturn')
         def make_uturn(sid, data: dict) -> None:
             player = data['player']
-            car_id = self.environment_mng.get_vehicle_by_player_id(player).get_vehicle_id()
+            car = self.environment_mng.get_vehicle_by_player_id(player)
+            if car is None:
+                self.logger.warning("Player %s tried to make a u-turn but they don't have a vehicle. "
+                                    "Ignoring the request", player)
+                return
+            car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_uturn_for(uuid=car_id)
             return
 
