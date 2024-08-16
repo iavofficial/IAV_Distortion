@@ -200,7 +200,7 @@ class AnkiController(VehicleController):
                 await self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None)
                 success = True
                 self.task_in_progress = False
-            except BleakError:
+            except (BleakError, OSError):
                 success = False
                 self.task_in_progress = False
                 if self.__car_not_reachable_callback is not None:
