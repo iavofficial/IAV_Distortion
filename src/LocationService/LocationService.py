@@ -10,7 +10,7 @@ from LocationService.Track import FullTrack
 
 class LocationService:
     def __init__(self,
-                 track: FullTrack,
+                 track: FullTrack | None,
                  starting_offset: float = 0,
                  simulation_ticks_per_second: int = 24,
                  start_immediately: bool = False):
@@ -56,8 +56,12 @@ class LocationService:
         self._track: FullTrack = track
         self._current_piece_index: int = 0
         self._progress_on_current_piece: float = 0
-        first_piece, _ = self._track.get_entry_tupel(0)
-        _, self._current_position = first_piece.process_update(0, 0, starting_offset)
+        self._current_position: Position | None
+        if track is not None:
+            first_piece, _ = self._track.get_entry_tupel(0)
+            _, self._current_position = first_piece.process_update(0, 0, starting_offset)
+        else:
+            self._current_position = None
 
         self._on_update_callback = None
 
@@ -327,7 +331,10 @@ class LocationService:
         """
         Creates a task and adds it to the event loop.
         """
-        self.__task = asyncio.create_task(self._run_task())
+        if self._track is not None:
+            self.__task = asyncio.create_task(self._run_task())
+        else:
+            self.logger.error("Location service was told to start while there is no track. Ignoring the request!")
         #        if self._simulation_thread is not None:
         #            self.logger.error("It was attempted to start an already running LocationService Thread.
         #            Ignoring the request!")

@@ -356,3 +356,41 @@ class TestPublishRemovedPlayer:
 
         # Assert
         assert not result
+
+
+def test_get_track_returns_from_config(initialise_dependencies):
+    """
+    This tests that the EnvironmentManager returns the track it gets from the config or None, if it's not parsable
+    """
+    fleet_ctrl_mock, configuration_handler_mock = initialise_dependencies
+    env = EnvironmentManager(fleet_ctrl_mock, configuration_handler_mock)
+    configuration_handler_mock.get_configuration.return_value = {}
+    assert env.get_track() is None
+
+    configuration_handler_mock.get_configuration.return_value = {
+        'track': [
+            {
+                "type": "Nonexistent",
+                "rotation": 90,
+                "physical_id": 33,
+                "length": 210,
+                "diameter": 184,
+                "start_line_width": 21
+            }
+        ]
+    }
+    assert env.get_track() is None
+
+    configuration_handler_mock.get_configuration.return_value = {
+        'track': [
+            {
+                "type": "LocationService.TrackPieces.StartPieceAfterLine",
+                "rotation": 90,
+                "physical_id": 33,
+                "length": 210,
+                "diameter": 184,
+                "start_line_width": 21
+            }
+        ]
+    }
+    assert env.get_track() is not None

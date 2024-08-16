@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 
 from LocationService.Trigo import Position, Angle, Distance
 
@@ -132,11 +132,22 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         """
-        Get the piece represented as dict
+        Get the piece in a representation that can be used in JS to draw the track
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def to_json_dict(self) -> Dict[str, Any]:
+        """
+        Returns the piece as a dict that for serialization that can later be de-serialized
+        """
+        return {
+            'type': self.__module__ + '.' + self.__class__.__qualname__,
+            'rotation': self._rotation.get_deg(),
+            'physical_id': self._physical_id
+        }
 
 class TrackEntry():
     """
@@ -218,7 +229,7 @@ class FullTrack():
             offset = entry.get_global_offset()
             l.append({
                 'offset': offset.to_dict(),
-                'piece': piece.to_dict()
+                'piece': piece.to_html_dict()
             })
 
         return l
