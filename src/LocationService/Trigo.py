@@ -50,6 +50,9 @@ class Angle():
         """
         return f"{round(self._angle_degree)}"
 
+    def __eq__(self, other):
+        return type(self) == type(other) and self._angle_degree == other._angle_degree
+
 
 class Position():
     """

@@ -266,6 +266,9 @@ class CurvedPiece(TrackPiece):
             }
         }
 
+    def __eq__(self, other):
+        return super().__eq__(other) and self._is_mirrored == other._is_mirrored
+
 
 class StartPieceBeforeLine(StraightPiece):
     """
@@ -378,13 +381,13 @@ class TrackBuilder():
 
             # start piece first part
             case TrackPieceType.START_PIECE_BEFORE_LINE_SN:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 0)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 0)
             case TrackPieceType.START_PIECE_BEFORE_LINE_WE:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 90)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 90)
             case TrackPieceType.START_PIECE_BEFORE_LINE_NS:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 180)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 180)
             case TrackPieceType.START_PIECE_BEFORE_LINE_EW:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 270)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 270)
 
             # start piece second part
             case TrackPieceType.START_PIECE_AFTER_LINE_SN:
