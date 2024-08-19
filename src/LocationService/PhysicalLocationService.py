@@ -248,3 +248,7 @@ class PhysicalLocationService(LocationService):
             if history_id is not None and track_piece.get_physical_id() != self._piece_history[i]:
                 return False
         return True
+
+    def notify_new_track(self, new_track: FullTrack):
+        super().notify_new_track(new_track)
+        self._reset_piece_history()

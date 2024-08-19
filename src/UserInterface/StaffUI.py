@@ -18,7 +18,9 @@ import logging
 import subprocess
 import platform
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
+from DataModel.InitializationCar import InitializationCar
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from LocationService.Track import FullTrack
 
 
 class StaffUI:
@@ -421,6 +423,39 @@ class StaffUI:
                 self.logger.warning("System restart button pressed, but not running on Linux system")
                 message = 'Error restarting the system. Function only available on linux systems.'
                 return message, 200
+
+        @self.staffUI_blueprint.route('/rescan_track', methods=['POST'])
+        async def trigger_track_rescan() -> Tuple[str, int]:
+            data = await request.form
+            car = data.get('car')
+            if car is None:
+                self.logger.warning("A client attempted to start a track rescan but ")
+                return "Request didn't include a car", 400
+            vehicle = environment_mng.get_vehicle_by_vehicle_id(car)
+            if vehicle is None:
+                self.logger.error("A client attempted to use a vehicle for track scanning that doesn't exist")
+                return "Request didn't include a valid vehicle", 400
+            controller = vehicle.extract_controller()
+            if controller is None:
+                return "The selected car can't be controlled currently. Please use another car", 400
+            init_car = InitializationCar(controller)
+            track_list = await init_car.run()
+            new_track = FullTrack(track_list)
+            environment_mng.notify_new_track(new_track)
+            await self._sio.emit('reload_car_map')
+            vehicle.insert_controller(controller)
+            return 'Successfully scanned the track', 200
+
+        @self.staffUI_blueprint.route('/get_all_cars', methods=['POST'])
+        async def get_all_cars() -> List[Dict[str, str]]:
+            cars: List[Dict[str, str]] = []
+            # TODO: Filter that only cars that can scan tracks are returned
+            for car in environment_mng.get_vehicle_list():
+                entry = {
+                    'vehicle_id': car.get_vehicle_id()
+                }
+                cars.append(entry)
+            return cars
 
         @self.staffUI_blueprint.route('/shutdown_system', methods=['POST'])
         async def shutdown_system() -> Any:

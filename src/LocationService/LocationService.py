@@ -359,6 +359,14 @@ class LocationService:
         #        #self._simulation_thread = None
         return
 
+    def notify_new_track(self, new_track: FullTrack):
+        self._track = new_track
+        first_piece, _ = self._track.get_entry_tupel(0)
+        _, self._current_position = first_piece.process_update(0, 0, self._actual_offset)
+        if self.__task is not None:
+            self.__task.cancel()
+        self.start()
+
 
 class UTurnOverride:
     """

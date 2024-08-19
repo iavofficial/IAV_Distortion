@@ -22,7 +22,8 @@ from DataModel.VirtualCar import VirtualCar
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.PhysicalLocationService import PhysicalLocationService
-from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException
+from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException, \
+    full_track_to_list_of_dicts
 
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.EmptyController import EmptyController
@@ -603,6 +604,16 @@ class EnvironmentManager:
                 return v
         return None
 
+    def get_vehicle_by_vehicle_id(self, vehicle_id: str) -> Vehicle | None:
+        """
+        Get the car based on it's name (e.g. a Bluetooth MAC address).
+        Returns None if the vehicle isn't found
+        """
+        for v in self._active_anki_cars:
+            if v.vehicle_id == vehicle_id:
+                return v
+        return None
+
     def get_car_color_map(self) -> Dict[str, List[str]]:
         colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
         full_map: Dict[str, List[str]] = {}
@@ -629,3 +640,13 @@ class EnvironmentManager:
         except PieceDecodingException as e:
             self.logger.error("Couldn't parse track from config: %s", e)
         return None
+
+    def notify_new_track(self, new_track: FullTrack):
+        self.config_handler.get_configuration().update(
+            {
+                'track': full_track_to_list_of_dicts(new_track)
+            }
+        )
+        self.config_handler.write_configuration()
+        for car in self.get_vehicle_list():
+            car.notify_new_track(new_track)
