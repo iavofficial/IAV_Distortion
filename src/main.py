@@ -54,10 +54,9 @@ def create_app(admin_password: str):
                        password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
 
-    if environment_mng.get_track() is not None:
-        car_map = CarMap(environment_manager=environment_mng, sio=socket)
-        car_map_blueprint = car_map.get_blueprint()
-        quart_app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
+    car_map = CarMap(environment_manager=environment_mng, sio=socket)
+    car_map_blueprint = car_map.get_blueprint()
+    quart_app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
 
     quart_app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
     quart_app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
