@@ -319,7 +319,7 @@ class TestPublishRemovedPlayer:
                              [(RemovalReason.NONE, "Your player has been removed from the game."),
                               (RemovalReason.PLAYING_TIME_IS_UP, "Your player was removed from the game, "
                                                                  "because your playing time is over."),
-                              (RemovalReason.NOT_REACHABLE, "Your player was removed from the game, "
+                              (RemovalReason.PLAYER_NOT_REACHABLE, "Your player was removed from the game, "
                                                             "because you were no longer reachable.")])
     def test_with_valid_data(self, get_mut_with_endless_playing_time, reason_parameter, expected):
         # Arrange

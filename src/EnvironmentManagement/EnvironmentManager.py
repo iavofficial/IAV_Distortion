@@ -35,7 +35,7 @@ from LocationService.Track import TrackPieceType
 class RemovalReason(Enum):
     NONE = 0
     PLAYING_TIME_IS_UP = 1
-    NOT_REACHABLE = 2
+    PLAYER_NOT_REACHABLE = 2
     CAR_DISCONNECTED = 3
 
 
@@ -149,7 +149,7 @@ class EnvironmentManager:
         message: str = ""
         if reason is RemovalReason.NONE:
             message = "Your player has been removed from the game."
-        elif reason is RemovalReason.NOT_REACHABLE:
+        elif reason is RemovalReason.PLAYER_NOT_REACHABLE:
             message = "Your player was removed from the game, because you were no longer reachable."
         elif reason is RemovalReason.PLAYING_TIME_IS_UP:
             message = "Your player was removed from the game, because your playing time is over."
@@ -462,7 +462,7 @@ class EnvironmentManager:
         try:
             await asyncio.sleep(grace_period)
             self.manage_removal_from_game_for(player_id=player,
-                                              reason=RemovalReason.NOT_REACHABLE)
+                                              reason=RemovalReason.PLAYER_NOT_REACHABLE)
         except asyncio.CancelledError:
             logging.debug(f"Player {player} reconnected. Removing player aborted.")
         return
