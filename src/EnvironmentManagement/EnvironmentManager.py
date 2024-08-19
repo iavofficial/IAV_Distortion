@@ -35,7 +35,8 @@ from LocationService.Track import TrackPieceType
 class RemovalReason(Enum):
     NONE = 0
     PLAYING_TIME_IS_UP = 1
-    NOT_REACHABLE = 2
+    PLAYER_NOT_REACHABLE = 2
+    CAR_DISCONNECTED = 3
 
 
 class EnvironmentManager:
@@ -148,10 +149,12 @@ class EnvironmentManager:
         message: str = ""
         if reason is RemovalReason.NONE:
             message = "Your player has been removed from the game."
-        elif reason is RemovalReason.NOT_REACHABLE:
+        elif reason is RemovalReason.PLAYER_NOT_REACHABLE:
             message = "Your player was removed from the game, because you were no longer reachable."
         elif reason is RemovalReason.PLAYING_TIME_IS_UP:
             message = "Your player was removed from the game, because your playing time is over."
+        elif reason is RemovalReason.CAR_DISCONNECTED:
+            message = "You were removed since your car wasn't reachable anymore"
 
         if not callable(self.__publish_removed_player_callback):
             self.logger.critical('Missing publish_removed_player_callback!')
@@ -459,7 +462,7 @@ class EnvironmentManager:
         try:
             await asyncio.sleep(grace_period)
             self.manage_removal_from_game_for(player_id=player,
-                                              reason=RemovalReason.NOT_REACHABLE)
+                                              reason=RemovalReason.PLAYER_NOT_REACHABLE)
         except asyncio.CancelledError:
             logging.debug(f"Player {player} reconnected. Removing player aborted.")
         return
@@ -529,8 +532,18 @@ class EnvironmentManager:
         await new_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
+        new_vehicle.set_vehicle_not_reachable_callback(self.__remove_non_reachable_vehicle)
         self._add_to_active_vehicle_list(new_vehicle)
         return
+
+    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str) -> None:
+        """
+        Callback that should be executed when a vehicle isn't reachable anymore
+        """
+        # to be able to specify a removal reason the player needs to be removed manually before removing the vehicle
+        # that would also automatically remove the player
+        self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
+        self.remove_vehicle_by_id(vehicle_id)
 
     def add_virtual_vehicle(self) -> None:
         # TODO: Add more better way of determining name numbers to allow reuse of already
@@ -600,6 +613,16 @@ class EnvironmentManager:
         """
         for v in self._active_anki_cars:
             if v.get_player_id() == player:
+                return v
+        return None
+
+    def get_vehicle_by_vehicle_id(self, vehicle_id: str) -> Vehicle | None:
+        """
+        Get the car based on it's name (e.g. a Bluetooth MAC address).
+        Returns None if the vehicle isn't found
+        """
+        for v in self._active_anki_cars:
+            if v.vehicle_id == vehicle_id:
                 return v
         return None
 
