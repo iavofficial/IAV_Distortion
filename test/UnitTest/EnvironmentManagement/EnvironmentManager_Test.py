@@ -6,6 +6,7 @@ from EnvironmentManagement.EnvironmentManager import EnvironmentManager, Removal
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
+from VehicleMovementManagement.BehaviourController import BehaviourController
 
 
 @pytest.fixture(scope="module")
@@ -356,3 +357,30 @@ class TestPublishRemovedPlayer:
 
         # Assert
         assert not result
+
+
+@pytest.mark.slow
+@pytest.mark.manual
+@pytest.mark.one_anki_car_needed
+@pytest.mark.asyncio
+async def test_vehicle_removal_on_non_reachable(car_uuid: str = 'DF:8B:DC:02:2C:23'):
+    """
+    Tests that a vehicle gets removed when sending data doesn't succeed.
+    *HOW TO RUN:* To use this test you need to start an Anki Car and let it connect. After it's connected you need to
+    manually turn it off so the BLE messages don't reach the car anymore and it disconnects. If the car connection
+    loss isn't encountered within 10 seconds the test will fail.
+    """
+    fleet_ctrl = FleetController()
+    config = ConfigurationHandler()
+    env_manager = EnvironmentManager(fleet_ctrl, configuration_handler=config)
+    behavior_controller = BehaviourController(env_manager.get_vehicle_list())
+    await env_manager.connect_to_physical_car_by(car_uuid)
+    for _ in range(0, 20):
+        car_list = env_manager.get_vehicle_list()
+        if len(car_list) == 0:
+            assert True
+            return
+        else:
+            behavior_controller.request_lane_change_for(car_uuid, 'right')
+        await asyncio.sleep(0.5)
+    assert False
