@@ -532,8 +532,8 @@ class EnvironmentManager:
         await new_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
-        car_not_reachable_callback: Callable[[str], None] = lambda msg: self.__remove_non_reachable_vehicle(uuid)
-        anki_car_controller.set_car_not_reachable_callback(car_not_reachable_callback)
+        car_not_reachable_callback: Callable[[], None] = lambda: self.__remove_non_reachable_vehicle(uuid)
+        anki_car_controller.set_ble_not_reachable_callback(car_not_reachable_callback)
         self._add_to_active_vehicle_list(new_vehicle)
         return
 
