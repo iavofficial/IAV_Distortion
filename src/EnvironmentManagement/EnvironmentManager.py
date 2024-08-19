@@ -532,21 +532,18 @@ class EnvironmentManager:
         await new_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
-        car_not_reachable_callback: Callable[[], None] = lambda: self.__remove_non_reachable_vehicle(uuid)
-        anki_car_controller.set_ble_not_reachable_callback(car_not_reachable_callback)
+        new_vehicle.set_vehicle_not_reachable_callback(self.__remove_non_reachable_vehicle)
         self._add_to_active_vehicle_list(new_vehicle)
         return
 
-    def __remove_non_reachable_vehicle(self, uuid: str) -> None:
+    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str) -> None:
         """
         Callback that should be executed when a vehicle isn't reachable anymore
         """
-        car = self.get_vehicle_by_vehicle_id(uuid)
         # to be able to specify a removal reason the player needs to be removed manually before removing the vehicle
         # that would also automatically remove the player
-        if car is not None and car.get_player_id() is not None:
-            self.manage_removal_from_game_for(car.get_player_id(), RemovalReason.CAR_DISCONNECTED)
-        self.remove_vehicle_by_id(uuid)
+        self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
+        self.remove_vehicle_by_id(vehicle_id)
 
     def add_virtual_vehicle(self) -> None:
         # TODO: Add more better way of determining name numbers to allow reuse of already
