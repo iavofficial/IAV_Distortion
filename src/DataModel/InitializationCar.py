@@ -2,8 +2,6 @@ import asyncio
 from asyncio import Event
 from typing import List
 
-from bleak import BleakClient
-
 from LocationService.Track import TrackPiece
 from LocationService.TrackPieces import StartPieceAfterLine, TrackBuilder, StartPieceBeforeLine, StraightPiece, \
     CurvedPiece
@@ -102,9 +100,8 @@ class InitializationCar:
 
     After the scan finished the AnkiController is automatically destroyed
     """
-    def __init__(self, controller: AnkiController, ble_mac: str):
+    def __init__(self, controller: AnkiController):
         self._controller: AnkiController = controller
-        self._ble_mac: str = ble_mac
         self._piece_ids: List[ScannedPiece] = list()
         self._finished_scanning_event: Event = Event()
         self._new_piece = True
@@ -114,8 +111,6 @@ class InitializationCar:
         Start the scanning
         """
         controller: AnkiController = self._controller
-        if not await controller.connect_to_vehicle(BleakClient(self._ble_mac), True):
-            return None
 
         controller.set_callbacks(self._receive_location,
                                  self._receive_transition,
@@ -124,7 +119,10 @@ class InitializationCar:
                                  self._nop,
                                  self._nop)
 
-        await asyncio.sleep(2)
+        # send the request 2 times since the car sometimes ignores the request otherwise
+        self._controller.change_speed_to(40)
+        await asyncio.sleep(1)
+        self._controller.change_speed_to(40)
 
         old_scan: List[ScannedPiece] = []
         new_scan: List[ScannedPiece] = await self._scan_for_track_ids()
@@ -133,8 +131,10 @@ class InitializationCar:
             old_scan = new_scan
             new_scan = await self._scan_for_track_ids()
 
-        controller.__del__()
-
+        # send the request 2 times since the car sometimes ignores the request otherwise
+        self._controller.change_speed_to(0)
+        await asyncio.sleep(1)
+        self._controller.change_speed_to(0)
         return self._convert_collected_data_to_pieces(new_scan)
 
     async def _scan_for_track_ids(self) -> List[ScannedPiece]:
@@ -144,9 +144,7 @@ class InitializationCar:
         self._piece_ids.clear()
         self._finished_scanning_event.clear()
 
-        self._controller.change_speed_to(40)
         await self._finished_scanning_event.wait()
-        self._controller.change_speed_to(0)
 
         return self._piece_ids.copy()
 
@@ -155,7 +153,7 @@ class InitializationCar:
         Callback for when a location event is sent
         """
         location, piece, _, _, _ = value_tuple
-        if not self._new_piece:
+        if not self._new_piece and len(self._piece_ids) > 0:
             self._piece_ids[-1].add_location(location)
             return
 
