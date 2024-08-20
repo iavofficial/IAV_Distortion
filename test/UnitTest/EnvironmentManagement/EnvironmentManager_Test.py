@@ -1,9 +1,13 @@
 import asyncio
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 
+from DataModel.PhysicalCar import PhysicalCar
+from DataModel.VirtualCar import VirtualCar
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager, RemovalReason
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from LocationService.Track import TrackPieceType, FullTrack
+from LocationService.TrackPieces import TrackBuilder
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
 
@@ -394,3 +398,30 @@ def test_get_track_returns_from_config(initialise_dependencies):
         ]
     }
     assert env.get_track() is not None
+
+
+def test_track_notify():
+    """
+    Tests that the location services get notified when a new track is there due to e.g. scanning
+    """
+    config_mock = MagicMock()
+    fleet_ctrl_mock = MagicMock(spec=FleetController)
+    env_manager = EnvironmentManager(fleet_ctrl_mock, configuration_handler=config_mock)
+    new_track: FullTrack = TrackBuilder() \
+        .append(TrackPieceType.START_PIECE_AFTER_LINE_WE) \
+        .append(TrackPieceType.CURVE_WS).build()
+
+    # Virtual Vehicle
+    virtual_location_service = MagicMock()
+    virtual_vehicle = VirtualCar('Virtual Car 1', MagicMock(), virtual_location_service)
+    env_manager._active_anki_cars.append(virtual_vehicle)
+
+    # "Real" Vehicle
+    physical_location_service = MagicMock()
+    physical_car = PhysicalCar('AA:AA:AA:AA:AA:AA', MagicMock(), physical_location_service)
+    env_manager._active_anki_cars.append(physical_car)
+
+    env_manager.notify_new_track(new_track)
+
+    virtual_location_service.notify_new_track.assert_called()
+    physical_location_service.notify_new_track.assert_called()

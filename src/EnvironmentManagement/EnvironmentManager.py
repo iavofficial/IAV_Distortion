@@ -12,17 +12,19 @@ import re
 
 from enum import Enum
 from datetime import datetime, timedelta
-from typing import List, Dict, Callable
+from typing import List, Dict, Callable, Tuple
 from collections import deque
 from deprecated import deprecated
 
+from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.PhysicalLocationService import PhysicalLocationService
-from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException
+from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException, \
+    full_track_to_list_of_dicts
 
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.EmptyController import EmptyController
@@ -603,6 +605,16 @@ class EnvironmentManager:
                 return v
         return None
 
+    def get_vehicle_by_vehicle_id(self, vehicle_id: str) -> Vehicle | None:
+        """
+        Get the car based on it's name (e.g. a Bluetooth MAC address).
+        Returns None if the vehicle isn't found
+        """
+        for v in self._active_anki_cars:
+            if v.vehicle_id == vehicle_id:
+                return v
+        return None
+
     def get_car_color_map(self) -> Dict[str, List[str]]:
         colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
         full_map: Dict[str, List[str]] = {}
@@ -628,4 +640,35 @@ class EnvironmentManager:
             return full_track
         except PieceDecodingException as e:
             self.logger.error("Couldn't parse track from config: %s", e)
+        return None
+
+    def notify_new_track(self, new_track: FullTrack):
+        self.config_handler.get_configuration().update(
+            {
+                'track': full_track_to_list_of_dicts(new_track)
+            }
+        )
+        self.config_handler.write_configuration()
+        for car in self.get_vehicle_list():
+            car.notify_new_track(new_track)
+
+    async def rescan_track(self, car: str) -> str | None:
+        """
+        Scans a track and notifies when the scanning finished.
+        Returns
+        -------
+        A error message, if the scanning isn't possible (e.g. the car isn't available) or None in case of success
+        """
+        vehicle = self.get_vehicle_by_vehicle_id(car)
+        if vehicle is None:
+            self.logger.error("A client attempted to use a vehicle for track scanning that doesn't exist")
+            return "Request didn't include a valid vehicle"
+        controller = vehicle.extract_controller()
+        if controller is None:
+            return "The selected car can't be controlled currently. Please use another car"
+        init_car = InitializationCar(controller)
+        track_list = await init_car.run()
+        vehicle.insert_controller(controller)
+        new_track = FullTrack(track_list)
+        self.notify_new_track(new_track)
         return None

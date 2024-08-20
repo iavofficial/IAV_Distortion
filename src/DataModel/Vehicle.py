@@ -11,6 +11,9 @@ from typing import Callable
 
 from abc import abstractmethod
 
+from LocationService.Track import FullTrack
+from VehicleManagement.VehicleController import VehicleController
+
 
 class Vehicle:
     def __init__(self, vehicle_id: str) -> None:
@@ -166,4 +169,14 @@ class Vehicle:
     @property
     @abstractmethod
     def turn(self):
+        pass
+
+    @abstractmethod
+    def notify_new_track(self, new_track: FullTrack):
+        pass
+
+    def extract_controller(self) -> VehicleController | None:
+        pass
+
+    def insert_controller(self) -> None:
         pass
