@@ -68,7 +68,8 @@ class ScannedPiece:
         """
         return len(self._locations) >= 2 \
             or self._piece_id == _START_PIECE_ID_AFTER_LINE \
-            or self._piece_id == _START_PIECE_ID_BEFORE_LINE
+            or self._piece_id == _START_PIECE_ID_BEFORE_LINE \
+            or self._piece_id in _CURVE_PIECE_IDS
 
     def is_location_counting_downwards(self) -> bool | None:
         """
@@ -76,6 +77,8 @@ class ScannedPiece:
         points `None` is returned
         """
         if len(self._locations) < 2:
+            if self._piece_id in _CURVE_PIECE_IDS:
+                return True
             return None
         return self._locations[0] > self._locations[1]
 
@@ -92,7 +95,7 @@ class InitializationCar:
     """
     Class that has the ability to drive in a track in order to scan it and return a list of track pieces with
     physical IDs.
-    To do this the car should be placed at the outer edge of the track and heading clockwise. After that
+    To do this the car should be placed at the inner edge of the track and heading clockwise. After that
     the `run` method can be awaited while the car drives on the track. It returns the track when on 2 consecutive
     scanning rounds it had the same result. The track needs to have *exactly* one start piece!
 
