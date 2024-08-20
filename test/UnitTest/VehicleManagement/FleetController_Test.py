@@ -16,6 +16,7 @@ from VehicleManagement.FleetController import FleetController
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 
+@pytest.mark.skip_ci
 @pytest.mark.slow
 @pytest.mark.two_anki_cars_needed
 @pytest.mark.asyncio
@@ -44,6 +45,7 @@ async def test_scan_for_anki_cars() -> None:
     assert len(found_devices) == 2
 
 
+@pytest.mark.skip_ci
 @pytest.mark.slow
 @pytest.mark.two_anki_cars_needed
 @pytest.mark.anki_car_placed_on_charger
@@ -76,6 +78,7 @@ async def test_scan_for_ready_anki_cars() -> None:
     assert len(found_devices) == 1
 
 
+@pytest.mark.skip_ci
 @pytest.mark.slow
 @pytest.mark.asyncio
 async def test_auto_discover_anki_vehicles() -> None:

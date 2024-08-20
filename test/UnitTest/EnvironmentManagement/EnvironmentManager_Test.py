@@ -428,6 +428,7 @@ def test_track_notify():
     physical_location_service.notify_new_track.assert_called()
 
 
+@pytest.mark.skip_ci
 @pytest.mark.slow
 @pytest.mark.manual
 @pytest.mark.one_anki_car_needed
