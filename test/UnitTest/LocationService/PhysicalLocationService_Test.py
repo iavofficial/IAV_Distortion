@@ -292,6 +292,10 @@ def test_history_matching_for_offset(get_physical_location_service_duplicate_ids
     """
     service = get_physical_location_service_duplicate_ids
     service._piece_history = [None, None, 40, 18, None, None]
-    assert service._test_history_matches_track_with_offset(4)
-    assert service._test_history_matches_track_with_offset(1)
-    assert not service._test_history_matches_track_with_offset(0)
+    assert service._test_history_matches_track_with_offset(4, 1)
+    assert service._test_history_matches_track_with_offset(1, 1)
+    assert not service._test_history_matches_track_with_offset(0, 1)
+
+    # backwards search
+    assert service._test_history_matches_track_with_offset(5, -1)
+    assert not service._test_history_matches_track_with_offset(2, -1)
