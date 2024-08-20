@@ -31,12 +31,12 @@ class PhysicalCar(ModelCar):
 
     async def initiate_connection(self, uuid: str) -> bool:
         if await self._controller.connect_to_vehicle(BleakClient(uuid), True):
+            self._controller.set_ble_not_reachable_callback(self._on_model_car_not_reachable)
             self._controller.set_callbacks(self._receive_location,
                                            self._receive_transition,
                                            self._receive_offset_update,
                                            self._receive_version,
-                                           self._receive_battery,
-                                           self._on_model_car_not_reachable)
+                                           self._receive_battery)
             self._controller.request_version()
             self._controller.request_battery()
             return True

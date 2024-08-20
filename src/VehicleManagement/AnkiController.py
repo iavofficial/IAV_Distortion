@@ -37,7 +37,7 @@ class AnkiController(VehicleController):
         self.__offset_callback = None
         self.__version_callback = None
         self.__battery_callback = None
-        self.__car_not_reachable_callback = None
+        self.__ble_not_reachable_callback: Callable[[], None] | None = None
 
         self.__latest_command: bytes | None = None
         self.__command_in_progress: bool = False
@@ -79,8 +79,7 @@ class AnkiController(VehicleController):
                       transition_callback: Callable,
                       offset_callback: Callable,
                       version_callback: Callable,
-                      battery_callback: Callable,
-                      car_not_reachable_callback: Callable) -> None:
+                      battery_callback: Callable) -> None:
         """
         Sets callback functions.
 
@@ -104,8 +103,13 @@ class AnkiController(VehicleController):
         self.__offset_callback = offset_callback
         self.__version_callback = version_callback
         self.__battery_callback = battery_callback
-        self.__car_not_reachable_callback = car_not_reachable_callback
         return
+
+    def set_ble_not_reachable_callback(self, ble_not_reachable_callback: Callable[[], None]):
+        """
+        Sets a callback that should be executed when the car is not reachable
+        """
+        self.__ble_not_reachable_callback = ble_not_reachable_callback
 
     async def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
         """
@@ -200,11 +204,11 @@ class AnkiController(VehicleController):
                 await self._connected_car.write_gatt_char("BE15BEE1-6186-407E-8381-0BD89C4D8DF4", final_command, None)
                 success = True
                 self.task_in_progress = False
-            except BleakError:
+            except (BleakError, OSError):
                 success = False
                 self.task_in_progress = False
-                if self.__car_not_reachable_callback is not None:
-                    self.__car_not_reachable_callback("Anki car is not reachable. Can not send command.")
+                if self.__ble_not_reachable_callback is not None:
+                    self.__ble_not_reachable_callback()
 
             return success
 
@@ -223,8 +227,8 @@ class AnkiController(VehicleController):
                                                    self.__on_receive_data)
             return True
         except BleakError:
-            if self.__car_not_reachable_callback is not None:
-                self.__car_not_reachable_callback("Anki car is not reachable. Can not start notification.")
+            if self.__ble_not_reachable_callback is not None:
+                self.__ble_not_reachable_callback()
             else:
                 return False
 
@@ -242,8 +246,8 @@ class AnkiController(VehicleController):
             await self._connected_car.stop_notify("BE15BEE0-6186-407E-8381-0BD89C4D8DF4")
             return True
         except BleakError:
-            if self.__car_not_reachable_callback is not None:
-                self.__car_not_reachable_callback("Anki car is not reachable. Can not stop notification.")
+            if self.__ble_not_reachable_callback is not None:
+                self.__ble_not_reachable_callback()
             else:
                 return False
 
