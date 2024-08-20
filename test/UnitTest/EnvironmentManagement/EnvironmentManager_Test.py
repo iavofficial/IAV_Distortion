@@ -405,8 +405,8 @@ def test_track_notify():
     Tests that the location services get notified when a new track is there due to e.g. scanning
     """
     config_mock = MagicMock()
-    fleet_ctrl = FleetController()
-    env_manager = EnvironmentManager(fleet_ctrl, configuration_handler=config_mock)
+    fleet_ctrl_mock = MagicMock(spec=FleetController)
+    env_manager = EnvironmentManager(fleet_ctrl_mock, configuration_handler=config_mock)
     new_track: FullTrack = TrackBuilder() \
         .append(TrackPieceType.START_PIECE_AFTER_LINE_WE) \
         .append(TrackPieceType.CURVE_WS).build()
