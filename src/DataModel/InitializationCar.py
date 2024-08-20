@@ -119,8 +119,8 @@ class InitializationCar:
                                  self._receive_transition,
                                  self._nop,
                                  self._nop,
-                                 self._nop,
                                  self._nop)
+        controller.set_ble_not_reachable_callback(self._nop)
 
         # send the request 2 times since the car sometimes ignores the request otherwise
         self._controller.change_speed_to(40)

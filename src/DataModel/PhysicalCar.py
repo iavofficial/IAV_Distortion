@@ -75,7 +75,7 @@ class PhysicalCar(ModelCar):
                                        self._receive_transition,
                                        self._receive_offset_update,
                                        self._receive_version,
-                                       self._receive_battery,
-                                       self._on_model_car_not_reachable)
+                                       self._receive_battery)
+        self._controller.set_ble_not_reachable_callback(self._model_car_not_reachable_callback)
         self._controller.request_version()
         self._controller.request_battery()
