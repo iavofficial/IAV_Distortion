@@ -132,6 +132,7 @@ class StraightPiece(TrackPiece):
         })
         return orig
 
+
 class CurvedPiece(TrackPiece):
     def __init__(self, square_size, diameter: int, rot: int, mirror: bool, physical_id=None):
         super().__init__(rot, physical_id=physical_id)
@@ -340,7 +341,7 @@ class TrackBuilder():
     and finally build()
     """
     def __init__(self):
-        self.piece_list: List[TrackPiece] = [] 
+        self.piece_list: List[TrackPiece] = []
         # Constants
         self.STRAIGHT_PIECE_LENGTH = 559
         self.PIECE_DIAMETER = 184

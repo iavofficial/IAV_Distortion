@@ -9,7 +9,7 @@
 import asyncio
 import pytest
 from unittest.mock import patch
-from bleak import BleakClient, BleakError
+from bleak import BleakClient
 from VehicleManagement.AnkiController import AnkiController
 
 

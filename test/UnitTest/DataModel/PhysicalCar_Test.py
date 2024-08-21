@@ -30,7 +30,8 @@ def test_physical_car_offset_correction(offset: float):
 
 
 @pytest.mark.parametrize("val,minimum,maximum,expected",
-                         [(30, -10, 40, 30), (-30, -40, -20, -30), (10, 20, 30, 20), (10, 0, 5, 5), (-5, -20, -10, -10), (-5, -3, -1, -3)])
+                         [(30, -10, 40, 30), (-30, -40, -20, -30), (10, 20, 30, 20), (10, 0, 5, 5), (-5, -20, -10, -10),
+                          (-5, -3, -1, -3)])
 def test_clamp(val: float, minimum: float, maximum: float, expected: float):
     clamped = DataModel.PhysicalCar.clamp(val, minimum, maximum)
     assert clamped == expected

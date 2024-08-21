@@ -9,7 +9,6 @@
 from typing import Any
 
 from VehicleMovementManagement.BehaviourController import BehaviourController
-from DataModel.Vehicle import Vehicle
 
 
 def _set_scenarios() -> list[dict[str, Any]]:

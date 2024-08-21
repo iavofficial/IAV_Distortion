@@ -6,7 +6,7 @@ import pytest
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.VehicleController import VehicleController
 
-dummy_uuid = "F1:76:08:08:C1:00" #rot
+dummy_uuid = "F1:76:08:08:C1:00"  # rot
 
 
 @pytest.mark.skip_ci
@@ -30,7 +30,6 @@ class VehicleIntegrationTest(TestCase):
         sleep(2)
         mut.speed_request = 0
         del mut
-
 
     def return_driving_data(self, data: dict) -> None:
         print(f"return_driving_data: {data}")

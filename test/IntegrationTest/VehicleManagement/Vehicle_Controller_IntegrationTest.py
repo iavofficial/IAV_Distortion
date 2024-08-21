@@ -27,7 +27,7 @@ class VehicleControllerIntegrationTest(TestCase):
         sleep(2)
         mut.__del__()
 
-        assert is_connected == True
+        assert is_connected
 
     def location_callback_dummy(self, value_tuple):
         print(f"{value_tuple}")
@@ -37,7 +37,7 @@ class VehicleControllerIntegrationTest(TestCase):
 
         fleet_ctrl = FleetController()
         found_vehicles = fleet_ctrl.scan_for_anki_cars()
-        is_connected = mut.connect_to_vehicle(BleakClient(found_vehicles[0]))
+        mut.connect_to_vehicle(BleakClient(found_vehicles[0]))
         mut.set_callbacks(self.location_callback_dummy,
                           self.location_callback_dummy,
                           self.location_callback_dummy,
@@ -63,7 +63,7 @@ class VehicleControllerIntegrationTest(TestCase):
 
         fleet_ctrl = FleetController()
         found_vehicles = fleet_ctrl.scan_for_anki_cars()
-        is_connected = mut.connect_to_vehicle(BleakClient(found_vehicles[0]))
+        mut.connect_to_vehicle(BleakClient(found_vehicles[0]))
         mut.set_callbacks(self.location_callback_dummy,
                           self.location_callback_dummy,
                           self.location_callback_dummy,

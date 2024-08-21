@@ -11,15 +11,17 @@ from LocationService.Track import TrackPieceType
 
 dummy_vehicleID = "123456789"
 
+
 def get_dummy_track() -> FullTrack:
-        track: FullTrack = TrackBuilder()\
-            .append(TrackPieceType.STRAIGHT_WE)\
-            .build()
-        return track
+    track: FullTrack = TrackBuilder()\
+        .append(TrackPieceType.STRAIGHT_WE)\
+        .build()
+    return track
 
 
 def dummy_callback(vehicle_id: str, player: str, err_msg: str):
     print(f"Error occurred on {vehicle_id} from player {player}. {err_msg}")
+
 
 @pytest.mark.skip_ci
 class ModelCaIntegrationTest(TestCase):

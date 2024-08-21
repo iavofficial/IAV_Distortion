@@ -8,6 +8,7 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 from DataModel.Vehicle import Vehicle
 
+
 class CarMap:
     """
         Provides the visualization of the virtual race track.
@@ -15,7 +16,8 @@ class CarMap:
         Parameters
         ----------
         environment_manager: EnvironmentManager
-            Access to the EnvironmentManager to exchange information about queues and add or remove players and vehicles.
+            Access to the EnvironmentManager to exchange information about queues and add or remove players and
+            vehicles.
         """
     def __init__(self, environment_manager: EnvironmentManager, sio: socketio):
         self.carMap_blueprint: Blueprint = Blueprint(name='carMap_bp', import_name='carMap_bp')
@@ -24,7 +26,6 @@ class CarMap:
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
         self._sio: socketio = sio
-
 
         async def home_car_map():
             """
@@ -48,8 +49,8 @@ class CarMap:
 
             car_pictures = self.config_handler.get_configuration()["virtual_cars_pics"]
             return await render_template("car_map.html", track=serialized_track, car_pictures=car_pictures,
-                                   color_map=environment_manager.get_car_color_map(),
-                                   used_space=environment_manager.get_track().get_used_space_as_dict())
+                                         color_map=environment_manager.get_car_color_map(),
+                                         used_space=environment_manager.get_track().get_used_space_as_dict())
 
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
 

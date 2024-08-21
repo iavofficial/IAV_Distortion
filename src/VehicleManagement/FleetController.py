@@ -10,7 +10,7 @@ import logging
 import asyncio
 from asyncio import Task
 from bleak import BleakScanner
-from typing import Callable, Tuple
+from typing import Callable
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 

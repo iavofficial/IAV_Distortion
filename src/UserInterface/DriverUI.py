@@ -6,7 +6,6 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-from typing import Tuple, Any, Dict
 
 from quart import Blueprint, render_template, request
 import socketio
@@ -39,8 +38,9 @@ class DriverUI:
         self.__checking_heartbeats_flag: bool = False
 
         try:
-            self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]["driver_heartbeat_timeout_s"])
-        except:
+            self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]
+                                                       ["driver_heartbeat_timeout_s"])
+        except KeyError:
             self.logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
                                 "value of 30 seconds")
             self.__driver_heartbeat_timeout = 30

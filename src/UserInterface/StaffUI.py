@@ -9,11 +9,11 @@
 import asyncio
 from asyncio import Task
 
-from quart import Blueprint, render_template, request, redirect, url_for, jsonify, Response
+from quart import Blueprint, render_template, request, redirect, url_for, Response
 import socketio
 import re
 import secrets
-from typing import Any, Dict, Tuple, List
+from typing import Any, Tuple, List
 import logging
 import subprocess
 import platform
@@ -74,7 +74,7 @@ class StaffUI:
             if '/staff/' in request.path and request.path != '/staff/':
                 request_token = request.cookies.get('admin_token')
                 if request_token is None or request_token != self.admin_token:
-                    return login_redirect() # redirect(url_for("staffUI_bp.login_site"))
+                    return login_redirect()  # redirect(url_for("staffUI_bp.login_site"))
                 else:
                     return None
 
@@ -387,11 +387,12 @@ class StaffUI:
             """
             if platform.system() == 'Linux':
                 self.logger.info("Program restart triggered")
-                process = subprocess.Popen(['bash', './restart_IAV-Distortion.sh'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                process = subprocess.Popen(['bash', './restart_IAV-Distortion.sh'], stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
                 message = "The program will restart now. This will take a moment please wait and reload the page."
                 return message, 200
-                
+
             else:
                 self.logger.warning("Program restart button pressed, but not running on Linux system")
                 message = 'Error restarting IAV-Distortion. Function only available on linux systems.'
@@ -601,4 +602,3 @@ class StaffUI:
         """
         await self._sio.emit('update_uuids', data)
         return
-

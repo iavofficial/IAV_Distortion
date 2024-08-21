@@ -6,9 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-import logging
 
-from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager

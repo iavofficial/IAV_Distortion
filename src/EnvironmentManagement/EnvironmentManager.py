@@ -197,7 +197,7 @@ class EnvironmentManager:
             Is true, if the player was added to the queue.
             Is False, if player was not added to the queue, because it is already in the queue or empty or no string.
         """
-        if not isinstance(player_id, str) :
+        if not isinstance(player_id, str):
             return False
 
         striped_player_id = player_id.strip()
@@ -533,7 +533,7 @@ class EnvironmentManager:
         location_service = PhysicalLocationService(self.get_track(), start_immediately=True)
         new_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
         await new_vehicle.initiate_connection(uuid)
-        # TODO: add a check if connection was successful 
+        # TODO: add a check if connection was successful
 
         new_vehicle.set_vehicle_not_reachable_callback(self.__remove_non_reachable_vehicle)
         self._add_to_active_vehicle_list(new_vehicle)
