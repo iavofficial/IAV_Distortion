@@ -2,6 +2,53 @@
 
 {% block content %}
 
-    <h1>This will be the configuration home! </h1><!-- more HTML for the home page -->
+<div class="flexbox-item config_content">
+    <h2>Rescan track:</h2>
+    <button id="reload_cars">Reload available cars</button>
+    <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
+</div>
+
+<script>
+    function reload_cars() {
+        $('#table-container').empty();
+        let uuids_table = document.createElement('table');
+
+        $.post("/staff/get_all_cars", function(result, status) {
+            result.forEach((entry) => {
+                let vehicle_id = entry['vehicle_id'];
+
+                let row = document.createElement('tr');
+                let cell_uuid = document.createElement('td');
+                cell_uuid.innerText = vehicle_id;
+
+                let cell_button = document.createElement('td');
+                let use_car_button = document.createElement('button');
+                use_car_button.textContent = 'Use for scanning';
+                use_car_button.className = 'button_small button_pink'
+                use_car_button.onclick = function() {
+                    $.post("/staff/rescan_track", { car: vehicle_id })
+                        .fail(function(data) {
+                            alert(data.responseText);
+                            console.log(data.responseText);
+                        })
+                        .done(function(data) {
+                            alert(data);
+                            console.log(data);
+                        });
+                };
+                cell_button.appendChild(use_car_button);
+
+
+                row.appendChild(cell_uuid);
+                row.appendChild(cell_button);
+                uuids_table.appendChild(row);
+            });
+        });
+        document.getElementById('table-container').appendChild(uuids_table);
+    }
+
+    $("#reload_cars").click(reload_cars);
+    reload_cars();
+</script>
 
 {% endblock %}

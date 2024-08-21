@@ -50,6 +50,8 @@ class PhysicalLocationService(LocationService):
         """
         Function that should be called when a physical car sent a transition event message
         """
+        if self._track is None:
+            return
         self._piece_history_index = (self._piece_history_index + self._direction_mult) % self._track.get_len()
         if self._physical_piece is None:
             return
@@ -79,6 +81,8 @@ class PhysicalLocationService(LocationService):
         """
         Function that should be called when a physical car sent a location event
         """
+        if self._track is None:
+            return
         offset = self._notification_offset_to_internal_offset(offset)
         self._target_offset = offset
         self._target_speed = speed
@@ -199,6 +203,8 @@ class PhysicalLocationService(LocationService):
         Resets the own piece_history list to have None in every position
         to avoid out of bounds exceptions
         """
+        if self._track is None:
+            return
         self._piece_history.clear()
         for _ in range(0, self._track.get_len()):
             self._piece_history.append(None)
@@ -242,3 +248,7 @@ class PhysicalLocationService(LocationService):
             if history_id is not None and track_piece.get_physical_id() != self._piece_history[i]:
                 return False
         return True
+
+    def notify_new_track(self, new_track: FullTrack):
+        super().notify_new_track(new_track)
+        self._reset_piece_history()

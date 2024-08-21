@@ -111,7 +111,8 @@ class ModelCar(Vehicle):
             self._on_driving_data_change()
 
         asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
-        self._controller.change_speed_to(int(self.__speed))
+        if self._controller is not None:
+            self._controller.change_speed_to(int(self.__speed))
         return
 
     @property
@@ -171,7 +172,8 @@ class ModelCar(Vehicle):
 
         asyncio.create_task(self._location_service.set_offset_int(self.__lane_change))
         asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
-        self._controller.change_lane_to(self.__lane_change, self.__speed)
+        if self._controller is not None:
+            self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
     @property
@@ -200,7 +202,8 @@ class ModelCar(Vehicle):
             return
 
         asyncio.create_task(self._location_service.do_uturn())
-        self._controller.do_turn_with(Turns.A_UTURN)
+        if self._controller is not None:
+            self._controller.do_turn_with(Turns.A_UTURN)
         return
 
     def switch_lights(self, value: bool) -> None:

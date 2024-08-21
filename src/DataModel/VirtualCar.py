@@ -1,5 +1,6 @@
 from DataModel.ModelCar import ModelCar
 from LocationService.LocationService import LocationService
+from LocationService.Track import FullTrack
 from LocationService.Trigo import Angle, Position
 from VehicleManagement.EmptyController import EmptyController
 
@@ -21,3 +22,6 @@ class VirtualCar(ModelCar):
     def _location_service_update(self, pos: Position, rot: Angle, data: dict):
         self._on_driving_data_change()
         super()._location_service_update(pos, rot, data)
+
+    def notify_new_track(self, new_track: FullTrack):
+        self._location_service.notify_new_track(new_track)

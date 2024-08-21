@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 import math
 
 from LocationService.Track import Direction, FullTrack, TrackPiece, TrackPieceType
@@ -91,7 +91,7 @@ class StraightPiece(TrackPiece):
     def get_progress_based_on_location(self, location: int, offset: float) -> float:
         return self.get_length(offset) * 0.25 * (3 - location % 3)
 
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         line_1_start = Position(-self._diameter / 2, -self._length / 2)
         line_1_end = Position(-self._diameter / 2, self._length / 2)
         line_1_start.rotate_around_0_0(self._rotation)
@@ -123,6 +123,14 @@ class StraightPiece(TrackPiece):
                 'y': line_2_end.get_y()
             }
         }
+
+    def to_json_dict(self) -> Dict[str, Any]:
+        orig = super().to_json_dict()
+        orig.update({
+            'length': self._length,
+            'diameter': self._diameter
+        })
+        return orig
 
 class CurvedPiece(TrackPiece):
     def __init__(self, square_size, diameter: int, rot: int, mirror: bool, physical_id=None):
@@ -245,7 +253,7 @@ class CurvedPiece(TrackPiece):
             return 0.33 * (2 - location % 2) * self.get_length(offset)
         return 0.25 * (3 - (location - 20) % 3) * self.get_length(offset)
 
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         start_angle: int = int(self._rotation.get_deg())
         if self._is_mirrored:
             start_angle = (start_angle + 180) % 360
@@ -265,6 +273,18 @@ class CurvedPiece(TrackPiece):
                 'y': point.get_y()
             }
         }
+
+    def __eq__(self, other):
+        return super().__eq__(other) and self._is_mirrored == other._is_mirrored
+
+    def to_json_dict(self) -> Dict[str, Any]:
+        orig = super().to_json_dict()
+        orig.update({
+            'square_size': self._size,
+            'diameter': self._diameter,
+            'mirrored': self._is_mirrored
+        })
+        return orig
 
 
 class StartPieceBeforeLine(StraightPiece):
@@ -288,12 +308,12 @@ class StartPieceAfterLine(StraightPiece):
         _ = offset
         return 0.5 * self.get_length(offset)
 
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         startline_start = Position(self._diameter / 2, self._length / 2 - self._start_line_width / 2)
         startline_end = Position(-self._diameter / 2, self._length / 2 - self._start_line_width / 2)
         startline_start.rotate_around_0_0(self._rotation)
         startline_end.rotate_around_0_0(self._rotation)
-        orig = super().to_dict()
+        orig = super().to_html_dict()
         orig.update({
             'start_line_start': {
                 'x': startline_start.get_x(),
@@ -303,6 +323,13 @@ class StartPieceAfterLine(StraightPiece):
                 'x': startline_end.get_x(),
                 'y': startline_end.get_y()
             }
+        })
+        return orig
+
+    def to_json_dict(self) -> Dict[str, Any]:
+        orig = super().to_json_dict()
+        orig.update({
+            'start_line_width': self._start_line_width
         })
         return orig
 
@@ -378,13 +405,13 @@ class TrackBuilder():
 
             # start piece first part
             case TrackPieceType.START_PIECE_BEFORE_LINE_SN:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 0)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 0)
             case TrackPieceType.START_PIECE_BEFORE_LINE_WE:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 90)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 90)
             case TrackPieceType.START_PIECE_BEFORE_LINE_NS:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 180)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 180)
             case TrackPieceType.START_PIECE_BEFORE_LINE_EW:
-                return StraightPiece(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 270)
+                return StartPieceBeforeLine(self.START_PIECE_BEFORE_LINE_LENGTH, self.PIECE_DIAMETER, 270)
 
             # start piece second part
             case TrackPieceType.START_PIECE_AFTER_LINE_SN:

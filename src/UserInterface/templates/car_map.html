@@ -18,10 +18,22 @@
 </head>
 
 <body>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        /**
+         * Reload the page when told. This is currently used
+         * for when the track changes
+         */
+         socket.on('reload_car_map', function(data) {
+            window.location.reload();
+        });
+    </script>
+    {% if track is none %}
+    <h1>The map isn't currently available</h1>
+    {% else %}
     <canvas id="car_canvas"></canvas>
 
         <script type="text/javascript" charset="utf-8">
-            var socket = io.connect('http://' + document.domain + ':' + location.port);
 
             const required_space = {{ used_space | tojson }};
             const required_vertically = required_space.used_space_vertically;
@@ -304,5 +316,6 @@
                 scale = Math.min(ratio_horizontally, ratio_vertically);
             }
         </script>
+        {% endif %}
     </body>
 </html>

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 
 from LocationService.Trigo import Position, Angle, Distance
 
@@ -40,13 +40,21 @@ class TrackPiece(ABC):
     """
     def __init__(self, rotation_deg: int, physical_id):
         self._rotation = Angle(rotation_deg)
-        self.__physical_id: int | None = physical_id
+        self._physical_id: int | None = physical_id
 
     def set_physical_id(self, physical_id: int | None) -> None:
-        self.__physical_id = physical_id
+        self._physical_id = physical_id
 
     def get_physical_id(self) -> int | None:
-        return self.__physical_id
+        return self._physical_id
+
+    def __eq__(self, other):
+        return type(self) == type(other) \
+            and self._rotation == other._rotation \
+            and self._physical_id == other._physical_id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @abstractmethod
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
@@ -124,11 +132,22 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_dict(self) -> dict:
+    def to_html_dict(self) -> dict:
         """
-        Get the piece represented as dict
+        Get the piece in a representation that can be used in JS to draw the track
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def to_json_dict(self) -> Dict[str, Any]:
+        """
+        Returns the piece as a dict that for serialization that can later be de-serialized
+        """
+        return {
+            'type': self.__module__ + '.' + self.__class__.__qualname__,
+            'rotation': self._rotation.get_deg(),
+            'physical_id': self._physical_id
+        }
 
 class TrackEntry():
     """
@@ -210,7 +229,7 @@ class FullTrack():
             offset = entry.get_global_offset()
             l.append({
                 'offset': offset.to_dict(),
-                'piece': piece.to_dict()
+                'piece': piece.to_html_dict()
             })
 
         return l
@@ -244,3 +263,17 @@ class FullTrack():
             'used_space_vertically': max_horiz,
             'used_space_horizontally': max_vert
         }
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+
+        if self.get_len() != other.get_len():
+            return False
+
+        for i in range(0, self.get_len()):
+            own_piece, _ = self.get_entry_tupel(i)
+            other_piece, _ = other.get_entry_tupel(i)
+            if own_piece != other_piece:
+                return False
+        return True

@@ -2,6 +2,7 @@ from bleak import BleakClient
 from DataModel.ModelCar import ModelCar
 from LocationService.LocationService import LocationService
 from LocationService.PhysicalLocationService import PhysicalLocationService
+from LocationService.Track import FullTrack
 from VehicleManagement.AnkiController import AnkiController
 
 
@@ -23,7 +24,8 @@ class PhysicalCar(ModelCar):
         self._location_service.set_on_update_callback(self._location_service_update)
 
     def __del__(self):
-        self._controller.__del__()
+        if self._controller is not None:
+            self._controller.__del__()
         self._location_service.__del__()
         super().__del__()
 
@@ -58,3 +60,22 @@ class PhysicalCar(ModelCar):
         _, _, offset, _ = value_tuple
         offset = clamp(offset, -66.5, 66.5)
         self._location_service.notify_transition_event(offset)
+
+    def notify_new_track(self, new_track: FullTrack):
+        self._location_service.notify_new_track(new_track)
+
+    def extract_controller(self):
+        controller = self._controller
+        self._controller = None
+        return controller
+
+    def insert_controller(self, controller: AnkiController):
+        self._controller = controller
+        self._controller.set_callbacks(self._receive_location,
+                                       self._receive_transition,
+                                       self._receive_offset_update,
+                                       self._receive_version,
+                                       self._receive_battery)
+        self._controller.set_ble_not_reachable_callback(self._model_car_not_reachable_callback)
+        self._controller.request_version()
+        self._controller.request_battery()
