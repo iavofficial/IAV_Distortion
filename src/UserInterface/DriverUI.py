@@ -8,12 +8,13 @@
 #
 
 from quart import Blueprint, render_template, request
-import socketio
 import uuid
 import logging
 from logging import Logger
 import asyncio
 import time
+
+from socketio import AsyncServer
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -21,11 +22,11 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 class DriverUI:
 
-    def __init__(self, behaviour_ctrl, environment_mng, sio: socketio, name=__name__) -> None:
+    def __init__(self, behaviour_ctrl, environment_mng, sio: AsyncServer, name=__name__) -> None:
         self.driverUI_blueprint: Blueprint = Blueprint(name='driverUI_bp', import_name='driverUI_bp')
         self.vehicles: list = environment_mng.get_vehicle_list()
         self.behaviour_ctrl = behaviour_ctrl
-        self._sio: socketio = sio
+        self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
@@ -173,7 +174,10 @@ class DriverUI:
 
         @self._sio.on('driver_inactive')
         def client_inactive(sid, data: dict) -> None:
-            player = data["player"]
+            player = data.get("player")
+            if player is None or not isinstance(player, str):
+                self.logger.warning("Got invalid player data in driver_inactive message")
+                return
             grace_period = self.config_handler.get_configuration()["driver"]["driver_background_grace_period_s"]
             self.logger.debug(f"Player {player} send the application to the background and will be removed in "
                               f"{grace_period} seconds.")

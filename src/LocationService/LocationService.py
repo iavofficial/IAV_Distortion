@@ -349,7 +349,8 @@ class LocationService:
         """
         Cancels the task that runs the simulation.
         """
-        self.__task.cancel()
+        if self.__task is not None:
+            self.__task.cancel()
         #        #if self._simulation_thread is None:
         #        #    self.logger.error("It was attempted to stop an already stopped LocationService Thread.
         #        Ignoring the request!")

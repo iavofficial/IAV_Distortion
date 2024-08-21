@@ -10,15 +10,16 @@ import logging
 import asyncio
 from asyncio import Task
 from bleak import BleakScanner
-from typing import Callable
+from typing import Callable, Any, Coroutine
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 
 class FleetController:
 
-    def __init__(self, config_handler: ConfigurationHandler = None) -> None:
+    def __init__(self, config_handler: ConfigurationHandler | None = None) -> None:
+        self._connected_cars = {}  # BleakClients
         self.config_handler: ConfigurationHandler = config_handler if config_handler else ConfigurationHandler()
-        self.__add_anki_car_callback: Callable[[str], None] | None = None
+        self.__add_anki_car_callback: Callable[[str], Coroutine[Any, Any, None]] | None = None
         self.__auto_connect_anki_cars_task: Task | None = None
 
     async def scan_for_anki_cars(self, only_ready: bool = False) -> list[str]:
@@ -41,6 +42,8 @@ class FleetController:
             _all_devices = [d for d in ble_devices.values() if d[0].name is not None and "Drive" in d[0].name]
             for device in _all_devices:
                 local_name = device[1].local_name
+                if local_name is None:
+                    return
                 state = list(local_name.encode('utf-8'))[0]
                 if state == 16:
                     _active_devices.append(device[0].address)
@@ -67,7 +70,7 @@ class FleetController:
             except Exception as e:
                 logging.warning(f'Error {e} occurred')
 
-    def set_add_anki_car_callback(self, function_name: Callable[[str], None]) -> None:
+    def set_add_anki_car_callback(self, function_name: Callable[[str], Coroutine[Any, Any, None]]) -> None:
         """
         Sets callback function to add Anki cars.
 

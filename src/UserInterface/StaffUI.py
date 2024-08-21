@@ -7,16 +7,17 @@
 # file that should have been included as part of this package.
 #
 import asyncio
-from asyncio import Task
 
 from quart import Blueprint, render_template, request, redirect, url_for, Response
-import socketio
 import re
 import secrets
-from typing import Any, Tuple, List
+from typing import Any, Tuple, List, Coroutine
 import logging
 import subprocess
 import platform
+
+from socketio import AsyncServer
+
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 
@@ -37,7 +38,7 @@ class StaffUI:
         Configured password to log in to the staff ui.
     """
 
-    def __init__(self, cybersecurity_mng: CyberSecurityManager, sio: socketio, environment_mng: EnvironmentManager,
+    def __init__(self, cybersecurity_mng: CyberSecurityManager, sio: AsyncServer, environment_mng: EnvironmentManager,
                  password: str):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -50,7 +51,7 @@ class StaffUI:
         self.admin_token = secrets.token_urlsafe(12)
         self.staffUI_blueprint: Blueprint = Blueprint(name='staffUI_bp', import_name='staffUI_bp')
         self.scenarios: List[dict] = cybersecurity_mng.get_all_hacking_scenarios()
-        self._sio: socketio = sio
+        self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
 
@@ -123,6 +124,9 @@ class StaffUI:
                 Returns a Response object representing a redirect to the default staff ui page.
             """
             selected_option = (await request.form).get('option')
+            if selected_option is None or not isinstance(selected_option, str):
+                self.logger.error("A staff member tried to activate a scenario but provided wrong data")
+                return redirect(url_for('staffUI_bp.staff_control'))
             pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+|Virtual Vehicle [0-9]+)>"
             match = re.search(pattern, selected_option)
 
@@ -547,7 +551,7 @@ class StaffUI:
         self.__run_async_task(self.__emit_player_active(player))
         return
 
-    def __run_async_task(self, task: Task) -> None:
+    def __run_async_task(self, task: Coroutine[Any, Any, None]) -> None:
         """
         Run an asyncio awaitable task.
 

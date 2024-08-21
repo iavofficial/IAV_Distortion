@@ -1,7 +1,9 @@
-from quart import Blueprint, render_template, Response
-import socketio
+from quart import Blueprint, render_template
+from typing import Any, Coroutine
+
 import asyncio
-from asyncio import Task
+
+from socketio import AsyncServer
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -19,13 +21,13 @@ class CarMap:
             Access to the EnvironmentManager to exchange information about queues and add or remove players and
             vehicles.
         """
-    def __init__(self, environment_manager: EnvironmentManager, sio: socketio):
+    def __init__(self, environment_manager: EnvironmentManager, sio: AsyncServer):
         self.carMap_blueprint: Blueprint = Blueprint(name='carMap_bp', import_name='carMap_bp')
         self._environment_manager = environment_manager
         self._vehicles: list[Vehicle] | None = self._environment_manager.get_vehicle_list()
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
-        self._sio: socketio = sio
+        self._sio: AsyncServer = sio
 
         async def home_car_map():
             """
@@ -94,7 +96,7 @@ class CarMap:
         await self._sio.emit('car_positions', data)
         return
 
-    def __run_async_task(self, task: Task) -> None:
+    def __run_async_task(self, task: Coroutine[Any, Any, None]) -> None:
         """
         Runs an asyncio awaitable task.
 

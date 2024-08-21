@@ -1,19 +1,11 @@
 from unittest import TestCase
 from unittest.mock import Mock
+
+from LocationService.PhysicalLocationService import PhysicalLocationService
 from TestingTools import generate_mac_address
 
 from DataModel.PhysicalCar import PhysicalCar
 from VehicleManagement.AnkiController import AnkiController
-
-from LocationService.TrackPieces import TrackBuilder, FullTrack
-from LocationService.Track import TrackPieceType
-
-
-def get_dummy_track() -> FullTrack:
-    track: FullTrack = TrackBuilder() \
-        .append(TrackPieceType.STRAIGHT_WE) \
-        .build()
-    return track
 
 
 class ModelCarTest(TestCase):
@@ -22,6 +14,7 @@ class ModelCarTest(TestCase):
         self.anki_controller_mock = Mock(spec=AnkiController)
         self.anki_controller_mock.change_speed_to.return_value = True
         self.anki_controller_mock.change_lane_to.return_value = True
+        self.physical_location_service_mock = Mock(spec=PhysicalLocationService)
 
         self.dummy_uuid = generate_mac_address()
 
@@ -32,7 +25,7 @@ class ModelCarTest(TestCase):
         # Arrange
 
         # Act
-        self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, get_dummy_track())
+        self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock)
 
         # Assert
         assert self.mut.vehicle_id == self.dummy_uuid
@@ -40,7 +33,8 @@ class ModelCarTest(TestCase):
 
     def test_calculate_speed(self):
         # Arrange
-        self.mut: PhysicalCar = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, get_dummy_track())
+        self.mut: PhysicalCar = PhysicalCar(self.dummy_uuid, self.anki_controller_mock,
+                                            self.physical_location_service_mock)
 
         # Act/Assert
         self.mut.speed_factor = 0.5

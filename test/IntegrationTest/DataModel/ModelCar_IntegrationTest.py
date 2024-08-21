@@ -1,8 +1,10 @@
 from unittest import TestCase
+from unittest.mock import MagicMock
 
 import pytest
 
 from DataModel.PhysicalCar import PhysicalCar
+from LocationService.PhysicalLocationService import PhysicalLocationService
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 
@@ -19,17 +21,19 @@ def get_dummy_track() -> FullTrack:
     return track
 
 
-def dummy_callback(vehicle_id: str, player: str, err_msg: str):
-    print(f"Error occurred on {vehicle_id} from player {player}. {err_msg}")
+def dummy_callback(vehicle_id: str, player: str):
+    print(f"Error occurred on {vehicle_id} from player {player}.")
 
 
+@pytest.mark.asyncio
 @pytest.mark.skip_ci
 class ModelCaIntegrationTest(TestCase):
 
-    def setUp(self) -> None:
-        self.dummy_uuid = FleetController().scan_for_anki_cars()[0]
+    async def setUp(self) -> None:
+        self.dummy_uuid = (await FleetController().scan_for_anki_cars())[0]
         self.anki_controller: AnkiController = AnkiController()
-        self.mut: PhysicalCar = PhysicalCar(dummy_vehicleID, self.anki_controller, get_dummy_track())
+        location_service_mock = MagicMock(spec=PhysicalLocationService)
+        self.mut: PhysicalCar = PhysicalCar(dummy_vehicleID, self.anki_controller, location_service_mock)
         self.mut.set_vehicle_not_reachable_callback(dummy_callback)
 
     def tearDown(self) -> None:

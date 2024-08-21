@@ -7,12 +7,13 @@
 # file that should have been included as part of this package.
 #
 import asyncio
-from asyncio import Task
 import struct
 import logging
-from typing import Callable
+from typing import Callable, Coroutine, Any
 from VehicleManagement.VehicleController import VehicleController, Turns, TurnTrigger
-from bleak import BleakClient, BleakGATTCharacteristic, BleakError
+from bleak import BleakClient
+from bleak.exc import BleakError
+from bleak.backends.characteristic import BleakGATTCharacteristic
 
 
 class AnkiController(VehicleController):
@@ -47,7 +48,7 @@ class AnkiController(VehicleController):
     def __del__(self) -> None:
         asyncio.create_task(self.__disconnect_from_vehicle())
 
-    def __run_async_task(self, task: Task) -> None:
+    def __run_async_task(self, task: Coroutine[Any, Any, Any]) -> None:
         """
         Run a asyncio awaitable task
 

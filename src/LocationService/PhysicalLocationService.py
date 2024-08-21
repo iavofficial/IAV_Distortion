@@ -254,7 +254,7 @@ class PhysicalLocationService(LocationService):
             track_index: int
             track_index = (i * counting_direction + offset) % track_len
             track_piece, _ = self._track.get_entry_tupel(track_index)
-            history_id: int
+            history_id: int | None
             history_id = self._piece_history[i]
             if history_id is not None and track_piece.get_physical_id() != self._piece_history[i]:
                 return False

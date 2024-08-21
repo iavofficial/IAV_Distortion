@@ -61,6 +61,8 @@ class CyberSecurityManager:
 
     def activate_hacking_scenario_for_vehicle(self, uuid: str, scenario_id: str) -> None:
         scenario = next((sce for sce in self._hacking_scenarios if sce["id"] == scenario_id), None)
+        if scenario is None:
+            return
 
         self._behaviour_ctrl.set_speed_factor(uuid, scenario["speed_factor"])
 
