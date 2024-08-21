@@ -45,6 +45,7 @@ class ModelCarTest(TestCase):
 
     def test_calculate_lane_change_from_center(self):
         # Arrange
+        self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock)
 
         # Act/Assert
         self.mut.lane_change_request = 1
@@ -61,6 +62,7 @@ class ModelCarTest(TestCase):
 
     def test_calculate_lane_change_from_left_side(self):
         # Arrange
+        self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock)
         self.mut._offset_from_center = -65.0
 
         # Act/Assert
