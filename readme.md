@@ -68,6 +68,8 @@ Therefore chose the scenario for the car you want to apply the effect to, as soo
 
 Additional to the controls for the game itself, some system configurations and functions can be accessed by switching to the 'Configuration' tab.
 Here the system can be updated to the latest version available in the repository (of the installed branch) or functions like restarting IAV Distortion, the whole system (Raspberry Pi) or shutting down the system can be accessed.
+Additionally, it is now also possible to start an initialization drive with a real vehicle, so that the virtual track can be created through this process.
+ 
 
 > [!IMPORTANT]
 > - These functions (Update, Restart IAV Distortion, Restart System and Shutdown System) are only available on Unix like systems.
@@ -98,10 +100,9 @@ Player controlling a virtual car will get a top down view of the controlled vehi
 > Please refer to the [documentation of configuration parameters](/doc/Configuration).
 
 ### Virtual Racetrack
-The virtual car can be controlled on a virtual racetrack.
-It is planned to display the real cars on the virtual track as well.
+The virtual and real cars are shown on a virtual racetrack.
 The virtual racetrack can be accessed via [&lt;system_iP&gt;:5000/car_map]().
-There the (currently hardcoded) racetrack with the virtual cars is shown.
+The virtual track must be defined before the start of the game. Currently, this is done through an initialization drive on the real track with a real vehicle.
 
 <img src="./images/virtual_racetrack.png" alt="IAV-Distortion virtual racetrack" style="width:100%;max-width:600px">
 
