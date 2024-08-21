@@ -58,6 +58,8 @@
             const car_pics = {{ car_pictures | tojson }};
             const colorCrossmap = {{ color_map | tojson }};
 
+            const car_image_cache = new Map();
+
             addEventListener("resize", (event) => {
                 resizeCanvas();
                 resetCanvas();
@@ -85,6 +87,17 @@
                 dataMap.set(carName, data);
             });
 
+            function getCarImage(name) {
+                if (car_image_cache.has(name)) {
+                    return car_image_cache.get(name);
+                } else {
+                    let img = new Image();
+                    img.src = "/static/images/Virtual_Vehicles/" + name;
+                    car_image_cache.set(name, img);
+                    return img;
+                }
+            }
+
             /**
             * Inserts a picture at given position and angle.
             *
@@ -102,9 +115,7 @@
                 ctx.rotate(rotationRadians);
                 ctx.translate(-x, -y);
 
-                var img = new Image();
-                img.src = "/static/images/Virtual_Vehicles/" + image_name;
-
+                let img = getCarImage(image_name);
                 ctx.drawImage(img, x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
                 ctx.rotate(-Math.PI / 2);
 
