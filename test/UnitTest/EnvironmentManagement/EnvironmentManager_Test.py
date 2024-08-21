@@ -32,7 +32,7 @@ def get_mut_with_one_minute_playing_time(initialise_dependencies) -> Environment
     return mut
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentManager:
     fleet_ctrl_mock, configuration_handler_mock = initialise_dependencies
     configuration_handler_mock.get_configuration.return_value = \
@@ -60,7 +60,7 @@ def get_two_dummy_player() -> list[str]:
     return output
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def get_one_dummy_vehicle() -> Vehicle:
     vehicle: Vehicle = Vehicle("123")
 
