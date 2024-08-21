@@ -1,4 +1,4 @@
-from quart import Blueprint, render_template
+from quart import Blueprint, render_template, Response
 import socketio
 import asyncio
 from asyncio import Task
@@ -7,7 +7,6 @@ from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 from DataModel.Vehicle import Vehicle
-from DataModel.ModelCar import ModelCar
 
 class CarMap:
     """
@@ -39,14 +38,18 @@ class CarMap:
             Response
                 Returns a Response object representing the car map page.
             """
-            track = environment_manager.get_track().get_as_list()
+            track = environment_manager.get_track()
+            if track is None:
+                return await render_template('car_map.html', track=None)
+            serialized_track = track.get_as_list()
             if self._vehicles is not None:
                 for vehicle in self._vehicles:
                     vehicle.set_virtual_location_update_callback(self.update_virtual_location)
 
             car_pictures = self.config_handler.get_configuration()["virtual_cars_pics"]
-            return await render_template("car_map.html", track=track, car_pictures=car_pictures,
-                                   color_map=environment_manager.get_car_color_map())
+            return await render_template("car_map.html", track=serialized_track, car_pictures=car_pictures,
+                                   color_map=environment_manager.get_car_color_map(),
+                                   used_space=environment_manager.get_track().get_used_space_as_dict())
 
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
 

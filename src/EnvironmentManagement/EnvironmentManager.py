@@ -7,36 +7,45 @@
 # file that should have been included as part of this package.
 #
 import logging
-from datetime import datetime, timedelta
-from typing import List, Dict, Callable
-from collections import deque
 import asyncio
-from deprecated import deprecated
-from enum import Enum
+import re
 
+from enum import Enum
+from datetime import datetime, timedelta
+from typing import List, Dict, Callable, Tuple
+from collections import deque
+from deprecated import deprecated
+
+from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
+
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
-from LocationService.LocationService import LocationService
+from LocationService.PhysicalLocationService import PhysicalLocationService
+from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException, \
+    full_track_to_list_of_dicts
+
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
 
-from LocationService.TrackPieces import TrackBuilder, FullTrack
-from LocationService.Track import TrackPieceType
+from LocationService.LocationService import LocationService
+from LocationService.TrackPieces import FullTrack
 
 
 class RemovalReason(Enum):
     NONE = 0
     PLAYING_TIME_IS_UP = 1
-    NOT_REACHABLE = 2
+    PLAYER_NOT_REACHABLE = 2
+    CAR_DISCONNECTED = 3
 
 
 class EnvironmentManager:
 
     def __init__(self, fleet_ctrl: FleetController,
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()):
+
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
@@ -61,11 +70,12 @@ class EnvironmentManager:
 
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
+    # set Callbacks
     def set_staff_ui_update_callback(self,
                                      function_name: Callable[[Dict[str, str],
                                                               List[str],
                                                               List[str]],
-                                     None]) -> None:
+                                                             None]) -> None:
         """
         Sets callback function for staff_ui_update.
 
@@ -105,6 +115,7 @@ class EnvironmentManager:
         self.__publish_player_active_callback = function_name
         return
 
+    # Publish interface
     def update_staff_ui(self) -> None:
         """
         Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
@@ -113,7 +124,7 @@ class EnvironmentManager:
             self.logger.critical('Missing update_staff_ui_callback!')
         else:
             self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
-                                            self.get_waiting_player_list())
+                                            self.get_waiting_players())
         return
 
     def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
@@ -140,10 +151,12 @@ class EnvironmentManager:
         message: str = ""
         if reason is RemovalReason.NONE:
             message = "Your player has been removed from the game."
-        elif reason is RemovalReason.NOT_REACHABLE:
+        elif reason is RemovalReason.PLAYER_NOT_REACHABLE:
             message = "Your player was removed from the game, because you were no longer reachable."
         elif reason is RemovalReason.PLAYING_TIME_IS_UP:
             message = "Your player was removed from the game, because your playing time is over."
+        elif reason is RemovalReason.CAR_DISCONNECTED:
+            message = "You were removed since your car wasn't reachable anymore"
 
         if not callable(self.__publish_removed_player_callback):
             self.logger.critical('Missing publish_removed_player_callback!')
@@ -171,13 +184,29 @@ class EnvironmentManager:
     def _add_player_to_queue(self, player_id: str) -> bool:
         """
         Add a player to the waiting queue.
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to be added to the queue if appropriate.
+
+        Returns
+        -------
+        bool
+            Is true, if the player was added to the queue.
+            Is False, if player was not added to the queue, because it is already in the queue or empty or no string.
         """
-        if player_id in self._player_queue_list:
-            # print(f'Player {player_id} is already in the queue!')
+        if not isinstance(player_id, str) :
+            return False
+
+        striped_player_id = player_id.strip()
+        if not striped_player_id or re.fullmatch(r'\W+', striped_player_id):
+            return False
+
+        if striped_player_id in self._player_queue_list:
             return False
         else:
-            self._player_queue_list.append(player_id)
-            # print(self._player_queue_list)
+            self._player_queue_list.append(striped_player_id)
             self.update_staff_ui()
             return True
 
@@ -193,13 +222,15 @@ class EnvironmentManager:
         ----------
         player_id: str
             ID of player to be added to the queue if appropriate.
+
+        Returns
+        -------
+        bool
+            Is true, if the player was added to the queue.
+            Is False, if player was not added to the queue, because it is already known.
         """
         for v in self._active_anki_cars:
             if v.get_player_id() == player_id:
-                self.__cancel_remove_player_task(player_id)
-                return False
-        for p in self._player_queue_list:
-            if p == player_id:
                 self.__cancel_remove_player_task(player_id)
                 return False
 
@@ -237,6 +268,7 @@ class EnvironmentManager:
             Is true, if a player could be assigned to a free vehicle.
             Is False, if no player could be assigned to a free vehicle.
         """
+        assigned_any_player: bool = False
         for vehicle in self._active_anki_cars:
             if vehicle.is_free():
                 if len(self._player_queue_list) == 0:
@@ -256,10 +288,12 @@ class EnvironmentManager:
                     else:
                         self.logger.debug('Playtime checker is not needed.')
                     self.update_staff_ui()
-                    return True
-        return False
+                    assigned_any_player = True
+        return assigned_any_player
 
-    def _manage_removal_from_game_for(self, player_id: str, reason: RemovalReason) -> bool:
+    def manage_removal_from_game_for(self,
+                                     player_id: str,
+                                     reason: RemovalReason = RemovalReason.NONE) -> bool:
         """
         This function organizes the deletion of the player ID, if necessary, from the waiting list
         or a vehicle object and triggers the deletion event.
@@ -277,8 +311,8 @@ class EnvironmentManager:
             is True, if player was removed from queue or vehicle
             is False, if player could not be removed
         """
-        player_was_removed = (self._remove_player_from_waitlist(player_id) or
-                              self._remove_player_from_vehicle(player_id))
+        player_was_removed = (self.__remove_player_from_waitlist(player_id) or
+                              self.__remove_player_from_vehicle(player_id))
 
         if player_was_removed:
             self._publish_removed_player(player_id=player_id, reason=reason)
@@ -287,7 +321,7 @@ class EnvironmentManager:
         else:
             return False
 
-    def _remove_player_from_waitlist(self, player_id: str) -> bool:
+    def __remove_player_from_waitlist(self, player_id: str) -> bool:
         """
         Remove a player from the waiting queue
 
@@ -303,7 +337,7 @@ class EnvironmentManager:
         else:
             return False
 
-    def _remove_player_from_vehicle(self, player_id: str) -> bool:
+    def __remove_player_from_vehicle(self, player_id: str) -> bool:
         """
         removes a player from the vehicle they are controlling
 
@@ -321,11 +355,11 @@ class EnvironmentManager:
                 return True
         return False
 
-    def get_waiting_player_list(self) -> List[str]:
+    def get_waiting_players(self) -> List[str]:
         """
         Gets a list of all player that are waiting for a vehicle
         """
-        tmp = []
+        tmp: list[str] = []
         for p in self._player_queue_list:
             tmp.append(p)
         return tmp
@@ -376,8 +410,8 @@ class EnvironmentManager:
                 time_difference: timedelta = datetime.now() - player.game_start
                 if time_difference >= timedelta(minutes=timeout_interval):
                     self.logger.debug(f'playtime of {time_difference} for player {player.player} is over')
-                    self._manage_removal_from_game_for(player_id=player.player,
-                                                       reason=RemovalReason.PLAYING_TIME_IS_UP)
+                    self.manage_removal_from_game_for(player_id=player.player,
+                                                      reason=RemovalReason.PLAYING_TIME_IS_UP)
 
         self.logger.debug('Playtime checker is deactivated.')
 
@@ -429,8 +463,8 @@ class EnvironmentManager:
         """
         try:
             await asyncio.sleep(grace_period)
-            self._manage_removal_from_game_for(player_id=player,
-                                               reason=RemovalReason.NOT_REACHABLE)
+            self.manage_removal_from_game_for(player_id=player,
+                                              reason=RemovalReason.PLAYER_NOT_REACHABLE)
         except asyncio.CancelledError:
             logging.debug(f"Player {player} reconnected. Removing player aborted.")
         return
@@ -495,13 +529,23 @@ class EnvironmentManager:
         self.logger.debug(f"Adding physical vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        location_service = LocationService(self.get_track(), start_immediately=True)
+        location_service = PhysicalLocationService(self.get_track(), start_immediately=True)
         new_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
         await new_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful 
 
+        new_vehicle.set_vehicle_not_reachable_callback(self.__remove_non_reachable_vehicle)
         self._add_to_active_vehicle_list(new_vehicle)
         return
+
+    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str) -> None:
+        """
+        Callback that should be executed when a vehicle isn't reachable anymore
+        """
+        # to be able to specify a removal reason the player needs to be removed manually before removing the vehicle
+        # that would also automatically remove the player
+        self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
+        self.remove_vehicle_by_id(vehicle_id)
 
     def add_virtual_vehicle(self) -> None:
         # TODO: Add more better way of determining name numbers to allow reuse of already
@@ -574,6 +618,16 @@ class EnvironmentManager:
                 return v
         return None
 
+    def get_vehicle_by_vehicle_id(self, vehicle_id: str) -> Vehicle | None:
+        """
+        Get the car based on it's name (e.g. a Bluetooth MAC address).
+        Returns None if the vehicle isn't found
+        """
+        for v in self._active_anki_cars:
+            if v.vehicle_id == vehicle_id:
+                return v
+        return None
+
     def get_car_color_map(self) -> Dict[str, List[str]]:
         colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
         full_map: Dict[str, List[str]] = {}
@@ -587,17 +641,47 @@ class EnvironmentManager:
         return full_map
 
     # racetrack management
-    def get_track(self) -> FullTrack:
+    def get_track(self) -> FullTrack | None:
         """
         Get the used track in the simulation
         """
-        track: FullTrack = TrackBuilder() \
-            .append(TrackPieceType.STRAIGHT_WE) \
-            .append(TrackPieceType.CURVE_WS) \
-            .append(TrackPieceType.CURVE_NW) \
-            .append(TrackPieceType.STRAIGHT_EW) \
-            .append(TrackPieceType.CURVE_EN) \
-            .append(TrackPieceType.CURVE_SE) \
-            .build()
+        track = self.config_handler.get_configuration().get('track')
+        if track is None:
+            return None
+        try:
+            full_track = parse_list_of_dicts_to_full_track(track)
+            return full_track
+        except PieceDecodingException as e:
+            self.logger.error("Couldn't parse track from config: %s", e)
+        return None
 
-        return track
+    def notify_new_track(self, new_track: FullTrack):
+        self.config_handler.get_configuration().update(
+            {
+                'track': full_track_to_list_of_dicts(new_track)
+            }
+        )
+        self.config_handler.write_configuration()
+        for car in self.get_vehicle_list():
+            car.notify_new_track(new_track)
+
+    async def rescan_track(self, car: str) -> str | None:
+        """
+        Scans a track and notifies when the scanning finished.
+        Returns
+        -------
+        A error message, if the scanning isn't possible (e.g. the car isn't available) or None in case of success
+        """
+        vehicle = self.get_vehicle_by_vehicle_id(car)
+        if vehicle is None:
+            self.logger.error("A client attempted to use a vehicle for track scanning that doesn't exist")
+            return "Request didn't include a valid vehicle"
+        controller = vehicle.extract_controller()
+        if controller is None:
+            return "The selected car can't be controlled currently. Please use another car"
+        init_car = InitializationCar(controller)
+        track_list = await init_car.run()
+        vehicle.insert_controller(controller)
+        new_track = FullTrack(track_list)
+        self.notify_new_track(new_track)
+        return None

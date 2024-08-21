@@ -53,12 +53,13 @@ def create_app(admin_password: str):
     staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, sio=socket, environment_mng=environment_mng,
                        password=admin_password)
     staff_ui_blueprint = staff_ui.get_blueprint()
+
     car_map = CarMap(environment_manager=environment_mng, sio=socket)
     car_map_blueprint = car_map.get_blueprint()
+    quart_app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
 
     quart_app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
     quart_app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
-    quart_app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
 
     return quart_app, socket
 

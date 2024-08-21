@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 
-from LocationService.Trigo import Position, Angle
+from LocationService.Trigo import Position, Angle, Distance
 
 from enum import Enum
 
@@ -23,14 +23,38 @@ class TrackPieceType(Enum):
     CURVE_SE = 6,
     CURVE_WN = 10, # mirrored
     CURVE_WS = 7,
-    CURVE_NE = 11 # mirrored
+    CURVE_NE = 11, # mirrored
+
+    START_PIECE_BEFORE_LINE_WE = 12,
+    START_PIECE_BEFORE_LINE_NS = 13,
+    START_PIECE_BEFORE_LINE_EW = 14,
+    START_PIECE_BEFORE_LINE_SN = 15,
+    START_PIECE_AFTER_LINE_WE = 16,
+    START_PIECE_AFTER_LINE_NS = 17,
+    START_PIECE_AFTER_LINE_EW = 18,
+    START_PIECE_AFTER_LINE_SN = 19,
 
 class TrackPiece(ABC):
     """
     Single TrackPiece class that allows calculating progress on itself and holds some metadata like it's size.
     """
-    def __init__(self, rotation_deg: int):
+    def __init__(self, rotation_deg: int, physical_id):
         self._rotation = Angle(rotation_deg)
+        self._physical_id: int | None = physical_id
+
+    def set_physical_id(self, physical_id: int | None) -> None:
+        self._physical_id = physical_id
+
+    def get_physical_id(self) -> int | None:
+        return self._physical_id
+
+    def __eq__(self, other):
+        return type(self) == type(other) \
+            and self._rotation == other._rotation \
+            and self._physical_id == other._physical_id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @abstractmethod
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
@@ -57,10 +81,31 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_next_attachment_direction(self) -> Direction:
+    def get_outgoing_offset(self) -> Distance:
+        """
+        Gets the offset in x and y required to go from the center to the end of the piece
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_incoming_offset(self) -> Distance:
+        """
+        Gets the offset in x and y required to go from the incoming direction to the center
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_outgoing_direction(self) -> Direction:
         """
         Direction where the next track piece should be attached relative
         to this piece
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_incoming_direction(self) -> Direction:
+        """
+        Direction from where the previous track piece should go into this
         """
         raise NotImplementedError
 
@@ -79,11 +124,30 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_dict(self) -> dict:
+    def get_progress_based_on_location(self, location: int, offset: float) -> float:
         """
-        Get the piece represented as dict
+        Get the progress in mm based on the sent location data from a physical car. This assumes the piece
+        is laid down in a way that in clockwise direction it counts down
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def to_html_dict(self) -> dict:
+        """
+        Get the piece in a representation that can be used in JS to draw the track
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def to_json_dict(self) -> Dict[str, Any]:
+        """
+        Returns the piece as a dict that for serialization that can later be de-serialized
+        """
+        return {
+            'type': self.__module__ + '.' + self.__class__.__qualname__,
+            'rotation': self._rotation.get_deg(),
+            'physical_id': self._physical_id
+        }
 
 class TrackEntry():
     """
@@ -113,36 +177,33 @@ class FullTrack():
     """
     def __init__(self, pieces: list[TrackPiece]):
         self.track_entries: list[TrackEntry] = list()
-        cur_y = 0
-        cur_x = 0
+        offset = Position(0, 0)
+        last_piece = pieces[0]
+        self.track_entries.append(TrackEntry(last_piece, offset.clone()))
+        for piece in pieces[1:]:
+            offset += last_piece.get_outgoing_offset()
+            offset += piece.get_incoming_offset()
+            last_piece = piece
+            self.track_entries.append(TrackEntry(last_piece, offset.clone()))
+
+        # this section is here to move the top left corner of the top left piece to (0, 0)
         min_x = 0
         min_y = 0
-        max_used_horiz = 0
-        max_used_vert = 0
-        for track in pieces:
-            self.track_entries.append(TrackEntry(track, Position(cur_x, cur_y)))
-            match track.get_next_attachment_direction():
-                case Direction.WEST:
-                    cur_x -= track.get_used_space_horiz()
-                case Direction.NORTH:
-                    cur_y -= track.get_used_space_vert()
-                case Direction.EAST:
-                    cur_x += track.get_used_space_horiz()
-                case Direction.SOUTH:
-                    cur_y += track.get_used_space_vert()
-            if cur_x < min_x:
-                min_x = cur_x
-            if cur_y < min_y:
-                min_y = cur_y
-            if track.get_used_space_horiz() > max_used_horiz:
-                max_used_horiz = track.get_used_space_horiz()
-            if track.get_used_space_vert() > max_used_vert:
-                max_used_vert = track.get_used_space_vert()
-        # change positions so that the top left corner of the top left piece is at (0, 0)
-        diff_x = -min_x + max_used_horiz / 2
-        diff_y = -min_y + max_used_vert / 2
         for entry in self.track_entries:
-            entry.get_global_offset().add_offset(diff_x, diff_y)
+            piece = entry.get_piece()
+            offset = entry.get_global_offset()
+            local_x = offset.get_x() - piece.get_used_space_horiz() / 2
+            local_y = offset.get_y() - piece.get_used_space_vert() / 2
+            min_x = min(min_x, local_x)
+            min_y = min(min_y, local_y)
+
+        # the change is negative but a positive value needs to be applied so we use abs
+        change_x = abs(min_x)
+        change_y = abs(min_y)
+
+        for entry in self.track_entries:
+            entry.get_global_offset().add_offset(change_x, change_y)
+
 
     def get_entry_tupel(self, num: int) -> Tuple[TrackPiece, Position]:
         """
@@ -168,7 +229,51 @@ class FullTrack():
             offset = entry.get_global_offset()
             l.append({
                 'offset': offset.to_dict(),
-                'piece': piece.to_dict()
+                'piece': piece.to_html_dict()
             })
 
         return l
+
+    def contains_physical_piece(self, physical_id: int) -> bool:
+        """
+        Returns whether the track contains a piece with the given physical ID
+        """
+        for i in range(0, self.get_len()):
+            piece: TrackPiece = self.track_entries[i].get_piece()
+            if piece.get_physical_id() == physical_id:
+                return True
+        return False
+
+    def get_used_space_as_dict(self) -> Dict[str, int]:
+        """
+        Returns a dict with the used horizontal and vertical space. The keys are
+        `used_space_vertically` and `used_space_horizontally`
+        """
+        max_vert: int = 0
+        max_horiz: int = 0
+        for entry in self.track_entries:
+            piece = entry.get_piece()
+            offset = entry.get_global_offset()
+            local_max_x = piece.get_used_space_vert() / 2 + offset.get_x()
+            local_max_y = piece.get_used_space_horiz() / 2 + offset.get_y()
+            max_vert = max(max_vert, local_max_x)
+            max_horiz = max(max_horiz, local_max_y)
+
+        return {
+            'used_space_vertically': max_horiz,
+            'used_space_horizontally': max_vert
+        }
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+
+        if self.get_len() != other.get_len():
+            return False
+
+        for i in range(0, self.get_len()):
+            own_piece, _ = self.get_entry_tupel(i)
+            other_piece, _ = other.get_entry_tupel(i)
+            if own_piece != other_piece:
+                return False
+        return True

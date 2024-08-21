@@ -258,8 +258,7 @@ class StaffUI:
                 ID of the player to be removed.
             """
             # TODO: authentication check for websocket events
-            environment_mng._remove_player_from_vehicle(player)
-            environment_mng._remove_player_from_waitlist(player)
+            environment_mng.manage_removal_from_game_for(player, )
             self.logger.debug("Player deleted %s", player)
             return
 
@@ -422,6 +421,30 @@ class StaffUI:
                 self.logger.warning("System restart button pressed, but not running on Linux system")
                 message = 'Error restarting the system. Function only available on linux systems.'
                 return message, 200
+
+        @self.staffUI_blueprint.route('/rescan_track', methods=['POST'])
+        async def trigger_track_rescan() -> Tuple[str, int]:
+            data = await request.form
+            car: str = data.get('car')
+            if car is None:
+                self.logger.warning("A client attempted to start a track rescan but ")
+                return "Request didn't include a car", 400
+            error = await environment_mng.rescan_track(car)
+            if error is not None:
+                return error, 400
+            await self._sio.emit('reload_car_map')
+            return 'Successfully scanned the track', 200
+
+        @self.staffUI_blueprint.route('/get_all_cars', methods=['POST'])
+        async def get_all_cars() -> List[Dict[str, str]]:
+            cars: List[Dict[str, str]] = []
+            # TODO: Filter that only cars that can scan tracks are returned
+            for car in environment_mng.get_vehicle_list():
+                entry = {
+                    'vehicle_id': car.get_vehicle_id()
+                }
+                cars.append(entry)
+            return cars
 
         @self.staffUI_blueprint.route('/shutdown_system', methods=['POST'])
         async def shutdown_system() -> Any:

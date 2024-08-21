@@ -40,7 +40,7 @@ class ModelCar(Vehicle):
         self._battery: str = ""
         self._version: str = ""
 
-        self._model_car_not_reachable_callback: Callable[[str, str, str], None] | None = None
+        self._model_car_not_reachable_callback: Callable[[str, str], None] | None = None
         self._virtual_location_update_callback: Callable[[str, dict, float], None] | None = None
         return
 
@@ -57,13 +57,13 @@ class ModelCar(Vehicle):
             self._driving_data_callback(self.get_driving_data())
         return
 
-    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str, str], None]) -> None:
+    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str], None]) -> None:
         self._model_car_not_reachable_callback = function_name
         return
 
-    def _on_model_car_not_reachable(self, err_msg: str) -> None:
+    def _on_model_car_not_reachable(self) -> None:
         if self._model_car_not_reachable_callback is not None:
-            self._model_car_not_reachable_callback(self.vehicle_id, self.player, err_msg)
+            self._model_car_not_reachable_callback(self.vehicle_id, self.player)
         return
 
     def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
@@ -111,7 +111,8 @@ class ModelCar(Vehicle):
             self._on_driving_data_change()
 
         asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
-        self._controller.change_speed_to(int(self.__speed))
+        if self._controller is not None:
+            self._controller.change_speed_to(int(self.__speed))
         return
 
     @property
@@ -171,7 +172,8 @@ class ModelCar(Vehicle):
 
         asyncio.create_task(self._location_service.set_offset_int(self.__lane_change))
         asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
-        self._controller.change_lane_to(self.__lane_change, self.__speed)
+        if self._controller is not None:
+            self._controller.change_lane_to(self.__lane_change, self.__speed)
         return
 
     @property
@@ -200,7 +202,8 @@ class ModelCar(Vehicle):
             return
 
         asyncio.create_task(self._location_service.do_uturn())
-        self._controller.do_turn_with(Turns.A_UTURN)
+        if self._controller is not None:
+            self._controller.do_turn_with(Turns.A_UTURN)
         return
 
     def switch_lights(self, value: bool) -> None:
@@ -265,3 +268,23 @@ class ModelCar(Vehicle):
 
         self._on_driving_data_change()
         return
+
+    def _location_service_update(self, pos: Position, rot: Angle, data: dict):
+        """
+        Default callback to be called when the location service has a new calculated vehicle position.
+        It invokes the virtual location update which publishes the driving data via socketio
+        """
+        speed: float | None = data.get('speed')
+        if speed is None:
+            # TODO: Log via real logger
+            print("Error: Location service callback didn't include the speed!")
+        else:
+            self._speed_actual = int(speed)
+
+        offset: float | None = data.get('offset')
+        if offset is None:
+            print("Error: Location service callback didn't include the offset!")
+        else:
+            self._offset_from_center = offset
+
+        self._on_virtual_location_update(pos, rot, {})

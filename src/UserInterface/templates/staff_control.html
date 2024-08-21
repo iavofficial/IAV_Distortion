@@ -145,12 +145,22 @@
 
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
+            let delPlayerButton = document.createElement('button');
+
+            delPlayerButton.textContent = 'Remove Player';
+            delPlayerButton.className = 'button_small button_pink'
+            delPlayerButton.onclick = function(){
+                if(confirm(`Are you sure you want to delete the player with the id: ${player_queue[player]}?`)) {
+                    deletePlayer(player_queue[player]);
+                }
+            };
 
             cell_player.innerText = player_queue[player];
             cell_uuid.innerText = "None";
 
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
+            row.appendChild(delPlayerButton);
             uuids_table.appendChild(row);
         }
 
@@ -161,11 +171,21 @@
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
 
+            let delVehicleButton = document.createElement('button');
+            delVehicleButton.textContent = 'Remove Vehicle';
+            delVehicleButton.className = 'button_small button_pink'
+            delVehicleButton.onclick = function(){
+                if(confirm(`Are you sure you want to delete the vehicle with the id: ${car_queue[car]}?`)) {
+                    deleteVehicle(car_queue[car]);
+                }
+            };
+
             cell_player.innerText = "None";
             cell_uuid.innerText = car_queue[car];
 
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
+            row.appendChild(delVehicleButton);
             uuids_table.appendChild(row);
         }
         document.getElementById('table-container').appendChild(uuids_table);

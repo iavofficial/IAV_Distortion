@@ -18,13 +18,28 @@
 </head>
 
 <body>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        /**
+         * Reload the page when told. This is currently used
+         * for when the track changes
+         */
+         socket.on('reload_car_map', function(data) {
+            window.location.reload();
+        });
+    </script>
+    {% if track is none %}
+    <h1>The map isn't currently available</h1>
+    {% else %}
     <canvas id="car_canvas"></canvas>
 
         <script type="text/javascript" charset="utf-8">
-            var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-            // TODO: Calculate scale based on track so it fits well on the page
-            const scale = 0.5;
+            const required_space = {{ used_space | tojson }};
+            const required_vertically = required_space.used_space_vertically;
+            const required_horizontally = required_space.used_space_horizontally;
+
+            let scale = 1;
 
             var canvas = document.getElementById("car_canvas");
             var ctx = canvas.getContext("2d");
@@ -33,6 +48,8 @@
             var track = {{track | tojson}};
             const track_color = "#000000";
             const track_width = 5;
+            const start_line_width = 12;
+            const start_line_color = "#515151";
 
             const car_width = 30;
             const car_length = car_width * 1.88;
@@ -40,6 +57,13 @@
 
             const car_pics = {{ car_pictures | tojson }};
             const colorCrossmap = {{ color_map | tojson }};
+
+            addEventListener("resize", (event) => {
+                resizeCanvas();
+                resetCanvas();
+                drawTrack();
+                // TODO: Put car drawing in own function and call it here!
+            });
 
             resizeCanvas();
             resetCanvas();
@@ -58,7 +82,6 @@
             socket.on('car_positions', function(data){
                 var carName = data.car;
                 dataMap.set(carName, data);
-                resizeCanvas();
                 resetCanvas();
                 drawTrack();
                 for (const car of dataMap) {
@@ -67,22 +90,16 @@
                     var x = d.position.x;
                     var y = d.position.y;
                     var angle = d.angle;
-                    const colors = colorCrossmap[name];
 
-                    if (name.startsWith('Virtual Vehicle')) {
-                        var numberPattern = /\d+/g;
-                        var numbers = name.match(numberPattern);
-
-                        if (Object.keys(car_pics).includes(name)){
+                    if (Object.keys(car_pics).includes(name)) {
                             var image_name = car_pics[name];
                             insertCarPic(x, y, angle, image_name);
-                        }
-                        else {
+                    } else if (name.startsWith('Virtual Vehicle')) {
+                            const colors = colorCrossmap[name];
                             drawCarBox(x, y, angle, colors[0], colors[1]);
-                        }
-                    }
-                    else {
-                    // put visualization of real cars on the track here
+                    } else {
+                            // fallback for unidentifiable vehicles
+                            drawCarBox(x, y, angle, '#0091ff', '#ff73fa');
                     }
                 }
             });
@@ -178,6 +195,24 @@
             }
 
             /**
+            * Draws a start line on the piece
+            *
+            * @param {float} x1 - x coordinate to start to draw the line.
+            * @param {float} y1 - y coordinate to start to draw the line.
+            * @param {float} x2 - x coordinate to end the line.
+            * @param {float} y2 - y coordinate to end the line.
+            */
+            function drawStartLine(x1, y1, x2, y2) {
+                ctx.lineWidth = start_line_width * scale;
+                ctx.strokeStyle = start_line_color;
+
+                ctx.beginPath();
+                ctx.moveTo(x1 * scale, y1 * scale);
+                ctx.lineTo(x2 * scale, y2 * scale);
+                ctx.stroke();
+            }
+
+            /**
             * Draws single outline of curved track piece.
             *
             * @param {float} x - x coordinate to start to draw the line.
@@ -217,6 +252,16 @@
                 line_2_start_y = offset_y + piece.piece.line_2_start.y;
                 line_2_end_x = offset_x + piece.piece.line_2_end.x;
                 line_2_end_y = offset_y + piece.piece.line_2_end.y;
+                
+                if (piece.piece.start_line_start !== undefined) {
+                    startline_start_x = offset_x + piece.piece.start_line_start.x;
+                    startline_start_y = offset_y + piece.piece.start_line_start.y;
+                    startline_end_x = offset_x + piece.piece.start_line_end.x;
+                    startline_end_y = offset_y + piece.piece.start_line_end.y;
+
+                    drawStartLine(startline_start_x, startline_start_y, startline_end_x, startline_end_y);
+                }
+
                 drawStraightTrackLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
                 drawStraightTrackLine(line_2_start_x, line_2_start_y, line_2_end_x, line_2_end_y);
             }
@@ -266,7 +311,11 @@
             function resizeCanvas() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                let ratio_vertically = window.innerHeight / required_vertically;
+                let ratio_horizontally = window.innerWidth / required_horizontally;
+                scale = Math.min(ratio_horizontally, ratio_vertically);
             }
         </script>
+        {% endif %}
     </body>
 </html>

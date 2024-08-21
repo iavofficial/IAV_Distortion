@@ -50,6 +50,9 @@ class Angle():
         """
         return f"{round(self._angle_degree)}"
 
+    def __eq__(self, other):
+        return type(self) == type(other) and self._angle_degree == other._angle_degree
+
 
 class Position():
     """
@@ -160,3 +163,10 @@ class Position():
         Returns the data as dict with the fields 'x' and 'y'
         """
         return { 'x': self._x, 'y': self._y }
+
+
+class Distance(Position):
+    """
+    Class that represents a distance. It's the same as a point and only exists for clarity reasons
+    """
+    pass
