@@ -292,6 +292,34 @@ def test_history_matching_for_offset(get_physical_location_service_duplicate_ids
     """
     service = get_physical_location_service_duplicate_ids
     service._piece_history = [None, None, 40, 18, None, None]
-    assert service._test_history_matches_track_with_offset(4)
-    assert service._test_history_matches_track_with_offset(1)
-    assert not service._test_history_matches_track_with_offset(0)
+    assert service._test_history_matches_track_with_offset(4, 1)
+    assert service._test_history_matches_track_with_offset(1, 1)
+    assert not service._test_history_matches_track_with_offset(0, 1)
+
+    # backwards search
+    assert service._test_history_matches_track_with_offset(5, -1)
+    assert not service._test_history_matches_track_with_offset(2, -1)
+
+
+def test_history_matching_backwards(get_physical_location_service_duplicate_ids):
+    """
+    Test that finding out that we are going in the opposite direction leads to changing the driving direction
+    and also changing the piece history appropriately
+    """
+    service = get_physical_location_service_duplicate_ids
+    service._piece_history = [20, 18, 40, 18, 18, 40]
+    old_list = service._piece_history.copy()
+    old_piece_index = service._piece_history_index
+    old_driving_direction = service._direction_mult
+
+    service.notify_location_event(20, 0, 0, 0)
+
+    new_list = service._piece_history
+    new_list_reversed = new_list.copy()
+    new_list_reversed.reverse()
+    new_piece_index = service._piece_history_index
+    new_driving_direction = service._direction_mult
+
+    assert old_driving_direction * -1 == new_driving_direction
+    assert old_list == new_list_reversed
+    assert 6 - old_piece_index == new_piece_index
