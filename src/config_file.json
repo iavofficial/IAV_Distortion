@@ -7,7 +7,16 @@
 		"E8:7E:9F:34:CF:46": "E87E9F34CF46_top.webp",
 		"F1:76:08:08:C1:00": "F1760808C100_top.webp",
 		"F4:DB:E7:EA:7B:52": "F4DBE7EA7B52_top.webp",
-		"FA:14:67:0F:39:FE": "FA14670F39FE_top.webp"
+		"FA:14:67:0F:39:FE": "FA14670F39FE_top.webp",
+		"Virtual Vehicle 1": "DF8BDC022C23_gold_top.webp",
+		"Virtual Vehicle 2": "E751D4F745EF_green_top.webp",
+		"Virtual Vehicle 3": "F4DBE7EA7B52_red_top.webp",
+		"Virtual Vehicle 4": "E4FD708CB27D_purple_top.webp",
+		"Virtual Vehicle 5": "D1FFAF51CB30_black_top.webp",
+		"Virtual Vehicle 6": "FA14670F39FE_orange_top.webp",
+		"Virtual Vehicle 7": "E87E9F34CF46_darkgreen_top.webp",
+		"Virtual Vehicle 8": "F1760808C100_pink_top.webp",
+		"Virtual Vehicle 9": "D1FFAF51CB30_blue_top.webp"
 	},
 	"driver": {
 		"driver_heartbeat_interval_ms": 5000,
