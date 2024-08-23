@@ -46,12 +46,12 @@ class EnvironmentManager:
     def __init__(self, fleet_ctrl: FleetController,
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()):
 
-        self.logger = logging.getLogger(__name__)
+        self.logger: logging.Logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
 
-        self._fleet_ctrl = fleet_ctrl
+        self._fleet_ctrl: FleetController = fleet_ctrl
 
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
@@ -68,6 +68,7 @@ class EnvironmentManager:
         self.__playing_time_checking_flag: bool = False
         self.config_handler: ConfigurationHandler = configuration_handler
 
+        # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
     # set Callbacks
@@ -355,7 +356,7 @@ class EnvironmentManager:
                 return True
         return False
 
-    def get_waiting_players(self) -> List[str]:
+    def get_waiting_players(self) -> list[str]:
         """
         Gets a list of all player that are waiting for a vehicle
         """
@@ -577,7 +578,7 @@ class EnvironmentManager:
     def get_vehicle_list(self) -> list[Vehicle] | None:
         return self._active_anki_cars
 
-    def get_controlled_cars_list(self) -> List[str]:
+    def get_controlled_cars_list(self) -> list[str]:
         """
         Returns a list of all vehicle names from vehicles that are
         controlled by a player
@@ -588,7 +589,7 @@ class EnvironmentManager:
                 vehicle_list.append(vehicle.get_vehicle_id())
         return vehicle_list
 
-    def get_free_car_list(self) -> List[str]:
+    def get_free_car_list(self) -> list[str]:
         """
         Returns a list of all cars that have no player controlling them
         """
@@ -628,7 +629,7 @@ class EnvironmentManager:
                 return v
         return None
 
-    def get_car_color_map(self) -> Dict[str, List[str]]:
+    def get_car_color_map(self) -> dict[str, list[str]]:
         colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
         full_map: Dict[str, List[str]] = {}
         num = 1
@@ -655,7 +656,7 @@ class EnvironmentManager:
             self.logger.error("Couldn't parse track from config: %s", e)
         return None
 
-    def notify_new_track(self, new_track: FullTrack):
+    def notify_new_track(self, new_track: FullTrack) -> None:
         self.config_handler.get_configuration().update(
             {
                 'track': full_track_to_list_of_dicts(new_track)
@@ -664,6 +665,8 @@ class EnvironmentManager:
         self.config_handler.write_configuration()
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
+
+        return
 
     async def rescan_track(self, car: str) -> str | None:
         """

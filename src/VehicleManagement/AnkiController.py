@@ -20,7 +20,7 @@ class AnkiController(VehicleController):
     Controller class for the BLE interface for the Anki cars
     """
     def __init__(self) -> None:
-        self.logger = logging.getLogger(__name__)
+        self.logger: logging.Logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         self.logger.addHandler(console_handler)
@@ -32,11 +32,11 @@ class AnkiController(VehicleController):
         self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
         self.__LANE_OFFSET = 22.25
 
-        self.__location_callback = None
-        self.__transition_callback = None
-        self.__offset_callback = None
-        self.__version_callback = None
-        self.__battery_callback = None
+        self.__location_callback: Callable[[], None] | None = None
+        self.__transition_callback: Callable[[], None] | None = None
+        self.__offset_callback: Callable[[], None] | None = None
+        self.__version_callback: Callable[[], None] | None = None
+        self.__battery_callback: Callable[[], None] | None = None
         self.__ble_not_reachable_callback: Callable[[], None] | None = None
 
         self.__latest_command: bytes | None = None
@@ -105,7 +105,7 @@ class AnkiController(VehicleController):
         self.__battery_callback = battery_callback
         return
 
-    def set_ble_not_reachable_callback(self, ble_not_reachable_callback: Callable[[], None]):
+    def set_ble_not_reachable_callback(self, ble_not_reachable_callback: Callable[[], None]) -> None:
         """
         Sets a callback that should be executed when the car is not reachable
         """

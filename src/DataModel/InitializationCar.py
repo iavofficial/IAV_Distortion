@@ -107,7 +107,7 @@ class InitializationCar:
         self._controller: AnkiController = controller
         self._piece_ids: List[ScannedPiece] = list()
         self._finished_scanning_event: Event = Event()
-        self._new_piece = True
+        self._new_piece: bool = True
 
     async def run(self) -> List[TrackPiece] | None:
         """
@@ -151,7 +151,7 @@ class InitializationCar:
 
         return self._piece_ids.copy()
 
-    def _receive_location(self, value_tuple):
+    def _receive_location(self, value_tuple) -> None:
         """
         Callback for when a location event is sent
         """
@@ -175,7 +175,9 @@ class InitializationCar:
         self._piece_ids.append(new_piece)
         self._new_piece = False
 
-    def _receive_transition(self, value_tuple):
+        return
+
+    def _receive_transition(self, value_tuple) -> None:
         """
         Callback for when a transition event is sent
         """
@@ -186,12 +188,14 @@ class InitializationCar:
 
         if not self._piece_ids[-1].is_fully_scanned():
             self._piece_ids.clear()
+            return
 
-    def _nop(self):
+    def _nop(self) -> None:
         """
         Do nothing (passed to callback functions that we don't need)
         """
         _ = self
+        return
 
     def _convert_collected_data_to_pieces(self, scanned_pieces: list[ScannedPiece]) -> list[TrackPiece]:
         """

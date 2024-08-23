@@ -241,7 +241,7 @@ class LocationService:
         self._actual_offset = new_offset
         return
 
-    async def _run_simulation_step_threadsafe(self) -> Tuple[Position, Angle]:
+    async def _run_simulation_step_threadsafe(self) -> tuple[Position, Angle]:
         """
         Runs a single simulation step by calling _run_simulation_step internally.
         Thread-safe
@@ -359,7 +359,7 @@ class LocationService:
         #        #self._simulation_thread = None
         return
 
-    def notify_new_track(self, new_track: FullTrack):
+    def notify_new_track(self, new_track: FullTrack) -> None:
         self._track = new_track
         first_piece, _ = self._track.get_entry_tupel(0)
         _, self._current_position = first_piece.process_update(0, 0, self._actual_offset)

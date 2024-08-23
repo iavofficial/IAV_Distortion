@@ -9,22 +9,24 @@ class PhysicalLocationService(LocationService):
                  track: FullTrack,
                  starting_offset: float = 0,
                  simulation_ticks_per_second: int = 24,
-                 start_immediately: bool = False):
+                 start_immediately: bool = False) -> None:
         super().__init__(track, starting_offset, simulation_ticks_per_second, start_immediately)
         # watch piece indices from location events separately so it doesn't get changed by the default location service
         self._physical_piece: int | None = None
         # amount of time the BLE message should take. Based on that additional travelling distance will be added to
-        self._BLE_LATENCY_CORRECTION = 0.05
+        self._BLE_LATENCY_CORRECTION: float = 0.05
 
         # alpha filter to smoothen the correcture
         self._speed_correcture: float = 0
-        self._ALPHA_VALUE = 0.5
+        self._ALPHA_VALUE: float = 0.5
 
         # list that tracks the history of pieces so we can figure out the position even when there are duplicate IDs
         # It always has a int or None for indices that are also in the track
         self._piece_history: List[int | None] = list()
         self._piece_history_index: int = 0
         self._reset_piece_history()
+
+        return
 
     # overwritten method to implement a speed correcture based on the sent data
     def _adjust_speed_to(self, target_speed: float) -> None:
@@ -183,7 +185,7 @@ class PhysicalLocationService(LocationService):
         """
         return (other_position - self._progress_on_current_piece) * self._direction_mult
 
-    def _calculate_distance_from_start(self, progress: float):
+    def _calculate_distance_from_start(self, progress: float) -> float:
         """
         Calculates how far the car is on the current piece. This function only returns its argument and exists
         purely for code readability
@@ -258,6 +260,7 @@ class PhysicalLocationService(LocationService):
                 return False
         return True
 
-    def notify_new_track(self, new_track: FullTrack):
+    def notify_new_track(self, new_track: FullTrack) -> None:
         super().notify_new_track(new_track)
         self._reset_piece_history()
+        return

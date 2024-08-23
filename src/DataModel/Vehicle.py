@@ -11,6 +11,7 @@ from typing import Callable
 
 from abc import abstractmethod
 
+from LocationService import LocationService
 from LocationService.Track import FullTrack
 from VehicleManagement.VehicleController import VehicleController
 
@@ -25,6 +26,16 @@ class Vehicle:
         self._driving_data_callback: Callable[[dict], None] | None = None
 
         return
+
+    @abstractmethod
+    def notify_new_track(self, new_track: FullTrack) -> None:
+        pass
+
+    def extract_controller(self) -> VehicleController | None:
+        pass
+
+    def insert_controller(self) -> None:
+        pass
 
     def set_player(self, key: str) -> None:
         """
@@ -63,11 +74,11 @@ class Vehicle:
         return
 
     @abstractmethod
-    def get_typ_of_controller(self):
+    def get_typ_of_controller(self) -> VehicleController:
         pass
 
     @abstractmethod
-    def get_typ_of_location_service(self):
+    def get_typ_of_location_service(self) -> LocationService:
         pass
 
     @abstractmethod
@@ -92,8 +103,10 @@ class Vehicle:
         # TODO resolve warning
         self._on_driving_data_change()
 
+        return
+
     @abstractmethod
-    def get_driving_data(self) -> dict:
+    def get_driving_data(self) -> dict[str, str | bool | int | float]:
         pass
 
     @property
@@ -168,15 +181,5 @@ class Vehicle:
 
     @property
     @abstractmethod
-    def turn(self):
-        pass
-
-    @abstractmethod
-    def notify_new_track(self, new_track: FullTrack):
-        pass
-
-    def extract_controller(self) -> VehicleController | None:
-        pass
-
-    def insert_controller(self) -> None:
+    def turn(self) -> None:
         pass

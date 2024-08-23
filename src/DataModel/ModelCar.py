@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Any
 import asyncio
 
 from DataModel.Vehicle import Vehicle
@@ -45,7 +45,6 @@ class ModelCar(Vehicle):
         return
 
     def __del__(self) -> None:
-
         return
 
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
@@ -138,7 +137,7 @@ class ModelCar(Vehicle):
     def lane_change(self) -> int:
         return self.__lane_change
 
-    def __update_own_langechane(self):
+    def __update_own_lane_change(self) -> None:
         """
         Updates the own current lane on the track. Needed to ensure
         a lane change will go to the right offset
@@ -158,11 +157,13 @@ class ModelCar(Vehicle):
         else:
             self.__lane_change = -3
 
+        return
+
     def __calculate_lane_change(self) -> None:
         if self.__lange_change_blocked:
             return
 
-        self.__update_own_langechane()
+        self.__update_own_lane_change()
         self.__lane_change += self.__lane_change_request
 
         if self.__lane_change < -3:
@@ -213,7 +214,7 @@ class ModelCar(Vehicle):
     def set_safemode(self, value: bool) -> None:
         self.__is_safemode_on = value
 
-    def get_driving_data(self) -> dict:
+    def get_driving_data(self) -> dict[str, Any]:
         driving_info_dic = {
             'vehicle_id': self.vehicle_id,
             'player': self.player,
@@ -269,7 +270,7 @@ class ModelCar(Vehicle):
         self._on_driving_data_change()
         return
 
-    def _location_service_update(self, pos: Position, rot: Angle, data: dict):
+    def _location_service_update(self, pos: Position, rot: Angle, data: dict) -> None:
         """
         Default callback to be called when the location service has a new calculated vehicle position.
         It invokes the virtual location update which publishes the driving data via socketio
@@ -288,3 +289,5 @@ class ModelCar(Vehicle):
             self._offset_from_center = offset
 
         self._on_virtual_location_update(pos, rot, {})
+
+        return

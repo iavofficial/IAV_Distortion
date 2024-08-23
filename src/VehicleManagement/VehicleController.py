@@ -32,10 +32,10 @@ class VehicleController:
     def __del__(self) -> None:
         self.loop.stop()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Connected Car" + str(self._connected_car)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
     @abc.abstractmethod
