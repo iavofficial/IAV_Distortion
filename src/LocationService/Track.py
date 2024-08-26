@@ -54,7 +54,7 @@ class TrackPiece(ABC):
     def __eq__(self, other):
         return type(self) == type(other) \
             and self._rotation == other._rotation \
-            and self._physical_id == other._physical_id
+            and self._physical_id == other._physical_id  # noqa: E721
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -270,7 +270,7 @@ class FullTrack():
         }
 
     def __eq__(self, other):
-        if type(self) != type(other):
+        if type(self) != type(other):  # noqa: E721
             return False
 
         if self.get_len() != other.get_len():

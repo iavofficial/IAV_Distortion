@@ -12,7 +12,7 @@ import re
 
 from enum import Enum
 from datetime import datetime, timedelta
-from typing import List, Dict, Callable, Tuple
+from typing import List, Dict, Callable
 from collections import deque
 from deprecated import deprecated
 

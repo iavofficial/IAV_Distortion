@@ -11,7 +11,7 @@ import asyncio
 from quart import Blueprint, render_template, request, redirect, url_for, Response
 import re
 import secrets
-from typing import Any, Tuple, List, Coroutine
+from typing import Any, Tuple, List, Coroutine, Dict
 import logging
 import subprocess
 import platform

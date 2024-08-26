@@ -88,7 +88,7 @@ class ScannedPiece:
         """
         return type(self) == type(other) and \
             self.get_id() == other.get_id() and \
-            (self.is_location_counting_downwards() == other.is_location_counting_downwards())
+            (self.is_location_counting_downwards() == other.is_location_counting_downwards())  # noqa: E721
 
 
 class InitializationCar:
