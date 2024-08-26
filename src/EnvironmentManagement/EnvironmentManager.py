@@ -564,6 +564,10 @@ class EnvironmentManager:
         return
 
     def _add_to_active_vehicle_list(self, new_vehicle: Vehicle) -> None:
+        vehicle_already_exists = self.get_vehicle_by_vehicle_id(new_vehicle.get_vehicle_id()) is not None
+        if vehicle_already_exists:
+            self.logger.warning("Tried to add a vehicle that already exists. Ignoring the request")
+            return
         self._active_anki_cars.append(new_vehicle)
         self._assign_players_to_vehicles()
         self.update_staff_ui()

@@ -453,3 +453,27 @@ async def test_vehicle_removal_on_non_reachable(car_uuid: str = 'DF:8B:DC:02:2C:
             behavior_controller.request_lane_change_for(car_uuid, 'right')
         await asyncio.sleep(0.5)
     assert False
+
+
+def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
+    """
+    This tests that vehicles with the same ID can only be added once
+    """
+    fleet_mock = MagicMock(spec=FleetController)
+    config_mock = MagicMock(spec=ConfigurationHandler)
+    env_manager = EnvironmentManager(fleet_mock, configuration_handler=config_mock)
+    vehicle1, vehicle2 = get_two_dummy_vehicles
+    new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id())
+    new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id())
+
+    env_manager._add_to_active_vehicle_list(vehicle1)
+    env_manager._add_to_active_vehicle_list(vehicle1)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1)
+    assert len(env_manager._active_anki_cars) == 1
+
+    env_manager._add_to_active_vehicle_list(vehicle2)
+    env_manager._add_to_active_vehicle_list(vehicle2)
+    env_manager._add_to_active_vehicle_list(new_vehicle_2)
+    env_manager._add_to_active_vehicle_list(new_vehicle_2)
+    assert len(env_manager._active_anki_cars) == 2
