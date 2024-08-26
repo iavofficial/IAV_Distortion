@@ -9,7 +9,7 @@
 import asyncio
 import pytest
 from unittest import TestCase
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import struct
 from VehicleManagement.AnkiController import AnkiController
 
@@ -21,7 +21,6 @@ class AnkiControllerUnitTests(TestCase):
     """
     @classmethod
     def setUpClass(cls) -> None:
-        controller = AnkiController()
         return
 
     def setUp(self) -> None:
@@ -49,8 +48,8 @@ class AnkiControllerUnitTests(TestCase):
     @pytest.mark.asyncio
     async def test_change_speed_to_multiple_inputs(self):
         """
-        Test if AnkiController.__send_latest_command sends the first and latest received command, while commands in between
-        can be dropped due to commands come in faster than they are processed.
+        Test if AnkiController.__send_latest_command sends the first and latest received command, while commands in
+        between can be dropped due to commands come in faster than they are processed.
         """
         # Arrange
 
@@ -85,4 +84,3 @@ class AnkiControllerUnitTests(TestCase):
         assert self.commands_send < speed_requests_commands
         # test if last requested and send command is equal:
         assert self.commands_send.pop() == speed_requests_commands.pop()
-

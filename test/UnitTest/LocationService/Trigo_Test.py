@@ -2,6 +2,7 @@ import pytest
 
 from LocationService.Trigo import Position
 
+
 def test_direction_between_pieces():
     """
     Test the calculation of angles between 2 points

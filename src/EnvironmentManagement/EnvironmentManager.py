@@ -12,7 +12,7 @@ import re
 
 from enum import Enum
 from datetime import datetime, timedelta
-from typing import List, Dict, Callable, Tuple
+from typing import List, Dict, Callable
 from collections import deque
 from deprecated import deprecated
 
@@ -56,8 +56,8 @@ class EnvironmentManager:
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
 
-        self.__update_staff_ui_callback: Callable[[Dict[str, str], List[str], List[str]], None] | None = None
-        self.__publish_removed_player_callback: Callable[[str], None] | None = None
+        self.__update_staff_ui_callback: Callable[[List[Dict[str, str]], List[str], List[str]], None] | None = None
+        self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
         self.__publish_player_active_callback: Callable[[str], None] | None = None
 
         # number used for naming virtual vehicles
@@ -73,7 +73,7 @@ class EnvironmentManager:
 
     # set Callbacks
     def set_staff_ui_update_callback(self,
-                                     function_name: Callable[[Dict[str, str],
+                                     function_name: Callable[[List[Dict[str, str]],
                                                               List[str],
                                                               List[str]],
                                                              None]) -> None:
@@ -92,7 +92,7 @@ class EnvironmentManager:
         self.__update_staff_ui_callback = function_name
         return
 
-    def set_publish_removed_player_callback(self, function_name: Callable[[str], None]) -> None:
+    def set_publish_removed_player_callback(self, function_name: Callable[[str, str], None]) -> None:
         """
         Sets callback function for publish_removed_player.
 
@@ -197,7 +197,7 @@ class EnvironmentManager:
             Is true, if the player was added to the queue.
             Is False, if player was not added to the queue, because it is already in the queue or empty or no string.
         """
-        if not isinstance(player_id, str) :
+        if not isinstance(player_id, str):
             return False
 
         striped_player_id = player_id.strip()
@@ -408,6 +408,9 @@ class EnvironmentManager:
 
             active_players = [v for v in self._active_anki_cars if v.player is not None]
             for player in active_players:
+                if player.game_start is None:
+                    self.logger.error("A player without game start time exists")
+                    return
                 time_difference: timedelta = datetime.now() - player.game_start
                 if time_difference >= timedelta(minutes=timeout_interval):
                     self.logger.debug(f'playtime of {time_difference} for player {player.player} is over')
@@ -533,7 +536,7 @@ class EnvironmentManager:
         location_service = PhysicalLocationService(self.get_track(), start_immediately=True)
         new_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
         await new_vehicle.initiate_connection(uuid)
-        # TODO: add a check if connection was successful 
+        # TODO: add a check if connection was successful
 
         new_vehicle.set_vehicle_not_reachable_callback(self.__remove_non_reachable_vehicle)
         self._add_to_active_vehicle_list(new_vehicle)
@@ -548,7 +551,7 @@ class EnvironmentManager:
         self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
         self.remove_vehicle_by_id(vehicle_id)
 
-    def add_virtual_vehicle(self) -> None:
+    def add_virtual_vehicle(self) -> str:
         # TODO: Add more better way of determining name numbers to allow reuse of already
         # used numbers
         name = f"Virtual Vehicle {self._virtual_vehicle_num}"
@@ -561,7 +564,7 @@ class EnvironmentManager:
         new_vehicle = VirtualCar(name, dummy_controller, location_service)
 
         self._add_to_active_vehicle_list(new_vehicle)
-        return
+        return name
 
     def _add_to_active_vehicle_list(self, new_vehicle: Vehicle) -> None:
         vehicle_already_exists = self.get_vehicle_by_vehicle_id(new_vehicle.get_vehicle_id()) is not None
@@ -579,7 +582,7 @@ class EnvironmentManager:
     #   - get_controlled_cars_list
     #   - get_free_car_list
     #   - get_mapped_cars
-    def get_vehicle_list(self) -> list[Vehicle] | None:
+    def get_vehicle_list(self) -> list[Vehicle]:
         return self._active_anki_cars
 
     def get_controlled_cars_list(self) -> list[str]:

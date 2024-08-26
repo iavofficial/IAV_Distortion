@@ -75,6 +75,7 @@ class ConfigurationHandler(metaclass=Singleton):
             self.logger.critical("No permission to read configuration file.")
         except Exception as e:
             self.logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
+        return {},
 
     def write_configuration(self) -> None:
         """

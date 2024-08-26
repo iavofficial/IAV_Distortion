@@ -5,11 +5,13 @@ from LocationService.Trigo import Position, Angle, Distance
 
 from enum import Enum
 
+
 class Direction(Enum):
     NORTH = 0,
     WEST = 1,
     SOUTH = 2,
     EAST = 3
+
 
 class TrackPieceType(Enum):
     STRAIGHT_WE = 0,
@@ -17,13 +19,13 @@ class TrackPieceType(Enum):
     STRAIGHT_EW = 2,
     STRAIGHT_SN = 3,
     CURVE_NW = 4,
-    CURVE_ES = 8, # mirrored
+    CURVE_ES = 8,  # mirrored
     CURVE_EN = 5,
-    CURVE_SW = 9, # mirrored
+    CURVE_SW = 9,  # mirrored
     CURVE_SE = 6,
-    CURVE_WN = 10, # mirrored
+    CURVE_WN = 10,  # mirrored
     CURVE_WS = 7,
-    CURVE_NE = 11, # mirrored
+    CURVE_NE = 11,  # mirrored
 
     START_PIECE_BEFORE_LINE_WE = 12,
     START_PIECE_BEFORE_LINE_NS = 13,
@@ -33,6 +35,7 @@ class TrackPieceType(Enum):
     START_PIECE_AFTER_LINE_NS = 17,
     START_PIECE_AFTER_LINE_EW = 18,
     START_PIECE_AFTER_LINE_SN = 19,
+
 
 class TrackPiece(ABC):
     """
@@ -51,7 +54,7 @@ class TrackPiece(ABC):
     def __eq__(self, other):
         return type(self) == type(other) \
             and self._rotation == other._rotation \
-            and self._physical_id == other._physical_id
+            and self._physical_id == other._physical_id  # noqa: E721
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -60,9 +63,10 @@ class TrackPiece(ABC):
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
         """
         Drive a distance on the piece. Returns a tupe with the leftover distance that can be used on the next piece
-        immediately (or 0, if the car is still on the same piece) and a position relativ to the center of the track piece
-        (which should be ignored, if there is a leftover distance).
-        To drive in the opposing direction start at the end (by getting the length) and then providing a negative distance.
+        immediately (or 0, if the car is still on the same piece) and a position relativ to the center of the track
+        piece (which should be ignored, if there is a leftover distance).
+        To drive in the opposing direction start at the end (by getting the length) and then providing a negative
+        distance.
         """
         raise NotImplementedError
 
@@ -149,6 +153,7 @@ class TrackPiece(ABC):
             'physical_id': self._physical_id
         }
 
+
 class TrackEntry():
     """
     Entry in a FullTrach that includes the piece itself and where
@@ -169,6 +174,7 @@ class TrackEntry():
         Get's the position of the piece relativ to the track / on a global field
         """
         return self.offset
+
 
 class FullTrack():
     """
@@ -203,7 +209,6 @@ class FullTrack():
 
         for entry in self.track_entries:
             entry.get_global_offset().add_offset(change_x, change_y)
-
 
     def get_entry_tupel(self, num: int) -> Tuple[TrackPiece, Position]:
         """
@@ -265,7 +270,7 @@ class FullTrack():
         }
 
     def __eq__(self, other):
-        if type(self) != type(other):
+        if type(self) != type(other):  # noqa: E721
             return False
 
         if self.get_len() != other.get_len():

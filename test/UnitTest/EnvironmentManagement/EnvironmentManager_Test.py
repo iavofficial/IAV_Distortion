@@ -32,7 +32,7 @@ def get_mut_with_one_minute_playing_time(initialise_dependencies) -> Environment
     return mut
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentManager:
     fleet_ctrl_mock, configuration_handler_mock = initialise_dependencies
     configuration_handler_mock.get_configuration.return_value = \
@@ -50,6 +50,7 @@ def get_two_dummy_vehicles() -> list[Vehicle]:
     output: list[Vehicle] = [vehicle1, vehicle2]
     return output
 
+
 @pytest.fixture(scope="module")
 def get_two_dummy_player() -> list[str]:
     dummy1: str = "DummyPlayer1"
@@ -58,7 +59,8 @@ def get_two_dummy_player() -> list[str]:
 
     return output
 
-@pytest.fixture(scope="module")
+
+@pytest.fixture
 def get_one_dummy_vehicle() -> Vehicle:
     vehicle: Vehicle = Vehicle("123")
 
@@ -326,7 +328,7 @@ class TestPublishRemovedPlayer:
                               (RemovalReason.PLAYING_TIME_IS_UP, "Your player was removed from the game, "
                                                                  "because your playing time is over."),
                               (RemovalReason.PLAYER_NOT_REACHABLE, "Your player was removed from the game, "
-                                                            "because you were no longer reachable.")])
+                                                                   "because you were no longer reachable.")])
     def test_with_valid_data(self, get_mut_with_endless_playing_time, reason_parameter, expected):
         # Arrange
         remove_player_callback_mock = Mock()

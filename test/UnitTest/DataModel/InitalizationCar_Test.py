@@ -13,7 +13,7 @@ CURVE_ID = 20
 @pytest.fixture
 def initialization_car():
     controller_mock = MagicMock()
-    init_car = InitializationCar(controller_mock, 'AA:AA:AA:AA:AA:AA')
+    init_car = InitializationCar(controller_mock)
     return init_car
 
 
