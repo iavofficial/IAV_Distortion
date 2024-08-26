@@ -63,13 +63,16 @@ class DriverUI:
 
             heartbeat_interval = config["driver"]["driver_heartbeat_interval_ms"]
             background_grace_period = config["driver"]["driver_background_grace_period_s"]
+            vehicle_scale = config["environment"]["env_vehicle_scale"]
             player_exists, picture, vehicle_information = self._prepare_html_data(player)
 
-            return await render_template(template_name_or_list='driver_index.html', player=player, player_exists=player_exists,
+            return await render_template(template_name_or_list='driver_index.html', player=player,
+                                         player_exists=player_exists,
                                          picture=picture,
                                          vehicle_information=vehicle_information,
                                          heartbeat_interval=heartbeat_interval,
                                          background_grace_period=background_grace_period,
+                                         vehicle_scale=vehicle_scale,
                                          color_map=environment_mng.get_car_color_map())
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)

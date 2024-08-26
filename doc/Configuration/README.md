@@ -22,6 +22,6 @@ These parameters will be described in the following.
 |                         | "game_cfg_playing_time_limit_min"  | 5                       | int   | Period until a player will be removed from the game, because of his playing time.                                                                                                                  |
 | **"environment"**       |                                    |                         |       | **Parameters regarding the game environment**                                                                                                                                                      |
 |                         | "env_auto_discover_anki_cars"      | 1                       | bool  | If True, the system scans periodically for Anki cars and automatically connects to them if they are **not placed on the charger**.                                                                 |
-|                         | "env_vehicle_scale"                | 60                      | float | Scale of the model cars (length_real_car / length_model_car)                                                                                                                                       |
+|                         | "env_vehicle_scale"                | 59                      | float | Scale of the model cars (length_real_car / length_model_car)                                                                                                                                       |
 
 
