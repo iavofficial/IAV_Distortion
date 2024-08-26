@@ -1,6 +1,7 @@
 from typing import List
 
 import pytest
+from bleak import BleakClient
 
 from DataModel.InitializationCar import InitializationCar
 from LocationService.Track import FullTrack, TrackPieceType, TrackPiece
@@ -18,6 +19,7 @@ _expected_track = TrackBuilder() \
     .build()
 
 
+@pytest.mark.skip_ci
 @pytest.mark.slow
 @pytest.mark.manual
 @pytest.mark.one_anki_car_needed
@@ -27,7 +29,8 @@ async def test_track_scanning(expected_track: FullTrack = _expected_track, uuid:
     This tests whether the scanned track of a car is the same as an expected track
     """
     anki_car_controller = AnkiController()
-    init_car = InitializationCar(anki_car_controller, uuid)
+    await anki_car_controller.connect_to_vehicle(BleakClient(uuid))
+    init_car = InitializationCar(anki_car_controller)
     raw_scanned_track: List[TrackPiece] = await init_car.run()
     scanned_track = FullTrack(raw_scanned_track)
     assert expected_track == scanned_track
