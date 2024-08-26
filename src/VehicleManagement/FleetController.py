@@ -39,7 +39,8 @@ class FleetController:
         ble_devices = await BleakScanner.discover(return_adv=True)
         _active_devices = []
         if only_ready:
-            _all_devices = [d for d in ble_devices.values() if d[0].name is not None and "Drive" in d[0].name]
+            _all_devices = [d for d in ble_devices.values() if
+                            'be15beef-6186-407e-8381-0bd89c4d8df4' in d[1].service_uuids]
             for device in _all_devices:
                 local_name = device[1].local_name
                 if local_name is None:
@@ -49,7 +50,7 @@ class FleetController:
                     _active_devices.append(device[0].address)
         else:
             _active_devices = [d[0].address for d in ble_devices.values() if
-                               d[0].name is not None and "Drive" in d[0].name]
+                               'be15beef-6186-407e-8381-0bd89c4d8df4' in d[1].service_uuids]
         return _active_devices
 
     async def auto_discover_anki_vehicles(self) -> None:
