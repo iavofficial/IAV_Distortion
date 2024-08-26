@@ -28,6 +28,7 @@
 		"game_cfg_playing_time_limit_min": 5
 	},
 	"environment": {
-		"env_auto_discover_anki_cars": true
+		"env_auto_discover_anki_cars": true,
+		"env_vehicle_scale": 59
 	}
 }
