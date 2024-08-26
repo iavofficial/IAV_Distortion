@@ -1,0 +1,170 @@
+<mxfile host="drawio-plugin" modified="2024-08-22T09:59:40.392Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" etag="fFygmeNyhj1eJxHJGczl" version="22.1.22" type="embed">
+  <diagram name="Seite-1" id="lv4e1EymGRjTfMo3LtVk">
+    <mxGraphModel dx="4992" dy="1153" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="RWERQ9epUvpY3rjrx78r-1" value="DataModel" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;align=left;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="-1100" y="20" width="1650" height="2220" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-2" value="ModelCar" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-800" y="770" width="560" height="1010" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-3" value="&lt;div&gt;Base Car implementation that reacts to hacking effects and forwards speed/offset changes to&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;the controller, if appropriate&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-2" vertex="1">
+          <mxGeometry y="26" width="560" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-4" value="&lt;div&gt;- speed: int&lt;/div&gt;&lt;div&gt;- speed_request: int&lt;/div&gt;&lt;div&gt;- speed_factor: float&lt;/div&gt;&lt;div&gt;- min_speed_thr: int&lt;/div&gt;&lt;div&gt;- lane_change: int&lt;/div&gt;&lt;div&gt;- lane_change_request: int&lt;/div&gt;&lt;div&gt;- lange_change_blocked: bool&lt;/div&gt;&lt;div&gt;- turn: int&lt;/div&gt;&lt;div&gt;- turn_request: int&lt;/div&gt;&lt;div&gt;- turn_blocked: bool&lt;/div&gt;&lt;div&gt;- is_light_on: bool&lt;/div&gt;&lt;div&gt;- is_light_inverted: bool&lt;/div&gt;&lt;div&gt;- is_safemode_on: bool&lt;/div&gt;&lt;div&gt;# road_piece: int&lt;/div&gt;&lt;div&gt;# prev_road_piece: int&lt;/div&gt;&lt;div&gt;# road_location: int&lt;/div&gt;&lt;div&gt;# offset_from_center: float&lt;/div&gt;&lt;div&gt;# speed_actual: int&lt;/div&gt;&lt;div&gt;# direction: int&lt;/div&gt;&lt;div&gt;# battery: str&lt;/div&gt;&lt;div&gt;# version: str&lt;/div&gt;&lt;div&gt;# model_car_not_reachable_callback: Callable[[str, str, str], None] | None&lt;/div&gt;&lt;div&gt;# virtual_location_update_callback: Callable[[str, dict, float], None] | None&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-2" vertex="1">
+          <mxGeometry y="80" width="560" height="410" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-5" value="&lt;div&gt;+ ModelCar(vehicle_id: str): ModelCar&lt;/div&gt;&lt;div&gt;+ set_driving_data_callback(function_name: Callable[[dict], None])&lt;/div&gt;&lt;div&gt;# on_driving_data_change()&lt;/div&gt;&lt;div&gt;+ set_vehicle_not_reachable_callback(function_name: Callable[[str, str, str], None])&lt;/div&gt;&lt;div&gt;# on_model_car_not_reachable(err_msg: str)&lt;/div&gt;&lt;div&gt;+ set_virtual_location_update_callback(function_name: Callable[[str, dict, float], None])&lt;/div&gt;&lt;div&gt;# on_virtual_location_update(pos: Position, angle: Angle, _: dict)&lt;/div&gt;&lt;div&gt;+ speed_request(): float&lt;/div&gt;&lt;div&gt;+ speed_request(value: float)&lt;/div&gt;&lt;div&gt;+ speed_factor(): float&lt;/div&gt;&lt;div&gt;+ speed_factor(value: float)&lt;/div&gt;&lt;div&gt;+ speed(): float&lt;/div&gt;&lt;div&gt;- calculate_speed()&lt;/div&gt;&lt;div&gt;+ lane_change_request(): int&lt;/div&gt;&lt;div&gt;+ lane_change_request(value: int)&lt;/div&gt;&lt;div&gt;+ lange_change_blocked(): bool&lt;/div&gt;&lt;div&gt;+ lange_change_blocked(value: bool)&lt;/div&gt;&lt;div&gt;+ lane_change(): int&lt;/div&gt;&lt;div&gt;- update_own_langechane()&lt;/div&gt;&lt;div&gt;- calculate_lane_change()&lt;/div&gt;&lt;div&gt;+ turn_request(): int&lt;/div&gt;&lt;div&gt;+ turn_request(value: int)&lt;/div&gt;&lt;div&gt;+ turn_blocked(): bool&lt;/div&gt;&lt;div&gt;+ turn_blocked(value: bool)&lt;/div&gt;&lt;div&gt;+ turn()&lt;/div&gt;&lt;div&gt;- calculate_turn()&lt;/div&gt;&lt;div&gt;+ switch_lights(value: bool)&lt;/div&gt;&lt;div&gt;+ set_safemode(value: bool)&lt;/div&gt;&lt;div&gt;+ get_driving_data(): dict&lt;/div&gt;&lt;div&gt;- receive_location(value_tuple)&lt;/div&gt;&lt;div&gt;- receive_transition(value_tuple)&lt;/div&gt;&lt;div&gt;- receive_offset_update(value_tuple)&lt;/div&gt;&lt;div&gt;- receive_version(value_tuple)&lt;/div&gt;&lt;div&gt;- receive_battery(value_tuple)&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-2" vertex="1">
+          <mxGeometry y="490" width="560" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-6" value="PhysicalCar" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-450" y="1930" width="520" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-7" value="Implementation of the physical car, that reacts to hacking effects and forwards the controls to the controller" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
+          <mxGeometry y="26" width="520" height="94" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-8" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- controller: AnkiController&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- location_service: LocationService&amp;nbsp;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
+          <mxGeometry y="120" width="520" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-9" value="&lt;div&gt;+ PhysicalCar(vehicle_id: str, controller: AnkiController, location_service: LocationService): PhysicalCar&lt;/div&gt;&lt;div&gt;+ async def initiate_connection(uuid: str): bool&lt;/div&gt;&lt;div&gt;- location_service_update( pos: Position, rot: Angle, data: dict)&lt;/div&gt;&lt;div&gt;+ get_typ_of_controller(): AnkiController&lt;/div&gt;&lt;div&gt;+ get_typ_of_location_service(): LocationService&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
+          <mxGeometry y="180" width="520" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-10" value="Vehicle" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-960" y="64" width="520" height="620" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-11" value="Base implementation of vehicle object, defining its properties" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
+          <mxGeometry y="26" width="520" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-12" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- vehicle_id: str&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- player: str | None&lt;/div&gt;&lt;div&gt;- game_start: datetime | None&lt;/div&gt;&lt;div&gt;- active_hacking_scenario: str&lt;/div&gt;&lt;div&gt;# driving_data_callback: Callable[[dict], None] | None&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
+          <mxGeometry y="70" width="520" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-13" value="&lt;div&gt;+ Vehicle(vehicle_id: str): Vehicle&lt;/div&gt;&lt;div&gt;+ set_player(key: str)&lt;/div&gt;&lt;div&gt;+ remove_player()&lt;/div&gt;&lt;div&gt;+ is_free(): bool&lt;/div&gt;&lt;div&gt;+ get_player_id(): str | None&lt;/div&gt;&lt;div&gt;+ get_vehicle_id(): str | None&lt;/div&gt;&lt;div&gt;+ get_typ_of_controller()&lt;/div&gt;&lt;div&gt;+ get_typ_of_location_service()&lt;/div&gt;&lt;div&gt;+ set_driving_data_callback(function_name: Callable[[dict], None])&lt;/div&gt;&lt;div&gt;+ set_vehicle_not_reachable_callback(function_name: Callable[[str, str, str], None])&lt;/div&gt;&lt;div&gt;+ set_virtual_location_update_callback(function_name: Callable[[str, dict, float], None])&lt;/div&gt;&lt;div&gt;+ hacking_scenario(): str&lt;/div&gt;&lt;div&gt;+ hacking_scenario(value: str): None&lt;/div&gt;&lt;div&gt;+ get_driving_data():&amp;nbsp;Dict[str, str | bool | int | float]&lt;/div&gt;&lt;div&gt;+ speed_request(): float&lt;/div&gt;&lt;div&gt;+ speed_request(value: float)&lt;/div&gt;&lt;div&gt;+ speed_factor(): float&lt;/div&gt;&lt;div&gt;+ speed_factor(value: float)&lt;/div&gt;&lt;div&gt;+ speed(): float&lt;/div&gt;&lt;div&gt;+ lane_change_request(): int&lt;/div&gt;&lt;div&gt;+ lane_change_request(value: int)&lt;/div&gt;&lt;div&gt;+ lange_change_blocked(): bool&lt;/div&gt;&lt;div&gt;+ lange_change_blocked(value: bool)&lt;/div&gt;&lt;div&gt;+ lane_change(): int&lt;/div&gt;&lt;div&gt;+ turn_request(): int&lt;/div&gt;&lt;div&gt;+ turn_request(value: int): None&lt;/div&gt;&lt;div&gt;+ turn_blocked(): bool&lt;/div&gt;&lt;div&gt;+ turn_blocked(value: bool): None&lt;/div&gt;&lt;div&gt;+ turn()&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
+          <mxGeometry y="162" width="520" height="458" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-14" value="VirtualCar" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-1080" y="1955" width="560" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-15" value="Implementation of the virtual car" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
+          <mxGeometry y="26" width="560" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-16" value="" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
+          <mxGeometry y="100" width="560" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-17" value="&lt;div&gt;+ VirtualCar(vehicle_id: str, controller: EmptyController, location_service: LocationService): VirtualCar&lt;/div&gt;&lt;div&gt;- location_service_update(pos: Position, rot: Angle, data: dict)&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
+          <mxGeometry y="120" width="560" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-18" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="RWERQ9epUvpY3rjrx78r-2" target="RWERQ9epUvpY3rjrx78r-10" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-560" y="700" as="sourcePoint" />
+            <mxPoint x="-1240" y="620" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-19" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-14" target="RWERQ9epUvpY3rjrx78r-2" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-778" y="980" as="sourcePoint" />
+            <mxPoint x="-780" y="1382.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-20" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;" parent="1" source="RWERQ9epUvpY3rjrx78r-10" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-1010" y="411.0746268656717" as="sourcePoint" />
+            <mxPoint x="-1120" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-21" value="VehicleController" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-20" vertex="1" connectable="0">
+          <mxGeometry x="0.3746" y="1" relative="1" as="geometry">
+            <mxPoint x="-110" y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-22" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" parent="1" vertex="1">
+          <mxGeometry x="-900" y="530" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-23" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-15" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-1140" y="2013.2068965517242" as="sourcePoint" />
+            <mxPoint x="-1130" y="2018" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-24" value="FullTrack" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-23" vertex="1" connectable="0">
+          <mxGeometry x="0.4255" y="2" relative="1" as="geometry">
+            <mxPoint x="-44" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-25" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" parent="1" vertex="1">
+          <mxGeometry x="-900" y="530" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-26" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;" parent="1" source="RWERQ9epUvpY3rjrx78r-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-930" y="795.66" as="sourcePoint" />
+            <mxPoint x="-1140" y="1270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-27" value="VehicleController" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-26" vertex="1" connectable="0">
+          <mxGeometry x="0.3746" y="1" relative="1" as="geometry">
+            <mxPoint x="-176" y="-4" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-28" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=-0.002;exitY=0.854;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-910" y="820" as="sourcePoint" />
+            <mxPoint x="-1130" y="1200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-29" value="FullTrack" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-28" vertex="1" connectable="0">
+          <mxGeometry x="0.4255" y="2" relative="1" as="geometry">
+            <mxPoint x="-122" y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-30" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;" parent="1" source="RWERQ9epUvpY3rjrx78r-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-385" y="1835" as="sourcePoint" />
+            <mxPoint x="170" y="2070" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-31" value="AnkiController" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-30" vertex="1" connectable="0">
+          <mxGeometry x="0.6519" y="1" relative="1" as="geometry">
+            <mxPoint x="67" y="6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-32" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" parent="1" vertex="1">
+          <mxGeometry x="-840" y="840" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-33" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=0.998;exitY=0.804;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-471" y="1820" as="sourcePoint" />
+            <mxPoint x="170" y="2030" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-34" value="FullTrack" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-33" vertex="1" connectable="0">
+          <mxGeometry x="0.4255" y="2" relative="1" as="geometry">
+            <mxPoint x="59" y="4" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-35" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=0;exitY=0;exitDx=0;exitDy=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-16" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-1136.2199999999998" y="2028.094" as="sourcePoint" />
+            <mxPoint x="-1140" y="2050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-36" value="EmptyController" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-35" vertex="1" connectable="0">
+          <mxGeometry x="0.6765" relative="1" as="geometry">
+            <mxPoint x="-50" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-37" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" parent="1" vertex="1">
+          <mxGeometry x="-640" y="800" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="RWERQ9epUvpY3rjrx78r-38" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-6" target="RWERQ9epUvpY3rjrx78r-2" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="-549.5795905809696" y="1258.03" as="sourcePoint" />
+            <mxPoint x="-580" y="1399.3478260869565" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

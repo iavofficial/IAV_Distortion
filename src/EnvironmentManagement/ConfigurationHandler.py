@@ -8,7 +8,7 @@
 #
 import json
 from logging import Logger, getLogger, DEBUG, StreamHandler
-from typing import Tuple, Any
+from typing import Any
 
 
 class Singleton(type):
@@ -18,7 +18,7 @@ class Singleton(type):
     """
     _instances = {}
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args, **kwargs) -> 'ConfigurationHandler':
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
@@ -39,7 +39,7 @@ class ConfigurationHandler(metaclass=Singleton):
         console_handler = StreamHandler()
         self.logger.addHandler(console_handler)
 
-        self.__config_tup: Tuple[Any] = self.__read_configuration()
+        self.__config_tup: tuple[Any] = self.__read_configuration()
         return
 
     def __read_configuration(self) -> tuple[Any]:

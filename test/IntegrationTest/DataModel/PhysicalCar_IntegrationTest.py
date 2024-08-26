@@ -19,6 +19,7 @@ def initialise_dependencies():
     return environment_manager
 
 
+@pytest.mark.skip_ci
 @pytest.mark.manual
 @pytest.mark.one_anki_car_needed
 @pytest.mark.asyncio

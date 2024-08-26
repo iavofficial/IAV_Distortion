@@ -14,14 +14,20 @@ class VirtualCar(ModelCar):
         self._location_service: LocationService = location_service
         self._location_service.set_on_update_callback(self._location_service_update)
 
+        return
+
     def __del__(self):
         self._controller.__del__()
         self._location_service.__del__()
         super().__del__()
 
-    def _location_service_update(self, pos: Position, rot: Angle, data: dict):
+    def _location_service_update(self, pos: Position, rot: Angle, data: dict) -> None:
         self._on_driving_data_change()
         super()._location_service_update(pos, rot, data)
 
-    def notify_new_track(self, new_track: FullTrack):
+        return
+
+    def notify_new_track(self, new_track: FullTrack) -> None:
         self._location_service.notify_new_track(new_track)
+
+        return

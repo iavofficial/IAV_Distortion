@@ -1,0 +1,39 @@
+<mxfile host="drawio-plugin" modified="2024-08-22T09:13:19.090Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" etag="hnWn_KdXSZJuMJRPtmeo" version="22.1.22" type="embed">
+  <diagram name="Seite-1" id="QMLCdc9qDRDHPxjPFgHo">
+    <mxGraphModel dx="1858" dy="807" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ySwEF-bXC6CVeDChYpow-1" value="CyberSecurityManagement" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="1" vertex="1">
+          <mxGeometry x="160" y="40" width="780" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="ySwEF-bXC6CVeDChYpow-2" value="CyberSecurityManager" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="220" y="110" width="430" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ySwEF-bXC6CVeDChYpow-3" value="Defines hacking influences. Controls cybersecurity attacks and defense measures." style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="ySwEF-bXC6CVeDChYpow-2" vertex="1">
+          <mxGeometry y="26" width="430" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="+ get_all_hacking_scenarios(): list[dict[str, Any]]&lt;br&gt;+ activate_hacking_scenario_for_vehicle(uuid: str, scenario_id: str): None&lt;br&gt;+ get_active_hacking_scenarios(): dict&lt;br&gt;# update_active_hacking_scenarios(uuid: str, scenario_id: str): None" style="rounded=0;whiteSpace=wrap;html=1;align=left;" vertex="1" parent="ySwEF-bXC6CVeDChYpow-2">
+          <mxGeometry y="110" width="430" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ySwEF-bXC6CVeDChYpow-4" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=-0.003;exitY=0.367;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="ySwEF-bXC6CVeDChYpow-3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="545" y="365" as="sourcePoint" />
+            <mxPoint x="140" y="167" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ySwEF-bXC6CVeDChYpow-5" value="BehaviourControler" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="ySwEF-bXC6CVeDChYpow-4" vertex="1" connectable="0">
+          <mxGeometry x="0.6324" relative="1" as="geometry">
+            <mxPoint x="-65" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ySwEF-bXC6CVeDChYpow-6" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" parent="1" vertex="1">
+          <mxGeometry x="520" y="360" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="2" value="# set_scenarios(): list[dict[str, Any]]" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="150" width="250" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

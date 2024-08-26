@@ -1,6 +1,8 @@
 from time import sleep
 from unittest.mock import Mock
 
+import pytest
+
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
@@ -8,6 +10,7 @@ from VehicleManagement.FleetController import FleetController
 dummy_uuid = "FA:14:67:0F:39:FE"
 
 
+@pytest.mark.skip_ci
 def test_get_location():
     vctrl = VehicleController()
     fleet_ctrl = FleetController()

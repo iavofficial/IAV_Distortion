@@ -58,16 +58,19 @@
             const car_pics = {{ car_pictures | tojson }};
             const colorCrossmap = {{ color_map | tojson }};
 
+            const car_image_cache = new Map();
+
             addEventListener("resize", (event) => {
                 resizeCanvas();
                 resetCanvas();
                 drawTrack();
-                // TODO: Put car drawing in own function and call it here!
+                drawCars();
             });
 
             resizeCanvas();
             resetCanvas();
             drawTrack();
+            drawCars();
 
             /**
             * Handles 'car_position' event.
@@ -82,27 +85,18 @@
             socket.on('car_positions', function(data){
                 var carName = data.car;
                 dataMap.set(carName, data);
-                resetCanvas();
-                drawTrack();
-                for (const car of dataMap) {
-                    const name = car[0];
-                    const d = car[1];
-                    var x = d.position.x;
-                    var y = d.position.y;
-                    var angle = d.angle;
-
-                    if (Object.keys(car_pics).includes(name)) {
-                            var image_name = car_pics[name];
-                            insertCarPic(x, y, angle, image_name);
-                    } else if (name.startsWith('Virtual Vehicle')) {
-                            const colors = colorCrossmap[name];
-                            drawCarBox(x, y, angle, colors[0], colors[1]);
-                    } else {
-                            // fallback for unidentifiable vehicles
-                            drawCarBox(x, y, angle, '#0091ff', '#ff73fa');
-                    }
-                }
             });
+
+            function getCarImage(name) {
+                if (car_image_cache.has(name)) {
+                    return car_image_cache.get(name);
+                } else {
+                    let img = new Image();
+                    img.src = "/static/images/Virtual_Vehicles/" + name;
+                    car_image_cache.set(name, img);
+                    return img;
+                }
+            }
 
             /**
             * Inserts a picture at given position and angle.
@@ -121,9 +115,7 @@
                 ctx.rotate(rotationRadians);
                 ctx.translate(-x, -y);
 
-                var img = new Image();
-                img.src = "/static/images/Virtual_Vehicles/" + image_name;
-
+                let img = getCarImage(image_name);
                 ctx.drawImage(img, x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
                 ctx.rotate(-Math.PI / 2);
 
@@ -315,6 +307,34 @@
                 let ratio_horizontally = window.innerWidth / required_horizontally;
                 scale = Math.min(ratio_horizontally, ratio_vertically);
             }
+
+            /**
+             * Draws all known cars to their position
+             */
+            function drawCars() {
+                resetCanvas();
+                drawTrack();
+                for (const car of dataMap) {
+                    const name = car[0];
+                    const d = car[1];
+                    var x = d.position.x;
+                    var y = d.position.y;
+                    var angle = d.angle;
+
+                    if (Object.keys(car_pics).includes(name)) {
+                            var image_name = car_pics[name];
+                            insertCarPic(x, y, angle, image_name);
+                    } else if (name.startsWith('Virtual Vehicle')) {
+                            const colors = colorCrossmap[name];
+                            drawCarBox(x, y, angle, colors[0], colors[1]);
+                    } else {
+                            // fallback for unidentifiable vehicles
+                            drawCarBox(x, y, angle, '#0091ff', '#ff73fa');
+                    }
+                }
+            }
+
+            setInterval(drawCars, 1000/24);
         </script>
         {% endif %}
     </body>

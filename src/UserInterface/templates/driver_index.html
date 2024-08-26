@@ -45,15 +45,13 @@
         <div class="flexbox-container_middle">
             <div class="speedometer">
                 <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
-                <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> mm/s </span></span>
+                <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> km/h </span></span>
             </div>
 
             <div class="avatar">
-                {% if not 'Virtual' in picture %}
+
                 <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
-                {% else %}
-                <canvas id="car_canvas"></canvas>
-                {% endif %}
+
                 <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
                     <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
                     <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
@@ -84,38 +82,7 @@
 
 
     <script type="text/javascript" charset="utf-8">
-        {% if 'Virtual' in picture %}
-        const colorCrossmap = {{ color_map | tojson }};
-        const colors = colorCrossmap[{{ picture | tojson }}];
 
-        let canvas = document.getElementById("car_canvas");
-        let ctx = canvas.getContext("2d");
-        let canvas_width = canvas.width;
-        let canvas_height = canvas.height;
-
-        const car_height = canvas_height * 0.5;
-        const car_width = car_height * 1.88;
-        const car_outline = car_height / 15;
-
-        const total_car_width = car_outline + car_width;
-        const total_car_height = car_outline + car_height;
-
-        const free_space_x = canvas_width - total_car_width;
-        const free_space_y = canvas_height - total_car_height;
-
-        const start_x = free_space_x / 2;
-        const start_y = free_space_y / 2;
-
-        ctx.beginPath();
-        ctx.fillStyle = colors[0];
-        ctx.strokeStyle = colors[1];
-        ctx.lineWidth = car_outline;
-        ctx.rect(start_x, start_y, car_width, car_height);
-
-        ctx.fill();
-        ctx.stroke();
-        ctx.closePath();
-        {% endif %}
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
@@ -193,7 +160,7 @@
 
         socket.on('update_driving_data', function(data){
           if(data.player == '{{player}}'){
-            speed_actual.innerHTML = data.speed_actual;
+            speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
             show_hacked_info(data.active_hacking_scenario);
           }
         });

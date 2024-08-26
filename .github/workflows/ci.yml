@@ -1,0 +1,50 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  pyright-check:
+    name: Run Pyright
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Add pipenv to PATH
+        shell: bash
+        run: |
+          echo "$(pipenv --venv)/bin" >> $GITHUB_PATH
+
+      - uses: jakebailey/pyright-action@v2
+        
+  flake8-lint:
+    name: Check coding style via flake8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: flake8 lint
+        uses: py-actions/flake8@v2
+        with:
+          max-line-length: "120"
+
+  pytest-testing-fast:
+    name: Run fast tests with pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run fast tests itself with pytest
+        run: |
+          pipenv run pytest -m 'not skip_ci and not slow' test
+
+  pytest-testing-slow:
+    name: Run slow tests with pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run slow tests itself with pytest
+        run: |
+          pipenv run pytest -m 'not skip_ci and slow' test

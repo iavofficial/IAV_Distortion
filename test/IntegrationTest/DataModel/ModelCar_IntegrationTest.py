@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+import pytest
+
 from DataModel.PhysicalCar import PhysicalCar
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
@@ -19,6 +21,7 @@ def get_dummy_track() -> FullTrack:
 def dummy_callback(vehicle_id: str, player: str, err_msg: str):
     print(f"Error occurred on {vehicle_id} from player {player}. {err_msg}")
 
+@pytest.mark.skip_ci
 class ModelCaIntegrationTest(TestCase):
 
     def setUp(self) -> None:

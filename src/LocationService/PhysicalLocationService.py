@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
@@ -9,22 +9,24 @@ class PhysicalLocationService(LocationService):
                  track: FullTrack,
                  starting_offset: float = 0,
                  simulation_ticks_per_second: int = 24,
-                 start_immediately: bool = False):
+                 start_immediately: bool = False) -> None:
         super().__init__(track, starting_offset, simulation_ticks_per_second, start_immediately)
         # watch piece indices from location events separately so it doesn't get changed by the default location service
         self._physical_piece: int | None = None
         # amount of time the BLE message should take. Based on that additional travelling distance will be added to
-        self._BLE_LATENCY_CORRECTION = 0.05
+        self._BLE_LATENCY_CORRECTION: float = 0.05
 
         # alpha filter to smoothen the correcture
         self._speed_correcture: float = 0
-        self._ALPHA_VALUE = 0.5
+        self._ALPHA_VALUE: float = 0.5
 
         # list that tracks the history of pieces so we can figure out the position even when there are duplicate IDs
         # It always has a int or None for indices that are also in the track
         self._piece_history: List[int | None] = list()
         self._piece_history_index: int = 0
         self._reset_piece_history()
+
+        return
 
     # overwritten method to implement a speed correcture based on the sent data
     def _adjust_speed_to(self, target_speed: float) -> None:
@@ -183,7 +185,7 @@ class PhysicalLocationService(LocationService):
         """
         return (other_position - self._progress_on_current_piece) * self._direction_mult
 
-    def _calculate_distance_from_start(self, progress: float):
+    def _calculate_distance_from_start(self, progress: float) -> float:
         """
         Calculates how far the car is on the current piece. This function only returns its argument and exists
         purely for code readability
@@ -214,15 +216,24 @@ class PhysicalLocationService(LocationService):
         Matches the piece history with the track piece IDs to figure out where we are
         on the track
         """
-        possible_start_indices: List[int] = list()
+        # the bool stands for whether it was found while seraching in the opposite direction
+        possible_start_indices: List[Tuple[int, bool]] = list()
         track_len = self._track.get_len()
 
         for starting_offset in range(0, track_len):
-            if self._test_history_matches_track_with_offset(starting_offset):
-                possible_start_indices.append(starting_offset)
+            if self._test_history_matches_track_with_offset(starting_offset, 1):
+                possible_start_indices.append((starting_offset, False))
+            if self._test_history_matches_track_with_offset(starting_offset, -1):
+                possible_start_indices.append((starting_offset, True))
 
         if len(possible_start_indices) == 1:
-            self._physical_piece = (self._piece_history_index + possible_start_indices[0]) % track_len
+            index, direction = possible_start_indices[0]
+            self._physical_piece = (self._piece_history_index + index) % track_len
+            if direction:
+                self._direction_mult *= -1
+                self._piece_history.reverse()
+                self._piece_history_index = self._track.get_len() - self._piece_history_index
+                self._physical_piece = self._track.get_len() - self._physical_piece
             return
 
         if len(possible_start_indices) == 0:
@@ -233,7 +244,7 @@ class PhysicalLocationService(LocationService):
         self.logger.info("Didn't get enough data to determine the physical position yet. "
                          "Number of possible starting points: %d", len(possible_start_indices))
 
-    def _test_history_matches_track_with_offset(self, offset: int) -> bool:
+    def _test_history_matches_track_with_offset(self, offset: int, counting_direction: int) -> bool:
         """
         Test whether the piece history matches the track at every point when using a certain offset.
         Missing pieces in the piece history are ignored and considered matching
@@ -241,7 +252,7 @@ class PhysicalLocationService(LocationService):
         track_len = self._track.get_len()
         for i in range(0, track_len):
             track_index: int
-            track_index = (i + offset) % track_len
+            track_index = (i * counting_direction + offset) % track_len
             track_piece, _ = self._track.get_entry_tupel(track_index)
             history_id: int
             history_id = self._piece_history[i]
@@ -249,6 +260,7 @@ class PhysicalLocationService(LocationService):
                 return False
         return True
 
-    def notify_new_track(self, new_track: FullTrack):
+    def notify_new_track(self, new_track: FullTrack) -> None:
         super().notify_new_track(new_track)
         self._reset_piece_history()
+        return

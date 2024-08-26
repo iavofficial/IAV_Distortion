@@ -2,3 +2,5 @@
 src/UserInterface/static/external_resources/
 src/UserInterface/static/images/IAV-Logo-White.png
 .idea/
+*.bkp
+*.dtmp

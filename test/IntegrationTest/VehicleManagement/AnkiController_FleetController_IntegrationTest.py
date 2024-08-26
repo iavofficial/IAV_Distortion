@@ -1,11 +1,13 @@
 from unittest import TestCase
 from time import sleep
 
+import pytest
 from bleak import BleakClient
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 
 
+@pytest.mark.skip_ci
 class AnkiControllerIntegrationTest(TestCase):
 
     @classmethod

@@ -13,6 +13,7 @@ from bleak import BleakClient, BleakError
 from VehicleManagement.AnkiController import AnkiController
 
 
+@pytest.mark.skip_ci
 @pytest.mark.manual
 @pytest.mark.one_anki_car_needed
 @pytest.mark.asyncio

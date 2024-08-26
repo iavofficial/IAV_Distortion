@@ -6,12 +6,13 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-from typing import List
+from typing import Any
 
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from DataModel.Vehicle import Vehicle
 
-def _set_scenarios():
+
+def _set_scenarios() -> list[dict[str, Any]]:
     scenario0 = {"id": "0",
                  "name": "normal",
                  "description": "no hacking",
@@ -49,17 +50,17 @@ def _set_scenarios():
 
 class CyberSecurityManager:
 
-    def __init__(self, behaviour_ctrl: BehaviourController):
+    def __init__(self, behaviour_ctrl: BehaviourController) -> None:
         self._behaviour_ctrl = behaviour_ctrl
         self._hacking_scenarios = _set_scenarios()
         self._active_scenarios = {}
 
         return
 
-    def get_all_hacking_scenarios(self):
+    def get_all_hacking_scenarios(self) -> list[dict[str, Any]]:
         return self._hacking_scenarios
 
-    def activate_hacking_scenario_for_vehicle(self, uuid: str, scenario_id: str):
+    def activate_hacking_scenario_for_vehicle(self, uuid: str, scenario_id: str) -> None:
         scenario = next((sce for sce in self._hacking_scenarios if sce["id"] == scenario_id), None)
 
         self._behaviour_ctrl.set_speed_factor(uuid, scenario["speed_factor"])
@@ -81,8 +82,10 @@ class CyberSecurityManager:
 
         return
 
-    def get_active_hacking_scenarios(self):
+    def get_active_hacking_scenarios(self) -> dict:
         return self._active_scenarios
 
-    def _update_active_hacking_scenarios(self, uuid: str, scenario_id: str):
+    def _update_active_hacking_scenarios(self, uuid: str, scenario_id: str) -> None:
         self._active_scenarios.update({uuid: scenario_id})
+
+        return
