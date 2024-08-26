@@ -1,11 +1,13 @@
 from unittest import TestCase
 
+import pytest
 from bleak import BleakClient
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from VehicleManagement.FleetController import FleetController
 
 
+@pytest.mark.skip_ci
 class EnvironmentManagerIntergrationTest(TestCase):
 
     def test_remove_vehicle(self):

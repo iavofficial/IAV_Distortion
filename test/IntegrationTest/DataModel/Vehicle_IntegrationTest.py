@@ -1,12 +1,15 @@
 from time import sleep
 from unittest import TestCase
 
+import pytest
+
 from DataModel.Vehicle import Vehicle
 from VehicleManagement.VehicleController import VehicleController
 
 dummy_uuid = "F1:76:08:08:C1:00" #rot
 
 
+@pytest.mark.skip_ci
 class VehicleIntegrationTest(TestCase):
 
     def test_on_driving_data_change(self) -> None:

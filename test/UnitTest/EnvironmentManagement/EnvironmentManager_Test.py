@@ -140,6 +140,7 @@ class TestAddNewPlayer:
 
 class TestPutPlayerOnNextFreeSpot:
     @pytest.mark.asyncio
+    @pytest.mark.slow
     async def test_with_playing_time_check(self, get_mut_with_one_minute_playing_time, get_one_dummy_vehicle):
         # Arrange
         vehicle1: Vehicle = get_one_dummy_vehicle
@@ -166,6 +167,7 @@ class TestPutPlayerOnNextFreeSpot:
         assert len(used_cars) == 0
 
     @pytest.mark.asyncio
+    @pytest.mark.slow
     async def test_without_playing_time_check(self, get_mut_with_endless_playing_time, get_one_dummy_vehicle):
         # Arrange
         vehicle1: Vehicle = get_one_dummy_vehicle
@@ -428,6 +430,7 @@ def test_track_notify():
     physical_location_service.notify_new_track.assert_called()
 
 
+@pytest.mark.skip_ci
 @pytest.mark.slow
 @pytest.mark.manual
 @pytest.mark.one_anki_car_needed

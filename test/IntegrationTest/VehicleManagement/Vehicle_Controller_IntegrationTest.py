@@ -1,11 +1,15 @@
 from unittest import TestCase
 
 from time import sleep
+
+import pytest
+
 from VehicleManagement.FleetController import FleetController
 from VehicleManagement.VehicleController import VehicleController
 from bleak import BleakClient
 
 
+@pytest.mark.skip_ci
 class VehicleControllerIntegrationTest(TestCase):
     def test_connect_to_anki_car(self):
         mut = VehicleController()

@@ -14,6 +14,7 @@ import struct
 from VehicleManagement.AnkiController import AnkiController
 
 
+@pytest.mark.skip_ci
 class AnkiControllerUnitTests(TestCase):
     """
     Collection of AnkiController unit tests
