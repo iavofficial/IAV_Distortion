@@ -39,7 +39,7 @@ class DriverUI:
                                                        ["driver_heartbeat_timeout_s"])
         except KeyError:
             logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
-                                "value of 30 seconds")
+                           "value of 30 seconds")
             self.__driver_heartbeat_timeout = 30
 
         async def home_driver() -> str:
@@ -121,7 +121,7 @@ class DriverUI:
             car = self.environment_mng.get_vehicle_by_player_id(player)
             if car is None:
                 logger.warning("Player %s tried to change their own vehicle speed but they don't have a vehicle. "
-                                    "Ignoring the request", player)
+                               "Ignoring the request", player)
                 return
             car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_speed_change_for(uuid=car_id, value_perc=value)
@@ -134,7 +134,7 @@ class DriverUI:
             car = self.environment_mng.get_vehicle_by_player_id(player)
             if car is None:
                 logger.warning("Player %s tried to change their lane but they don't have a vehicle. "
-                                    "Ignoring the request", player)
+                               "Ignoring the request", player)
                 return
             car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_lane_change_for(uuid=car_id, value=direction)
@@ -146,7 +146,7 @@ class DriverUI:
             car = self.environment_mng.get_vehicle_by_player_id(player)
             if car is None:
                 logger.warning("Player %s tried to make a u-turn but they don't have a vehicle. "
-                                    "Ignoring the request", player)
+                               "Ignoring the request", player)
                 return
             car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_uturn_for(uuid=car_id)
@@ -176,7 +176,7 @@ class DriverUI:
                 return
             grace_period = self.config_handler.get_configuration()["driver"]["driver_background_grace_period_s"]
             logger.debug(f"Player {player} send the application to the background and will be removed in "
-                              f"{grace_period} seconds.")
+                         f"{grace_period} seconds.")
             self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
             return
 
@@ -184,7 +184,7 @@ class DriverUI:
         def client_active(sid, data: dict) -> None:
             player = data["player"]
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
-                              f"added to the queue again.")
+                         f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
             return
 

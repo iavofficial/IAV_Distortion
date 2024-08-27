@@ -245,7 +245,7 @@ class PhysicalLocationService(LocationService):
             return
 
         logger.info("Didn't get enough data to determine the physical position yet. "
-                         "Number of possible starting points: %d", len(possible_start_indices))
+                    "Number of possible starting points: %d", len(possible_start_indices))
 
     def _test_history_matches_track_with_offset(self, offset: int, counting_direction: int) -> bool:
         """
