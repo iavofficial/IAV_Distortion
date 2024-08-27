@@ -28,3 +28,21 @@ def test_item_collision_notification():
     item_collision_detector.notify_new_vehicle_position(vehicle_mock, Position(95, 105), Angle(0))
     vehicle_mock.notify_item_collected.assert_called()
     vehicle_mock.notify_item_collected.assert_called_with(item)
+
+
+def test_callbacks_are_executed():
+    """
+    This tests that when an item gets added or removed the callback is executed
+    """
+    item = MagicMock(spec=Item)
+    item_changed_callback = MagicMock()
+    item_collision_detector = ItemCollisionDetector(None)
+    item_collision_detector.set_on_item_change_callback(item_changed_callback)
+
+    item_collision_detector.add_item(item)
+    item_changed_callback.assert_called()
+
+    item_changed_callback.reset_mock()
+
+    item_collision_detector.remove_item(item)
+    item_changed_callback.assert_called()
