@@ -14,8 +14,8 @@ def test_item_collision_notification():
     item.get_position.return_value = Position(100, 100)
 
     item_collision_detector = ItemCollisionDetector(None)
-    item_collision_detector.items.clear()
-    item_collision_detector.items.append(item)
+    item_collision_detector._items.clear()
+    item_collision_detector._items.append(item)
 
     vehicle_mock = MagicMock(spec=Vehicle)
     item_collision_detector.notify_new_vehicle_position(vehicle_mock, Position(1000, 900), Angle(0))
