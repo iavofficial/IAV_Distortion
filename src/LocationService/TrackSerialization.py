@@ -19,11 +19,13 @@ def full_track_to_list_of_dicts(track: FullTrack) -> List[Dict[str, Any]]:
     return ret
 
 
-def parse_list_of_dicts_to_full_track(input_list: List[Dict[str, Any]]) -> FullTrack:
+def parse_list_of_dicts_to_full_track(input_list: List[Dict[str, Any]]) -> FullTrack | None:
     """
     Tries to parse a list of dictionaries to a FullTrack. This can raise a PieceDecodingException
     """
     parsed_list: List[TrackPiece] = list()
+    if len(input_list) == 0:
+        return None
     for piece_dict in input_list:
         piece = construct_piece_from_dict(piece_dict)
         parsed_list.append(piece)
