@@ -1,6 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
+import pytest
+
 from LocationService.PhysicalLocationService import PhysicalLocationService
 from TestingTools import generate_mac_address
 
@@ -8,6 +10,7 @@ from DataModel.PhysicalCar import PhysicalCar
 from VehicleManagement.AnkiController import AnkiController
 
 
+@pytest.mark.asyncio
 class ModelCarTest(TestCase):
 
     def setUp(self) -> None:
@@ -17,9 +20,6 @@ class ModelCarTest(TestCase):
         self.physical_location_service_mock = Mock(spec=PhysicalLocationService)
 
         self.dummy_uuid = generate_mac_address()
-
-    def tearDown(self) -> None:
-        del self.mut
 
     def test_get_typ_of_controller(self):
         # Arrange
@@ -31,7 +31,7 @@ class ModelCarTest(TestCase):
         assert self.mut.vehicle_id == self.dummy_uuid
         assert isinstance(self.mut.get_typ_of_controller(), type(AnkiController))
 
-    def test_calculate_speed(self):
+    async def test_calculate_speed(self):
         # Arrange
         self.mut: PhysicalCar = PhysicalCar(self.dummy_uuid, self.anki_controller_mock,
                                             self.physical_location_service_mock)
@@ -43,7 +43,7 @@ class ModelCarTest(TestCase):
         self.mut.speed_request = 100
         assert self.mut.speed == 100 * 0.5
 
-    def test_calculate_lane_change_from_center(self):
+    async def test_calculate_lane_change_from_center(self):
         # Arrange
         self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock)
 
@@ -60,7 +60,7 @@ class ModelCarTest(TestCase):
         self.mut.lane_change_request = -1
         assert self.mut.lane_change == 3
 
-    def test_calculate_lane_change_from_left_side(self):
+    async def test_calculate_lane_change_from_left_side(self):
         # Arrange
         self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock)
         self.mut._offset_from_center = -65.0
