@@ -21,7 +21,7 @@ class PhysicalCar(ModelCar):
         super().__init__(vehicle_id)
         self._controller: AnkiController = controller
         self._location_service: PhysicalLocationService = location_service
-        self._location_service.set_on_update_callback(self._location_service_update)
+        self._location_service.add_on_update_callback(self._location_service_update)
 
     def __del__(self) -> None:
         if self._controller is not None:

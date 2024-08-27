@@ -11,6 +11,7 @@ from typing import Callable
 
 from abc import abstractmethod
 
+from Items.Item import Item
 from LocationService import LocationService
 from LocationService.Track import FullTrack
 from VehicleManagement.VehicleController import VehicleController
@@ -182,4 +183,8 @@ class Vehicle:
     @property
     @abstractmethod
     def turn(self) -> None:
+        pass
+
+    def notify_item_collected(self, item: Item):
+        # TODO: Add item effect or similar
         pass

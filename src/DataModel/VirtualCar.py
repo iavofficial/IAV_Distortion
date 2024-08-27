@@ -12,7 +12,7 @@ class VirtualCar(ModelCar):
         super().__init__(vehicle_id)
         self._controller: EmptyController = controller
         self._location_service: LocationService = location_service
-        self._location_service.set_on_update_callback(self._location_service_update)
+        self._location_service.add_on_update_callback(self._location_service_update)
 
         return
 
