@@ -467,7 +467,7 @@ class EnvironmentManager:
             self.manage_removal_from_game_for(player_id=player,
                                               reason=RemovalReason.PLAYER_NOT_REACHABLE)
         except asyncio.CancelledError:
-            logging.debug(f"Player {player} reconnected. Removing player aborted.")
+            logger.debug(f"Player {player} reconnected. Removing player aborted.")
         return
 
     # Vehicle Management
