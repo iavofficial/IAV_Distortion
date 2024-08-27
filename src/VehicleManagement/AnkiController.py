@@ -15,16 +15,14 @@ from bleak import BleakClient
 from bleak.exc import BleakError
 from bleak.backends.characteristic import BleakGATTCharacteristic
 
+logger = logging.getLogger(__name__)
+
 
 class AnkiController(VehicleController):
     """
     Controller class for the BLE interface for the Anki cars
     """
     def __init__(self) -> None:
-        self.logger: logging.Logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        console_handler = logging.StreamHandler()
-        self.logger.addHandler(console_handler)
 
         super().__init__()
         self.task_in_progress: bool = False
@@ -130,7 +128,7 @@ class AnkiController(VehicleController):
             False, if connection failed.
         """
         if ble_client is None or not isinstance(ble_client, BleakClient):
-            self.logger.debug("Invalid client.")
+            logger.debug("Invalid client.")
             return False
 
         try:
@@ -139,13 +137,13 @@ class AnkiController(VehicleController):
             if ble_client.is_connected:
                 self._connected_car = ble_client
                 await self._setup_car(start_notification)
-                self.logger.info("Car connected")
+                logger.info("Car connected")
                 return True
             else:
-                self.logger.info("Not connected")
+                logger.info("Not connected")
                 return False
         except BleakError as e:
-            self.logger.debug(f"Bleak Error: {e}")
+            logger.debug(f"Bleak Error: {e}")
             return False
 
     def __send_command(self, command: bytes) -> None:
@@ -275,7 +273,7 @@ class AnkiController(VehicleController):
         accel_int = acceleration
 
         command = struct.pack("<BHHH", 0x24, speed_int, accel_int, limit_int)
-        self.logger.debug("Changed speed to %i", speed_int)
+        logger.debug("Changed speed to %i", speed_int)
         self.__send_latest_command(command)
         return True
 
@@ -301,7 +299,7 @@ class AnkiController(VehicleController):
         speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
         lane_direction = self.__LANE_OFFSET * change_direction
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
-        self.logger.debug("Changed lane direction %i", lane_direction)
+        logger.debug("Changed lane direction %i", lane_direction)
         self.__send_command(command)
         return True
 

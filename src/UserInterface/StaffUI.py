@@ -21,6 +21,8 @@ from socketio import AsyncServer
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 
+logger = logging.getLogger(__name__)
+
 
 class StaffUI:
     """
@@ -40,11 +42,6 @@ class StaffUI:
 
     def __init__(self, cybersecurity_mng: CyberSecurityManager, sio: AsyncServer, environment_mng: EnvironmentManager,
                  password: str):
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        console_handler = logging.StreamHandler()
-        self.logger.addHandler(console_handler)
-
         self.cybersecurity_mng: CyberSecurityManager = cybersecurity_mng
 
         self.password = password
@@ -125,7 +122,7 @@ class StaffUI:
             """
             selected_option = (await request.form).get('option')
             if selected_option is None or not isinstance(selected_option, str):
-                self.logger.error("A staff member tried to activate a scenario but provided wrong data")
+                logger.error("A staff member tried to activate a scenario but provided wrong data")
                 return redirect(url_for('staffUI_bp.staff_control'))
             pattern = r"scenarioID_(\d+)-UUID_([A-Fa-f0-9:]+|Virtual Vehicle [0-9]+)>"
             match = re.search(pattern, selected_option)
@@ -151,7 +148,7 @@ class StaffUI:
                 according to authentication status.
             """
             # if is_authenticated():
-            #     self.logger.info("Authenticated")
+            #     sself.logger.info("Authenticated")
             #     return redirect(url_for('staffUI_bp.staff_control'))
             if request.method == 'GET':
                 return await render_template('staff_login.html')
@@ -189,7 +186,7 @@ class StaffUI:
             client is authenticated, it logs an info and requests an update from the EnvironmentManager.
             """
             # TODO: authentication check for websocket events
-            self.logger.debug(f"Client {sid} connected")
+            logger.debug(f"Client {sid} connected")
             self.environment_mng.update_staff_ui()
             return
 
@@ -203,9 +200,9 @@ class StaffUI:
             Publishes the list of found cars via websocket. Logs the search and its result as an info.
             """
             # TODO: authentication check for websocket events
-            self.logger.info("Searching devices...")
+            logger.info("Searching devices...")
             new_devices = await environment_mng.find_unpaired_anki_cars()
-            self.logger.info(f'Found devices: {new_devices}')
+            logger.info(f'Found devices: {new_devices}')
             await self._sio.emit('new_devices', new_devices)
             return
 
@@ -227,7 +224,7 @@ class StaffUI:
             # TODO: authentication check for websocket events
             await environment_mng.connect_to_physical_car_by(device)
             await self._sio.emit('device_added', device)
-            self.logger.debug("Device added %s", device)
+            logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
             return
@@ -263,7 +260,7 @@ class StaffUI:
             """
             # TODO: authentication check for websocket events
             environment_mng.manage_removal_from_game_for(player, )
-            self.logger.debug("Player deleted %s", player)
+            logger.debug("Player deleted %s", player)
             return
 
         @self._sio.on('delete_vehicle')
@@ -283,7 +280,7 @@ class StaffUI:
             # TODO: authentication check for websocket events
             environment_mng.remove_vehicle_by_id(vehicle_id)
             await self._sio.emit('vehicle_removed', vehicle_id)
-            self.logger.debug("Vehicle deleted %s", vehicle_id)
+            logger.debug("Vehicle deleted %s", vehicle_id)
             return
 
         @self._sio.on('get_update_hacking_scenarios')
@@ -301,7 +298,7 @@ class StaffUI:
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
             data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_cars_list(),
                     'names': names, 'descriptions': descriptions}
-            self.logger.debug("Updated hacking scenarios")
+            logger.debug("Updated hacking scenarios")
             await self._sio.emit('update_hacking_scenarios', data)
             return
 
@@ -365,13 +362,13 @@ class StaffUI:
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if platform.system() == 'Linux':
-                self.logger.info("Update triggered")
+                logger.info("Update triggered")
                 process = subprocess.Popen(['bash', './update.sh'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
                 message = 'Update started. This will take a few moments. The system will restart afterwards.'
                 return message, 200
             else:
-                self.logger.warning("Update button pressed, but not running on Linux system")
+                logger.warning("Update button pressed, but not running on Linux system")
                 message = 'Error starting the update. Function only available on linux systems.'
                 return message, 200
 
@@ -390,7 +387,7 @@ class StaffUI:
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if platform.system() == 'Linux':
-                self.logger.info("Program restart triggered")
+                logger.info("Program restart triggered")
                 process = subprocess.Popen(['bash', './restart_IAV-Distortion.sh'], stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
@@ -398,7 +395,7 @@ class StaffUI:
                 return message, 200
 
             else:
-                self.logger.warning("Program restart button pressed, but not running on Linux system")
+                logger.warning("Program restart button pressed, but not running on Linux system")
                 message = 'Error restarting IAV-Distortion. Function only available on linux systems.'
                 return message, 200
 
@@ -417,13 +414,13 @@ class StaffUI:
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if platform.system() == 'Linux':
-                self.logger.info("System restart triggered")
+                logger.info("System restart triggered")
                 subprocess.run('./restart_system.sh')
                 message = "The system will restart now. This will take a moment. Please wait and reload the page " \
                           "after the system rebooted"
                 return message, 200
             else:
-                self.logger.warning("System restart button pressed, but not running on Linux system")
+                logger.warning("System restart button pressed, but not running on Linux system")
                 message = 'Error restarting the system. Function only available on linux systems.'
                 return message, 200
 
@@ -432,7 +429,7 @@ class StaffUI:
             data = await request.form
             car: str = data.get('car')
             if car is None:
-                self.logger.warning("A client attempted to start a track rescan but ")
+                logger.warning("A client attempted to start a track rescan but ")
                 return "Request didn't include a car", 400
             error = await environment_mng.rescan_track(car)
             if error is not None:
@@ -466,12 +463,12 @@ class StaffUI:
                 If authenticated, Returns a Tuple[str, int] with the status about the request.
             """
             if platform.system() == 'Linux':
-                self.logger.info("System shutdown triggered")
+                logger.info("System shutdown triggered")
                 subprocess.run('./shutdown_system.sh')
                 message = 'The system will be shut down now.'
                 return message, 200
             else:
-                self.logger.warning("System shutdown button pressed, but not running on Linux system")
+                logger.warning("System shutdown button pressed, but not running on Linux system")
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
 
