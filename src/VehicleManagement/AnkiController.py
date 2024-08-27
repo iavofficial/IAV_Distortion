@@ -17,6 +17,13 @@ from bleak.backends.characteristic import BleakGATTCharacteristic
 
 logger = logging.getLogger(__name__)
 
+ble_connection_logger = logging.getLogger('ble_connection_logging')
+ble_connection_logger.setLevel(logging.DEBUG)
+file_handler = logging.FileHandler('ble-connection-trace.log')
+formatter = logging.Formatter('%(asctime)s: %(message)s')
+file_handler.setFormatter(formatter)
+ble_connection_logger.addHandler(file_handler)
+
 
 class AnkiController(VehicleController):
     """
@@ -132,17 +139,21 @@ class AnkiController(VehicleController):
             return False
 
         try:
+            ble_connection_logger.info('%s | Starting to connect', ble_client.address)
             await ble_client.connect()
 
             if ble_client.is_connected:
                 self._connected_car = ble_client
                 await self._setup_car(start_notification)
                 logger.info("Car connected")
+                ble_connection_logger.info('%s | Connection established successfully', ble_client.address)
                 return True
             else:
                 logger.info("Not connected")
+                ble_connection_logger.info('%s | Connection was not established', ble_client.address)
                 return False
-        except BleakError as e:
+        except (BleakError, OSError) as e:
+            ble_connection_logger.error(f'{ble_client.address} | Error while trying to connect: "{e}"')
             logger.debug(f"Bleak Error: {e}")
             return False
 
@@ -206,6 +217,8 @@ class AnkiController(VehicleController):
             except (BleakError, OSError):
                 success = False
                 self.task_in_progress = False
+                ble_connection_logger.warning('%s | Car isn\'t reachable anymore',
+                                              self._connected_car.address)
                 if self.__ble_not_reachable_callback is not None:
                     self.__ble_not_reachable_callback()
 
@@ -439,6 +452,7 @@ class AnkiController(VehicleController):
 
         command = struct.pack("<B", 0xd)
         self.__send_command(command)
+        ble_connection_logger.debug('%s | Normally disconnecting', self._connected_car.address)
         return True
 
     def __on_receive_data(self, sender: BleakGATTCharacteristic, data: bytearray) -> None:
