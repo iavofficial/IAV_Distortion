@@ -12,6 +12,9 @@ from asyncio import Task
 from bleak import BleakScanner
 from typing import Callable, Any, Coroutine
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from logging import FileHandler, Formatter
+
+logger = logging.getLogger(__name__)
 
 
 class FleetController:
@@ -21,6 +24,7 @@ class FleetController:
         self.config_handler: ConfigurationHandler = config_handler if config_handler else ConfigurationHandler()
         self.__add_anki_car_callback: Callable[[str], Coroutine[Any, Any, None]] | None = None
         self.__auto_connect_anki_cars_task: Task | None = None
+        self.__ble_number_of_device_logging: Task | None = None
 
     async def scan_for_anki_cars(self, only_ready: bool = False) -> list[str]:
         """
@@ -62,14 +66,35 @@ class FleetController:
                 anki_cars = await self.scan_for_anki_cars(only_ready=True)
                 for uuid in anki_cars:
                     if not callable(self.__add_anki_car_callback):
-                        logging.warning('Missing callback to add vehicles. Auto discovery service will be deactivated.')
+                        logger.warning('Missing callback to add vehicles. Auto discovery service will be deactivated.')
                         self.stop_auto_discover_anki_cars()
                     else:
                         await self.__add_anki_car_callback(uuid)
 
                 await asyncio.sleep(5)
             except Exception as e:
-                logging.warning(f'Error {e} occurred')
+                logger.warning(f'Error {e} occurred')
+
+    async def log_number_of_ble_devices(self) -> None:
+        ble_num_logger = logging.getLogger('ble_number_of_device_logger')
+        ble_num_logger.setLevel(logging.DEBUG)
+        file_handler = FileHandler('ble-number-of-devices.log')
+        formatter = Formatter('%(asctime)s: %(message)s')
+        file_handler.setFormatter(formatter)
+        ble_num_logger.addHandler(file_handler)
+        while True:
+            try:
+                all_devices = await BleakScanner.discover(return_adv=False)
+                ble_num_logger.debug('%d BLE-Devices found', len(all_devices))
+                await asyncio.sleep(60)
+            except Exception as e:
+                logger.warning(f'Error while scanning for all BLE devices in background: {e}')
+
+    async def start_background_logging_for_ble_devices(self):
+        if self.__ble_number_of_device_logging is not None:
+            logger.warning("Tried to start Background logging for the number of BLE devices. Ignoring the request")
+            return
+        self.__ble_number_of_device_logging = asyncio.create_task(self.log_number_of_ble_devices())
 
     def set_add_anki_car_callback(self, function_name: Callable[[str], Coroutine[Any, Any, None]]) -> None:
         """
@@ -81,7 +106,7 @@ class FleetController:
             Callback function.
         """
         if not callable(function_name):
-            logging.warning("Tried to set non callable function as callback function.")
+            logger.warning("Tried to set non callable function as callback function.")
         else:
             self.__add_anki_car_callback = function_name
         return
@@ -92,7 +117,7 @@ class FleetController:
         """
         if self.__auto_connect_anki_cars_task is None:
             self.__auto_connect_anki_cars_task = asyncio.create_task(self.auto_discover_anki_vehicles())
-            logging.info("Auto discovery service for Anki cars activated.")
+            logger.info("Auto discovery service for Anki cars activated.")
         return
 
     def stop_auto_discover_anki_cars(self) -> None:
@@ -102,5 +127,5 @@ class FleetController:
         if isinstance(self.__auto_connect_anki_cars_task, asyncio.Task):
             self.__auto_connect_anki_cars_task.cancel()
             self.__auto_connect_anki_cars_task = None
-            logging.info("Auto discovery service for Anki cars deactivated.")
+            logger.info("Auto discovery service for Anki cars deactivated.")
         return

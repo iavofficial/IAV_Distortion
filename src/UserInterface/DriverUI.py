@@ -10,7 +10,6 @@
 from quart import Blueprint, render_template, request
 import uuid
 import logging
-from logging import Logger
 import asyncio
 import time
 
@@ -18,6 +17,8 @@ from socketio import AsyncServer
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+
+logger = logging.getLogger(__name__)
 
 
 class DriverUI:
@@ -30,11 +31,6 @@ class DriverUI:
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
-        self.logger: Logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        console_handler = logging.StreamHandler()
-        self.logger.addHandler(console_handler)
-
         self.__latest_driver_heartbeats: dict = {}
         self.__checking_heartbeats_flag: bool = False
 
@@ -42,8 +38,8 @@ class DriverUI:
             self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]
                                                        ["driver_heartbeat_timeout_s"])
         except KeyError:
-            self.logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
-                                "value of 30 seconds")
+            logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
+                           "value of 30 seconds")
             self.__driver_heartbeat_timeout = 30
 
         async def home_driver() -> str:
@@ -109,13 +105,13 @@ class DriverUI:
         @self._sio.on('disconnected')
         def handle_disconnected(sid, data):
             player = data["player"]
-            self.logger.debug(f"Driver {player} disconnected!")
+            logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
             return
 
         @self._sio.on('disconnect')
         def handle_clienet_disconnect(sid):
-            self.logger.debug(f"Client {sid} disconnected.")
+            logger.debug(f"Client {sid} disconnected.")
             return
 
         @self._sio.on('slider_changed')
@@ -124,8 +120,8 @@ class DriverUI:
             value = float(data['value'])
             car = self.environment_mng.get_vehicle_by_player_id(player)
             if car is None:
-                self.logger.warning("Player %s tried to change their own vehicle speed but they don't have a vehicle. "
-                                    "Ignoring the request", player)
+                logger.warning("Player %s tried to change their own vehicle speed but they don't have a vehicle. "
+                               "Ignoring the request", player)
                 return
             car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_speed_change_for(uuid=car_id, value_perc=value)
@@ -137,8 +133,8 @@ class DriverUI:
             direction = data['direction']
             car = self.environment_mng.get_vehicle_by_player_id(player)
             if car is None:
-                self.logger.warning("Player %s tried to change their lane but they don't have a vehicle. "
-                                    "Ignoring the request", player)
+                logger.warning("Player %s tried to change their lane but they don't have a vehicle. "
+                               "Ignoring the request", player)
                 return
             car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_lane_change_for(uuid=car_id, value=direction)
@@ -149,8 +145,8 @@ class DriverUI:
             player = data['player']
             car = self.environment_mng.get_vehicle_by_player_id(player)
             if car is None:
-                self.logger.warning("Player %s tried to make a u-turn but they don't have a vehicle. "
-                                    "Ignoring the request", player)
+                logger.warning("Player %s tried to make a u-turn but they don't have a vehicle. "
+                               "Ignoring the request", player)
                 return
             car_id = car.get_vehicle_id()
             self.behaviour_ctrl.request_uturn_for(uuid=car_id)
@@ -176,19 +172,19 @@ class DriverUI:
         def client_inactive(sid, data: dict) -> None:
             player = data.get("player")
             if player is None or not isinstance(player, str):
-                self.logger.warning("Got invalid player data in driver_inactive message")
+                logger.warning("Got invalid player data in driver_inactive message")
                 return
             grace_period = self.config_handler.get_configuration()["driver"]["driver_background_grace_period_s"]
-            self.logger.debug(f"Player {player} send the application to the background and will be removed in "
-                              f"{grace_period} seconds.")
+            logger.debug(f"Player {player} send the application to the background and will be removed in "
+                         f"{grace_period} seconds.")
             self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
             return
 
         @self._sio.on('driver_active')
         def client_active(sid, data: dict) -> None:
             player = data["player"]
-            self.logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
-                              f"added to the queue again.")
+            logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
+                         f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
             return
 
@@ -230,7 +226,7 @@ class DriverUI:
             players = list(self.__latest_driver_heartbeats.keys())
             for player in players:
                 if time.time() - self.__latest_driver_heartbeats.get(player, 0) > self.__driver_heartbeat_timeout:
-                    self.logger.info(f'Player {player} timed out. Removing player from the game...')
+                    logger.info(f'Player {player} timed out. Removing player from the game...')
                     self.__remove_player(player)
 
     def __remove_player(self, player: str) -> None:
@@ -287,10 +283,10 @@ class DriverUI:
                 try:
                     picture = 'Virtual_Vehicles/' + config["virtual_cars_pics"][vehicle.vehicle_id]
                 except KeyError:
-                    self.logger.warning(f'No image configured for {vehicle.vehicle_id}.')
+                    logger.warning(f'No image configured for {vehicle.vehicle_id}.')
             else:
                 picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
             vehicle.set_driving_data_callback(self.update_driving_data)
             vehicle_information = vehicle.get_driving_data()
-            self.logger.debug(f'Callback set for {player}')
+            logger.debug(f'Callback set for {player}')
         return vehicle is not None, picture, vehicle_information

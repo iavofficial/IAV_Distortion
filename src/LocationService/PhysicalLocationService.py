@@ -1,7 +1,10 @@
+import logging
 from typing import List, Tuple
 
 from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
+
+logger = logging.getLogger(__name__)
 
 
 class PhysicalLocationService(LocationService):
@@ -90,13 +93,13 @@ class PhysicalLocationService(LocationService):
         self._target_speed = speed
 
         if not self._track.contains_physical_piece(piece):
-            self.logger.warn(
+            logger.warn(
                 "Couldn't find a piece matching the physical ID %d we got from the location event. Ignoring it", piece)
             return
 
         old_piece: int | None = self._piece_history[self._piece_history_index]
         if old_piece is not None and old_piece != piece:
-            self.logger.warn("The piece history had another piece in this position. Clearing the list!")
+            logger.warn("The piece history had another piece in this position. Clearing the list!")
             self._reset_piece_history()
 
         self._piece_history[self._piece_history_index] = piece
@@ -237,12 +240,12 @@ class PhysicalLocationService(LocationService):
             return
 
         if len(possible_start_indices) == 0:
-            self.logger.warn("The piece history doesn't match the track with any offset. Resetting the piece history")
+            logger.warn("The piece history doesn't match the track with any offset. Resetting the piece history")
             self._reset_piece_history()
             return
 
-        self.logger.info("Didn't get enough data to determine the physical position yet. "
-                         "Number of possible starting points: %d", len(possible_start_indices))
+        logger.info("Didn't get enough data to determine the physical position yet. "
+                    "Number of possible starting points: %d", len(possible_start_indices))
 
     def _test_history_matches_track_with_offset(self, offset: int, counting_direction: int) -> bool:
         """

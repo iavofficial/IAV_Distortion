@@ -6,6 +6,7 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+import logging
 
 from VehicleManagement.FleetController import FleetController
 from VehicleMovementManagement.BehaviourController import BehaviourController
@@ -41,6 +42,7 @@ def create_app(admin_password: str):
         """
         if config_handler.get_configuration()["environment"]["env_auto_discover_anki_cars"]:
             quart_app.add_background_task(fleet_ctrl.start_auto_discover_anki_cars)
+        quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
 
     vehicles = environment_mng.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
@@ -63,6 +65,7 @@ def create_app(admin_password: str):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
     # TODO: work with hashed password, passwords should not be stored in clear text
     admin_pwd = os.environ.get('ADMIN_PASSWORD')
     if admin_pwd is None:

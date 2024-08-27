@@ -7,6 +7,8 @@ from typing import Tuple, Callable
 from LocationService.Trigo import Position, Angle
 from LocationService.Track import FullTrack
 
+logger = logging.getLogger(__name__)
+
 
 class LocationService:
     def __init__(self,
@@ -64,11 +66,6 @@ class LocationService:
             self._current_position = None
 
         self._on_update_callback = None
-
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        console_handler = logging.StreamHandler()
-        self.logger.addHandler(console_handler)
 
         self.__task = None
         if self.__start_immediately:
@@ -276,12 +273,12 @@ class LocationService:
         """
         # prevent "maximum recursion depth exceeded" Errors in case the simulation has a bug
         if self._direction_mult == -1 and distance > 0:
-            self.logger.critical(
+            logger.critical(
                 "The leftover distance is positive while driving in opposing direction."
                 "This would create a infinite recursion. Breaking the loop to prevent this!")
             return self._current_position, self._stop_direction
         elif self._direction_mult == 1 and distance < 0:
-            self.logger.critical(
+            logger.critical(
                 "The leftover distance is negative while driving in default direction."
                 "This would create a infinite recursion. Breaking the loop to prevent this!")
             return self._current_position, self._stop_direction
@@ -334,7 +331,7 @@ class LocationService:
         if self._track is not None:
             self.__task = asyncio.create_task(self._run_task())
         else:
-            self.logger.error("Location service was told to start while there is no track. Ignoring the request!")
+            logger.error("Location service was told to start while there is no track. Ignoring the request!")
         #        if self._simulation_thread is not None:
         #            self.logger.error("It was attempted to start an already running LocationService Thread.
         #            Ignoring the request!")

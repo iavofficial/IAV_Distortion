@@ -7,8 +7,10 @@
 # file that should have been included as part of this package.
 #
 import json
-from logging import Logger, getLogger, DEBUG, StreamHandler
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class Singleton(type):
@@ -33,12 +35,6 @@ class ConfigurationHandler(metaclass=Singleton):
 
     def __init__(self, config_file: str = "config_file.json") -> None:
         self.config_file: str = config_file
-
-        self.logger: Logger = getLogger(__name__)
-        self.logger.setLevel(DEBUG)
-        console_handler = StreamHandler()
-        self.logger.addHandler(console_handler)
-
         self.__config_tup: tuple[Any] = self.__read_configuration()
         return
 
@@ -68,13 +64,13 @@ class ConfigurationHandler(metaclass=Singleton):
                 return configuration,
 
         except FileNotFoundError:
-            self.logger.critical("Configuration file not found.")
+            logger.critical("Configuration file not found.")
         except json.JSONDecodeError:
-            self.logger.critical("JSON decoding error in the configuration file.")
+            logger.critical("JSON decoding error in the configuration file.")
         except PermissionError:
-            self.logger.critical("No permission to read configuration file.")
+            logger.critical("No permission to read configuration file.")
         except Exception as e:
-            self.logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
+            logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
         return {},
 
     def write_configuration(self) -> None:
@@ -86,9 +82,9 @@ class ConfigurationHandler(metaclass=Singleton):
                 json.dump(self.__config_tup[0], file, indent='\t')
 
         except PermissionError:
-            self.logger.critical("No permission to write configuration file.")
+            logger.critical("No permission to write configuration file.")
         except Exception as e:
-            self.logger.critical(f"An unexpected error occurred trying to write the configuration file: {e}")
+            logger.critical(f"An unexpected error occurred trying to write the configuration file: {e}")
 
     def get_configuration(self) -> dict:
         """
@@ -105,7 +101,7 @@ class ConfigurationHandler(metaclass=Singleton):
             If the configuration is not of type dict.
         """
         if not isinstance(self.__config_tup[0], dict):
-            self.logger.critical("Expected the configuration to be of type dict")
+            logger.critical("Expected the configuration to be of type dict")
             raise TypeError("Expected the configuration to be of type dict")
         else:
             return self.__config_tup[0]
