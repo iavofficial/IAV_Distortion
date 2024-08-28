@@ -704,3 +704,6 @@ class EnvironmentManager:
         new_track = FullTrack(track_list)
         self.notify_new_track(new_track)
         return None
+
+    def get_item_collision_detector(self) -> ItemCollisionDetector:
+        return self._item_collision_detector

@@ -18,3 +18,9 @@ class Item:
 
     def get_position(self) -> Position:
         return self.position
+
+    def to_html_dict(self):
+        return {
+            'x': self.position.get_x(),
+            'y': self.position.get_y()
+        }
