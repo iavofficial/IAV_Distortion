@@ -2,7 +2,7 @@ import asyncio
 from asyncio import Lock
 import math
 import logging
-from typing import Tuple, Callable
+from typing import Tuple, Callable, List
 
 from LocationService.Trigo import Position, Angle
 from LocationService.Track import FullTrack
@@ -65,7 +65,7 @@ class LocationService:
         else:
             self._current_position = None
 
-        self._on_update_callback = None
+        self._on_update_callback: List[Callable[[Position, Angle, dict], None]] = []
 
         self.__task = None
         if self.__start_immediately:
@@ -75,8 +75,8 @@ class LocationService:
         if self.__task is not None:
             self.stop()
 
-    def set_on_update_callback(self, callback_function: Callable[[Position, Angle, dict], None]) -> None:
-        self._on_update_callback = callback_function
+    def add_on_update_callback(self, callback_function: Callable[[Position, Angle, dict], None]) -> None:
+        self._on_update_callback.append(callback_function)
 
         return
 
@@ -312,15 +312,15 @@ class LocationService:
         # while not self._stop_event.is_set():
         while True:
             pos, rot = await self._run_simulation_step_threadsafe()
-            if self._on_update_callback is not None:
-                data: dict = {
-                    'offset': self._actual_offset * self._direction_mult * -1,
-                    'speed': self._actual_speed,
-                    'going_clockwise': self._direction_mult == 1,
-                    'uturn_in_progress': self._uturn_override is not None
-                }
+            data: dict = {
+                'offset': self._actual_offset * self._direction_mult * -1,
+                'speed': self._actual_speed,
+                'going_clockwise': self._direction_mult == 1,
+                'uturn_in_progress': self._uturn_override is not None
+            }
+            for callback in self._on_update_callback:
+                callback(pos, rot, data)
 
-                self._on_update_callback(pos, rot, data)
             # time.sleep(1 / self._simulation_ticks_per_second)
             await asyncio.sleep(1 / self._simulation_ticks_per_second)
 
