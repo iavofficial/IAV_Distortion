@@ -13,7 +13,7 @@ def test_item_collision_notification():
     item = MagicMock(spec=Item)
     item.get_position.return_value = Position(100, 100)
 
-    item_collision_detector = ItemCollisionDetector(None)
+    item_collision_detector = ItemCollisionDetector()
     item_collision_detector._items.clear()
     item_collision_detector._items.append(item)
 
@@ -36,7 +36,7 @@ def test_callbacks_are_executed():
     """
     item = MagicMock(spec=Item)
     item_changed_callback = MagicMock()
-    item_collision_detector = ItemCollisionDetector(None)
+    item_collision_detector = ItemCollisionDetector()
     item_collision_detector.set_on_item_change_callback(item_changed_callback)
 
     item_collision_detector.add_item(item)

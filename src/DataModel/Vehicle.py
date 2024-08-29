@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Vehicle:
-    def __init__(self, vehicle_id: str) -> None:
+    def __init__(self, vehicle_id: str, disable_item_removal=False) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None
@@ -32,7 +32,8 @@ class Vehicle:
         self._driving_data_callback: Callable[[dict], None] | None = None
         self._effects: List[VehicleEffect] = []
 
-        self._effect_removal_task = asyncio.create_task(self._test_effect_removal_task())
+        if not disable_item_removal:
+            self._effect_removal_task = asyncio.create_task(self._test_effect_removal_task())
         return
 
     @abstractmethod
