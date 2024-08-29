@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from TestingTools import generate_mac_address
 
 from DataModel.Vehicle import Vehicle
-from CyberSecurityManager.CyberSecurityManager import BehaviourController
+from VehicleMovementManagement.BehaviourController import BehaviourController
 
 
 class BehaviourControllerTest(unittest.TestCase):
