@@ -426,10 +426,14 @@ def test_track_notify():
     physical_car = PhysicalCar('AA:AA:AA:AA:AA:AA', MagicMock(), physical_location_service, disable_item_removal=True)
     env_manager._active_anki_cars.append(physical_car)
 
+    item_generator = MagicMock()
+    env_manager.add_item_generator(item_generator)
+
     env_manager.notify_new_track(new_track)
 
     virtual_location_service.notify_new_track.assert_called()
     physical_location_service.notify_new_track.assert_called()
+    item_generator.notify_new_track.assert_called()
 
 
 @pytest.mark.skip_ci

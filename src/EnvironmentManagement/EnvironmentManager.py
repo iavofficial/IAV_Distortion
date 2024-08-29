@@ -685,8 +685,7 @@ class EnvironmentManager:
         self.config_handler.write_configuration()
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
-        self._item_collision_detector.notify_new_track(new_track)
-
+        self._item_generator.notify_new_track(new_track)
         return
 
     async def rescan_track(self, car: str) -> str | None:
