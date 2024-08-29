@@ -7,8 +7,12 @@
 # file that should have been included as part of this package.
 #
 from typing import Any
+import logging
 
+from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
 from VehicleMovementManagement.BehaviourController import BehaviourController
+
+logger = logging.getLogger(__name__)
 
 
 def _set_scenarios() -> list[dict[str, Any]]:
@@ -49,10 +53,11 @@ def _set_scenarios() -> list[dict[str, Any]]:
 
 class CyberSecurityManager:
 
-    def __init__(self, behaviour_ctrl: BehaviourController) -> None:
+    def __init__(self, behaviour_ctrl: BehaviourController, environment_manager) -> None:
         self._behaviour_ctrl = behaviour_ctrl
         self._hacking_scenarios = _set_scenarios()
         self._active_scenarios = {}
+        self._environment_manager = environment_manager
 
         return
 
@@ -63,6 +68,16 @@ class CyberSecurityManager:
         scenario = next((sce for sce in self._hacking_scenarios if sce["id"] == scenario_id), None)
         if scenario is None:
             return
+
+        vehicle = self._environment_manager.get_vehicle_by_vehicle_id(uuid)
+        if vehicle is None:
+            logger.warning("Tried to activate scenario for the non existent vehicle %s. Ignoring the request", uuid)
+            return
+
+        # Ignore the request if the vehicle has a hacking protection
+        for effect in vehicle.get_active_effects():
+            if effect.identify() == VehicleEffectIdentification.HACKING_PROTECTION and not scenario_id == '0':
+                return
 
         self._behaviour_ctrl.set_speed_factor(uuid, scenario["speed_factor"])
 
