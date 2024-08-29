@@ -46,3 +46,8 @@ def test_callbacks_are_executed():
 
     item_collision_detector.remove_item(item)
     item_changed_callback.assert_called()
+
+    item_changed_callback.reset_mock()
+
+    item_collision_detector.clear_items()
+    item_changed_callback.assert_called()
