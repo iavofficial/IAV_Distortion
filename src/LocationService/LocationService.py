@@ -4,6 +4,7 @@ import math
 import logging
 from typing import Tuple, Callable, List
 
+import Constants
 from LocationService.Trigo import Position, Angle
 from LocationService.Track import FullTrack
 
@@ -33,11 +34,6 @@ class LocationService:
         self.__MAX_USED_DISTANCE_FOR_OFFSET_PERCENT = 0.30
         self._simulation_ticks_per_second = simulation_ticks_per_second
         self.__start_immediately = start_immediately
-
-        # Taken from AnkiController
-        # TODO: Put this in a more central place where both the controller and the LocationService can get it
-        self.__MAX_ANKI_SPEED = 1200
-        self.__LANE_OFFSET = 22.25
 
         self._value_mutex: Lock = Lock()
         self._actual_speed: float = 0
@@ -104,7 +100,7 @@ class LocationService:
             Used acceleration in mm/s^2.
         """
         async with self._value_mutex:
-            self._set_speed_mm(self.__MAX_ANKI_SPEED * speed / 100, acceleration)
+            self._set_speed_mm(Constants.MAX_ANKI_SPEED * speed / 100, acceleration)
         return
 
     def _set_speed_mm(self, speed_mm: float, acceleration: int = 1000) -> None:
@@ -137,7 +133,7 @@ class LocationService:
         """
         async with self._value_mutex:
             # TODO: This doesn't check for out of bounds driving
-            self._set_offset_mm(self.__LANE_OFFSET * offset)
+            self._set_offset_mm(Constants.TRACK_LANE_WIDTH * offset)
         return
 
     def _set_offset_mm(self, offset: float) -> None:

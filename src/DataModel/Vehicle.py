@@ -12,6 +12,7 @@ from typing import Callable, List, Any
 
 from abc import abstractmethod, ABC
 
+import Constants
 from DataModel.Effects.VehicleEffect import VehicleEffect
 from Items.Item import Item
 from LocationService import LocationService
@@ -41,7 +42,6 @@ class Vehicle(ABC):
         self.__speed: int = 0
         self.__speed_request: int = 0
         self.__speed_factor: float = 1.0
-        self.__min_speed_thr = 20
 
         self.__lane_change: int = 0
         self.__lane_change_request: int = 0
@@ -161,7 +161,7 @@ class Vehicle(ABC):
 
     def __calculate_speed(self) -> None:
         speed_calculated = self.__speed_request * self.__speed_factor
-        if speed_calculated > self.__min_speed_thr:
+        if speed_calculated > Constants.MINIMUM_SPEED_PERCENT:
             self.__speed = speed_calculated
         else:
             self.__speed = 0
