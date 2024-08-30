@@ -51,6 +51,7 @@ def create_app(admin_password: str):
         quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
         quart_app.add_background_task(item_generator.start_item_generation)
 
+
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=socket)
     driver_ui_blueprint = driver_ui.get_blueprint()
     staff_ui = StaffUI(cybersecurity_mng=cybersecurity_mng, sio=socket, environment_mng=environment_mng,
