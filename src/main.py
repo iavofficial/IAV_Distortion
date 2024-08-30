@@ -8,6 +8,7 @@
 #
 import logging
 
+from Items.ItemGenerator import ItemGenerator
 from VehicleManagement.FleetController import FleetController
 from VehicleMovementManagement.BehaviourController import BehaviourController
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
@@ -46,7 +47,10 @@ def create_app(admin_password: str):
 
     vehicles = environment_mng.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
-    cybersecurity_mng = CyberSecurityManager(behaviour_ctrl)
+    cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, environment_mng)
+    item_generator = ItemGenerator(environment_mng.get_item_collision_detector(), cybersecurity_mng,
+                                   environment_mng.get_track())
+    environment_mng.add_item_generator(item_generator)
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=socket)
     driver_ui_blueprint = driver_ui.get_blueprint()

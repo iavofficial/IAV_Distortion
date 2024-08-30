@@ -25,7 +25,8 @@ class ModelCarTest(TestCase):
         # Arrange
 
         # Act
-        self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock)
+        self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock,
+                               disable_item_removal=True)
 
         # Assert
         assert self.mut.vehicle_id == self.dummy_uuid

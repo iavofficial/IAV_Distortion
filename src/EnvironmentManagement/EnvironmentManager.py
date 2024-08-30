@@ -23,6 +23,7 @@ from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from Items.ItemGenerator import ItemGenerator
 from LocationService.PhysicalLocationService import PhysicalLocationService
 from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException, \
     full_track_to_list_of_dicts
@@ -69,7 +70,11 @@ class EnvironmentManager:
         # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
-        self._item_collision_detector: ItemCollisionDetector = ItemCollisionDetector(self.get_track())
+        self._item_collision_detector: ItemCollisionDetector = ItemCollisionDetector()
+        self._item_generator: ItemGenerator | None = None
+
+    def add_item_generator(self, item_generator: ItemGenerator):
+        self._item_generator = item_generator
 
     # set Callbacks
     def set_staff_ui_update_callback(self,
@@ -680,8 +685,7 @@ class EnvironmentManager:
         self.config_handler.write_configuration()
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
-        self._item_collision_detector.notify_new_track(new_track)
-
+        self._item_generator.notify_new_track(new_track)
         return
 
     async def rescan_track(self, car: str) -> str | None:

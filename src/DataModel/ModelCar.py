@@ -11,8 +11,8 @@ class ModelCar(Vehicle):
     Base Car implementation that reacts to hacking effects and forwards speed/offset changes to
     the controller, if appropriate
     """
-    def __init__(self, vehicle_id: str) -> None:
-        super().__init__(vehicle_id)
+    def __init__(self, vehicle_id: str, disable_item_removal=False) -> None:
+        super().__init__(vehicle_id, disable_item_removal=disable_item_removal)
 
         self.__speed: int = 0
         self.__speed_request: int = 0

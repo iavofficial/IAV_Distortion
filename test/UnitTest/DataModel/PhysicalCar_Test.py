@@ -12,7 +12,7 @@ from LocationService.TrackPieces import TrackBuilder
 def test_physical_car_offset_correction(offset: float):
     location_service_mock = MagicMock()
     controller = MagicMock()
-    car = PhysicalCar('123', controller, location_service_mock)
+    car = PhysicalCar('123', controller, location_service_mock, disable_item_removal=True)
 
     location_tuple = (13, 39, offset, 40, 128)
     car._receive_location(location_tuple)
@@ -55,7 +55,7 @@ def test_get_driving_data() -> None:
     vehicle_controller_mock = MagicMock()
     vehicle_controller_mock.connect_to_vehicle.return_value = False
     location_service_mock = MagicMock()
-    mut = PhysicalCar("FA:14:67:0F:39:FE", vehicle_controller_mock, location_service_mock)
+    mut = PhysicalCar("FA:14:67:0F:39:FE", vehicle_controller_mock, location_service_mock, disable_item_removal=True)
     mut.player = "Player 1"
     mut._speed_actual = 333
     mut.hacking_scenario = "test_scenario"
@@ -72,7 +72,7 @@ def test_on_driving_data_change() -> None:
     vehicle_controller_mock = MagicMock()
     vehicle_controller_mock.connect_to_vehicle.return_value = False
     location_service_mock = MagicMock()
-    mut = PhysicalCar("FA:14:67:0F:39:FE", vehicle_controller_mock, location_service_mock)
+    mut = PhysicalCar("FA:14:67:0F:39:FE", vehicle_controller_mock, location_service_mock, disable_item_removal=True)
     mut.player = "Player 1"
     mut._speed_actual = 333
 

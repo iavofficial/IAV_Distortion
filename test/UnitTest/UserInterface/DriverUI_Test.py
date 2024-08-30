@@ -31,7 +31,7 @@ def initialise_dependencies():
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_manager, sio=socket)
 
-    vehicle: Vehicle = Vehicle('1234')
+    vehicle: Vehicle = Vehicle('1234', disable_item_removal=True)
 
     return driver_ui, environment_manager, vehicle
 

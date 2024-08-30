@@ -1,12 +1,14 @@
 import random
 
+from DataModel.Effects.VehicleEffect import VehicleEffect
 from LocationService.Track import FullTrack, TrackEntry
 from LocationService.Trigo import Position
 
 
 class Item:
-    def __init__(self, track: FullTrack | None):
+    def __init__(self, track: FullTrack | None, effect: VehicleEffect):
         self.position: Position | None = None
+        self.effect = effect
         if track is not None:
             self.generate_new_position(track)
 
@@ -18,6 +20,9 @@ class Item:
 
     def get_position(self) -> Position:
         return self.position
+
+    def get_effect(self) -> VehicleEffect:
+        return self.effect
 
     def to_html_dict(self):
         return {

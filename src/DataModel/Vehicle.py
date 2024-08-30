@@ -6,26 +6,34 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
+import asyncio
 from datetime import datetime
-from typing import Callable
+from typing import Callable, List
 
 from abc import abstractmethod
 
+from DataModel.Effects.VehicleEffect import VehicleEffect
 from Items.Item import Item
 from LocationService import LocationService
 from LocationService.Track import FullTrack
 from VehicleManagement.VehicleController import VehicleController
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Vehicle:
-    def __init__(self, vehicle_id: str) -> None:
+    def __init__(self, vehicle_id: str, disable_item_removal=False) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None
 
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict], None] | None = None
+        self._effects: List[VehicleEffect] = []
 
+        if not disable_item_removal:
+            self._effect_removal_task = asyncio.create_task(self._test_effect_removal_task())
         return
 
     @abstractmethod
@@ -186,5 +194,25 @@ class Vehicle:
         pass
 
     def notify_item_collected(self, item: Item):
-        # TODO: Add item effect or similar
-        pass
+        new_effect = item.get_effect()
+        for effect in self._effects:
+            if effect.identify() == new_effect.identify():
+                return
+
+        if not new_effect.can_be_applied(self):
+            return
+        logger.info("Car %s now has the effect %s", self.vehicle_id, str(new_effect.identify()))
+        self._effects.append(new_effect)
+        new_effect.on_start(self)
+        return
+
+    def get_active_effects(self):
+        return self._effects
+
+    async def _test_effect_removal_task(self):
+        while True:
+            for effect in self._effects:
+                if effect.effect_should_end(self):
+                    self._effects.remove(effect)
+                    logger.info("Car %s doesn't have the effect %s anymore", self.vehicle_id, str(effect.identify()))
+            await asyncio.sleep(1)
