@@ -40,7 +40,7 @@ class PhysicalCar(Vehicle):
     async def initiate_connection(self, uuid: str) -> bool:
         if self._controller is None:
             logger.error("Tried to connect to vehicle without active controller. Ignoring the request")
-            return
+            return False
         if await self._controller.connect_to_vehicle(BleakClient(uuid), True):
             self._controller.set_ble_not_reachable_callback(self._model_car_not_reachable_callback)
             self._controller.set_callbacks(self._receive_location,

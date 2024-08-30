@@ -167,7 +167,7 @@ class EnvironmentManager:
             logger.critical('Missing publish_removed_player_callback!')
             return False
         else:
-            self.__publish_removed_player_callback(player=player_id, reason=message)
+            self.__publish_removed_player_callback(player_id, message)
             return True
 
     def _publish_player_active(self, player: str) -> None:
@@ -683,6 +683,9 @@ class EnvironmentManager:
         self.config_handler.write_configuration()
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
+        if self._item_generator is None:
+            logger.critical("EnvironmentManager has no Item Generator!")
+            return
         self._item_generator.notify_new_track(new_track)
         return
 
@@ -697,6 +700,8 @@ class EnvironmentManager:
         if vehicle is None:
             logger.error("A client attempted to use a vehicle for track scanning that doesn't exist")
             return "Request didn't include a valid vehicle"
+        if not isinstance(vehicle, PhysicalCar):
+            return "This car isn't a real car. Please use a real car"
         controller = vehicle.extract_controller()
         if controller is None:
             return "The selected car can't be controlled currently. Please use another car"
