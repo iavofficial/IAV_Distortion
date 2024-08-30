@@ -7,6 +7,8 @@
 # file that should have been included as part of this package.
 #
 import logging
+from logging.handlers import RotatingFileHandler
+from sys import stdout
 
 from VehicleManagement.FleetController import FleetController
 from VehicleMovementManagement.BehaviourController import BehaviourController
@@ -65,7 +67,14 @@ def create_app(admin_password: str):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
+    rotating_file_handler = RotatingFileHandler('logfile_IAV-Distortion.log', maxBytes=20000, backupCount=5)
+    stdout_handler = logging.StreamHandler(stream=stdout)
+    logging.basicConfig(encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s',
+                        handlers=[rotating_file_handler, stdout_handler])
+    logging.info("-------------------------")
+    logging.info(" STARTING IAV-Distortion ")
+    logging.info("-------------------------")
+
     # TODO: work with hashed password, passwords should not be stored in clear text
     admin_pwd = os.environ.get('ADMIN_PASSWORD')
     if admin_pwd is None:
