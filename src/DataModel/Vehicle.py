@@ -45,7 +45,7 @@ class Vehicle:
 
         self.__turn_blocked: bool = False
 
-        self.__is_safemode_on: bool = True
+        self._is_safemode_on: bool = True
 
         self._virtual_location_update_callback: Callable[[str, dict, float], None] | None = None
 
@@ -236,7 +236,7 @@ class Vehicle:
         self._uturn_starting()
 
     def set_safemode(self, value: bool) -> None:
-        self.__is_safemode_on = value
+        self._is_safemode_on = value
 
     def get_driving_data(self) -> dict[str, Any]:
         driving_info_dic = {
@@ -244,7 +244,7 @@ class Vehicle:
             'player': self.player,
             'speed_request': self._requested_speed,
             'lane_change_blocked': self.__lange_change_blocked,
-            'is_safemode_on': self.__is_safemode_on,
+            'is_safemode_on': self._is_safemode_on,
             'active_hacking_scenario': self._active_hacking_scenario,
             'speed_actual': self._current_driving_speed
         }

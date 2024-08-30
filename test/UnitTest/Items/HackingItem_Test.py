@@ -76,7 +76,7 @@ async def test_hacking_effects_change_speedfactor(init_vehicle, init_effects):
     car.remove_effect(no_driving_effect)
 
     car.apply_effect(no_safemodule_effect)
-    assert not car.isSafeModeOn
+    assert not car._is_safemode_on
     assert car.speed_factor == 1.5
     car.remove_effect(no_safemodule_effect)
 
