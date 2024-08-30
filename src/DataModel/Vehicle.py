@@ -13,7 +13,7 @@ from typing import Callable, List, Any
 import Constants
 from DataModel.Effects.VehicleEffect import VehicleEffect
 from Items.Item import Item
-from LocationService import LocationService
+from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
 from LocationService.Trigo import Position, Angle
 import logging
