@@ -15,7 +15,9 @@ class Item:
     def generate_new_position(self, track: FullTrack):
         random_entry: TrackEntry = random.choice(track.track_entries)
         piece_offset = random_entry.get_global_offset()
-        _, piece_position = random_entry.get_piece().process_update(0, 0, 0)
+        offset = 22.5 * random.randint(-3, 3)
+        progress = random.randint(0, int(random_entry.get_piece().get_length(offset)))
+        _, piece_position = random_entry.get_piece().process_update(0, progress, offset)
         self.position = piece_offset + piece_position
 
     def get_position(self) -> Position:
