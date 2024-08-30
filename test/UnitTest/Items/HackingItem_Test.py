@@ -15,7 +15,7 @@ from VehicleManagement.VehicleController import VehicleController
 def init_vehicle():
     location_mock = MagicMock(spec=LocationService)
     controller_mock = MagicMock(spec=VehicleController)
-    car = VirtualCar('123', controller_mock, location_mock, disable_item_removal=True)
+    car = VirtualCar('123', location_mock, disable_item_removal=True)
     return car
 
 

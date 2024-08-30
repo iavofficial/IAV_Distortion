@@ -6,6 +6,7 @@ from DataModel.PhysicalCar import PhysicalCar
 from DataModel.VirtualCar import VirtualCar
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager, RemovalReason
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from LocationService.LocationService import LocationService
 from LocationService.Track import TrackPieceType, FullTrack
 from LocationService.TrackPieces import TrackBuilder
 from VehicleManagement.FleetController import FleetController
@@ -45,8 +46,9 @@ def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentMan
 
 @pytest.fixture(scope="module")
 def get_two_dummy_vehicles() -> list[Vehicle]:
-    vehicle1: Vehicle = Vehicle("123", disable_item_removal=True)
-    vehicle2: Vehicle = Vehicle("456", disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle1: Vehicle = Vehicle("123", location_service_mock, disable_item_removal=True)
+    vehicle2: Vehicle = Vehicle("456", location_service_mock, disable_item_removal=True)
     output: list[Vehicle] = [vehicle1, vehicle2]
     return output
 
@@ -62,7 +64,8 @@ def get_two_dummy_player() -> list[str]:
 
 @pytest.fixture
 def get_one_dummy_vehicle() -> Vehicle:
-    vehicle: Vehicle = Vehicle("123", disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle: Vehicle = Vehicle("123", location_service_mock, disable_item_removal=True)
 
     return vehicle
 
