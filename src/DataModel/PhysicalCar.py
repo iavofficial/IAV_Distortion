@@ -29,7 +29,7 @@ class PhysicalCar(Vehicle):
         self._controller: AnkiController | None = controller
         self._location_service: PhysicalLocationService = location_service
         self._location_service.add_on_update_callback(self._location_service_update)
-        self._car_not_reachable_callback: Callable[[str, str], None] | None = None
+        self._car_not_reachable_callback: Callable[[str, str | None], None] | None = None
 
     def __del__(self) -> None:
         if self._controller is not None:
@@ -84,7 +84,7 @@ class PhysicalCar(Vehicle):
         self._controller.request_version()
         self._controller.request_battery()
 
-    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str], None]) -> None:
+    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str | None], None]) -> None:
         self._car_not_reachable_callback = function_name
         return
 
