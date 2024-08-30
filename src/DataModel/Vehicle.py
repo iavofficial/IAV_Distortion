@@ -60,7 +60,6 @@ class Vehicle():
         self._battery: str = ""
         self._version: str = ""
 
-        self._model_car_not_reachable_callback: Callable[[str, str], None] | None = None
         self._virtual_location_update_callback: Callable[[str, dict, float], None] | None = None
 
     def __del__(self):
@@ -112,15 +111,6 @@ class Vehicle():
 
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         self._driving_data_callback = function_name
-        return
-
-    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str], None]) -> None:
-        self._model_car_not_reachable_callback = function_name
-        return
-
-    def _on_model_car_not_reachable(self) -> None:
-        if self._model_car_not_reachable_callback is not None:
-            self._model_car_not_reachable_callback(self.vehicle_id, self.player)
         return
 
     def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:

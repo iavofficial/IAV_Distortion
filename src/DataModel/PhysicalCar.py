@@ -1,3 +1,5 @@
+from typing import Callable
+
 from bleak import BleakClient
 from DataModel.Vehicle import Vehicle
 from LocationService.PhysicalLocationService import PhysicalLocationService
@@ -23,6 +25,7 @@ class PhysicalCar(Vehicle):
         self._controller: AnkiController = controller
         self._location_service: PhysicalLocationService = location_service
         self._location_service.add_on_update_callback(self._location_service_update)
+        self._car_not_reachable_callback: Callable[[str, str], None] | None = None
 
     def __del__(self) -> None:
         if self._controller is not None:
@@ -71,3 +74,11 @@ class PhysicalCar(Vehicle):
         self._controller.set_ble_not_reachable_callback(self._model_car_not_reachable_callback)
         self._controller.request_version()
         self._controller.request_battery()
+
+    def set_vehicle_not_reachable_callback(self, function_name: Callable[[str, str], None]) -> None:
+        self._car_not_reachable_callback = function_name
+        return
+
+    def _model_car_not_reachable_callback(self) -> None:
+        if self._car_not_reachable_callback is not None:
+            self._car_not_reachable_callback(self.vehicle_id, self.player)
