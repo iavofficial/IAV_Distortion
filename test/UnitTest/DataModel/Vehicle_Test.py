@@ -63,7 +63,8 @@ async def test_vehicle_removes_effect():
     """
     mock_effect = MagicMock(spec=VehicleEffect)
     mock_effect.effect_should_end.return_value = True
-    vehicle = Vehicle('123')
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle = Vehicle('123', location_service_mock)
 
     assert len(vehicle._effects) == 0
     vehicle._effects.append(mock_effect)
