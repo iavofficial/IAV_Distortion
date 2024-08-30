@@ -1,3 +1,4 @@
+import logging
 from typing import Callable
 
 from bleak import BleakClient
@@ -5,6 +6,8 @@ from DataModel.Vehicle import Vehicle
 from LocationService.PhysicalLocationService import PhysicalLocationService
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.VehicleController import Turns
+
+logger = logging.getLogger(__name__)
 
 
 def clamp(val: float, minimum: float, maximum: float) -> float:
@@ -35,6 +38,9 @@ class PhysicalCar(Vehicle):
         super().__del__()
 
     async def initiate_connection(self, uuid: str) -> bool:
+        if self._controller is None:
+            logger.error("Tried to connect to vehicle without active controller. Ignoring the request")
+            return
         if await self._controller.connect_to_vehicle(BleakClient(uuid), True):
             self._controller.set_ble_not_reachable_callback(self._model_car_not_reachable_callback)
             self._controller.set_callbacks(self._receive_location,
