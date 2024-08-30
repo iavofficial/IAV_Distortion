@@ -344,7 +344,7 @@ class TestPublishRemovedPlayer:
 
         # Assert
         assert result
-        remove_player_callback_mock.assert_called_with(player="dummyplayer1", reason=expected)
+        remove_player_callback_mock.assert_called_with("dummyplayer1", expected)
 
     def test_with_invalid_string_reason(self, get_mut_with_endless_playing_time):
         # Arrange
