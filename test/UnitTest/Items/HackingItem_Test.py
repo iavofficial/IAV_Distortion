@@ -8,13 +8,11 @@ from DataModel.Effects.HackingEffects.HackedNoSafetyModule import HackedNoSafety
 from DataModel.Effects.HackingEffects.HackedReducedSpeed import HackedReducedSpeed
 from DataModel.VirtualCar import VirtualCar
 from LocationService.LocationService import LocationService
-from VehicleManagement.VehicleController import VehicleController
 
 
 @pytest.fixture
 def init_vehicle():
     location_mock = MagicMock(spec=LocationService)
-    controller_mock = MagicMock(spec=VehicleController)
     car = VirtualCar('123', location_mock, disable_item_removal=True)
     return car
 
