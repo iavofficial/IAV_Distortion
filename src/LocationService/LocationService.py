@@ -51,7 +51,7 @@ class LocationService:
 
         self._uturn_override: UTurnOverride | None = None
 
-        self._track: FullTrack = track
+        self._track: FullTrack | None = track
         self._current_piece_index: int = 0
         self._progress_on_current_piece: float = 0
         self._current_position: Position | None

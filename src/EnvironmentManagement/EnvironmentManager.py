@@ -418,6 +418,8 @@ class EnvironmentManager:
                 time_difference: timedelta = datetime.now() - player.game_start
                 if time_difference >= timedelta(minutes=timeout_interval):
                     logger.debug(f'playtime of {time_difference} for player {player.player} is over')
+                    if player.player is None:
+                        return
                     self.manage_removal_from_game_for(player_id=player.player,
                                                       reason=RemovalReason.PLAYING_TIME_IS_UP)
 
@@ -550,13 +552,14 @@ class EnvironmentManager:
         self._add_to_active_vehicle_list(new_vehicle)
         return
 
-    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str) -> None:
+    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str | None) -> None:
         """
         Callback that should be executed when a vehicle isn't reachable anymore
         """
         # to be able to specify a removal reason the player needs to be removed manually before removing the vehicle
         # that would also automatically remove the player
-        self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
+        if player_id is not None:
+            self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
         self.remove_vehicle_by_id(vehicle_id)
 
     def add_virtual_vehicle(self) -> str:
