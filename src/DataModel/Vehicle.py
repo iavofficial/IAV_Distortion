@@ -10,8 +10,6 @@ import asyncio
 from datetime import datetime
 from typing import Callable, List, Any
 
-from abc import abstractmethod, ABC
-
 import Constants
 from DataModel.Effects.VehicleEffect import VehicleEffect
 from Items.Item import Item
@@ -24,7 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Vehicle(ABC):
+class Vehicle():
     def __init__(self, vehicle_id: str, location_service: LocationService, disable_item_removal=False) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
@@ -108,10 +106,6 @@ class Vehicle(ABC):
         Returns the name (for real vehicles UUID) of the vehicle
         """
         return self.vehicle_id
-
-    @abstractmethod
-    def get_type_of_controller(self) -> type:
-        pass
 
     def get_type_of_location_service(self) -> type:
         return type(LocationService)

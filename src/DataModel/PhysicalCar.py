@@ -1,6 +1,5 @@
 from bleak import BleakClient
 from DataModel.Vehicle import Vehicle
-from LocationService.LocationService import LocationService
 from LocationService.PhysicalLocationService import PhysicalLocationService
 from VehicleManagement.AnkiController import AnkiController
 
@@ -72,6 +71,3 @@ class PhysicalCar(Vehicle):
         self._controller.set_ble_not_reachable_callback(self._model_car_not_reachable_callback)
         self._controller.request_version()
         self._controller.request_battery()
-
-    def get_type_of_controller(self) -> type:
-        return type(self._controller)

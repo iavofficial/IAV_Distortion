@@ -29,7 +29,6 @@ from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track
     full_track_to_list_of_dicts
 
 from VehicleManagement.AnkiController import AnkiController
-from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
 
 from LocationService.LocationService import LocationService
@@ -568,9 +567,8 @@ class EnvironmentManager:
 
         logger.debug(f"Adding virtual vehicle with name {name}")
 
-        dummy_controller = EmptyController()
         location_service = LocationService(self.get_track(), start_immediately=True)
-        new_vehicle = VirtualCar(name, dummy_controller, location_service)
+        new_vehicle = VirtualCar(name, location_service)
 
         def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos,
                                                                                                    rot)
