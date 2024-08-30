@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
+from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
 from DataModel.Effects.VehicleEffect import VehicleEffect
 from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
 from DataModel.Vehicle import Vehicle
@@ -8,14 +8,15 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 
 class HackingProtection(VehicleEffect):
-    def __init__(self, cyber_security_manager: CyberSecurityManager):
+    def __init__(self):
         super().__init__()
-        self._cyber_security_manager = cyber_security_manager
         self._end_time = None
 
     def on_start(self, vehicle: 'Vehicle') -> None:
         super().on_start(vehicle)
-        self._cyber_security_manager.activate_hacking_scenario_for_vehicle(vehicle.vehicle_id, "0")
+        clean_effect = CleanHackedEffect("0")
+        vehicle.apply_effect(clean_effect)
+        vehicle.remove_effect(clean_effect)
         config_handler = ConfigurationHandler()
         try:
             # TODO: Implement general config objects and handle default values there!
