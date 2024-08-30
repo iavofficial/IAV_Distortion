@@ -17,7 +17,11 @@ class HackingProtection(VehicleEffect):
         super().on_start(vehicle)
         self._cyber_security_manager.activate_hacking_scenario_for_vehicle(vehicle.vehicle_id, "0")
         config_handler = ConfigurationHandler()
-        duration = config_handler.get_configuration()['hacking_protection']['duration_seconds']
+        try:
+            # TODO: Implement general config objects and handle default values there!
+            duration = config_handler.get_configuration()['hacking_protection']['duration_seconds']
+        except KeyError:
+            duration = 60
         self._end_time = datetime.now() + timedelta(seconds=duration)
 
     def identify(self) -> VehicleEffectIdentification:
