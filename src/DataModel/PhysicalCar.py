@@ -23,7 +23,7 @@ class PhysicalCar(Vehicle):
                  location_service: PhysicalLocationService,
                  disable_item_removal=False) -> None:
         super().__init__(vehicle_id, location_service, disable_item_removal)
-        self._controller: AnkiController = controller
+        self._controller: AnkiController | None = controller
         self._location_service: PhysicalLocationService = location_service
         self._location_service.add_on_update_callback(self._location_service_update)
         self._car_not_reachable_callback: Callable[[str, str], None] | None = None
@@ -87,13 +87,19 @@ class PhysicalCar(Vehicle):
             self._car_not_reachable_callback(self.vehicle_id, self.player)
 
     def _new_speed_calculated(self, new_speed: int) -> None:
+        if self._controller is None:
+            return
         super()._new_speed_calculated(new_speed)
         self._controller.change_speed_to(new_speed)
 
     def _new_offset_calculated(self, current_lane: int) -> None:
+        if self._controller is None:
+            return
         super()._new_offset_calculated(current_lane)
         self._controller.change_lane_to(current_lane, self.get_speed_with_effects_applied(self._requested_speed))
 
     def _uturn_starting(self):
+        if self._controller is None:
+            return
         super()._uturn_starting()
         self._controller.do_turn_with(Turns.A_UTURN)
