@@ -6,13 +6,18 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-from typing import Any
+from typing import Any, TYPE_CHECKING
 import logging
 
 from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
 from DataModel.Effects.HackingEffects.HackedNoDriving import HackedNoDriving
 from DataModel.Effects.HackingEffects.HackedNoSafetyModule import HackedNoSafetyModule
 from DataModel.Effects.HackingEffects.HackedReducedSpeed import HackedReducedSpeed
+
+
+# fix circular import that only occurs because of type hinting
+if TYPE_CHECKING:
+    from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +48,9 @@ def _set_scenarios() -> list[dict[str, Any]]:
 
 class CyberSecurityManager:
 
-    def __init__(self, environment_manager) -> None:
+    def __init__(self, environment_manager: 'EnvironmentManager') -> None:
         self._hacking_scenarios = _set_scenarios()
-        self._environment_manager = environment_manager
+        self._environment_manager: 'EnvironmentManager' = environment_manager
 
         return
 
