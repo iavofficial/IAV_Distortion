@@ -3,8 +3,8 @@ from DataModel.Vehicle import Vehicle
 from LocationService.LocationService import LocationService
 from LocationService.Trigo import Angle, Position
 
-
 logger = logging.getLogger(__name__)
+
 
 class VirtualCar(Vehicle):
     def __init__(self, vehicle_id: str,
