@@ -1,8 +1,7 @@
 from bleak import BleakClient
-from DataModel.ModelCar import ModelCar
+from DataModel.Vehicle import Vehicle
 from LocationService.LocationService import LocationService
 from LocationService.PhysicalLocationService import PhysicalLocationService
-from LocationService.Track import FullTrack
 from VehicleManagement.AnkiController import AnkiController
 
 
@@ -13,13 +12,15 @@ def clamp(val: float, minimum: float, maximum: float) -> float:
     return min(maximum, max(minimum, val))
 
 
-class PhysicalCar(ModelCar):
+class PhysicalCar(Vehicle):
+    _location_service: PhysicalLocationService
+
     def __init__(self,
                  vehicle_id: str,
                  controller: AnkiController,
                  location_service: PhysicalLocationService,
                  disable_item_removal=False) -> None:
-        super().__init__(vehicle_id, disable_item_removal)
+        super().__init__(vehicle_id, location_service, disable_item_removal)
         self._controller: AnkiController = controller
         self._location_service: PhysicalLocationService = location_service
         self._location_service.add_on_update_callback(self._location_service_update)
@@ -44,12 +45,6 @@ class PhysicalCar(ModelCar):
         else:
             return False
 
-    def get_typ_of_controller(self) -> AnkiController:
-        return type(self._controller)
-
-    def get_typ_of_location_service(self) -> LocationService:
-        return type(self._location_service)
-
     def _receive_location(self, value_tuple) -> None:
         super()._receive_location(value_tuple)
         location, piece, offset, _, _ = value_tuple
@@ -61,9 +56,6 @@ class PhysicalCar(ModelCar):
         _, _, offset, _ = value_tuple
         offset = clamp(offset, -66.5, 66.5)
         self._location_service.notify_transition_event(offset)
-
-    def notify_new_track(self, new_track: FullTrack):
-        self._location_service.notify_new_track(new_track)
 
     def extract_controller(self):
         controller = self._controller
@@ -80,3 +72,6 @@ class PhysicalCar(ModelCar):
         self._controller.set_ble_not_reachable_callback(self._model_car_not_reachable_callback)
         self._controller.request_version()
         self._controller.request_battery()
+
+    def get_type_of_controller(self) -> type:
+        return type(self._controller)

@@ -1,18 +1,17 @@
-from DataModel.ModelCar import ModelCar
+from DataModel.Vehicle import Vehicle
 from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
 from LocationService.Trigo import Angle, Position
 from VehicleManagement.EmptyController import EmptyController
 
 
-class VirtualCar(ModelCar):
+class VirtualCar(Vehicle):
     def __init__(self, vehicle_id: str,
                  controller: EmptyController,
                  location_service: LocationService,
                  disable_item_removal=False) -> None:
-        super().__init__(vehicle_id, disable_item_removal=disable_item_removal)
+        super().__init__(vehicle_id, location_service, disable_item_removal=disable_item_removal)
         self._controller: EmptyController = controller
-        self._location_service: LocationService = location_service
         self._location_service.add_on_update_callback(self._location_service_update)
 
         return
@@ -28,7 +27,6 @@ class VirtualCar(ModelCar):
 
         return
 
-    def notify_new_track(self, new_track: FullTrack) -> None:
-        self._location_service.notify_new_track(new_track)
 
-        return
+    def get_type_of_controller(self) -> type:
+        return type(self._controller)

@@ -30,7 +30,7 @@ class ModelCarTest(TestCase):
 
         # Assert
         assert self.mut.vehicle_id == self.dummy_uuid
-        assert isinstance(self.mut.get_typ_of_controller(), type(AnkiController))
+        assert isinstance(self.mut.get_type_of_controller(), type(AnkiController))
 
     async def test_calculate_speed(self):
         # Arrange
