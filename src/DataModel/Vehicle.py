@@ -87,9 +87,6 @@ class Vehicle:
         """
         return self.vehicle_id
 
-    def get_type_of_location_service(self) -> type:
-        return type(LocationService)
-
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         self._driving_data_callback = function_name
         return
