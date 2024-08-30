@@ -16,13 +16,12 @@ from Items.Item import Item
 from LocationService import LocationService
 from LocationService.Track import FullTrack
 from LocationService.Trigo import Position, Angle
-from VehicleManagement.VehicleController import VehicleController, Turns
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class Vehicle():
+class Vehicle:
     def __init__(self, vehicle_id: str, location_service: LocationService, disable_item_removal=False) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
@@ -37,28 +36,16 @@ class Vehicle():
         if not disable_item_removal:
             self._effect_removal_task = asyncio.create_task(self._test_effect_removal_task())
 
-        self.__speed: int = 0
-        self.__speed_request: int = 0
-        self.__speed_factor: float = 1.0
+        self._requested_speed: float = 0
+        self._speed_factor: float = 1.0
+        self._current_driving_speed: int = 0
 
         self.__lane_change: int = 0
-        self.__lane_change_request: int = 0
         self.__lange_change_blocked: bool = False
 
-        self.__turn: int = 0
-        self.__turn_request: int = 0
         self.__turn_blocked: bool = False
 
         self.__is_safemode_on: bool = True
-
-        self._road_piece: int = 0
-        self._prev_road_piece: int = 0
-        self._road_location: int = 0
-        self._offset_from_center: float = 0.0
-        self._speed_actual: int = 0
-        self._direction: int = 0
-        self._battery: str = ""
-        self._version: str = ""
 
         self._virtual_location_update_callback: Callable[[str, dict, float], None] | None = None
 
@@ -67,12 +54,6 @@ class Vehicle():
 
     def notify_new_track(self, new_track: FullTrack) -> None:
         self._location_service.notify_new_track(new_track)
-
-    def extract_controller(self) -> VehicleController | None:
-        pass
-
-    def insert_controller(self) -> None:
-        pass
 
     def set_player(self, key: str) -> None:
         """
@@ -113,15 +94,69 @@ class Vehicle():
         self._driving_data_callback = function_name
         return
 
-    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
-        self._virtual_location_update_callback = function_name
+    def get_speed_with_effects_applied(self, requested_speed: float) -> int:
+        """
+        Calculates the speed after applying the speed factor and other effects
+        """
+        speed_calculated = requested_speed * self._speed_factor
+        if speed_calculated > Constants.MINIMUM_SPEED_PERCENT:
+            return int(speed_calculated)
+
+        self._current_driving_speed = 0
+        self._on_driving_data_change()
+        return 0
+
+    def _on_driving_data_change(self) -> None:
+        if self._driving_data_callback is not None:
+            self._driving_data_callback(self.get_driving_data())
         return
 
-    def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict) -> None:
-        if self._virtual_location_update_callback is not None:
-            self._virtual_location_update_callback(self.vehicle_id, pos.to_dict(), angle.get_deg())
-        return
+    # --------------------------
+    # Methods to request actions
+    # --------------------------
+    def request_speed_percent(self, requested_speed: float):
+        """
+        Method that gets called when a speed is requested. The value range for it is 0-100
+        """
+        self._requested_speed = requested_speed
+        self._new_speed_calculated(self.get_speed_with_effects_applied(requested_speed))
 
+    def request_lanechange(self, direction: int):
+        """
+        Method that requests a lanechange
+        """
+        self.__calculate_lane_change(direction)
+        self._new_offset_calculated(self.__lane_change)
+
+    def request_uturn(self):
+        self.__calculate_turn()
+
+    # ----------------------------------------------
+    # Methods that get called when a change occurred
+    # ----------------------------------------------
+    def _new_speed_calculated(self, new_speed: int) -> None:
+        """
+        Gets called when the speed calculation changes (e.g. due to a new speed factor or due to a speed request)
+        """
+        asyncio.create_task(self._location_service.set_speed_percent(new_speed))
+
+    def _new_offset_calculated(self, current_lane: int) -> None:
+        """
+        Gets called when a new offset was just calculated
+        """
+        asyncio.create_task(self._location_service.set_offset_int(current_lane))
+        asyncio.create_task(self._location_service.set_speed_percent(
+            self.get_speed_with_effects_applied(self._requested_speed)))
+
+    def _uturn_starting(self):
+        """
+        Gets called when a U-Turn is executed
+        """
+        asyncio.create_task(self._location_service.do_uturn())
+
+    # ---------------------------
+    # Generic getters and setters
+    # ---------------------------
     @property
     def hacking_scenario(self) -> str:
         return self._active_hacking_scenario
@@ -129,64 +164,17 @@ class Vehicle():
     @hacking_scenario.setter
     def hacking_scenario(self, value: str) -> None:
         self._active_hacking_scenario = value
-        # TODO resolve warning
         self._on_driving_data_change()
-
-        return
-
-    def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
-            self._driving_data_callback(self.get_driving_data())
-        return
-
-    @property
-    def speed_request(self) -> float:
-        return self.__speed_request
-
-    def __calculate_speed(self) -> None:
-        speed_calculated = self.__speed_request * self.__speed_factor
-        if speed_calculated > Constants.MINIMUM_SPEED_PERCENT:
-            self.__speed = speed_calculated
-        else:
-            self.__speed = 0
-            self._speed_actual = 0
-            self._on_driving_data_change()
-
-        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
-        if self._controller is not None:
-            self._controller.change_speed_to(int(self.__speed))
-        return
-
-    @speed_request.setter
-    def speed_request(self, value: float) -> None:
-        if not value == self.__speed_request:
-            self.__speed_request = value
-            self.__calculate_speed()
-        return
 
     @property
     def speed_factor(self) -> float:
-        return self.__speed_factor
+        return self._speed_factor
 
     @speed_factor.setter
     def speed_factor(self, value: float) -> None:
-        if not value == self.__speed_factor:
-            self.__speed_factor = value
-            self.__calculate_speed()
-        return
-
-    @property
-    def speed(self) -> float:
-        return self.__speed
-
-    @property
-    def lane_change_request(self) -> int:
-        return self.__lane_change_request
-
-    @lane_change_request.setter
-    def lane_change_request(self, value: int) -> None:
-        self.__lane_change_request = value
-        self.__calculate_lane_change()
+        if not value == self._speed_factor:
+            self._speed_factor = value
+            self._new_speed_calculated(self.get_speed_with_effects_applied(self._requested_speed))
         return
 
     @property
@@ -196,20 +184,10 @@ class Vehicle():
     @lange_change_blocked.setter
     def lange_change_blocked(self, value: bool) -> None:
         self.__lange_change_blocked = value
-        return
 
     @property
     def lane_change(self) -> int:
         return self.__lane_change
-
-    @property
-    def turn_request(self) -> int:
-        return self.__turn_request
-
-    @turn_request.setter
-    def turn_request(self, value: int) -> None:
-        self.__turn_request = value
-        self.__calculate_turn()
 
     @property
     def turn_blocked(self) -> bool:
@@ -219,10 +197,9 @@ class Vehicle():
     def turn_blocked(self, value: bool) -> None:
         self.__turn_blocked = value
 
-    @property
-    def turn(self):
-        return self.__turn
-
+    # ---------------------
+    # Miscellaneous methods
+    # ---------------------
     def __update_own_lane_change(self) -> None:
         """
         Updates the own current lane on the track. Needed to ensure
@@ -243,31 +220,23 @@ class Vehicle():
         else:
             self.__lane_change = -3
 
-    def __calculate_lane_change(self) -> None:
+    def __calculate_lane_change(self, change_request: int) -> None:
         if self.__lange_change_blocked:
             return
 
         self.__update_own_lane_change()
-        self.__lane_change += self.__lane_change_request
+        self.__lane_change += change_request
 
         if self.__lane_change < -3:
             self.__lane_change = -3
         elif self.__lane_change > 3:
             self.__lane_change = 3
 
-        asyncio.create_task(self._location_service.set_offset_int(self.__lane_change))
-        asyncio.create_task(self._location_service.set_speed_percent(self.__speed))
-        if self._controller is not None:
-            self._controller.change_lane_to(self.__lane_change, self.__speed)
-
     def __calculate_turn(self) -> None:
         if self.__turn_blocked:
             return
 
-        asyncio.create_task(self._location_service.do_uturn())
-        if self._controller is not None:
-            self._controller.do_turn_with(Turns.A_UTURN)
-        return
+        self._uturn_starting()
 
     def set_safemode(self, value: bool) -> None:
         self.__is_safemode_on = value
@@ -276,33 +245,13 @@ class Vehicle():
         driving_info_dic = {
             'vehicle_id': self.vehicle_id,
             'player': self.player,
-            'speed_request': self.__speed_request,
+            'speed_request': self._requested_speed,
             'lane_change_blocked': self.__lange_change_blocked,
             'is_safemode_on': self.__is_safemode_on,
             'active_hacking_scenario': self._active_hacking_scenario,
-            'road_piece': self._road_piece,
-            'road_location': self._road_location,
-            'offset_from_center': self._offset_from_center,
-            'speed_actual': self._speed_actual,
-            'direction': self._direction,
-            'battery': self._battery,
-            'version': self._version
+            'speed_actual': self._current_driving_speed
         }
         return driving_info_dic
-
-    def _receive_location(self, value_tuple) -> None:
-        location, piece, offset, speed, clockwise = value_tuple
-        self._road_location = location
-        self._road_piece = piece
-        self._offset_from_center = offset
-        if self.__speed == 0:
-            self._speed_actual = 0
-        else:
-            self._speed_actual = speed
-        self._direction = clockwise
-
-        self._on_driving_data_change()
-        return
 
     def _receive_transition(self, value_tuple) -> None:
         piece, piece_prev, offset, direction = value_tuple
@@ -330,27 +279,21 @@ class Vehicle():
     # -----------------------------
     # Location Service related code
     # -----------------------------
+    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
+        self._virtual_location_update_callback = function_name
+        return
+
+    def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict) -> None:
+        if self._virtual_location_update_callback is not None:
+            self._virtual_location_update_callback(self.vehicle_id, pos.to_dict(), angle.get_deg())
+        return
+
     def _location_service_update(self, pos: Position, rot: Angle, data: dict) -> None:
         """
         Default callback to be called when the location service has a new calculated vehicle position.
         It invokes the virtual location update which publishes the driving data via socketio
         """
-        speed: float | None = data.get('speed')
-        if speed is None:
-            # TODO: Log via real logger
-            print("Error: Location service callback didn't include the speed!")
-        else:
-            self._speed_actual = int(speed)
-
-        offset: float | None = data.get('offset')
-        if offset is None:
-            print("Error: Location service callback didn't include the offset!")
-        else:
-            self._offset_from_center = offset
-
         self._on_virtual_location_update(pos, rot, {})
-
-        return
 
     # -----------------
     # Item related code
