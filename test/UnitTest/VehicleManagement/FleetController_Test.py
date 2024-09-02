@@ -7,8 +7,7 @@
 # file that should have been included as part of this package.
 #
 import asyncio
-from unittest import TestCase
-from unittest.mock import patch, AsyncMock, Mock, MagicMock, call
+from unittest.mock import patch, AsyncMock
 
 import pytest
 
@@ -128,7 +127,8 @@ async def test_auto_discover_anki_vehicles_invalid_callback() -> None:
     """
     # Arrange
     test_config_handler = ConfigurationHandler('../src/config_file.json')  # use default config_file
-    with patch('VehicleManagement.FleetController.FleetController.stop_auto_discover_anki_cars') as mock_stop_auto_discover:
+    with patch('VehicleManagement.FleetController.FleetController.stop_auto_discover_anki_cars') as\
+            mock_stop_auto_discover:
         fleet_controller = FleetController(test_config_handler)
         fleet_controller.set_add_anki_car_callback(None)
         test_uuid = "uuid1"

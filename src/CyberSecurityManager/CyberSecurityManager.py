@@ -6,54 +6,51 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-from typing import Any
+from typing import Any, TYPE_CHECKING
+import logging
 
-from VehicleMovementManagement.BehaviourController import BehaviourController
-from DataModel.Vehicle import Vehicle
+from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
+from DataModel.Effects.HackingEffects.HackedNoDriving import HackedNoDriving
+from DataModel.Effects.HackingEffects.HackedNoSafetyModule import HackedNoSafetyModule
+from DataModel.Effects.HackingEffects.HackedReducedSpeed import HackedReducedSpeed
+
+
+# fix circular import that only occurs because of type hinting
+if TYPE_CHECKING:
+    from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+
+logger = logging.getLogger(__name__)
 
 
 def _set_scenarios() -> list[dict[str, Any]]:
     scenario0 = {"id": "0",
                  "name": "normal",
                  "description": "no hacking",
-                 "speed_factor": 1.0,
-                 "block_lane_change": False,
-                 "invert_light": False,
-                 "turn_safemode_off": False}
+                 "effect": CleanHackedEffect}
 
     scenario1 = {"id": "1",
                  "name": "slow_down",
                  "description": "drive with reduced speed",
-                 "speed_factor": 0.3,
-                 "block_lane_change": False,
-                 "invert_light": False,
-                 "turn_safemode_off": False}
+                 "effect": HackedReducedSpeed}
 
     scenario3 = {"id": "3",
                  "name": "stop",
                  "description": "vehicle stops instantaneous",
-                 "speed_factor": 0.0,
-                 "block_lane_change": False,
-                 "invert_light": False,
-                 "turn_safemode_off": False}
+                 "effect": HackedNoDriving}
 
     scenario4 = {"id": "4",
                  "name": "no safety",
                  "description": "the safemode module is deactivated",
-                 "speed_factor": 1.5,
-                 "block_lane_change": False,
-                 "invert_light": False,
-                 "turn_safemode_off": True}
+                 "effect": HackedNoSafetyModule}
 
     return [scenario0, scenario1, scenario3, scenario4]
 
 
 class CyberSecurityManager:
 
-    def __init__(self, behaviour_ctrl: BehaviourController) -> None:
-        self._behaviour_ctrl = behaviour_ctrl
+    def __init__(self, environment_manager: 'EnvironmentManager') -> None:
         self._hacking_scenarios = _set_scenarios()
-        self._active_scenarios = {}
+        self._environment_manager: 'EnvironmentManager' = environment_manager
 
         return
 
@@ -62,30 +59,20 @@ class CyberSecurityManager:
 
     def activate_hacking_scenario_for_vehicle(self, uuid: str, scenario_id: str) -> None:
         scenario = next((sce for sce in self._hacking_scenarios if sce["id"] == scenario_id), None)
+        if scenario is None:
+            return
 
-        self._behaviour_ctrl.set_speed_factor(uuid, scenario["speed_factor"])
+        vehicle = self._environment_manager.get_vehicle_by_vehicle_id(uuid)
+        if vehicle is None:
+            logger.warning("Tried to activate scenario for the non existent vehicle %s. Ignoring the request", uuid)
+            return
 
-        if scenario["block_lane_change"]:
-            self._behaviour_ctrl.block_lane_change(uuid)
-        else:
-            self._behaviour_ctrl.unblock_lane_change(uuid)
-
-        self._behaviour_ctrl.invert_light_switch(uuid, scenario["invert_light"])
-
-        if scenario["turn_safemode_off"]:
-            self._behaviour_ctrl.turn_safemode_off(uuid)
-        else:
-            self._behaviour_ctrl.turn_safemode_on(uuid)
-
-        self._update_active_hacking_scenarios(uuid, scenario_id)
-        self._behaviour_ctrl.set_hacking_scenario(uuid, scenario_id)
+        vehicle.apply_effect(scenario["effect"](scenario["id"]))
 
         return
 
     def get_active_hacking_scenarios(self) -> dict:
-        return self._active_scenarios
-
-    def _update_active_hacking_scenarios(self, uuid: str, scenario_id: str) -> None:
-        self._active_scenarios.update({uuid: scenario_id})
-
-        return
+        scenario_map = {}
+        for car in self._environment_manager.get_vehicle_list():
+            scenario_map.update({car.vehicle_id: car.hacking_scenario})
+        return scenario_map

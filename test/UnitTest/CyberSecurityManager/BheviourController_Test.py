@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from TestingTools import generate_mac_address
 
 from DataModel.Vehicle import Vehicle
-from CyberSecurityManager.CyberSecurityManager import BehaviourController
+from VehicleMovementManagement.BehaviourController import BehaviourController
 
 
 class BehaviourControllerTest(unittest.TestCase):
@@ -17,7 +17,8 @@ class BehaviourControllerTest(unittest.TestCase):
 
     def test_get_vehicle_by_uuid(self):
         # Arrange
-        uuid_ntk: str
+        uuid_ntk: str | None = None
+        mock_id = None
 
         for _ in range(self.number_of_vehicles):
             vehicle_mock = Mock(spec=Vehicle)
@@ -26,6 +27,9 @@ class BehaviourControllerTest(unittest.TestCase):
 
             vehicle_mock.vehicle_id = uuid_ntk
             self.dummy_vehicles.append(vehicle_mock)
+
+        assert uuid_ntk is not None
+        assert mock_id is not None
 
         mut = BehaviourController(self.dummy_vehicles)
 

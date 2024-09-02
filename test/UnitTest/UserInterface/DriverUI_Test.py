@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -17,18 +18,20 @@ def initialise_dependencies():
     """
     Prepare a DriverUI, Environment Vehicle and Vehicle
     """
-    config = ConfigurationHandler()
+    configuration_handler_mock = MagicMock(spec=ConfigurationHandler)
+    configuration_handler_mock.get_configuration.return_value = \
+        {"game_config": {"game_cfg_playing_time_limit_min": 0}}
 
     socket = AsyncServer(async_mode='asgi')
     fleet_ctrl = FleetController()
 
-    environment_manager = EnvironmentManager(fleet_ctrl, config)
+    environment_manager = EnvironmentManager(fleet_ctrl, configuration_handler_mock)
     vehicles = environment_manager.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_manager, sio=socket)
 
-    vehicle: Vehicle = Vehicle('1234')
+    vehicle: Vehicle = Vehicle('1234', disable_item_removal=True)
 
     return driver_ui, environment_manager, vehicle
 
@@ -57,7 +60,7 @@ async def test_driver_ui_template_data_player_exists(initialise_dependencies):
     assert not has_vehicle
 
     # Remove player 1 from the vehicle
-    environment_manager._remove_player_from_vehicle(player_1)
+    environment_manager.manage_removal_from_game_for(player_1)
     # Now player 2 has the car
     has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
     assert not has_vehicle

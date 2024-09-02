@@ -53,6 +53,8 @@ body{
     height: auto;
     position: absolute;
     background-color: rgba(0, 0, 0, 0.6);
+    animation: hackingInfoFading 1.5s linear;
+    animation-iteration-count: infinite;
 }
 
 .hackedInfo_text{
@@ -268,5 +270,8 @@ body{
     color: #FFFFFF;
 }
 
-
+@keyframes hackingInfoFading {
+    0%,100% { opacity: 1 }
+    50% { opacity: 0.6 }
+}
 

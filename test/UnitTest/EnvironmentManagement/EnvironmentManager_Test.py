@@ -32,7 +32,7 @@ def get_mut_with_one_minute_playing_time(initialise_dependencies) -> Environment
     return mut
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentManager:
     fleet_ctrl_mock, configuration_handler_mock = initialise_dependencies
     configuration_handler_mock.get_configuration.return_value = \
@@ -45,10 +45,11 @@ def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentMan
 
 @pytest.fixture(scope="module")
 def get_two_dummy_vehicles() -> list[Vehicle]:
-    vehicle1: Vehicle = Vehicle("123")
-    vehicle2: Vehicle = Vehicle("456")
+    vehicle1: Vehicle = Vehicle("123", disable_item_removal=True)
+    vehicle2: Vehicle = Vehicle("456", disable_item_removal=True)
     output: list[Vehicle] = [vehicle1, vehicle2]
     return output
+
 
 @pytest.fixture(scope="module")
 def get_two_dummy_player() -> list[str]:
@@ -58,9 +59,10 @@ def get_two_dummy_player() -> list[str]:
 
     return output
 
-@pytest.fixture(scope="module")
+
+@pytest.fixture
 def get_one_dummy_vehicle() -> Vehicle:
-    vehicle: Vehicle = Vehicle("123")
+    vehicle: Vehicle = Vehicle("123", disable_item_removal=True)
 
     return vehicle
 
@@ -129,7 +131,7 @@ class TestAddNewPlayer:
     def test_by_adding_same_player_as_in_vehicle(self, get_mut_with_endless_playing_time):
         # Arrange
         mut: EnvironmentManager = get_mut_with_endless_playing_time
-        dummy_vehicle = Vehicle("vehicle1")
+        dummy_vehicle = Vehicle("vehicle1", disable_item_removal=True)
         dummy_vehicle.set_player(self.dummy_player1)
         mut._add_to_active_vehicle_list(dummy_vehicle)
 
@@ -326,7 +328,7 @@ class TestPublishRemovedPlayer:
                               (RemovalReason.PLAYING_TIME_IS_UP, "Your player was removed from the game, "
                                                                  "because your playing time is over."),
                               (RemovalReason.PLAYER_NOT_REACHABLE, "Your player was removed from the game, "
-                                                            "because you were no longer reachable.")])
+                                                                   "because you were no longer reachable.")])
     def test_with_valid_data(self, get_mut_with_endless_playing_time, reason_parameter, expected):
         # Arrange
         remove_player_callback_mock = Mock()
@@ -416,18 +418,22 @@ def test_track_notify():
 
     # Virtual Vehicle
     virtual_location_service = MagicMock()
-    virtual_vehicle = VirtualCar('Virtual Car 1', MagicMock(), virtual_location_service)
+    virtual_vehicle = VirtualCar('Virtual Car 1', MagicMock(), virtual_location_service, disable_item_removal=True)
     env_manager._active_anki_cars.append(virtual_vehicle)
 
     # "Real" Vehicle
     physical_location_service = MagicMock()
-    physical_car = PhysicalCar('AA:AA:AA:AA:AA:AA', MagicMock(), physical_location_service)
+    physical_car = PhysicalCar('AA:AA:AA:AA:AA:AA', MagicMock(), physical_location_service, disable_item_removal=True)
     env_manager._active_anki_cars.append(physical_car)
+
+    item_generator = MagicMock()
+    env_manager.add_item_generator(item_generator)
 
     env_manager.notify_new_track(new_track)
 
     virtual_location_service.notify_new_track.assert_called()
     physical_location_service.notify_new_track.assert_called()
+    item_generator.notify_new_track.assert_called()
 
 
 @pytest.mark.skip_ci
@@ -466,8 +472,8 @@ def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
     config_mock = MagicMock(spec=ConfigurationHandler)
     env_manager = EnvironmentManager(fleet_mock, configuration_handler=config_mock)
     vehicle1, vehicle2 = get_two_dummy_vehicles
-    new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id())
-    new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id())
+    new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id(), disable_item_removal=True)
+    new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id(), disable_item_removal=True)
 
     env_manager._add_to_active_vehicle_list(vehicle1)
     env_manager._add_to_active_vehicle_list(vehicle1)

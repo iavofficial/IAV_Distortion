@@ -30,5 +30,12 @@
 	"environment": {
 		"env_auto_discover_anki_cars": true,
 		"env_vehicle_scale": 59
+	},
+	"hacking_protection": {
+		"duration_seconds": 60
+	},
+	"item": {
+		"item_spawn_interval": 30,
+		"item_max_count" : 2
 	}
 }

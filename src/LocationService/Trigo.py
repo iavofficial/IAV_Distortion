@@ -1,11 +1,11 @@
 import math
-from typing import Dict, Tuple
+
 
 class Angle():
     """
     Generic class for angles where 0° means the Angle is pointing up/north
     """
-    def __init__(self, degree = 0.0):
+    def __init__(self, degree=0.0):
         self._angle_degree = degree
 
     def get_sin(self):
@@ -51,14 +51,14 @@ class Angle():
         return f"{round(self._angle_degree)}"
 
     def __eq__(self, other):
-        return type(self) == type(other) and self._angle_degree == other._angle_degree
+        return type(self) == type(other) and self._angle_degree == other._angle_degree  # noqa: E721
 
 
 class Position():
     """
     Generic Position in a 2 dimensional space
     """
-    def __init__(self, x = 0.0, y = 0.0):
+    def __init__(self, x=0.0, y=0.0):
         self._x = x
         self._y = y
 
@@ -108,13 +108,13 @@ class Position():
         """
         self._x += x
         self._y += y
-    
+
     def get_as_dict(self):
         """
         Gets the data represented as dict with the fields
         'x' and 'y'
         """
-        return {'x' : self._x, 'y' : self._y }
+        return {'x': self._x, 'y': self._y}
 
     def rotate_around_0_0(self, rotation: Angle):
         """
@@ -144,7 +144,7 @@ class Position():
             rad += 2 * math.pi
         deg = math.degrees(rad)
         return Angle(deg)
-    
+
     def distance_to(self, other) -> float:
         """
         Calculates the distance between this point and another point
@@ -162,7 +162,7 @@ class Position():
         """
         Returns the data as dict with the fields 'x' and 'y'
         """
-        return { 'x': self._x, 'y': self._y }
+        return {'x': self._x, 'y': self._y}
 
 
 class Distance(Position):

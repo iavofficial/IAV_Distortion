@@ -1,13 +1,22 @@
+import asyncio
 from time import sleep
-from unittest.mock import Mock
+from unittest.mock import MagicMock
 
 import pytest
 
+from DataModel.Effects.HackingProtection import HackingProtection
+from DataModel.Effects.VehicleEffect import VehicleEffect
 from DataModel.Vehicle import Vehicle
+from Items.Item import Item
 from VehicleManagement.VehicleController import VehicleController
 from VehicleManagement.FleetController import FleetController
 
 dummy_uuid = "FA:14:67:0F:39:FE"
+
+
+@pytest.fixture
+def init_vehicle():
+    return Vehicle('123', disable_item_removal=True)
 
 
 @pytest.mark.skip_ci
@@ -27,35 +36,34 @@ def test_get_location():
     assert mut
 
 
-def test_get_driving_data() -> None:
-    # Arrange
-    vehicle_controller_mock = Mock()
-    vehicle_controller_mock.connect_to_vehicle.return_value = False
-    mut = Vehicle(dummy_uuid, vehicle_controller_mock)
-    mut.player = "Player 1"
-    mut._speed_actual = 333
-    mut.hacking_scenario = "test_scenario"
+def test_vehicle_cant_have_same_effect_twice(init_vehicle):
+    """
+    This test ensures that 2 items with the same identification only lead to one being added
+    """
+    car = init_vehicle
+    effect1 = HackingProtection()
+    item1 = Item(None, effect1)
+    effect2 = HackingProtection()
+    item2 = Item(None, effect2)
 
-    # Act
-    driving_data = mut.get_driving_data()
+    assert len(car._effects) == 0
+    car.notify_item_collected(item1)
+    assert len(car._effects) == 1
+    car.notify_item_collected(item2)
+    assert len(car._effects) == 1
 
-    # Assert
-    assert driving_data
 
+@pytest.mark.slow
+@pytest.mark.asyncio
+async def test_vehicle_removes_effect():
+    """
+    This tests that vehicle effects are cleaned up, if they are told to
+    """
+    mock_effect = MagicMock(spec=VehicleEffect)
+    mock_effect.effect_should_end.return_value = True
+    vehicle = Vehicle('123')
 
-def test_on_driving_data_change() -> None:
-    # Arrange
-    vehicle_controller_mock = Mock()
-    vehicle_controller_mock.connect_to_vehicle.return_value = False
-    mut = Vehicle(dummy_uuid, vehicle_controller_mock)
-    mut.player = "Player 1"
-    mut._speed_actual = 333
-
-    receive_callback_mock = Mock()
-    mut.set_driving_data_callback(receive_callback_mock)
-
-    # Act
-    mut.hacking_scenario = "test_scenario"
-
-    # Assert
-    receive_callback_mock.assert_called_once()
+    assert len(vehicle._effects) == 0
+    vehicle._effects.append(mock_effect)
+    await asyncio.sleep(5)
+    assert len(vehicle._effects) == 0
