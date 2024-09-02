@@ -41,6 +41,8 @@
 
             let scale = 1;
 
+            let items = {{items | tojson}};
+
             var canvas = document.getElementById("car_canvas");
             var ctx = canvas.getContext("2d");
             const dataMap = new Map();
@@ -60,17 +62,16 @@
 
             const car_image_cache = new Map();
 
+            const item_size = 20;
+            const item_color = '#52c9ff';
+
             addEventListener("resize", (event) => {
                 resizeCanvas();
-                resetCanvas();
-                drawTrack();
-                drawCars();
+                renderFullCarmap();
             });
 
             resizeCanvas();
-            resetCanvas();
-            drawTrack();
-            drawCars();
+            renderFullCarmap();
 
             /**
             * Handles 'car_position' event.
@@ -85,6 +86,10 @@
             socket.on('car_positions', function(data){
                 var carName = data.car;
                 dataMap.set(carName, data);
+            });
+
+            socket.on('item_positions', function(data) {
+                items = data;
             });
 
             function getCarImage(name) {
@@ -151,6 +156,22 @@
                 ctx.closePath();
                 ctx.rotate(-Math.PI / 2);
 
+                ctx.restore();
+            }
+
+            /**
+             * Draws an item on a specified spot
+             */
+            function drawItem(x, y) {
+                x *= scale;
+                y *= scale;
+                ctx.save();
+                ctx.beginPath();
+                ctx.fillStyle = item_color;
+                ctx.strokeStyle = item_color;
+                ctx.arc(x, y, item_size * scale, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
                 ctx.restore();
             }
 
@@ -312,8 +333,6 @@
              * Draws all known cars to their position
              */
             function drawCars() {
-                resetCanvas();
-                drawTrack();
                 for (const car of dataMap) {
                     const name = car[0];
                     const d = car[1];
@@ -334,7 +353,26 @@
                 }
             }
 
-            setInterval(drawCars, 1000/24);
+            /**
+             * Draws all Items to their known position
+             */
+            function drawItems() {
+                for (const item of items) {
+                    drawItem(item.x, item.y);
+                }
+            }
+
+            /**
+             * Renders all non-static objects (cars + items) on their known place.
+             */
+            function renderFullCarmap() {
+                resetCanvas();
+                drawTrack();
+                drawItems();
+                drawCars();
+            }
+
+            setInterval(renderFullCarmap, 1000/24);
         </script>
         {% endif %}
     </body>

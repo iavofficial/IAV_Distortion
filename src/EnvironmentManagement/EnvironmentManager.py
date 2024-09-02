@@ -16,12 +16,14 @@ from typing import List, Dict, Callable
 from collections import deque
 from deprecated import deprecated
 
+from Items.ItemCollisionDetection import ItemCollisionDetector
 from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from Items.ItemGenerator import ItemGenerator
 from LocationService.PhysicalLocationService import PhysicalLocationService
 from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException, \
     full_track_to_list_of_dicts
@@ -67,6 +69,12 @@ class EnvironmentManager:
 
         # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
+
+        self._item_collision_detector: ItemCollisionDetector = ItemCollisionDetector()
+        self._item_generator: ItemGenerator | None = None
+
+    def add_item_generator(self, item_generator: ItemGenerator):
+        self._item_generator = item_generator
 
     # set Callbacks
     def set_staff_ui_update_callback(self,
@@ -535,6 +543,10 @@ class EnvironmentManager:
         await new_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful
 
+        def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos,
+                                                                                                   rot)
+        location_service.add_on_update_callback(item_collision)
+
         new_vehicle.set_vehicle_not_reachable_callback(self.__remove_non_reachable_vehicle)
         self._add_to_active_vehicle_list(new_vehicle)
         return
@@ -559,6 +571,10 @@ class EnvironmentManager:
         dummy_controller = EmptyController()
         location_service = LocationService(self.get_track(), start_immediately=True)
         new_vehicle = VirtualCar(name, dummy_controller, location_service)
+
+        def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos,
+                                                                                                   rot)
+        location_service.add_on_update_callback(item_collision)
 
         self._add_to_active_vehicle_list(new_vehicle)
         return name
@@ -669,7 +685,7 @@ class EnvironmentManager:
         self.config_handler.write_configuration()
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
-
+        self._item_generator.notify_new_track(new_track)
         return
 
     async def rescan_track(self, car: str) -> str | None:
@@ -692,3 +708,6 @@ class EnvironmentManager:
         new_track = FullTrack(track_list)
         self.notify_new_track(new_track)
         return None
+
+    def get_item_collision_detector(self) -> ItemCollisionDetector:
+        return self._item_collision_detector

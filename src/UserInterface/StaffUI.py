@@ -226,7 +226,6 @@ class StaffUI:
             await self._sio.emit('device_added', device)
             logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
-            self.cybersecurity_mng._update_active_hacking_scenarios(device, '0')
             return
 
         @self._sio.on('add_virtual_vehicle')
@@ -241,7 +240,6 @@ class StaffUI:
             # TODO: authentication check for websocket events
             name = environment_mng.add_virtual_vehicle()
             await self._sio.emit('device_added', name)
-            self.cybersecurity_mng._update_active_hacking_scenarios(name, '0')
             return
 
         @self._sio.on('delete_player')
