@@ -36,9 +36,8 @@ def create_app(admin_password: str):
     environment_mng = EnvironmentManager(fleet_ctrl)
     vehicles = environment_mng.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
-    cybersecurity_mng = CyberSecurityManager(behaviour_ctrl, environment_mng)
-    item_generator = ItemGenerator(environment_mng.get_item_collision_detector(), cybersecurity_mng,
-                                   environment_mng.get_track())
+    cybersecurity_mng = CyberSecurityManager(environment_mng)
+    item_generator = ItemGenerator(environment_mng.get_item_collision_detector(), environment_mng.get_track())
     environment_mng.add_item_generator(item_generator)
 
     @quart_app.before_serving

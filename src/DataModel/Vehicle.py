@@ -194,9 +194,14 @@ class Vehicle:
         pass
 
     def notify_item_collected(self, item: Item):
-        new_effect = item.get_effect()
+        self.apply_effect(item.get_effect())
+
+    def get_active_effects(self):
+        return self._effects
+
+    def apply_effect(self, new_effect: VehicleEffect):
         for effect in self._effects:
-            if effect.identify() == new_effect.identify():
+            if effect.identify() == new_effect.identify() or effect.identify() in new_effect.conflicts_with():
                 return
 
         if not new_effect.can_be_applied(self):
@@ -204,10 +209,10 @@ class Vehicle:
         logger.info("Car %s now has the effect %s", self.vehicle_id, str(new_effect.identify()))
         self._effects.append(new_effect)
         new_effect.on_start(self)
-        return
 
-    def get_active_effects(self):
-        return self._effects
+    def remove_effect(self, effect: VehicleEffect):
+        effect.on_end(self)
+        self._effects.remove(effect)
 
     async def _test_effect_removal_task(self):
         while True:

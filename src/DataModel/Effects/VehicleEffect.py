@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 # fix circular import that only occurs because of type hinting
 if TYPE_CHECKING:
@@ -48,3 +48,9 @@ class VehicleEffect(ABC):
         Returns whether the effect should be removed on next cleanup run
         """
         raise NotImplementedError
+
+    def conflicts_with(self) -> List[VehicleEffectIdentification]:
+        """
+        Returns a list of other effects that prevent this effect from being applied
+        """
+        return []

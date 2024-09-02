@@ -35,6 +35,6 @@
 		"duration_seconds": 60
 	},
 	"item_spawning": {
-		"item_spawn_interval": 0.5
+		"item_spawn_interval": 30
 	}
 }

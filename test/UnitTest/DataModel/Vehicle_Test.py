@@ -41,10 +41,9 @@ def test_vehicle_cant_have_same_effect_twice(init_vehicle):
     This test ensures that 2 items with the same identification only lead to one being added
     """
     car = init_vehicle
-    cyber_mock = MagicMock()
-    effect1 = HackingProtection(cyber_mock)
+    effect1 = HackingProtection()
     item1 = Item(None, effect1)
-    effect2 = HackingProtection(cyber_mock)
+    effect2 = HackingProtection()
     item2 = Item(None, effect2)
 
     assert len(car._effects) == 0
