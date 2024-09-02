@@ -13,7 +13,10 @@ class ItemGenerator:
         self._item_collision_detection: ItemCollisionDetector = item_collision_detection
         self._track: FullTrack | None = track
         self._item_generation_task: Task | None = None
-        for _ in range(0, 3):
+        self._config = ConfigurationHandler().get_configuration()
+
+        max_item_length = self._config['item']['item_max_count'] - 1
+        for _ in range(0, max_item_length):
             self._item_collision_detection.add_item(self.generate_item())
 
     def notify_new_track(self, track: FullTrack):
@@ -30,11 +33,10 @@ class ItemGenerator:
         self._item_generation_task = asyncio.create_task(self._generate_item_task_function())
 
     async def _generate_item_task_function(self) -> None:
-        config = ConfigurationHandler().get_configuration()
         interval_time: int
         try:
             # TODO: Realise default values via a config object!
-            interval_time = config['item_spawning']['item_spawn_interval']
+            interval_time = self._config['item']['item_spawn_interval']
         except KeyError:
             interval_time = 30
         while True:

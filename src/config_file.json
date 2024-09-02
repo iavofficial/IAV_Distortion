@@ -34,7 +34,8 @@
 	"hacking_protection": {
 		"duration_seconds": 60
 	},
-	"item_spawning": {
-		"item_spawn_interval": 30
+	"item": {
+		"item_spawn_interval": 30,
+		"item_max_count" : 2
 	}
 }
