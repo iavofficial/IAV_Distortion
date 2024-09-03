@@ -18,6 +18,12 @@
 </head>
 
 <body>
+
+    <div class="flexbox-container custom_header">
+        <p class="header">IAV Distortion</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+
     <script>
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         /**
