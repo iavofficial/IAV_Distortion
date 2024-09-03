@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
@@ -5,6 +6,8 @@ from DataModel.Effects.VehicleEffect import VehicleEffect
 from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
 from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+
+logger = logging.getLogger(__name__)
 
 
 class HackingProtection(VehicleEffect):
@@ -29,4 +32,7 @@ class HackingProtection(VehicleEffect):
         return VehicleEffectIdentification.HACKING_PROTECTION
 
     def effect_should_end(self, vehicle: 'Vehicle') -> bool:
+        if self._end_time is None:
+            logger.error("The effect had no valid end time set. Removing it now")
+            return True
         return self._end_time < datetime.now()

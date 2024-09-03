@@ -6,6 +6,7 @@ from DataModel.PhysicalCar import PhysicalCar
 from DataModel.VirtualCar import VirtualCar
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager, RemovalReason
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from LocationService.LocationService import LocationService
 from LocationService.Track import TrackPieceType, FullTrack
 from LocationService.TrackPieces import TrackBuilder
 from VehicleManagement.FleetController import FleetController
@@ -45,8 +46,9 @@ def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentMan
 
 @pytest.fixture(scope="module")
 def get_two_dummy_vehicles() -> list[Vehicle]:
-    vehicle1: Vehicle = Vehicle("123", disable_item_removal=True)
-    vehicle2: Vehicle = Vehicle("456", disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle1: Vehicle = Vehicle("123", location_service_mock, disable_item_removal=True)
+    vehicle2: Vehicle = Vehicle("456", location_service_mock, disable_item_removal=True)
     output: list[Vehicle] = [vehicle1, vehicle2]
     return output
 
@@ -62,7 +64,8 @@ def get_two_dummy_player() -> list[str]:
 
 @pytest.fixture
 def get_one_dummy_vehicle() -> Vehicle:
-    vehicle: Vehicle = Vehicle("123", disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle: Vehicle = Vehicle("123", location_service_mock, disable_item_removal=True)
 
     return vehicle
 
@@ -131,7 +134,8 @@ class TestAddNewPlayer:
     def test_by_adding_same_player_as_in_vehicle(self, get_mut_with_endless_playing_time):
         # Arrange
         mut: EnvironmentManager = get_mut_with_endless_playing_time
-        dummy_vehicle = Vehicle("vehicle1", disable_item_removal=True)
+        location_service_mock = MagicMock(spec=LocationService)
+        dummy_vehicle = Vehicle("vehicle1", location_service_mock, disable_item_removal=True)
         dummy_vehicle.set_player(self.dummy_player1)
         mut._add_to_active_vehicle_list(dummy_vehicle)
 
@@ -340,7 +344,7 @@ class TestPublishRemovedPlayer:
 
         # Assert
         assert result
-        remove_player_callback_mock.assert_called_with(player="dummyplayer1", reason=expected)
+        remove_player_callback_mock.assert_called_with("dummyplayer1", expected)
 
     def test_with_invalid_string_reason(self, get_mut_with_endless_playing_time):
         # Arrange
@@ -418,7 +422,7 @@ def test_track_notify():
 
     # Virtual Vehicle
     virtual_location_service = MagicMock()
-    virtual_vehicle = VirtualCar('Virtual Car 1', MagicMock(), virtual_location_service, disable_item_removal=True)
+    virtual_vehicle = VirtualCar('Virtual Car 1', virtual_location_service, disable_item_removal=True)
     env_manager._active_anki_cars.append(virtual_vehicle)
 
     # "Real" Vehicle
@@ -472,8 +476,9 @@ def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
     config_mock = MagicMock(spec=ConfigurationHandler)
     env_manager = EnvironmentManager(fleet_mock, configuration_handler=config_mock)
     vehicle1, vehicle2 = get_two_dummy_vehicles
-    new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id(), disable_item_removal=True)
-    new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id(), disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id(), location_service_mock, disable_item_removal=True)
+    new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id(), location_service_mock, disable_item_removal=True)
 
     env_manager._add_to_active_vehicle_list(vehicle1)
     env_manager._add_to_active_vehicle_list(vehicle1)

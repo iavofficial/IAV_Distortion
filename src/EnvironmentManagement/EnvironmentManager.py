@@ -29,7 +29,6 @@ from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track
     full_track_to_list_of_dicts
 
 from VehicleManagement.AnkiController import AnkiController
-from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
 
 from LocationService.LocationService import LocationService
@@ -168,7 +167,7 @@ class EnvironmentManager:
             logger.critical('Missing publish_removed_player_callback!')
             return False
         else:
-            self.__publish_removed_player_callback(player=player_id, reason=message)
+            self.__publish_removed_player_callback(player_id, message)
             return True
 
     def _publish_player_active(self, player: str) -> None:
@@ -419,6 +418,8 @@ class EnvironmentManager:
                 time_difference: timedelta = datetime.now() - player.game_start
                 if time_difference >= timedelta(minutes=timeout_interval):
                     logger.debug(f'playtime of {time_difference} for player {player.player} is over')
+                    if player.player is None:
+                        return
                     self.manage_removal_from_game_for(player_id=player.player,
                                                       reason=RemovalReason.PLAYING_TIME_IS_UP)
 
@@ -551,13 +552,14 @@ class EnvironmentManager:
         self._add_to_active_vehicle_list(new_vehicle)
         return
 
-    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str) -> None:
+    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str | None) -> None:
         """
         Callback that should be executed when a vehicle isn't reachable anymore
         """
         # to be able to specify a removal reason the player needs to be removed manually before removing the vehicle
         # that would also automatically remove the player
-        self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
+        if player_id is not None:
+            self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
         self.remove_vehicle_by_id(vehicle_id)
 
     def add_virtual_vehicle(self) -> str:
@@ -568,9 +570,8 @@ class EnvironmentManager:
 
         logger.debug(f"Adding virtual vehicle with name {name}")
 
-        dummy_controller = EmptyController()
         location_service = LocationService(self.get_track(), start_immediately=True)
-        new_vehicle = VirtualCar(name, dummy_controller, location_service)
+        new_vehicle = VirtualCar(name, location_service)
 
         def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos,
                                                                                                    rot)
@@ -685,6 +686,9 @@ class EnvironmentManager:
         self.config_handler.write_configuration()
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
+        if self._item_generator is None:
+            logger.critical("EnvironmentManager has no Item Generator!")
+            return
         self._item_generator.notify_new_track(new_track)
         return
 
@@ -699,6 +703,8 @@ class EnvironmentManager:
         if vehicle is None:
             logger.error("A client attempted to use a vehicle for track scanning that doesn't exist")
             return "Request didn't include a valid vehicle"
+        if not isinstance(vehicle, PhysicalCar):
+            return "This car isn't a real car. Please use a real car"
         controller = vehicle.extract_controller()
         if controller is None:
             return "The selected car can't be controlled currently. Please use another car"
