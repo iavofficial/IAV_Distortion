@@ -18,6 +18,12 @@
 </head>
 
 <body>
+
+    <div class="flexbox-container custom_header">
+        <p class="header">IAV Distortion</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+
     <script>
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         /**
@@ -48,10 +54,10 @@
             const dataMap = new Map();
 
             var track = {{track | tojson}};
-            const track_color = "#000000";
-            const track_width = 5;
+            const track_color = "#0091FF";
+            const track_width = 10;
             const start_line_width = 12;
-            const start_line_color = "#515151";
+            const start_line_color = "#969494";
 
             const car_width = 30;
             const car_length = car_width * 1.88;

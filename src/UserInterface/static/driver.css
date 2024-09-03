@@ -47,18 +47,18 @@ body{
 }
 
 .flexbox-hackedInfo {
-    border: 8px solid #F80000;
+    border: 8px solid #DC46F3;
     border-radius: 35px;
     width: auto;
     height: auto;
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.6);
-    animation: hackingInfoFading 1.5s linear;
+    background-color: rgba(26, 26, 26, 0.8);
+    animation: hackingInfoFading 3.5s linear;
     animation-iteration-count: infinite;
 }
 
 .hackedInfo_text{
-    color: #F80000;
+    color: #DC46F3;
     font-size: 4vh;
     text-align: center;
     margin-left: 2vw;
