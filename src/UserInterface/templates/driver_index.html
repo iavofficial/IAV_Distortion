@@ -192,6 +192,25 @@
             }
         });
 
+        /**
+        * Activate or deactivate the visual effect for active protection.
+        */
+        const avatarElement = document.querySelector('.avatar');
+        socket.on('protection_activated', function(data) {
+            if (data.player_id == "{{ player }}") {
+                avatarElement.classList.add('protection-active');
+            }
+        });
+
+        socket.on('protection_deactivated', function(data) {
+            if (data.player_id == "{{ player }}") {
+                avatarElement.classList.remove('protection-active');
+            }
+        });
+
+        /**
+        * Check if player leaves or enters the ui.
+        */
         document.addEventListener('visibilitychange', function() {
             console.log(document.visibilityState);
             if (document.visibilityState === 'hidden') {
