@@ -52,6 +52,7 @@
             var canvas = document.getElementById("car_canvas");
             var ctx = canvas.getContext("2d");
             const dataMap = new Map();
+            const carEffectMap = new Map();
 
             var track = {{track | tojson}};
             const track_color = "#0091FF";
@@ -78,6 +79,19 @@
 
             resizeCanvas();
             renderFullCarmap();
+
+            /**
+            * Functions to set the visual effect on cars in carEffectMap
+            */
+            socket.on('protection_activated', function(data) {
+                carEffectMap.set(data.vehicle_id, 'protected');
+            });
+
+            socket.on('protection_deactivated', function(data) {
+                if (carEffectMap.get(data.vehicle_id) === 'protected') {
+                    carEffectMap.set(data.vehicle_id, 'None');
+                }
+            });
 
             /**
             * Handles 'car_position' event.
@@ -116,7 +130,7 @@
             * @param {float} y - Vertical position of the picture.
             * @param {float} angle - Rotation angle of the picture.
             */
-            function insertCarPic(x, y, angle, image_name){
+            function insertCarPic(x, y, angle, image_name, vehicle_id){
                 x *= scale;
                 y *= scale;
                 ctx.save();
@@ -128,9 +142,45 @@
 
                 let img = getCarImage(image_name);
                 ctx.drawImage(img, x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
+
+                if (carEffectMap.get(vehicle_id) != 'None'){
+                    applyEffect(ctx, x, y, car_length, car_width, scale, carEffectMap.get(vehicle_id))
+                }
+
                 ctx.rotate(-Math.PI / 2);
 
                 ctx.restore();
+            }
+
+            /**
+            * Applies visual effect to vehicle
+            *
+            * @param {ctx} ctx - ctx element to apply effect to
+            * @param {string} effect - name of the effect to apply to
+            */
+            function applyEffect(ctx, x, y, car_length, car_width, scale, effect) {
+                if (effect === 'protected'){
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#96E7FF';
+                    radius = 7;
+                    //ctx.strokeRect(x - car_length * scale / 2, y - car_width * scale / 2, car_length * scale, car_width * scale);
+                    drawRoundedRect(ctx, x - car_length * scale*1.15 / 2, y - car_width * scale*1.3 / 2, car_length * scale *1.15, car_width * scale*1.3, radius);
+                }
+            }
+
+            function drawRoundedRect(ctx, x, y, width, height, radius) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.arcTo(x + width, y, x + width, y + radius, radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+                ctx.lineTo(x + radius, y + height);
+                ctx.arcTo(x, y + height, x, y + height - radius, radius);
+                ctx.lineTo(x, y + radius);
+                ctx.arcTo(x, y, x + radius, y, radius);
+                ctx.closePath();
+                ctx.stroke();
             }
 
             /**
@@ -348,7 +398,7 @@
 
                     if (Object.keys(car_pics).includes(name)) {
                             var image_name = car_pics[name];
-                            insertCarPic(x, y, angle, image_name);
+                            insertCarPic(x, y, angle, image_name, name);
                     } else if (name.startsWith('Virtual Vehicle')) {
                             const colors = colorCrossmap[name];
                             drawCarBox(x, y, angle, colors[0], colors[1]);
