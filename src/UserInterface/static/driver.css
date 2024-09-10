@@ -44,8 +44,7 @@ body{
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(150, 231, 255, 0.5); /* Transparente Überblendungsfarbe */
-    border-radius: 100px;
+    background-color: rgba(150, 231, 255, 0.5);
     border-style: solid;
     border-color: #96E7FF;
     border-radius: 100px;
