@@ -193,18 +193,25 @@
         });
 
         /**
-        * Activate or deactivate the visual effect for active protection.
+        * item-update websocket event
+        *
+        * used to update items and item effect on driver ui of according player_id
+        *
+        * data send with websocket event:
+        * data = {'player_id': player_id;
+        *         'vehicle_id': vehicle_id;
+        *         'item_stash': 'None';
+        *         'item_active': 'None'}
         */
         const avatarElement = document.querySelector('.avatar');
-        socket.on('protection_activated', function(data) {
+        socket.on('item_update', function(data) {
             if (data.player_id == "{{ player }}") {
-                avatarElement.classList.add('protection-active');
-            }
-        });
-
-        socket.on('protection_deactivated', function(data) {
-            if (data.player_id == "{{ player }}") {
-                avatarElement.classList.remove('protection-active');
+                if (data.item_active === 'hacking_protection') {
+                    avatarElement.classList.add('protection-active');
+                }
+                else {
+                    avatarElement.classList.remove('protection-active');
+                }
             }
         });
 

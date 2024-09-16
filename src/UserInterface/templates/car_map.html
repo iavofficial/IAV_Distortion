@@ -81,16 +81,16 @@
             renderFullCarmap();
 
             /**
-            * Functions to set the visual effect on cars in carEffectMap
+            * Functions to set the visual effect/active item on cars in carEffectMap
+            *
+            * data send with websocket event:
+            * data = {'player_id': player_id;
+            *         'vehicle_id': vehicle_id;
+            *         'item_stash': 'None';
+            *         'item_active': 'None'}
             */
-            socket.on('protection_activated', function(data) {
-                carEffectMap.set(data.vehicle_id, 'protected');
-            });
-
-            socket.on('protection_deactivated', function(data) {
-                if (carEffectMap.get(data.vehicle_id) === 'protected') {
-                    carEffectMap.set(data.vehicle_id, 'None');
-                }
+            socket.on('item_update', function(data) {
+                carEffectMap.set(data.vehicle_id, data.item_active);
             });
 
             /**
@@ -155,11 +155,13 @@
             /**
             * Applies visual effect to vehicle
             *
+            * according to the active item set in carEffectMap. Additional effects can be added here
+            *
             * @param {ctx} ctx - ctx element to apply effect to
             * @param {string} effect - name of the effect to apply to
             */
             function applyEffect(ctx, x, y, car_length, car_width, scale, effect) {
-                if (effect === 'protected'){
+                if (effect === 'hacking_protection'){
                     ctx.lineWidth = 3;
                     ctx.strokeStyle = '#96E7FF';
                     radius = 7;
