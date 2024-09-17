@@ -25,7 +25,7 @@ class HackingProtection(VehicleEffect):
             # TODO: Implement general config objects and handle default values there!
             duration = config_handler.get_configuration()['hacking_protection']['duration_seconds']
         except KeyError:
-            duration = 60
+            duration = 10
         self._end_time = datetime.now() + timedelta(seconds=duration)
 
     def identify(self) -> VehicleEffectIdentification:
