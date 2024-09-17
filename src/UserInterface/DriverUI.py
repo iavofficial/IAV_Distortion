@@ -192,6 +192,26 @@ class DriverUI:
         self.__run_async_task(self.__emit_driving_data(driving_data))
         return
 
+    async def __emit_driving_data(self, driving_data: dict) -> None:
+        await self._sio.emit('update_driving_data', driving_data)
+        return
+
+    def update_item_activity(self, item_data: dict) -> None:
+        self.__run_async_task(self.__emit_item_data(item_data))
+        return
+
+    async def __emit_item_data(self, item_data: dict) -> None:
+        await self._sio.emit('item_update', item_data)
+        return
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        asyncio.create_task(task)
+        # TODO: Log error, if the coroutine doesn't end successfully
+
     def get_blueprint(self) -> Blueprint:
         return self.driverUI_blueprint
 
@@ -204,18 +224,6 @@ class DriverUI:
         else:
             # Todo: define error reaction if same player is assigned to different vehicles
             return None
-
-    def __run_async_task(self, task):
-        """
-        Run a asyncio awaitable task
-        task: awaitable task
-        """
-        asyncio.create_task(task)
-        # TODO: Log error, if the coroutine doesn't end successfully
-
-    async def __emit_driving_data(self, driving_data: dict) -> None:
-        await self._sio.emit('update_driving_data', driving_data)
-        return
 
     async def __check_driver_heartbeat_timeout(self):
         """
@@ -287,6 +295,7 @@ class DriverUI:
             else:
                 picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
             vehicle.set_driving_data_callback(self.update_driving_data)
+            vehicle.set_item_data_callback(self.update_item_activity)
             vehicle_information = vehicle.get_driving_data()
             logger.debug(f'Callback set for {player}')
         return vehicle is not None, picture, vehicle_information
