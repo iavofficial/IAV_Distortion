@@ -31,7 +31,7 @@ class Vehicle:
         self._driving_data_callback: Callable[[dict], None] | None = None
 
         self._effects: list[VehicleEffect] = []
-        self._item_data_callbacks: list[Callable[[dict], None]] = []
+        self._item_data_callback: Callable[[dict], None] | None = None
 
         self._location_service: LocationService = location_service
 
@@ -106,7 +106,7 @@ class Vehicle:
         return
 
     def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
+        if self._driving_data_callback is not None and callable(self._driving_data_callback):
             self._driving_data_callback(self.get_driving_data())
         return
 
@@ -283,7 +283,7 @@ class Vehicle:
         return
 
     def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict) -> None:
-        if self._virtual_location_update_callback is not None:
+        if self._virtual_location_update_callback is not None and callable(self._virtual_location_update_callback):
             self._virtual_location_update_callback(self.vehicle_id, pos.to_dict(), angle.get_deg())
         return
 
@@ -332,7 +332,7 @@ class Vehicle:
             await asyncio.sleep(1)
 
     def set_item_data_callback(self, function_name: Callable[[dict], None]) -> None:
-        self._item_data_callbacks.append(function_name)
+        self._item_data_callback = function_name
         return
 
     def _on_item_data_change(self, item_active: str) -> None:
@@ -341,7 +341,6 @@ class Vehicle:
                      'item_stash': 'None',
                      'item_active': item_active}
 
-        if len(self._item_data_callbacks) > 0:
-            for callback_function in self._item_data_callbacks:
-                callback_function(item_dict)
+        if self._item_data_callback is not None and callable(self._item_data_callback):
+            self._item_data_callback(item_dict)
         return
