@@ -8,6 +8,12 @@
 		"F1:76:08:08:C1:00": "F1760808C100_top.webp",
 		"F4:DB:E7:EA:7B:52": "F4DBE7EA7B52_top.webp",
 		"FA:14:67:0F:39:FE": "FA14670F39FE_top.webp",
+		"CE:27:5C:6C:64:6C": "CE275C6C646C_top.webp",
+		"D1:18:20:19:98:C3": "D118201998C3_top.webp",
+		"E3:53:EF:7C:22:84": "E353EF7C2284_top.webp",
+		"F3:70:D7:1C:B1:14": "F370D71CB114_top.webp",
+		"FE:9A:8F:15:50:8F": "FE9A8F15508F_top.webp",
+		"FE:58:E5:40:D6:6A": "FE58E540D66A_top.webp",
 		"Virtual Vehicle 1": "DF8BDC022C23_gold_top.webp",
 		"Virtual Vehicle 2": "E751D4F745EF_green_top.webp",
 		"Virtual Vehicle 3": "F4DBE7EA7B52_red_top.webp",
@@ -32,10 +38,10 @@
 		"env_vehicle_scale": 59
 	},
 	"hacking_protection": {
-		"duration_seconds": 15
+		"duration_seconds": 10
 	},
 	"item": {
 		"item_spawn_interval": 30,
-		"item_max_count" : 2
+		"item_max_count": 2
 	}
 }

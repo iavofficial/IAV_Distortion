@@ -27,6 +27,7 @@ class HackingProtection(VehicleEffect):
             duration = self._config_handler.get_configuration()['hacking_protection']['duration_seconds']
         except KeyError:
             duration = 15
+            
         self._end_time = datetime.now() + timedelta(seconds=duration)
 
         return True
