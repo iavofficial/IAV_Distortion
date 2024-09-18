@@ -480,6 +480,9 @@
              */
             function renderFullCarmap() {
                 resetCanvas();
+                ctx.fillStyle = background_color;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
                 drawTrack();
                 drawItems();
                 drawCars();
