@@ -30,7 +30,7 @@ class VehicleEffect(ABC):
         _ = vehicle
         return True
 
-    def on_start(self, vehicle: 'Vehicle') -> None:
+    def on_start(self, vehicle: 'Vehicle') -> bool:
         """
         Runs when added to a vehicle. Can also be used to start a background task
         """

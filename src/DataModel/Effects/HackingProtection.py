@@ -14,19 +14,23 @@ class HackingProtection(VehicleEffect):
     def __init__(self):
         super().__init__()
         self._end_time = None
+        self._config_handler = ConfigurationHandler()
 
-    def on_start(self, vehicle: 'Vehicle') -> None:
+    def on_start(self, vehicle: 'Vehicle') -> bool:
         super().on_start(vehicle)
         clean_effect = CleanHackedEffect("0")
         vehicle.apply_effect(clean_effect)
         vehicle.remove_effect(clean_effect)
-        config_handler = ConfigurationHandler()
+
         try:
             # TODO: Implement general config objects and handle default values there!
-            duration = config_handler.get_configuration()['hacking_protection']['duration_seconds']
+            duration = self._config_handler.get_configuration()['hacking_protection']['duration_seconds']
         except KeyError:
-            duration = 10
+            duration = 15
+            
         self._end_time = datetime.now() + timedelta(seconds=duration)
+
+        return True
 
     def identify(self) -> VehicleEffectIdentification:
         return VehicleEffectIdentification.HACKING_PROTECTION

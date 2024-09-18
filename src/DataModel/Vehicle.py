@@ -29,12 +29,14 @@ class Vehicle:
 
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict], None] | None = None
-        self._effects: List[VehicleEffect] = []
+
+        self._effects: list[VehicleEffect] = []
+        self._item_data_callback: Callable[[dict], None] | None = None
 
         self._location_service: LocationService = location_service
 
         if not disable_item_removal:
-            self._effect_removal_task = asyncio.create_task(self._test_effect_removal_task())
+            self._effect_removal_task = asyncio.create_task(self._check_effect_removal())
 
         self._requested_speed: float = 0
         self._speed_factor: float = 1.0
@@ -87,10 +89,6 @@ class Vehicle:
         """
         return self.vehicle_id
 
-    def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
-        self._driving_data_callback = function_name
-        return
-
     def get_speed_with_effects_applied(self, requested_speed: float) -> int:
         """
         Calculates the speed after applying the speed factor and other effects
@@ -103,8 +101,12 @@ class Vehicle:
         self._on_driving_data_change()
         return 0
 
+    def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
+        self._driving_data_callback = function_name
+        return
+
     def _on_driving_data_change(self) -> None:
-        if self._driving_data_callback is not None:
+        if self._driving_data_callback is not None and callable(self._driving_data_callback):
             self._driving_data_callback(self.get_driving_data())
         return
 
@@ -281,7 +283,7 @@ class Vehicle:
         return
 
     def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict) -> None:
-        if self._virtual_location_update_callback is not None:
+        if self._virtual_location_update_callback is not None and callable(self._virtual_location_update_callback):
             self._virtual_location_update_callback(self.vehicle_id, pos.to_dict(), angle.get_deg())
         return
 
@@ -301,25 +303,44 @@ class Vehicle:
     def get_active_effects(self):
         return self._effects
 
-    def apply_effect(self, new_effect: VehicleEffect):
+    def apply_effect(self, new_effect: VehicleEffect) -> None:
         for effect in self._effects:
             if effect.identify() == new_effect.identify() or effect.identify() in new_effect.conflicts_with():
                 return
 
         if not new_effect.can_be_applied(self):
             return
+
         logger.info("Car %s now has the effect %s", self.vehicle_id, str(new_effect.identify()))
         self._effects.append(new_effect)
-        new_effect.on_start(self)
+        if new_effect.on_start(self) is True:
+            self._on_item_data_change('hacking_protection')
+
+        return
 
     def remove_effect(self, effect: VehicleEffect):
         effect.on_end(self)
         self._effects.remove(effect)
 
-    async def _test_effect_removal_task(self):
+    async def _check_effect_removal(self):
         while True:
             for effect in self._effects:
                 if effect.effect_should_end(self):
                     self._effects.remove(effect)
+                    self._on_item_data_change('None')
                     logger.info("Car %s doesn't have the effect %s anymore", self.vehicle_id, str(effect.identify()))
             await asyncio.sleep(1)
+
+    def set_item_data_callback(self, function_name: Callable[[dict], None]) -> None:
+        self._item_data_callback = function_name
+        return
+
+    def _on_item_data_change(self, item_active: str) -> None:
+        item_dict = {'player_id': self.player,
+                     'vehicle_id': self.vehicle_id,
+                     'item_stash': 'None',
+                     'item_active': item_active}
+
+        if self._item_data_callback is not None and callable(self._item_data_callback):
+            self._item_data_callback(item_dict)
+        return
