@@ -55,7 +55,9 @@
             const carEffectMap = new Map();
 
             var track = {{track | tojson}};
-            const track_color = "#0091FF";
+            const background_color = "#FFFFFF";
+            const track_border_color = "#0091FF";
+            const track_color = "#333333";
             const track_width = 10;
             const start_line_width = 12;
             const start_line_color = "#969494";
@@ -257,7 +259,7 @@
             */
             function drawStraightTrackLine(x1, y1, x2, y2) {
                 ctx.lineWidth = track_width * scale;
-                ctx.strokeStyle = track_color;
+                ctx.strokeStyle = track_border_color;
 
                 ctx.beginPath();
                 ctx.moveTo(x1 * scale, y1 * scale);
@@ -296,7 +298,7 @@
                 end_rad = start_rad + 0.5 * Math.PI;
 
                 ctx.lineWidth = track_width * scale;
-                ctx.strokeStyle = track_color * scale;
+                ctx.strokeStyle = track_border_color * scale;
 
                 ctx.beginPath();
                 // x, y, radius, startAngle, endAngle
@@ -323,7 +325,11 @@
                 line_2_start_y = offset_y + piece.piece.line_2_start.y;
                 line_2_end_x = offset_x + piece.piece.line_2_end.x;
                 line_2_end_y = offset_y + piece.piece.line_2_end.y;
-                
+
+                // Fill the road piece with color
+                fillStraightRoadPiece(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y, line_2_start_x, line_2_start_y, line_2_end_x, line_2_end_y);
+
+                // Draw start line
                 if (piece.piece.start_line_start !== undefined) {
                     startline_start_x = offset_x + piece.piece.start_line_start.x;
                     startline_start_y = offset_y + piece.piece.start_line_start.y;
@@ -333,9 +339,32 @@
                     drawStartLine(startline_start_x, startline_start_y, startline_end_x, startline_end_y);
                 }
 
+                // Draw road pice border
                 drawStraightTrackLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
                 drawStraightTrackLine(line_2_start_x, line_2_start_y, line_2_end_x, line_2_end_y);
             }
+
+            /*** Fills straight road piece with color.
+             * @param {float} x1 - x coordinate of the start of the first border line.
+             * @param {float} y1 - y coordinate of the start of the first border line.
+             * @param {float} x2 - x coordinate of the end of the first border line.
+             * @param {float} y2 - y coordinate of the end of the first border line.
+             * @param {float} x3 - x coordinate of the start of the second border line.
+             * @param {float} y3 - y coordinate of the start of the second border line.
+             * @param {float} x4 - x coordinate of the end of the second border line.
+             * @param {float} y4 - y coordinate of the end of the second border line.
+             */
+            function fillStraightRoadPiece(x1, y1, x2, y2, x3, y3, x4, y4) {
+                ctx.fillStyle = track_color;
+                ctx.beginPath();
+                ctx.moveTo(x1 * scale, y1 * scale);
+                ctx.lineTo(x2 * scale, y2 * scale);
+                ctx.lineTo(x4 * scale, y4 * scale);
+                ctx.lineTo(x3 * scale, y3 * scale);
+                ctx.closePath();
+                ctx.fill();
+            }
+
 
             /**
             * Draws curved track piece.
@@ -351,9 +380,35 @@
                 radius_1 = piece.piece.radius_1;
                 radius_2 = piece.piece.radius_2;
                 start_angle = piece.piece.start_angle + 90;
+
+                // Fill the curved road piece with color
+                fillCurvedRoadPiece(start_point_x, start_point_y, radius_1, radius_2, start_angle);
+
+                // Draw the borders of the curved road
                 drawCurvedTrackLine(start_point_x, start_point_y, radius_1, start_angle);
                 drawCurvedTrackLine(start_point_x, start_point_y, radius_2, start_angle);
             }
+
+            /*** Fills the curved road piece with color.
+             * @param {float} x - x coordinate of the center of the arc.
+             * @param {float} y - y coordinate of the center of the arc.
+             * @param {float} radius1 - Inner radius of the curved road.
+             * @param {float} radius2 - Outer radius of the curved road.
+             * @param {float} start_deg - Starting orientation of the arc.
+             */
+            function fillCurvedRoadPiece(x, y, radius1, radius2, start_deg) {
+                const start_rad = (start_deg - 90) * Math.PI / 180;
+                const end_rad = start_rad + 0.5 * Math.PI;
+                ctx.fillStyle = track_color;
+                ctx.beginPath();
+                // Draw outer arc
+                ctx.arc(x * scale, y * scale, radius2 * scale, start_rad, end_rad);
+                // Draw inner arc in reverse direction
+                ctx.arc(x * scale, y * scale, radius1 * scale, end_rad, start_rad, true);
+                ctx.closePath();
+                ctx.fill();
+            }
+
 
             /**
             * Reload the page when vehicle is added.
