@@ -1,0 +1,36 @@
+.content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.canvas {
+    width: 85vw;
+    height: 100vh;
+    position: relative;
+}
+
+.instructions {
+    width: 15vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.qr-code {
+
+}
+.qr-code img{
+    max-width: 15vw;
+    margin: 15px;
+}
+
+.slogan {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
