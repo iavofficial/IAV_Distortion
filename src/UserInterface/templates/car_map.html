@@ -433,6 +433,14 @@
                     });
 
                     /**
+                    * Reload the page when vehicle is added.
+                    */
+                    socket.on('vehicle_added', function(data){
+                        window.location.reload();
+                    });
+
+
+                    /**
                     * Reload page when vehicle has been removed.
                     */
                     socket.on('vehicle_removed', function(data){

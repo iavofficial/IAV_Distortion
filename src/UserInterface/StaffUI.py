@@ -55,6 +55,7 @@ class StaffUI:
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
+        self.environment_mng.set_vehicle_added_callback(self.publish_vehicle_added)
 
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
@@ -600,4 +601,12 @@ class StaffUI:
             Dictionary including the active player/cars mapping, player and vehicle queue.
         """
         await self._sio.emit('update_uuids', data)
+        return
+
+
+    def publish_vehicle_added(self) -> None:
+        self.__run_async_task(self.__emit_vehicle_connected())
+        return
+    async def __emit_vehicle_connected(self) -> None:
+        await self._sio.emit('vehicle_added')
         return

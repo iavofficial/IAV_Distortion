@@ -57,6 +57,7 @@ class EnvironmentManager:
         self.__update_staff_ui_callback: Callable[[List[Dict[str, str]], List[str], List[str]], None] | None = None
         self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
         self.__publish_player_active_callback: Callable[[str], None] | None = None
+        self.__publish_vehicle_added_callback = None
 
         # number used for naming virtual vehicles
         self._virtual_vehicle_num: int = 1
@@ -76,6 +77,10 @@ class EnvironmentManager:
         self._item_generator = item_generator
 
     # set Callbacks
+    def set_vehicle_added_callback(self, function_name) -> None:
+        self.__publish_vehicle_added_callback = function_name
+        return
+
     def set_staff_ui_update_callback(self,
                                      function_name: Callable[[List[Dict[str, str]],
                                                               List[str],
@@ -588,6 +593,8 @@ class EnvironmentManager:
         self._active_anki_cars.append(new_vehicle)
         self._assign_players_to_vehicles()
         self.update_staff_ui()
+        if callable(self.__publish_vehicle_added_callback):
+            self.__publish_vehicle_added_callback()
 
         return
 

@@ -50,7 +50,7 @@ def create_app(admin_password: str):
         """
         if config_handler.get_configuration()["environment"]["env_auto_discover_anki_cars"]:
             quart_app.add_background_task(fleet_ctrl.start_auto_discover_anki_cars)
-        quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
+        # quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
         quart_app.add_background_task(item_generator.start_item_generation)
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=socket)
