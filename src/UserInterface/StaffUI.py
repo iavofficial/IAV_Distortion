@@ -346,6 +346,21 @@ class StaffUI:
             """
             return await render_template('staff_config_system_control.html')
 
+        @self.staffUI_blueprint.route('/configuration/config_display_settings')
+        async def config_display_settings() -> Any:
+            """
+            Load configuration page for system control.
+
+            If client is not authenticated, client is redirected to the login page.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the system control page or a redirect to the login page, if not
+                authenticated.
+            """
+            return await render_template('staff_config_display_settings.html')
+
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:
             """

@@ -1,0 +1,34 @@
+{% extends 'staff_config_base.html' %}
+
+{% block content %}
+
+<div class="flexbox-item config_content">
+    <form id="myForm" action="/submit" method="post">
+        <div id="car_map_disp_settings">
+            <h2>Car Map</h2>
+            <div>
+                <label for="slogan_enabled">Display Slogan:</label>
+                <input type="checkbox" id="slogan_enabled" name="slogan_enabled">
+            </div>
+            <div>
+                <label for="slogan_text">Slogan:</label>
+                <input type="text" id="slogan_text" name="slogan">
+            </div>
+            <div>
+                <label for="qr_codes_enabled">Display QR-Codes:</label>
+                <input type="checkbox" id="qr_codes_enabled" name="qr_codes_enabled">
+            </div>
+        </div>
+        <div id="driver_ui_disp_settings">
+
+        </div>
+        <div id="staff_ui_disp_settings">
+
+        </div>
+        <button type="submit">Apply changes... </button>
+    </form>
+</div>
+
+
+
+{% endblock %}
