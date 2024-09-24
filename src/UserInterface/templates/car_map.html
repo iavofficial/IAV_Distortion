@@ -37,6 +37,12 @@
                     <script>
                         var disp_settings = {{ disp_settings | tojson }};
                         document.getElementById("slogan_text").innerHTML = disp_settings.disp_cm_slogan_text;
+                        if (!disp_settings.disp_cm_slogan_enabled) {
+                            document.getElementById("slogan").style.display = "none";
+                        }
+                        else {
+                            document.getElementById("slogan").style.display = "flex";
+                        }
                     </script>
                 </div>
 
