@@ -32,8 +32,12 @@
         <div class="container_left">
             <div class="canvas" id="canvas_container">
 
-                <div class="slogan">
-                    <h1>Can it be Safe without Security? - Find out while racing with us!</h1>
+                <div class="slogan" id="slogan">
+                    <h1 id="slogan_text"></h1>
+                    <script>
+                        var disp_settings = {{ disp_settings | tojson }};
+                        document.getElementById("slogan_text").innerHTML = disp_settings.disp_cm_slogan_text;
+                    </script>
                 </div>
 
             <script>
