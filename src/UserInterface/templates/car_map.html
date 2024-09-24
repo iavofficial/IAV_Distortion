@@ -535,7 +535,7 @@
                 </div>
             </div>
 
-            <div class="instructions">
+            <div class="instructions" id="instructions">
                 <div class="qr-code wifi">
                     <h3>1. Scan to connect to WiFi!</h3>
                     <img id="qr_ap" src="{{ url_for('static', filename='images/QR_wifi_access_distortion-ap.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
@@ -544,6 +544,18 @@
                     <h3>2. Jump into a driver seat!</h3>
                     <img id="qr_driver" src="{{ url_for('static', filename='images/QR_driver_url.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
                 </div>
+                <script>
+                    var disp_settings = {{ disp_settings | tojson }};
+                    var canvasElement = document.querySelector(".canvas");
+                    if (!disp_settings.disp_cm_qr_codes_enabled) {
+                        document.getElementById("instructions").style.display = "none";
+                        canvasElement.style.width = "100vw";
+                    }
+                    else {
+                        document.getElementById("instructions").style.display = "flex";
+                        canvasElement.style.width = "85vw";
+                    }
+                </script>
             </div>
 
         </div>
