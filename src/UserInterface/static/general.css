@@ -204,3 +204,73 @@ td:last-child {
     background-image: radial-gradient(circle at center, #0091FF 40%, transparent 50%);
     border-color: #0091FF;
 }
+
+/* Checkbox style */
+input[type="checkbox"] {
+    display: none;
+}
+
+/* Custom checkbox container */
+.checkbox-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start
+  position: relative;
+  margin-bottom: 12px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+}
+
+/* Custom checkbox appearance */
+.custom-checkbox {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #fff;
+  margin-left: 20px;
+  border: 2px solid #C8C6C6;
+  border-radius: 4px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input ~ .custom-checkbox {
+  border: 2px solid #0091FF;
+  border-radius: 4px;
+}
+/* Checked state for the custom checkbox */
+input[type="checkbox"]:checked + .custom-checkbox {
+    border-color: #2196F3;
+    background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.custom-checkbox::after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .custom-checkbox:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .custom-checkbox:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
