@@ -510,6 +510,7 @@ class StaffUI:
             self.config_handler.get_configuration().update({"display_settings": new_display_settings})
             self.config_handler.write_configuration()
 
+            self.publish_reload_uis()
             return await config_display_settings()
         self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
                                             view_func=apply_display_settings)
@@ -590,6 +591,13 @@ class StaffUI:
         self.__run_async_task(self.__emit_player_active(player))
         return
 
+    def publish_reload_uis(self) -> None:
+        """
+        Schedules 'reload_uis' event.
+        """
+        self.__run_async_task(self.__emit_reload_uis())
+        return
+
     def __run_async_task(self, task: Coroutine[Any, Any, None]) -> None:
         """
         Run an asyncio awaitable task.
@@ -646,6 +654,12 @@ class StaffUI:
         await self._sio.emit('update_uuids', data)
         return
 
+    async def __emit_reload_uis(self) -> None:
+        """
+        Emits the 'reload_uis' websocket event.
+        """
+        await self._sio.emit('reload_uis')
+        return
 
     def publish_vehicle_added(self) -> None:
         self.__run_async_task(self.__emit_vehicle_connected())
@@ -653,3 +667,4 @@ class StaffUI:
     async def __emit_vehicle_connected(self) -> None:
         await self._sio.emit('vehicle_added')
         return
+

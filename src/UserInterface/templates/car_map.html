@@ -55,6 +55,12 @@
                  socket.on('reload_car_map', function(data) {
                     window.location.reload();
                 });
+                /**
+                 * Reload the page when told. Used when display settings changed
+                 */
+                 socket.on('reload_uis', function(data) {
+                    window.location.reload();
+                });
             </script>
             {% if track is none %}
             <h1>The map isn't currently available</h1>
