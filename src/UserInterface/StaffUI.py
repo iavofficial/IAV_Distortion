@@ -20,6 +20,7 @@ from socketio import AsyncServer
 
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,7 @@ class StaffUI:
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
@@ -349,17 +351,20 @@ class StaffUI:
         @self.staffUI_blueprint.route('/configuration/config_display_settings')
         async def config_display_settings() -> Any:
             """
-            Load configuration page for system control.
+            Load display settings page for system control.
 
-            If client is not authenticated, client is redirected to the login page.
+            If client is not authenticated, client is redirected to the login page. Get current configuration and send
+            it to frontend.
 
             Returns
             -------
             Response
-                Returns a Response object representing the system control page or a redirect to the login page, if not
+                Returns a Response object representing the display settings page or a redirect to the login page, if not
                 authenticated.
             """
-            return await render_template('staff_config_display_settings.html')
+            disp_settings = self.config_handler.get_configuration()["display_settings"]
+            return await render_template(template_name_or_list='staff_config_display_settings.html',
+                                         disp_settings=disp_settings)
 
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:

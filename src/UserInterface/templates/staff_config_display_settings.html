@@ -3,20 +3,26 @@
 {% block content %}
 
 <div class="flexbox-item config_content">
-    <form id="myForm" action="/submit" method="post">
+    <form id="display_settings" action="{{ url_for('staffUI_bp.apply_display_settings') }}" method="post">
         <div id="car_map_disp_settings">
             <h2>Car Map</h2>
             <div>
-                <label for="slogan_enabled">Display Slogan:</label>
-                <input type="checkbox" id="slogan_enabled" name="slogan_enabled">
+                <label class="checkbox-container"> Display Slogan:
+
+                    <input type="checkbox" id="disp_cm_slogan_enabled" name="disp_cm_slogan_enabled">
+                    <span class="custom-checkbox"></span>
+                </label>
             </div>
             <div>
-                <label for="slogan_text">Slogan:</label>
-                <input type="text" id="slogan_text" name="slogan">
+                <label for="disp_cm_slogan_text">Slogan (max. 75):</label>
+                <input type="text" id="disp_cm_slogan_text" name="disp_cm_slogan_text" maxlength="75" style="width: 500px">
             </div>
             <div>
-                <label for="qr_codes_enabled">Display QR-Codes:</label>
-                <input type="checkbox" id="qr_codes_enabled" name="qr_codes_enabled">
+                <label class="checkbox-container">Display QR-Codes:
+
+                    <input type="checkbox" id="disp_cm_qr_codes_enabled" name="disp_cm_qr_codes_enabled">
+                    <span class="custom-checkbox"></span>
+                </label>
             </div>
         </div>
         <div id="driver_ui_disp_settings">
@@ -29,6 +35,34 @@
     </form>
 </div>
 
+<script>
+
+
+    function displayCurrentConfig(data) {
+        var disp_settings = {{ disp_settings | tojson }};
+
+        // Checkboxes
+        var checkbox_slogan = document.getElementById('disp_cm_slogan_enabled');
+        var checkbox_qr_codes = document.getElementById('disp_cm_qr_codes_enabled');
+        if (disp_settings.disp_cm_slogan_enabled) {
+            checkbox_slogan.checked = true;
+        } else {
+            checkbox_slogan.checked = false;
+        }
+        if (disp_settings.disp_cm_qr_codes_enabled){
+            checkbox_qr_codes.checked = true;
+        } else {
+            checkbox_qr_codes.checked = false;
+        }
+
+        // slogan text
+        disp_cm_slogan_text.value = disp_settings.disp_cm_slogan_text;
+    }
+
+
+    // Call the function after the DOM has fully loaded
+    document.addEventListener('DOMContentLoaded', displayCurrentConfig);
+</script>
 
 
 {% endblock %}
