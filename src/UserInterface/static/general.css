@@ -215,8 +215,9 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start
+  justify-content: flex-start;
   position: relative;
+  margin-top: 12px;
   margin-bottom: 12px;
   cursor: pointer;
   -webkit-user-select: none;
