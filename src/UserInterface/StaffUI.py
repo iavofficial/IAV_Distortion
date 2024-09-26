@@ -491,6 +491,29 @@ class StaffUI:
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
 
+        async def apply_display_settings() -> Any:
+            """
+            Function to receive settings from display settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui display settings page.
+            """
+            new_display_settings = (await request.form)
+            new_display_settings = {
+                'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
+                'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
+                'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on'
+            }
+
+            self.config_handler.get_configuration().update({"display_settings": new_display_settings})
+            self.config_handler.write_configuration()
+
+            return await config_display_settings()
+        self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
+                                            view_func=apply_display_settings)
+
     def get_blueprint(self) -> Blueprint:
         """
         Get the Blueprint object associated with the instance.
