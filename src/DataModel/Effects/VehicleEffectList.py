@@ -6,4 +6,7 @@ class VehicleEffectIdentification(Enum):
     HACKED_REDUCED_SPEED = 2,
     HACKED_NO_DRIVING = 3,
     HACKED_NO_SAFETY_MODULE = 4,
-    CLEAN_HACKED_EFFECTS = 5
+    CLEAN_HACKED_EFFECTS = 5,
+    HACKED_SPORADIC_O_TURNS  = 6,
+
+
