@@ -47,6 +47,13 @@
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
 		"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
-		"disp_cm_qr_codes_enabled": true
+		"disp_cm_slogan_color": "#001A54",
+		"disp_cm_qr_codes_enabled": true,
+		"disp_cm_iav_header_enabled": true,
+		"disp_cm_background_color": "#FFFFFF",
+		"disp_cm_track_color": "#696969",
+		"disp_cm_track_border_color": "#0091FF",
+		"disp_cm_start_line_color": "#C8C6C6",
+		"disp_cm_item_color": "#96E7FF"
 	}
 }
