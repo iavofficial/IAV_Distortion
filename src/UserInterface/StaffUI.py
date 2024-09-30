@@ -504,6 +504,7 @@ class StaffUI:
             new_display_settings = {
                 'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
                 'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
+                'disp_cm_slogan_color': new_display_settings.get('disp_cm_slogan_color'),
                 'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
                 'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
                 'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),

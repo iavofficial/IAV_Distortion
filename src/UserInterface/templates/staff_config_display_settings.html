@@ -11,6 +11,7 @@
 
                     <input type="checkbox" id="disp_cm_slogan_enabled" name="disp_cm_slogan_enabled">
                     <span class="custom-checkbox"></span>
+                    <input type="color" id="disp_cm_slogan_color" name="disp_cm_slogan_color">
                 </label>
             </div>
             <div>
@@ -93,6 +94,7 @@
         disp_cm_slogan_text.value = disp_settings.disp_cm_slogan_text;
 
         // colors
+        document.getElementById('disp_cm_slogan_color').value = disp_settings.disp_cm_slogan_color;
         document.getElementById('disp_cm_background_color').value = disp_settings.disp_cm_background_color;
         document.getElementById('disp_cm_track_color').value = disp_settings.disp_cm_track_color;
         document.getElementById('disp_cm_track_border_color').value = disp_settings.disp_cm_track_border_color;
