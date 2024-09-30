@@ -265,8 +265,8 @@ class FullTrack():
             max_horiz = max(max_horiz, local_max_y)
 
         return {
-            'used_space_vertically': max_horiz,
-            'used_space_horizontally': max_vert
+            'used_space_vertically': max_vert,
+            'used_space_horizontally': max_horiz
         }
 
     def __eq__(self, other):
