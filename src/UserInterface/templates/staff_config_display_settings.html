@@ -23,6 +23,12 @@
                     <span class="custom-checkbox"></span>
                 </label>
             </div>
+            <div>
+                <label class="checkbox-container">Display IAV Header:
+                    <input type="checkbox" id="disp_cm_iav_header_enabled" name="disp_cm_iav_header_enabled">
+                    <span class="custom-checkbox"></span>
+                </label>
+            </div>
             <h3>Colors:</h3>
             <div>
                 <label for="disp_cm_background_color">Background:</label>
@@ -63,16 +69,24 @@
 
         // Checkboxes
         var checkbox_slogan = document.getElementById('disp_cm_slogan_enabled');
-        var checkbox_qr_codes = document.getElementById('disp_cm_qr_codes_enabled');
         if (disp_settings.disp_cm_slogan_enabled) {
             checkbox_slogan.checked = true;
         } else {
             checkbox_slogan.checked = false;
         }
+
+        var checkbox_qr_codes = document.getElementById('disp_cm_qr_codes_enabled');
         if (disp_settings.disp_cm_qr_codes_enabled){
             checkbox_qr_codes.checked = true;
         } else {
             checkbox_qr_codes.checked = false;
+        }
+
+        var checkbox_iav_header = document.getElementById('disp_cm_iav_header_enabled');
+        if (disp_settings.disp_cm_iav_header_enabled){
+            checkbox_iav_header.checked = true;
+        } else {
+            checkbox_iav_header.checked = false;
         }
 
         // slogan text

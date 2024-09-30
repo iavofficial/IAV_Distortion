@@ -23,7 +23,7 @@
 
 <body>
 <div class="container">
-    <div class="flexbox-container custom_header">
+    <div class="flexbox-container custom_header" id="iav_header">
         <p class="header">IAV Distortion</p>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
@@ -546,6 +546,13 @@
                         } else {
                             document.getElementById("instructions").style.display = "flex";
                             canvasElement.style.width = "85vw";
+                        }
+                        if (!disp_settings.disp_cm_iav_header_enabled) {
+                            document.getElementById("iav_header").style.display = "none";
+                            canvasElement.style.height = "100vh";
+                        } else {
+                            document.getElementById("iav_header").style.display = "flex";
+                            canvasElement.style.height = "100%";
                         }
                         resizeCanvas();
                         renderFullCarmap();

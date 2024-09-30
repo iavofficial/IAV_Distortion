@@ -505,6 +505,7 @@ class StaffUI:
                 'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
                 'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
                 'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
+                'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
                 'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),
                 'disp_cm_track_color': new_display_settings.get('disp_cm_track_color'),
                 'disp_cm_track_border_color': new_display_settings.get('disp_cm_track_border_color'),
