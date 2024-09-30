@@ -484,8 +484,8 @@
                         canvas.width = containerWidth;
                         canvas.height = containerHeight;
 
-                        let ratio_vertically = window.innerHeight / required_vertically;
-                        let ratio_horizontally = window.innerWidth / required_horizontally;
+                        let ratio_vertically = canvas.width / required_vertically;
+                        let ratio_horizontally = canvas.height / required_horizontally;
                         scale = Math.min(ratio_horizontally, ratio_vertically);
                     }
 
