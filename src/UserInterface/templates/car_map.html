@@ -86,12 +86,14 @@
                     const carEffectMap = new Map();
 
                     var track = {{track | tojson}};
-                    const background_color = "#FFFFFF";
-                    const track_border_color = "#0091FF";
-                    const track_color = "#333333";
+                    var disp_settings = {{ disp_settings | tojson }};
+
+                    const background_color = disp_settings.disp_cm_background_color;
+                    const track_border_color = disp_settings.disp_cm_track_border_color;
+                    const track_color = disp_settings.disp_cm_track_color;
                     const track_width = 10;
                     const start_line_width = 12;
-                    const start_line_color = "#969494";
+                    const start_line_color = disp_settings.disp_cm_start_line_color;
 
                     const car_width = 30;
                     const car_length = car_width * 1.88;
@@ -103,7 +105,7 @@
                     const car_image_cache = new Map();
 
                     const item_size = 20;
-                    const item_color = '#52c9ff';
+                    const item_color = disp_settings.disp_cm_item_color;
 
                     addEventListener("resize", (event) => {
                         resizeCanvas();
@@ -477,9 +479,6 @@
                         var containerWidth = canvas_container.clientWidth;
                         var containerHeight = canvas_container.clientHeight;
 
-                        console.log('containerWidth: ' + containerWidth + ', containerHeight: ' + containerHeight);
-                        console.log('required_v' + required_vertically + ', required_h' + required_horizontally);
-
                         //canvas.width = window.innerWidth;
                         //canvas.height = window.innerHeight;
 
@@ -540,7 +539,6 @@
                     setInterval(renderFullCarmap, 1000/24);
                     
                     window.onload = function() {
-                        var disp_settings = {{ disp_settings | tojson }};
                         var canvasElement = document.querySelector(".canvas");
                         if (!disp_settings.disp_cm_qr_codes_enabled) {
                             document.getElementById("instructions").style.display = "none";
