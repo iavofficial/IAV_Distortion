@@ -5,12 +5,16 @@ from DataModel.Vehicle import Vehicle
 
 class HackedReducedSpeed(HackedEffect):
     def identify(self) -> VehicleEffectIdentification:
-        return VehicleEffectIdentification.HACKED_REDUCED_SPEED
+        return VehicleEffectIdentification.HACKED_INVERTED_USER_INPUT
 
     def on_start(self, vehicle: 'Vehicle') -> None:
         super().on_start(vehicle)
         self.remove_other_hacking_effects(vehicle)
-        vehicle.speed_factor = 0.3
+        vehicle.speed_factor = -1
+        vehicle.speed_offset = 1
+        vehicle.lange_change_inverted = True
 
     def on_end(self, vehicle: 'Vehicle') -> None:
         vehicle.speed_factor = 1
+        vehicle.speed_offset = 0
+        vehicle.lange_change_inverted = False
