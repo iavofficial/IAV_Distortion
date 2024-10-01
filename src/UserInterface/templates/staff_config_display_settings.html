@@ -6,48 +6,47 @@
     <form id="display_settings" action="{{ url_for('staffUI_bp.apply_display_settings') }}" method="post">
         <div id="car_map_disp_settings">
             <h2>Car Map</h2>
-            <div>
+            <div class="menu_item">
                 <label class="checkbox-container"> Display Slogan:
-
                     <input type="checkbox" id="disp_cm_slogan_enabled" name="disp_cm_slogan_enabled">
-                    <span class="custom-checkbox"></span>
-                    <input type="color" id="disp_cm_slogan_color" name="disp_cm_slogan_color">
+                    <span class="custom-checkbox"></span>    
                 </label>
+                <input type="color" id="disp_cm_slogan_color" name="disp_cm_slogan_color">
             </div>
-            <div>
+            <div class="menu_item">
                 <label for="disp_cm_slogan_text">Slogan (max. 75):</label>
                 <input type="text" id="disp_cm_slogan_text" name="disp_cm_slogan_text" maxlength="75" style="width: 500px">
             </div>
-            <div>
+            <div class="menu_item">
                 <label class="checkbox-container">Display QR-Codes:
                     <input type="checkbox" id="disp_cm_qr_codes_enabled" name="disp_cm_qr_codes_enabled">
                     <span class="custom-checkbox"></span>
                 </label>
             </div>
-            <div>
+            <div class="menu_item">
                 <label class="checkbox-container">Display IAV Header:
                     <input type="checkbox" id="disp_cm_iav_header_enabled" name="disp_cm_iav_header_enabled">
                     <span class="custom-checkbox"></span>
                 </label>
             </div>
             <h3>Colors:</h3>
-            <div>
+            <div class="menu_item">
                 <label for="disp_cm_background_color">Background:</label>
                 <input type="color" id="disp_cm_background_color" name="disp_cm_background_color">
             </div>
-            <div>
+            <div class="menu_item">
                 <label for="disp_cm_track_color">Track:</label>
                 <input type="color" id="disp_cm_track_color" name="disp_cm_track_color">
             </div>
-            <div>
+            <div class="menu_item">
                 <label for="disp_cm_track_border_color">Track border:</label>
                 <input type="color" id="disp_cm_track_border_color" name="disp_cm_track_border_color">
             </div>
-            <div>
+            <div class="menu_item">
                 <label for="disp_cm_start_line_color">Start line:</label>
                 <input type="color" id="disp_cm_start_line_color" name="disp_cm_start_line_color">
             </div>
-            <div>
+            <div class="menu_item">
                 <label for="disp_cm_item_color">Items:</label>
                 <input type="color" id="disp_cm_item_color" name="disp_cm_item_color">
             </div>

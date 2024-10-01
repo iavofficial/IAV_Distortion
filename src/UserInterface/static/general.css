@@ -235,9 +235,9 @@ input[type="checkbox"] {
   height: 25px;
   width: 25px;
   background-color: #fff;
-  margin-left: 20px;
+  margin: 5px;
   border: 2px solid #C8C6C6;
-  border-radius: 4px;
+  border-radius: 25%;
   transition: background-color 0.3s, border-color 0.3s;
 }
 
@@ -274,4 +274,49 @@ input[type="checkbox"]:checked + .custom-checkbox {
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+
+input[type="text"] {
+    border: 1px solid #C8C6C6;
+    border-radius: 6px;
+    padding: 5px;
+    height: 25px;
+
+}
+
+/* Hide the default color picker */
+input[type="color"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+
+/* Custom styles for the color picker */
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 4;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: 1px;
+    border-radius: 25%;
+    border-color: #C8C6C6;
+}
+
+input[type="color"]::-moz-color-swatch {
+    border: 1px;
+    border-radius: 25%;
+    border-color: #C8C6C6;
+}
+
+/* Additional custom styles */
+input[type="color"] {
+    border-radius: 25%;
+    margin: 5px;
+    border: 1px solid #C8C6C6;
+    background-color: #ffffff;
 }
