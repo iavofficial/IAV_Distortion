@@ -20,6 +20,7 @@ from socketio import AsyncServer
 
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,8 @@ class StaffUI:
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
+
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
@@ -103,9 +106,10 @@ class StaffUI:
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
             # TODO: Show selection of choose hacking scenarios always sorted by player number
+            virtual_cars_pics = self.config_handler.get_configuration()["virtual_cars_pics"]
             return await render_template('staff_control.html', activeScenarios=active_scenarios,
                                          uuids=environment_mng.get_controlled_cars_list(), names=names,
-                                         descriptions=descriptions)
+                                         descriptions=descriptions, virtual_cars_pics=virtual_cars_pics)
 
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
