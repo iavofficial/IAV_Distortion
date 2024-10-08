@@ -52,6 +52,7 @@ class StaffUI:
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
@@ -350,6 +351,24 @@ class StaffUI:
             """
             return await render_template('staff_config_system_control.html')
 
+        @self.staffUI_blueprint.route('/configuration/config_display_settings')
+        async def config_display_settings() -> Any:
+            """
+            Load display settings page for system control.
+
+            If client is not authenticated, client is redirected to the login page. Get current configuration and send
+            it to frontend.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the display settings page or a redirect to the login page, if not
+                authenticated.
+            """
+            disp_settings = self.config_handler.get_configuration()["display_settings"]
+            return await render_template(template_name_or_list='staff_config_display_settings.html',
+                                         disp_settings=disp_settings)
+
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:
             """
@@ -475,6 +494,37 @@ class StaffUI:
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
 
+        async def apply_display_settings() -> Any:
+            """
+            Function to receive settings from display settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui display settings page.
+            """
+            new_display_settings = (await request.form)
+            new_display_settings = {
+                'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
+                'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
+                'disp_cm_slogan_color': new_display_settings.get('disp_cm_slogan_color'),
+                'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
+                'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
+                'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),
+                'disp_cm_track_color': new_display_settings.get('disp_cm_track_color'),
+                'disp_cm_track_border_color': new_display_settings.get('disp_cm_track_border_color'),
+                'disp_cm_start_line_color': new_display_settings.get('disp_cm_start_line_color'),
+                'disp_cm_item_color': new_display_settings.get('disp_cm_item_color')
+            }
+
+            self.config_handler.get_configuration().update({"display_settings": new_display_settings})
+            self.config_handler.write_configuration()
+
+            self.publish_reload_uis()
+            return await config_display_settings()
+        self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
+                                            view_func=apply_display_settings)
+
     def get_blueprint(self) -> Blueprint:
         """
         Get the Blueprint object associated with the instance.
@@ -551,6 +601,13 @@ class StaffUI:
         self.__run_async_task(self.__emit_player_active(player))
         return
 
+    def publish_reload_uis(self) -> None:
+        """
+        Schedules 'reload_uis' event.
+        """
+        self.__run_async_task(self.__emit_reload_uis())
+        return
+
     def __run_async_task(self, task: Coroutine[Any, Any, None]) -> None:
         """
         Run an asyncio awaitable task.
@@ -607,6 +664,12 @@ class StaffUI:
         await self._sio.emit('update_uuids', data)
         return
 
+    async def __emit_reload_uis(self) -> None:
+        """
+        Emits the 'reload_uis' websocket event.
+        """
+        await self._sio.emit('reload_uis')
+        return
 
     def publish_vehicle_added(self) -> None:
         self.__run_async_task(self.__emit_vehicle_connected())
@@ -614,3 +677,4 @@ class StaffUI:
     async def __emit_vehicle_connected(self) -> None:
         await self._sio.emit('vehicle_added')
         return
+

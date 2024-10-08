@@ -63,3 +63,10 @@ body{
     flex-direction: column;
     max-width: 30vw;
 }
+
+.menu_item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
