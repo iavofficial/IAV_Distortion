@@ -333,6 +333,18 @@
       });
     });
 
+    /** Handles 'device_added' event.
+     * 
+     *  If name send with the event is none a popup warning will be displayed.
+     * 
+     * @param {sting} name: Name of the added vehicle.
+     */
+    socket.on('device_added', function(name){
+      if (name === "undefined") {
+            alert("Can not add more Virtual Vehicles!");
+        }
+    });
+
     /**
     * Emits 'add_device' event and removes device from list of found devices.
     *
