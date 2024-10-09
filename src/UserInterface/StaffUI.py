@@ -368,6 +368,24 @@ class StaffUI:
             disp_settings = self.config_handler.get_configuration()["display_settings"]
             return await render_template(template_name_or_list='staff_config_display_settings.html',
                                          disp_settings=disp_settings)
+        
+        @self.staffUI_blueprint.route('/configuration/config_advanced_settings')
+        async def config_advanced_settings() -> Any:
+            """
+            Renders the advanced settings page for the staff user interface.
+            
+            If client is not authenticated, client is redirected to the login page. Get current configuration and send
+            it to frontend.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the advanced settings page or a redirect to the login page, if not
+                authenticated.
+            """
+            settings = self.config_handler.get_configuration()
+            return await render_template(template_name_or_list='staff_config_advanced_settings.html',
+                                         settings=settings)
 
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:
@@ -525,6 +543,29 @@ class StaffUI:
             return await config_display_settings()
         self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
                                             view_func=apply_display_settings)
+
+        async def apply_advanced_settings() -> Any:
+            """
+            Function to receive settings from advanced settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui advanced settings page.
+            """
+            new_settings = (await request.form)
+            new_settings = {
+                'driver': {
+                'driver_heartbeat_interval_ms': new_settings.get('driver_heartbeat_interval_ms'),
+                }
+            }
+
+            self.config_handler.write_configuration(new_config=new_settings)
+
+            self.publish_reload_uis()
+            return await config_advanced_settings()
+        self.staffUI_blueprint.add_url_rule('/apply_advanced_settings', methods=['POST'],
+                                            view_func=apply_advanced_settings)
 
     def get_blueprint(self) -> Blueprint:
         """
