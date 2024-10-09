@@ -73,10 +73,7 @@ class ConfigurationHandler(metaclass=Singleton):
             logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
         return {},
 
-    def write_configuration(self) -> None:
-        """
-        Writes the current configuration into a configuration file
-        """
+    """def write_configuration(self) -> None:
         try:
             with open(self.config_file, 'w') as file:
                 json.dump(self.__config_tup[0], file, indent='\t')
@@ -85,6 +82,48 @@ class ConfigurationHandler(metaclass=Singleton):
             logger.critical("No permission to write configuration file.")
         except Exception as e:
             logger.critical(f"An unexpected error occurred trying to write the configuration file: {e}")
+    """
+    
+    def write_configuration(self, new_config: dict) -> None:
+        """
+        Writes the current configuration into a configuration file
+
+        Parameters
+        ----------
+        new_config: dict
+            dictionary containing the new configuration parameter
+        """
+        current_config = self.__config_tup[0]
+        # Merge the new configuration with the current configuration
+        for key, value in new_config.items():
+            if isinstance(value, dict):
+                # Recursively handle nested dictionaries
+                if key in current_config:
+                    self.__merge_dict(current_config[key], value)
+                else:
+                    current_config[key] = value
+            else:
+                current_config[key] = value
+        
+        # Write the merged configuration back to the file
+        with open(self.config_file, 'w') as file:
+            json.dump(current_config, file, indent='\t')
+        return
+
+    def __merge_dict(self, target: dict, source: dict) -> None:
+        """
+        Recursively merges the source dictionary into the target dictionary.
+        """
+        for key, value in source.items():
+            if isinstance(value, dict):
+                # If the key does not exist in the target, add it
+                if key not in target:
+                    target[key] = {}
+                # Recursively merge the nested dictionaries
+                self._merge_dict(target[key], value)
+            else:
+                target[key] = value
+        return
 
     def get_configuration(self) -> dict:
         """
