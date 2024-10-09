@@ -505,20 +505,21 @@ class StaffUI:
             """
             new_display_settings = (await request.form)
             new_display_settings = {
-                'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
-                'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
-                'disp_cm_slogan_color': new_display_settings.get('disp_cm_slogan_color'),
-                'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
-                'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
-                'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),
-                'disp_cm_track_color': new_display_settings.get('disp_cm_track_color'),
-                'disp_cm_track_border_color': new_display_settings.get('disp_cm_track_border_color'),
-                'disp_cm_start_line_color': new_display_settings.get('disp_cm_start_line_color'),
-                'disp_cm_item_color': new_display_settings.get('disp_cm_item_color')
+                'display_settings':{
+                    'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
+                    'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
+                    'disp_cm_slogan_color': new_display_settings.get('disp_cm_slogan_color'),
+                    'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
+                    'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
+                    'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),
+                    'disp_cm_track_color': new_display_settings.get('disp_cm_track_color'),
+                    'disp_cm_track_border_color': new_display_settings.get('disp_cm_track_border_color'),
+                    'disp_cm_start_line_color': new_display_settings.get('disp_cm_start_line_color'),
+                    'disp_cm_item_color': new_display_settings.get('disp_cm_item_color')
+                }
             }
 
-            self.config_handler.get_configuration().update({"display_settings": new_display_settings})
-            self.config_handler.write_configuration()
+            self.config_handler.write_configuration(new_config=new_display_settings)
 
             self.publish_reload_uis()
             return await config_display_settings()
