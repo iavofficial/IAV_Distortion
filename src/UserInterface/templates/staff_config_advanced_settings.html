@@ -1,0 +1,63 @@
+{% extends 'staff_config_base.html' %}
+
+{% block content %}
+
+<div class="flexbox-item config_content">
+    <div id="restart_info">
+        <p>Some of the configuration will only apply after a restart of IAV Distortion. Please restart after applying changes!</p>
+    </div>
+    <form id="advanced_settings" action="{{ url_for('staffUI_bp.apply_advanced_settings') }}" method="post">
+        <div id="adv_driver_settings">
+            <h2>Advanced Driver Settings</h2>
+            <div class="menu_item">
+                <div class="menu_item">
+                    <label for="driver_heartbeat_interval_ms">Heartbeat [ms]:</label>
+                    <input type="number" id="driver_heartbeat_interval_ms" name="driver_heartbeat_interval_ms" min="100" max="10000">
+                </div>
+            </div>
+
+
+
+
+            
+            <h3>Colors:</h3>
+            
+        </div>
+
+
+        <div id="driver_ui_disp_settings">
+
+        </div>
+        <div id="staff_ui_disp_settings">
+
+        </div>
+        <button type="submit">Apply changes... </button>
+    </form>
+</div>
+
+<script>
+
+
+    function displayCurrentConfig(data) {
+        var settings = {{ settings | tojson }};
+
+        // Checkboxes
+        // var checkbox_----- = document.getElementById('------');
+        //if (settings.-----) {
+        //   checkbox_-----.checked = true;
+        //} else {
+        //    checkbox_------.checked = false;
+        //}
+
+        // numbers
+        driver_heartbeat_interval_ms.value = settings.driver.driver_heartbeat_interval_ms;
+
+    }
+
+
+    // Call the function after the DOM has fully loaded
+    document.addEventListener('DOMContentLoaded', displayCurrentConfig);
+</script>
+
+
+{% endblock %}
