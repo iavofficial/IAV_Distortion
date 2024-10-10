@@ -72,17 +72,6 @@ class ConfigurationHandler(metaclass=Singleton):
         except Exception as e:
             logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
         return {},
-
-    """def write_configuration(self) -> None:
-        try:
-            with open(self.config_file, 'w') as file:
-                json.dump(self.__config_tup[0], file, indent='\t')
-
-        except PermissionError:
-            logger.critical("No permission to write configuration file.")
-        except Exception as e:
-            logger.critical(f"An unexpected error occurred trying to write the configuration file: {e}")
-    """
     
     def write_configuration(self, new_config: dict) -> None:
         """
@@ -106,8 +95,15 @@ class ConfigurationHandler(metaclass=Singleton):
                 current_config[key] = value
         
         # Write the merged configuration back to the file
-        with open(self.config_file, 'w') as file:
-            json.dump(current_config, file, indent='\t')
+        try:
+            with open(self.config_file, 'w') as file:
+                json.dump(current_config, file, indent='\t')
+        except PermissionError:
+            logger.critical("No permission to write to configuration file.")
+        except Exception as e:
+            logger.critical(f"An unexpected error occured trying to write to the configuration file: {e}")
+            
+        self.__config_tup = self.__read_configuration()
         return
 
     def __merge_dict(self, target: dict, source: dict) -> None:
