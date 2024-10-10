@@ -555,26 +555,27 @@ class StaffUI:
             """
             new_settings = (await request.form)
             # TODO: create function to automatically create json for new settings
+            print(new_settings)
             new_settings = {
                 'driver': {
-                'driver_heartbeat_interval_ms': new_settings.get('driver_heartbeat_interval_ms'),
-                'driver_heartbeat_timeout_s': new_settings.get('driver_heartbeat_timeout_s'),
-                'driver_reconnect_grace_period_s': new_settings.get('driver_reconnect_grace_period_s'),
-                'driver_background_grace_period_s': new_settings.get('driver_background_grace_period_s')
+                'driver_heartbeat_interval_ms': int(new_settings.get('driver_heartbeat_interval_ms')),
+                'driver_heartbeat_timeout_s': int(new_settings.get('driver_heartbeat_timeout_s')),
+                'driver_reconnect_grace_period_s': int(new_settings.get('driver_reconnect_grace_period_s')),
+                'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))
                 },
                 'game_config':{
-                    'game_cfg_playing_time_limit_min': new_settings.get('game_cfg_playing_time_limit_min')
+                    'game_cfg_playing_time_limit_min': int(new_settings.get('game_cfg_playing_time_limit_min'))
                 },
                 "environment":{
                     'env_auto_discover_anki_cars': new_settings.get('env_auto_discover_anki_cars') == 'on',
-                    'env_vehicle_scale': new_settings.get('env_vehicle_scale')
+                    'env_vehicle_scale': int(new_settings.get('env_vehicle_scale'))
                 },
                 "hacking_protection": {
-                    'protection_duration_s': new_settings.get('protection_duration_s')
+                    'protection_duration_s': int(new_settings.get('protection_duration_s'))
                 },
                 "item": {
-                    'item_spawn_interval': new_settings.get('item_spawn_interval'),
-                    'item_max_count': new_settings.get('item_max_count')
+                    'item_spawn_interval': int(new_settings.get('item_spawn_interval')),
+                    'item_max_count': int(new_settings.get('item_max_count'))
                 }
             }
 
