@@ -10,26 +10,52 @@
         <div id="adv_driver_settings">
             <h2>Advanced Driver Settings</h2>
             <div class="menu_item">
-                <div class="menu_item">
-                    <label for="driver_heartbeat_interval_ms">Heartbeat [ms]:</label>
-                    <input type="number" id="driver_heartbeat_interval_ms" name="driver_heartbeat_interval_ms" min="100" max="10000">
-                </div>
+                <label for="driver_heartbeat_interval_ms">Heartbeat [ms]:</label>
+                <input type="number" id="driver_heartbeat_interval_ms" name="driver_heartbeat_interval_ms" min="100" max="10000">
+            </div>
+            <div class="menu_item">
+                <label for="driver_heartbeat_timeout_s">Heartbeat Timeout [s]:</label>
+                <input type="number" id="driver_heartbeat_timeout_s" name="driver_heartbeat_timeout_s" min="1" max="600">
+            </div>
+            <div class="menu_item">
+                <label for="driver_reconnect_grace_period_s">Reconnection Grace Period [s]:</label>
+                <input type="number" id="driver_reconnect_grace_period_s" name="driver_reconnect_grace_period_s" min="0" max="600">
+            </div>
+            <div class="menu_item">
+                <label for="driver_background_grace_period_s">Background Grace Period [s]:</label>
+                <input type="number" id="driver_background_grace_period_s" name="driver_background_grace_period_s" min="0" max="600">
+            </div>
+            <div class="menu_item">
+                <label for="game_cfg_playing_time_limit_min">Playing Time [min]:</label>
+                <input type="number" id="game_cfg_playing_time_limit_min" name="game_cfg_playing_time_limit_min" min="0" max="3600">
+            </div>
+        </div>
+
+        <div id="adv_environment_settings">
+            <h2>Environment Settings</h2>
+            <div class="menu_item">
+                <label class="checkbox-container"> Auto connect cars:
+                    <input type="checkbox" id="env_auto_discover_anki_cars" name="env_auto_discover_anki_cars">
+                    <span class="custom-checkbox"></span>    
+                </label>
+            </div>
+            <div class="menu_item">
+                <label for="env_vehicle_scale">Vehicle scale:</label>
+                <input type="number" id="env_vehicle_scale" name="env_vehicle_scale" min="1" max="500">
+            </div>
+            <div class="menu_item">
+                <label for="protection_duration_s">Hacking protection duration [s]:</label>
+                <input type="number" id="protection_duration_s" name="protection_duration_s" min="1" max="120">
             </div>
 
-
-
-
-            
-            <h3>Colors:</h3>
-            
-        </div>
-
-
-        <div id="driver_ui_disp_settings">
-
-        </div>
-        <div id="staff_ui_disp_settings">
-
+            <div class="menu_item">
+                <label for="item_spawn_interval">Items spawn intervall [s]:</label>
+                <input type="number" id="item_spawn_interval" name="item_spawn_interval" min="1" max="120">
+            </div>
+            <div class="menu_item">
+                <label for="item_max_count">Number of items on track:</label>
+                <input type="number" id="item_max_count" name="item_max_count" min="0" max="20">
+            </div>
         </div>
         <button type="submit">Apply changes... </button>
     </form>
@@ -42,16 +68,24 @@
         var settings = {{ settings | tojson }};
 
         // Checkboxes
-        // var checkbox_----- = document.getElementById('------');
-        //if (settings.-----) {
-        //   checkbox_-----.checked = true;
-        //} else {
-        //    checkbox_------.checked = false;
-        //}
+        var checkbox_env_auto_discover_anki_cars = document.getElementById('env_auto_discover_anki_cars');
+        if (settings.environment.env_auto_discover_anki_cars) {
+           checkbox_env_auto_discover_anki_cars.checked = true;
+        } else {
+            checkbox_env_auto_discover_anki_cars.checked = false;
+        }
 
         // numbers
         driver_heartbeat_interval_ms.value = settings.driver.driver_heartbeat_interval_ms;
+        driver_heartbeat_timeout_s.value = settings.driver.driver_heartbeat_timeout_s;
+        driver_reconnect_grace_period_s.value = settings.driver.driver_reconnect_grace_period_s;
+        driver_background_grace_period_s.value = settings.driver.driver_background_grace_period_s;
+        game_cfg_playing_time_limit_min.value = settings.game_config.game_cfg_playing_time_limit_min;
 
+        env_vehicle_scale.value = settings.environment.env_vehicle_scale;
+        protection_duration_s.value = settings.hacking_protection.protection_duration_s;
+        item_spawn_interval.value = settings.item.item_spawn_interval;
+        item_max_count.value = settings.item.item_max_count;
     }
 
 

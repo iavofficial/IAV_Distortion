@@ -554,9 +554,27 @@ class StaffUI:
                 Returns a Response object representing a redirect to the staff ui advanced settings page.
             """
             new_settings = (await request.form)
+            # TODO: create function to automatically create json for new settings
             new_settings = {
                 'driver': {
                 'driver_heartbeat_interval_ms': new_settings.get('driver_heartbeat_interval_ms'),
+                'driver_heartbeat_timeout_s': new_settings.get('driver_heartbeat_timeout_s'),
+                'driver_reconnect_grace_period_s': new_settings.get('driver_reconnect_grace_period_s'),
+                'driver_background_grace_period_s': new_settings.get('driver_background_grace_period_s')
+                },
+                'game_config':{
+                    'game_cfg_playing_time_limit_min': new_settings.get('game_cfg_playing_time_limit_min')
+                },
+                "environment":{
+                    'env_auto_discover_anki_cars': new_settings.get('env_auto_discover_anki_cars') == 'on',
+                    'env_vehicle_scale': new_settings.get('env_vehicle_scale')
+                },
+                "hacking_protection": {
+                    'protection_duration_s': new_settings.get('protection_duration_s')
+                },
+                "item": {
+                    'item_spawn_interval': new_settings.get('item_spawn_interval'),
+                    'item_max_count': new_settings.get('item_max_count')
                 }
             }
 
