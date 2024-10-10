@@ -217,8 +217,7 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: flex-start;
   position: relative;
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin: 2px 5px 2px 0px;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -316,7 +315,16 @@ input[type="color"]::-moz-color-swatch {
 /* Additional custom styles */
 input[type="color"] {
     border-radius: 25%;
-    margin: 5px;
+    margin: 2px 5px 2px 5px;
     border: 1px solid #C8C6C6;
     background-color: #ffffff;
+}
+
+.alert{
+    --height: auto;
+    border: #FC9999 1px solid;
+    background-color: #FECCCC;
+    height: auto;
+    border-radius: 1% / 25%;
+    padding: 0px 10px;
 }
