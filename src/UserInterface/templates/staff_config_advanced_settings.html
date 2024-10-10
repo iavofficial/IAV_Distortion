@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="flexbox-item config_content">
-    <div id="restart_info">
+    <div id="restart_info" class="alert">
         <p>Some of the configuration will only apply after a restart of IAV Distortion. Please restart after applying changes!</p>
     </div>
     <form id="advanced_settings" action="{{ url_for('staffUI_bp.apply_advanced_settings') }}" method="post">
