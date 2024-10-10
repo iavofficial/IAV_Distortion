@@ -368,6 +368,24 @@ class StaffUI:
             disp_settings = self.config_handler.get_configuration()["display_settings"]
             return await render_template(template_name_or_list='staff_config_display_settings.html',
                                          disp_settings=disp_settings)
+        
+        @self.staffUI_blueprint.route('/configuration/config_advanced_settings')
+        async def config_advanced_settings() -> Any:
+            """
+            Renders the advanced settings page for the staff user interface.
+            
+            If client is not authenticated, client is redirected to the login page. Get current configuration and send
+            it to frontend.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the advanced settings page or a redirect to the login page, if not
+                authenticated.
+            """
+            settings = self.config_handler.get_configuration()
+            return await render_template(template_name_or_list='staff_config_advanced_settings.html',
+                                         settings=settings)
 
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:
@@ -505,25 +523,68 @@ class StaffUI:
             """
             new_display_settings = (await request.form)
             new_display_settings = {
-                'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
-                'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
-                'disp_cm_slogan_color': new_display_settings.get('disp_cm_slogan_color'),
-                'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
-                'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
-                'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),
-                'disp_cm_track_color': new_display_settings.get('disp_cm_track_color'),
-                'disp_cm_track_border_color': new_display_settings.get('disp_cm_track_border_color'),
-                'disp_cm_start_line_color': new_display_settings.get('disp_cm_start_line_color'),
-                'disp_cm_item_color': new_display_settings.get('disp_cm_item_color')
+                'display_settings':{
+                    'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
+                    'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
+                    'disp_cm_slogan_color': new_display_settings.get('disp_cm_slogan_color'),
+                    'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
+                    'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
+                    'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),
+                    'disp_cm_track_color': new_display_settings.get('disp_cm_track_color'),
+                    'disp_cm_track_border_color': new_display_settings.get('disp_cm_track_border_color'),
+                    'disp_cm_start_line_color': new_display_settings.get('disp_cm_start_line_color'),
+                    'disp_cm_item_color': new_display_settings.get('disp_cm_item_color')
+                }
             }
 
-            self.config_handler.get_configuration().update({"display_settings": new_display_settings})
-            self.config_handler.write_configuration()
+            self.config_handler.write_configuration(new_config=new_display_settings)
 
             self.publish_reload_uis()
             return await config_display_settings()
         self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
                                             view_func=apply_display_settings)
+
+        async def apply_advanced_settings() -> Any:
+            """
+            Function to receive settings from advanced settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui advanced settings page.
+            """
+            new_settings = (await request.form)
+            # TODO: create function to automatically create json for new settings
+            print(new_settings)
+            new_settings = {
+                'driver': {
+                'driver_heartbeat_interval_ms': int(new_settings.get('driver_heartbeat_interval_ms')),
+                'driver_heartbeat_timeout_s': int(new_settings.get('driver_heartbeat_timeout_s')),
+                'driver_reconnect_grace_period_s': int(new_settings.get('driver_reconnect_grace_period_s')),
+                'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))
+                },
+                'game_config':{
+                    'game_cfg_playing_time_limit_min': int(new_settings.get('game_cfg_playing_time_limit_min'))
+                },
+                "environment":{
+                    'env_auto_discover_anki_cars': new_settings.get('env_auto_discover_anki_cars') == 'on',
+                    'env_vehicle_scale': int(new_settings.get('env_vehicle_scale'))
+                },
+                "hacking_protection": {
+                    'protection_duration_s': int(new_settings.get('protection_duration_s'))
+                },
+                "item": {
+                    'item_spawn_interval': int(new_settings.get('item_spawn_interval')),
+                    'item_max_count': int(new_settings.get('item_max_count'))
+                }
+            }
+
+            self.config_handler.write_configuration(new_config=new_settings)
+
+            self.publish_reload_uis()
+            return await config_advanced_settings()
+        self.staffUI_blueprint.add_url_rule('/apply_advanced_settings', methods=['POST'],
+                                            view_func=apply_advanced_settings)
 
     def get_blueprint(self) -> Blueprint:
         """

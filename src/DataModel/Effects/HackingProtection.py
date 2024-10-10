@@ -24,7 +24,7 @@ class HackingProtection(VehicleEffect):
 
         try:
             # TODO: Implement general config objects and handle default values there!
-            duration = self._config_handler.get_configuration()['hacking_protection']['duration_seconds']
+            duration = self._config_handler.get_configuration()['hacking_protection']['portection_duration_s']
         except KeyError:
             duration = 15
             

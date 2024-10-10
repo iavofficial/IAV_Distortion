@@ -38,7 +38,7 @@
 		"env_vehicle_scale": 59
 	},
 	"hacking_protection": {
-		"duration_seconds": 10
+		"protection_duration_s": 10
 	},
 	"item": {
 		"item_spawn_interval": 30,
