@@ -702,12 +702,8 @@ class EnvironmentManager:
         return None
 
     def notify_new_track(self, new_track: FullTrack) -> None:
-        self.config_handler.get_configuration().update(
-            {
-                'track': full_track_to_list_of_dicts(new_track)
-            }
-        )
-        self.config_handler.write_configuration()
+        track_config = {'track': full_track_to_list_of_dicts(new_track)}
+        self.config_handler.write_configuration(new_config=track_config)
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
         if self._item_generator is None:
