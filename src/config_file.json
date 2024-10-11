@@ -47,13 +47,22 @@
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
 		"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
-		"disp_cm_slogan_color": "#001A54",
+		"disp_cm_slogan_color": "#96e7ff",
 		"disp_cm_qr_codes_enabled": true,
-		"disp_cm_iav_header_enabled": true,
-		"disp_cm_background_color": "#FFFFFF",
-		"disp_cm_track_color": "#696969",
-		"disp_cm_track_border_color": "#0091FF",
-		"disp_cm_start_line_color": "#C8C6C6",
-		"disp_cm_item_color": "#96E7FF"
+		"disp_cm_qr_codes_negative_enabled": true,
+		"disp_cm_iav_header_enabled": false,
+		"disp_cm_background_color": "#5500b4",
+		"disp_cm_track_color": "#001a54",
+		"disp_cm_track_border_color": "#001a54",
+		"disp_cm_start_line_color": "#dc46f3",
+		"disp_cm_item_color": "#96e7ff",
+		"disp_cm_default_colors": {
+			"disp_cm_slogan_color_default": "#96e7ff",
+			"disp_cm_background_color_default": "#5500b4",
+			"disp_cm_track_color_default": "#001a54",
+			"disp_cm_track_border_color_default": "#001a54",
+			"disp_cm_start_line_color_default": "#dc46f3",
+			"disp_cm_item_color_default": "#96e7ff"
+		}
 	}
 }
