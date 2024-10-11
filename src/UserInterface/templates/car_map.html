@@ -36,6 +36,7 @@
                     <h1 id="slogan_text"></h1>
                     <script>
                         var disp_settings = {{ disp_settings | tojson }};
+                        document.body.style.backgroundColor = disp_settings.disp_cm_background_color;
                         document.getElementById("slogan_text").innerHTML = disp_settings.disp_cm_slogan_text;
                         if (!disp_settings.disp_cm_slogan_enabled) {
                             document.getElementById("slogan").style.display = "none";
