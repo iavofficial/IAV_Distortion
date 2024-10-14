@@ -59,6 +59,11 @@
         </div>
         <button type="submit">Apply changes... </button>
     </form>
+
+    <form action="/staff/restore_default_display_settings" method="post">
+        <button type="submit" class="button_pink">Restore Default Settings</button>
+    </form>
+
 </div>
 
 <script>
@@ -100,7 +105,6 @@
         document.getElementById('disp_cm_start_line_color').value = disp_settings.disp_cm_start_line_color;
         document.getElementById('disp_cm_item_color').value = disp_settings.disp_cm_item_color;
     }
-
 
     // Call the function after the DOM has fully loaded
     document.addEventListener('DOMContentLoaded', displayCurrentConfig);
