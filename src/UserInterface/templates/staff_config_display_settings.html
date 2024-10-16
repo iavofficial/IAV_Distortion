@@ -8,6 +8,7 @@
             <h2>Car Map</h2>
             <div class="menu_item">
                 <label class="checkbox-container"> Display Slogan:
+                    <input type='hidden' value='off' name='disp_cm_slogan_enabled'>
                     <input type="checkbox" id="disp_cm_slogan_enabled" name="disp_cm_slogan_enabled">
                     <span class="custom-checkbox"></span>    
                 </label>
@@ -19,12 +20,14 @@
             </div>
             <div class="menu_item">
                 <label class="checkbox-container">Display QR-Codes:
+                    <input type='hidden' value='off' name='disp_cm_qr_codes_enabled'>
                     <input type="checkbox" id="disp_cm_qr_codes_enabled" name="disp_cm_qr_codes_enabled">
                     <span class="custom-checkbox"></span>
                 </label>
             </div>
             <div class="menu_item">
                 <label class="checkbox-container">Display IAV Header:
+                    <input type='hidden' value='off' name='disp_cm_iav_header_enabled'>
                     <input type="checkbox" id="disp_cm_iav_header_enabled" name="disp_cm_iav_header_enabled">
                     <span class="custom-checkbox"></span>
                 </label>
@@ -61,7 +64,7 @@
     </form>
 
     <form action="/staff/restore_default_display_settings" method="post">
-        <button type="submit" class="button_pink">Restore Default Settings</button>
+        <button type="submit" class="button_pink">Restore default settings</button>
     </form>
 
 </div>
@@ -104,10 +107,44 @@
         document.getElementById('disp_cm_track_border_color').value = disp_settings.disp_cm_track_border_color;
         document.getElementById('disp_cm_start_line_color').value = disp_settings.disp_cm_start_line_color;
         document.getElementById('disp_cm_item_color').value = disp_settings.disp_cm_item_color;
-    }
+    };
 
     // Call the function after the DOM has fully loaded
-    document.addEventListener('DOMContentLoaded', displayCurrentConfig);
+    document.addEventListener('DOMContentLoaded', () => {
+        displayCurrentConfig();
+
+        // Call the function to disable hidden inputs when checkboxes are checked
+        function disableHiddenInputs() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const inputName = checkbox.getAttribute('name');
+                if (inputName) {
+                    const hiddenInput = document.querySelector(`input[name="${inputName}"][type="hidden"]`);
+                    try {
+                        if (checkbox.checked && hiddenInput) {
+                            hiddenInput.disabled = true;
+                        } else {
+                            hiddenInput.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Could not disable hidden input for checkbox. Please check if hidden input exists:', error);
+                    }                    
+                }
+            });
+        }
+
+
+
+        // Handle form submission
+        const form = document.getElementById('display_settings');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            disableHiddenInputs();
+            form.submit();
+        });
+    });    
+
+    
 </script>
 
 
