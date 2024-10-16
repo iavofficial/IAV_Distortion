@@ -541,7 +541,9 @@ class StaffUI:
             self.config_handler.write_configuration(new_config={'display_settings':new_display_settings})
 
             self.publish_reload_uis()
-            return await config_display_settings()
+
+            
+            return redirect('/staff/configuration/config_display_settings')
         self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
                                             view_func=apply_display_settings)
         
@@ -555,7 +557,8 @@ class StaffUI:
                 Returns a Response object representing a redirect to the staff ui display settings page.
             """
             await apply_display_settings(restore_default=True)
-            return await config_display_settings()
+            
+            return redirect('/staff/configuration/config_display_settings')
         self.staffUI_blueprint.add_url_rule('/restore_default_display_settings', methods=['POST'],
                                             view_func=restore_default_display_settings)
 
