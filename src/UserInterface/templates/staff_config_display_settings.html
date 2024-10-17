@@ -24,6 +24,15 @@
                     <input type="checkbox" id="disp_cm_qr_codes_enabled" name="disp_cm_qr_codes_enabled">
                     <span class="custom-checkbox"></span>
                 </label>
+                <input type="color" id="disp_cm_qr_codes_color" name="disp_cm_qr_codes_color">
+            </div>
+            <div class="menu_item">
+                <label for="disp_cm_qr_background_enabled" class="checkbox-container">QR-Codes background:
+                    <input type='hidden' value='off' name='disp_cm_qr_background_enabled'>
+                    <input type="checkbox" id="disp_cm_qr_background_enabled" name="disp_cm_qr_background_enabled">
+                    <span class="custom-checkbox"></span>
+                </label>
+                <input type="color" id="disp_cm_qr_background_color" name="disp_cm_qr_background_color">
             </div>
             <div class="menu_item">
                 <label class="checkbox-container">Display IAV Header:
@@ -97,6 +106,13 @@
             checkbox_iav_header.checked = false;
         }
 
+        var checkbox_qr_background = document.getElementById('disp_cm_qr_background_enabled');
+        if (disp_settings.disp_cm_qr_background_enabled){
+            checkbox_qr_background.checked = true;
+        } else {
+            checkbox_qr_background.checked = false;
+        }
+
         // slogan text
         disp_cm_slogan_text.value = disp_settings.disp_cm_slogan_text;
 
@@ -107,6 +123,8 @@
         document.getElementById('disp_cm_track_border_color').value = disp_settings.disp_cm_track_border_color;
         document.getElementById('disp_cm_start_line_color').value = disp_settings.disp_cm_start_line_color;
         document.getElementById('disp_cm_item_color').value = disp_settings.disp_cm_item_color;
+        document.getElementById('disp_cm_qr_background_color').value = disp_settings.disp_cm_qr_background_color;
+        document.getElementById('disp_cm_qr_codes_color').value = disp_settings.disp_cm_qr_codes_color;
     };
 
     // Call the function after the DOM has fully loaded

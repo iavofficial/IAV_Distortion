@@ -19,6 +19,9 @@
 
     <!-- Include socket.io library -->
     <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+
+    <!-- Include snap.svg library-->
+    <script src="{{ url_for('static', filename='external_resources/snap.svg-min.js')}}"></script>
 </head>
 
 <body>
@@ -567,17 +570,82 @@
             <div class="instructions" id="instructions">
                 <div class="qr-code wifi">
                   <h3>1. Scan to connect to WiFi!</h3>
-                    <img id="qr_ap" src="{{ url_for('static', filename='images/QR_wifi_access_distortion-ap.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+                    <img id="qr_ap" src="{{ url_for('static', filename='images/QR_wifi_access_distortion-ap.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
                 </div>
                 <div class="qr-code driver">
                     <h3>2. Jump into a driver seat!</h3>
-                    <img id="qr_driver" src="{{ url_for('static', filename='images/QR_driver_url.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+                    <img id="qr_driver" src="{{ url_for('static', filename='images/QR_driver_url.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
                 </div>
                 <script>
                     var h3_elements = document.getElementsByTagName('h3');
                     for (var i = 0; i < h3_elements.length; i++) {
                         h3_elements[i].style.color = disp_settings.disp_cm_slogan_color;
                     }
+                    
+
+                    document.getElementById('qr_driver').addEventListener('load', function() {
+                        // Get the SVG document inside the img element
+                        var svgDoc = this.contentDocument;
+                        // Select all elements with the class 'st10'
+                        var elements = svgDoc.querySelectorAll('.st10');
+                        // Change the fill attribute of each element
+                        elements.forEach(function(element) {
+                            element.style.fill = disp_settings.disp_cm_slogan_color;
+                        });
+                    });
+
+                    function changeSvgColor(elementId) {
+                        const imgElement = document.getElementById(elementId);
+                        const svgUrl = imgElement.src;
+
+                        fetch(svgUrl)
+                            .then(response => response.text())
+                            .then(svgText => {
+                                // Create a DOM parser to parse the SVG text
+                                const parser = new DOMParser();
+                                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+
+                                // Select all elements with the class 'st0'
+                                const elementsSt0 = svgDoc.querySelectorAll('.st0');
+                                // Change the fill color to disp_settings.disp_cm_slogan_color
+                                elementsSt0.forEach(element => {
+                                    element.style.fill = disp_settings.disp_cm_qr_codes_color;
+                                });
+                                
+                                // Select all elements with the class 'st10'
+                                const elementsSt10 = svgDoc.querySelectorAll('.st10');
+                                if (disp_settings.disp_cm_qr_background_enabled){
+                                    // Change the fill color to disp_settings.disp_cm_background_color
+                                    elementsSt10.forEach(element => {
+                                    element.style.fill = disp_settings.disp_cm_qr_background_color;
+                                    });
+                                } else {
+                                    // Change the fill color to disp_settings.disp_cm_background_color
+                                    elementsSt10.forEach(element => {
+                                    element.style.fill = disp_settings.disp_cm_background_color;
+                                    });
+                                }
+                                               
+
+                                // Serialize the modified SVG back to a string
+                                const serializer = new XMLSerializer();
+                                const modifiedSvgText = serializer.serializeToString(svgDoc);
+
+                                // Create a Blob from the modified SVG string
+                                const blob = new Blob([modifiedSvgText], { type: 'image/svg+xml' });
+                                const url = URL.createObjectURL(blob);
+
+                                // Update the src attribute of the img element
+                                imgElement.src = url;
+                            })
+                            .catch(error => console.error('Error fetching or modifying SVG:', error));
+                    }
+
+                    // Call the function to change the SVG color
+                    changeSvgColor('qr_ap');
+                    changeSvgColor('qr_driver');
+
+
                 </script>
                 
             </div>
