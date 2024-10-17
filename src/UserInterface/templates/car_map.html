@@ -580,17 +580,6 @@
                     }
                     
 
-                    document.getElementById('qr_driver').addEventListener('load', function() {
-                        // Get the SVG document inside the img element
-                        var svgDoc = this.contentDocument;
-                        // Select all elements with the class 'st10'
-                        var elements = svgDoc.querySelectorAll('.st10');
-                        // Change the fill attribute of each element
-                        elements.forEach(function(element) {
-                            element.style.fill = disp_settings.disp_cm_slogan_color;
-                        });
-                    });
-
                     function changeSvgColor(elementId) {
                         const imgElement = document.getElementById(elementId);
                         const svgUrl = imgElement.src;
