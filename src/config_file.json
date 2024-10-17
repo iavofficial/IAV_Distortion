@@ -51,12 +51,12 @@
 		"disp_cm_qr_codes_enabled": true,
 		"disp_cm_qr_codes_color": "#96e7ff",
 		"disp_cm_qr_background_enabled": false,
-		"disp_cm_qr_background_color": "#FDDEFF",
+		"disp_cm_qr_background_color": "#fddeff",
 		"disp_cm_iav_header_enabled": false,
 		"disp_cm_background_color": "#5500b4",
 		"disp_cm_track_color": "#001a54",
 		"disp_cm_track_border_color": "#001a54",
-		"disp_cm_start_line_color": "#dc46f3",
+		"disp_cm_start_line_color": "#5500b4",
 		"disp_cm_item_color": "#96e7ff",
 		"disp_cm_default_settings": {
 			"disp_cm_slogan_enabled": true,
@@ -70,7 +70,7 @@
 			"disp_cm_background_color": "#5500b4",
 			"disp_cm_track_color": "#001a54",
 			"disp_cm_track_border_color": "#001a54",
-			"disp_cm_start_line_color": "#dc46f3",
+			"disp_cm_start_line_color": "#5500b4",
 			"disp_cm_item_color": "#96e7ff"
 		}
 	}
