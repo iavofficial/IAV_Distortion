@@ -512,7 +512,7 @@ class StaffUI:
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
 
-        async def apply_display_settings() -> Any:
+        async def apply_display_settings(restore_default:bool=False) -> Any:
             """
             Function to receive settings from display settings tab in driver ui.
             Writes received settings into the config file.
@@ -521,28 +521,46 @@ class StaffUI:
             -------
                 Returns a Response object representing a redirect to the staff ui display settings page.
             """
-            new_display_settings = (await request.form)
-            new_display_settings = {
-                'display_settings':{
-                    'disp_cm_slogan_enabled': new_display_settings.get('disp_cm_slogan_enabled') == 'on',
-                    'disp_cm_slogan_text': new_display_settings.get('disp_cm_slogan_text'),
-                    'disp_cm_slogan_color': new_display_settings.get('disp_cm_slogan_color'),
-                    'disp_cm_qr_codes_enabled': new_display_settings.get('disp_cm_qr_codes_enabled') == 'on',
-                    'disp_cm_iav_header_enabled': new_display_settings.get('disp_cm_iav_header_enabled') == 'on',
-                    'disp_cm_background_color': new_display_settings.get('disp_cm_background_color'),
-                    'disp_cm_track_color': new_display_settings.get('disp_cm_track_color'),
-                    'disp_cm_track_border_color': new_display_settings.get('disp_cm_track_border_color'),
-                    'disp_cm_start_line_color': new_display_settings.get('disp_cm_start_line_color'),
-                    'disp_cm_item_color': new_display_settings.get('disp_cm_item_color')
+            if restore_default:
+                new_display_settings = self.config_handler.get_configuration()["display_settings"]["disp_cm_default_settings"]
+            else:
+                new_display_settings = (await request.form)
+                new_display_settings = {key: value[0] if len(value) == 1 else value for key, value in new_display_settings.items()}
+                conversion_table = {
+                    'on': True,
+                    'off': False,
+                    'null': False
                 }
-            }
 
-            self.config_handler.write_configuration(new_config=new_display_settings)
+                for key, value in new_display_settings.items():
+                    if value in conversion_table:
+                        new_display_settings[key] = conversion_table[value]
+                    elif value is None:
+                        new_display_settings[key] = False
+
+            self.config_handler.write_configuration(new_config={'display_settings':new_display_settings})
 
             self.publish_reload_uis()
-            return await config_display_settings()
+
+            
+            return redirect('/staff/configuration/config_display_settings')
         self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
                                             view_func=apply_display_settings)
+        
+        async def restore_default_display_settings() -> Any:
+            """
+            Function to receive settings from display settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui display settings page.
+            """
+            await apply_display_settings(restore_default=True)
+            
+            return redirect('/staff/configuration/config_display_settings')
+        self.staffUI_blueprint.add_url_rule('/restore_default_display_settings', methods=['POST'],
+                                            view_func=restore_default_display_settings)
 
         async def apply_advanced_settings() -> Any:
             """
