@@ -264,6 +264,10 @@ body{
     align-items: center;
 }
 
+.info-text {
+    font-size: 23px;
+}
+
 .info-box-buttons{
     flex-direction: row;
     display: flex;
@@ -280,10 +284,11 @@ body{
     color: #FFFFFF;
     background: #0091FF;
     border: 0px solid #0091FF;
+    font-size: 23px;
 }
 
 .reload_symbol{
-    font-size: 20px;
+    font-size: 28px;
     color: #FFFFFF;
 }
 
