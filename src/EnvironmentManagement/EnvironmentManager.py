@@ -59,14 +59,15 @@ class EnvironmentManager:
         self.__publish_player_active_callback: Callable[[str], None] | None = None
         self.__publish_vehicle_added_callback = None
 
-        # number used for naming virtual vehicles
-        self._virtual_vehicle_num: int = 1
-
         self._remove_player_tasks: dict = {}
 
         self.__playing_time_checking_flag: bool = False
         self.config_handler: ConfigurationHandler = configuration_handler
-
+        
+        # list of configured virtual vehicles
+        self._virtual_vehicle_dict: dict = self.config_handler.get_configuration()["virtual_cars_pics"]
+        self._virtual_vehicle_list: list = [key for key in self._virtual_vehicle_dict.keys() if key.startswith("Virtual Vehicle")]
+        
         # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
@@ -568,20 +569,36 @@ class EnvironmentManager:
         self.remove_vehicle_by_id(vehicle_id)
 
     def add_virtual_vehicle(self) -> str:
-        # TODO: Add more better way of determining name numbers to allow reuse of already
-        # used numbers
-        name = f"Virtual Vehicle {self._virtual_vehicle_num}"
-        self._virtual_vehicle_num += 1
+        """
+        Adds a virtual vehicle to the game.
 
+        This function iterates through the list of virtual vehicles and checks if any of them are not currently in use.
+        If a vehicle is found that is not in use, it is selected and added to the game.
+        
+        Returns
+        -------
+        name: str
+            The name of the virtual vehicle added to the game or 'undefined' if no vehicle could be added.
+        """
+        name = None
+        for vehicle in self._virtual_vehicle_list:
+            if not any(vehicle == active_car.vehicle_id for active_car in self._active_anki_cars):
+                name = vehicle
+                break
+        
+        if name is None:
+            logger.warning("No virtual vehicle available to add to the game")
+            name = "undefined"
+            return name
+    
         logger.debug(f"Adding virtual vehicle with name {name}")
-
+    
         location_service = LocationService(self.get_track(), start_immediately=True)
         new_vehicle = VirtualCar(name, location_service)
-
-        def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos,
-                                                                                                   rot)
+    
+        def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos, rot)
         location_service.add_on_update_callback(item_collision)
-
+    
         self._add_to_active_vehicle_list(new_vehicle)
         return name
 
@@ -685,12 +702,8 @@ class EnvironmentManager:
         return None
 
     def notify_new_track(self, new_track: FullTrack) -> None:
-        self.config_handler.get_configuration().update(
-            {
-                'track': full_track_to_list_of_dicts(new_track)
-            }
-        )
-        self.config_handler.write_configuration()
+        track_config = {'track': full_track_to_list_of_dicts(new_track)}
+        self.config_handler.write_configuration(new_config=track_config)
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
         if self._item_generator is None:

@@ -23,7 +23,7 @@
 
 <body>
 <div class="container">
-    <div class="flexbox-container custom_header">
+    <div class="flexbox-container custom_header" id="iav_header">
         <p class="header">IAV Distortion</p>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
@@ -32,8 +32,20 @@
         <div class="container_left">
             <div class="canvas" id="canvas_container">
 
-                <div class="slogan">
-                    <h1>Can it be Safe without Security? - Find out while racing with us!</h1>
+                <div class="slogan" id="slogan">
+                    <h1 id="slogan_text"></h1>
+                    <script>
+                        var disp_settings = {{ disp_settings | tojson }};
+                        document.body.style.backgroundColor = disp_settings.disp_cm_background_color;
+                        document.getElementById("slogan_text").innerHTML = disp_settings.disp_cm_slogan_text;
+                        if (!disp_settings.disp_cm_slogan_enabled) {
+                            document.getElementById("slogan").style.display = "none";
+                        }
+                        else {
+                            document.getElementById("slogan").style.display = "flex";
+                            document.getElementById("slogan_text").style.color = disp_settings.disp_cm_slogan_color;
+                        }
+                    </script>
                 </div>
 
             <script>
@@ -43,6 +55,12 @@
                  * for when the track changes
                  */
                  socket.on('reload_car_map', function(data) {
+                    window.location.reload();
+                });
+                /**
+                 * Reload the page when told. Used when display settings changed
+                 */
+                 socket.on('reload_uis', function(data) {
                     window.location.reload();
                 });
             </script>
@@ -70,12 +88,14 @@
                     const carEffectMap = new Map();
 
                     var track = {{track | tojson}};
-                    const background_color = "#FFFFFF";
-                    const track_border_color = "#0091FF";
-                    const track_color = "#333333";
+                    var disp_settings = {{ disp_settings | tojson }};
+
+                    const background_color = disp_settings.disp_cm_background_color;
+                    const track_border_color = disp_settings.disp_cm_track_border_color;
+                    const track_color = disp_settings.disp_cm_track_color;
                     const track_width = 10;
                     const start_line_width = 12;
-                    const start_line_color = "#969494";
+                    const start_line_color = disp_settings.disp_cm_start_line_color;
 
                     const car_width = 30;
                     const car_length = car_width * 1.88;
@@ -87,15 +107,14 @@
                     const car_image_cache = new Map();
 
                     const item_size = 20;
-                    const item_color = '#52c9ff';
+                    const item_color = disp_settings.disp_cm_item_color;
 
                     addEventListener("resize", (event) => {
                         resizeCanvas();
                         renderFullCarmap();
                     });
 
-                    resizeCanvas();
-                    renderFullCarmap();
+                    
 
                     /**
                     * Functions to set the visual effect/active item on cars in carEffectMap
@@ -468,8 +487,8 @@
                         canvas.width = containerWidth;
                         canvas.height = containerHeight;
 
-                        let ratio_vertically = window.innerHeight / required_vertically;
-                        let ratio_horizontally = window.innerWidth / required_horizontally;
+                        let ratio_vertically = canvas.width / required_vertically;
+                        let ratio_horizontally = canvas.height / required_horizontally;
                         scale = Math.min(ratio_horizontally, ratio_vertically);
                     }
 
@@ -520,20 +539,101 @@
                     }
 
                     setInterval(renderFullCarmap, 1000/24);
+                    
+                    window.onload = function() {
+                        var canvasElement = document.querySelector(".canvas");
+                        if (!disp_settings.disp_cm_qr_codes_enabled) {
+                            document.getElementById("instructions").style.display = "none";
+                            canvasElement.style.width = "100vw";
+                        } else {
+                            document.getElementById("instructions").style.display = "flex";
+                            canvasElement.style.width = "85vw";
+                        }
+                        if (!disp_settings.disp_cm_iav_header_enabled) {
+                            document.getElementById("iav_header").style.display = "none";
+                            canvasElement.style.height = "100vh";
+                        } else {
+                            document.getElementById("iav_header").style.display = "flex";
+                            canvasElement.style.height = "100%";
+                        }
+                        resizeCanvas();
+                        renderFullCarmap();
+                    };
                 </script>
                 {% endif %}
                 </div>
             </div>
 
-            <div class="instructions">
+            <div class="instructions" id="instructions">
                 <div class="qr-code wifi">
-                    <h3>1. Scan to connect to WiFi!</h3>
-                    <img id="qr_ap" src="{{ url_for('static', filename='images/QR_wifi_access_distortion-ap.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+                  <h3>1. Scan to connect to WiFi!</h3>
+                    <img id="qr_ap" src="{{ url_for('static', filename='images/QR_wifi_access_distortion-ap.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
                 </div>
                 <div class="qr-code driver">
                     <h3>2. Jump into a driver seat!</h3>
-                    <img id="qr_driver" src="{{ url_for('static', filename='images/QR_driver_url.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+                    <img id="qr_driver" src="{{ url_for('static', filename='images/QR_driver_url.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
                 </div>
+                <script>
+                    var h3_elements = document.getElementsByTagName('h3');
+                    for (var i = 0; i < h3_elements.length; i++) {
+                        h3_elements[i].style.color = disp_settings.disp_cm_slogan_color;
+                    }
+                    
+
+                    function changeSvgColor(elementId) {
+                        const imgElement = document.getElementById(elementId);
+                        const svgUrl = imgElement.src;
+
+                        fetch(svgUrl)
+                            .then(response => response.text())
+                            .then(svgText => {
+                                // Create a DOM parser to parse the SVG text
+                                const parser = new DOMParser();
+                                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+
+                                // Select all elements with the class 'st0'
+                                const elementsSt0 = svgDoc.querySelectorAll('.st0');
+                                // Change the fill color to disp_settings.disp_cm_slogan_color
+                                elementsSt0.forEach(element => {
+                                    element.style.fill = disp_settings.disp_cm_qr_codes_color;
+                                });
+                                
+                                // Select all elements with the class 'st10'
+                                const elementsSt10 = svgDoc.querySelectorAll('.st10');
+                                if (disp_settings.disp_cm_qr_background_enabled){
+                                    // Change the fill color to disp_settings.disp_cm_background_color
+                                    elementsSt10.forEach(element => {
+                                    element.style.fill = disp_settings.disp_cm_qr_background_color;
+                                    });
+                                } else {
+                                    // Change the fill color to disp_settings.disp_cm_background_color
+                                    elementsSt10.forEach(element => {
+                                    element.style.fill = disp_settings.disp_cm_background_color;
+                                    });
+                                }
+                                               
+
+                                // Serialize the modified SVG back to a string
+                                const serializer = new XMLSerializer();
+                                const modifiedSvgText = serializer.serializeToString(svgDoc);
+
+                                // Create a Blob from the modified SVG string
+                                const blob = new Blob([modifiedSvgText], { type: 'image/svg+xml' });
+                                const url = URL.createObjectURL(blob);
+
+                                // Update the src attribute of the img element
+                                imgElement.src = url;
+                            })
+                            .catch(error => console.error('Error fetching or modifying SVG:', error));
+                    }
+
+                    // Call the function to change the SVG color
+                    changeSvgColor('qr_ap');
+                    changeSvgColor('qr_driver');
+
+
+                </script>
+                
             </div>
 
         </div>

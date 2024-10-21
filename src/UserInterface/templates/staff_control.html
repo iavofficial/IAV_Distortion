@@ -59,6 +59,7 @@
 
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var virtualCarsPics = {{ virtual_cars_pics | tojson | safe }};
 
     /**
     * Handle 'connect' event.
@@ -89,6 +90,10 @@
         var thead = document.createElement('thead');
         var header_row = document.createElement('tr');
 
+        var header_carPic = document.createElement('th');
+        header_carPic.innerText = 'Vehicle';
+        header_row.appendChild(header_carPic);
+        
         var header_player = document.createElement('th');
         header_player.innerText = 'Player';
         header_row.appendChild(header_player);
@@ -100,11 +105,12 @@
         thead.appendChild(header_row);
         uuids_table.appendChild(thead);
 
-        // fill table with player and uuids
+        // fill table with player and uuids assigned to each other
         for (let i in map_data) {
             let c_map = map_data[i];
             let row = document.createElement('tr');
 
+            var cell_carPicture = document.createElement('td');
             let cell_player = document.createElement('td');
             let cell_uuid = document.createElement('td');
             let cell_del = document.createElement('td');
@@ -126,10 +132,18 @@
                 }
             };
 
+            img_name = virtualCarsPics[c_map.car];
+            var img = document.createElement('img');
+            img.src = `../static/images/Virtual_Vehicles/${img_name}`;
+            img.style.maxHeight = '50px';
+            img.style.width = 'auto';
+            cell_carPicture.appendChild(img);
+
             cell_player.innerText = c_map.player;
             cell_uuid.innerText = c_map.car;
 
 
+            row.appendChild(cell_carPicture);
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
             row.appendChild(delPlayerButton);
@@ -139,10 +153,11 @@
             uuids_table.appendChild(row);
         }
 
-        // fill table with player and uuids
+        // fill table with player not assigned to vehicles
         for (let player in player_queue) {
             var row = document.createElement('tr');
 
+            var cell_carPicture = document.createElement('td');
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
             let delPlayerButton = document.createElement('button');
@@ -158,16 +173,18 @@
             cell_player.innerText = player_queue[player];
             cell_uuid.innerText = "None";
 
+            row.appendChild(cell_carPicture);
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
             row.appendChild(delPlayerButton);
             uuids_table.appendChild(row);
         }
 
-        // fill table with player and uuids
+        // fill table with uuids of vehicles without assigned player
         for (let car in car_queue) {
             var row = document.createElement('tr');
 
+            var cell_carPicture = document.createElement('td');
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
 
@@ -179,10 +196,18 @@
                     deleteVehicle(car_queue[car]);
                 }
             };
-
+            
+            img_name = virtualCarsPics[car_queue[car]];
+            var img = document.createElement('img');
+            img.src = `../static/images/Virtual_Vehicles/${img_name}`;
+            img.style.maxHeight = '50px';
+            img.style.width = 'auto';
+            cell_carPicture.appendChild(img);
+                
             cell_player.innerText = "None";
             cell_uuid.innerText = car_queue[car];
 
+            row.appendChild(cell_carPicture);
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
             row.appendChild(delVehicleButton);
@@ -306,6 +331,18 @@
         li.appendChild(addButton);
         deviceList.appendChild(li);
       });
+    });
+
+    /** Handles 'device_added' event.
+     * 
+     *  If name send with the event is none a popup warning will be displayed.
+     * 
+     * @param {sting} name: Name of the added vehicle.
+     */
+    socket.on('device_added', function(name){
+      if (name === "undefined") {
+            alert("Can not add more Virtual Vehicles!");
+        }
     });
 
     /**

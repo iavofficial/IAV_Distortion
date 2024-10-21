@@ -44,8 +44,10 @@ class CarMap:
                 Returns a Response object representing the car map page.
             """
             track = environment_manager.get_track()
+            disp_settings = self.config_handler.get_configuration()["display_settings"]
+
             if track is None:
-                return await render_template('car_map.html', track=None)
+                return await render_template('car_map.html', track=None, disp_settings=disp_settings)
             serialized_track = track.get_as_list()
             if self._vehicles is not None:
                 for vehicle in self._vehicles:
@@ -55,10 +57,13 @@ class CarMap:
             items_as_dict = []
             for item in environment_manager.get_item_collision_detector().get_current_items():
                 items_as_dict.append(item.to_html_dict())
-            return await render_template("car_map.html", track=serialized_track, car_pictures=car_pictures,
+            return await render_template(template_name_or_list="car_map.html",
+                                         track=serialized_track,
+                                         car_pictures=car_pictures,
                                          color_map=environment_manager.get_car_color_map(),
                                          used_space=environment_manager.get_track().get_used_space_as_dict(),
-                                         items=items_as_dict)
+                                         items=items_as_dict,
+                                         disp_settings=disp_settings)
 
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
 

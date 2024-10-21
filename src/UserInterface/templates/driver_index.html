@@ -26,8 +26,8 @@
             <div class="info-title">
                 <h2>Information</h2>
             </div>
-            <p id="infoBoxContent"> You are currently in the queue. Please wait... <br>
-                Please don't leave this page for more than {{background_grace_period}} seconds. Otherwise you will be removed from the game.</p>
+            <p id="infoBoxContent" class="info-text"> You are currently in the queue. Please wait... </p>
+            <p class="info-text"> Please don't leave this page for more than {{background_grace_period}} seconds. Otherwise you will be removed from the game.</p>
             <button class="refresh-button" onclick="location.reload();"> <span class="reload_symbol">&circlearrowright;	</span> Refresh Page</button>
         </div>
     </div>
@@ -228,6 +228,13 @@
             // The page is visible again
                 socket.emit('driver_active', {player: '{{player}}'});
             }
+        });
+
+        /**
+         * Reload the page when told. Used when display settings changed
+         */
+         socket.on('reload_uis', function(data) {
+            window.location.reload();
         });
 
     </script>
