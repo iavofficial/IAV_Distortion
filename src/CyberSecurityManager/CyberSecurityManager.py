@@ -45,12 +45,12 @@ def _set_scenarios() -> list[dict[str, Any]]:
                  "description": "the safemode module is deactivated",
                  "effect": HackedNoSafetyModule}
 
-    scenario4 = {"id": "5",
+    scenario5 = {"id": "5",
                  "name": "U-turn",
                  "description": "the car perfoms a U-turn",
                  "effect": HackedSporadicOTurn}
 
-    scenario4 = {"id": "6",
+    scenario6 = {"id": "6",
                  "name": "InputInversion",
                  "description": "the input from User is inverted",
                  "effect": HackedInvertedUserInput}

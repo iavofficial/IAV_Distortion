@@ -3,7 +3,7 @@ from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
 from DataModel.Vehicle import Vehicle
 
 
-class HackedReducedSpeed(HackedEffect):
+class HackedInvertedUserInput(HackedEffect):
     def identify(self) -> VehicleEffectIdentification:
         return VehicleEffectIdentification.HACKED_INVERTED_USER_INPUT
 

@@ -5,7 +5,7 @@ import threading
 import random
 import time
 
-class HackedSporadicOTurns(HackedEffect):
+class HackedSporadicOTurn(HackedEffect):
     def __init__(self):
         super().__init__()
         self.stop_event = threading.Event()
@@ -21,6 +21,8 @@ class HackedSporadicOTurns(HackedEffect):
 
     def perform_uturns(self, vehicle: 'Vehicle') -> None:
         while not self.stop_event.is_set():
+            # todo: check threadsafty of request_uturn
+            # todo: check error-handling of request_uturn
             vehicle.request_uturn()  # first u-turn of the pair
             time.sleep(2)  # delay 2 seconds
             vehicle.request_uturn()  # second u-turn of the pair

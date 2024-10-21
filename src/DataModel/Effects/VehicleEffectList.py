@@ -8,5 +8,6 @@ class VehicleEffectIdentification(Enum):
     HACKED_NO_SAFETY_MODULE = 4,
     CLEAN_HACKED_EFFECTS = 5,
     HACKED_SPORADIC_O_TURNS  = 6,
+    HACKED_INVERTED_USER_INPUT = 7,
 
 
