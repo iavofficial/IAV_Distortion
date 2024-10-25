@@ -8,7 +8,6 @@ bleak = "*"
 quart = "*"
 hypercorn = "*"
 deprecated = "*"
-python-socketio = "*"
 
 [dev-packages]
 sphinx = "*"
