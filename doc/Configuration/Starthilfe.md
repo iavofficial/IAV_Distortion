@@ -8,7 +8,7 @@
 C:\...> pip install pipenv
 ...
 C:\...> cd Projektverzeichnis
-...\IAV_Distortion> pipenv install
+...\IAV_Distortion> pipenv install -d
 ```
 
 # Starten
