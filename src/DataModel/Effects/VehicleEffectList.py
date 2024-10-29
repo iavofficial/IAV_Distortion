@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class VehicleEffectIdentification(Enum):
+    #todo this list should be resorted
     HACKING_PROTECTION = 1,
     HACKED_REDUCED_SPEED = 2,
     HACKED_NO_DRIVING = 3,
