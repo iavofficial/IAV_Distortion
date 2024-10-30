@@ -31,6 +31,7 @@ class Vehicle:
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict], None] | None = None
         self._effects: List[VehicleEffect] = []
+        self._vehicle_in_proximity : str | None = None
 
         if not disable_item_removal:
             self._effect_removal_task = asyncio.create_task(self._test_effect_removal_task())
