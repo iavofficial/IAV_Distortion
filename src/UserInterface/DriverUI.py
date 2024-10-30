@@ -243,6 +243,14 @@ class DriverUI:
                     logger.info(f'Player {player} timed out. Removing player from the game...')
                     self.__remove_player(player)
 
+    async def __test(self, player: str):
+        vehicle = self.get_vehicle_by_player(player=player)
+        while True:
+            await asyncio.sleep(0.1)
+            
+            if vehicle._vehicle_in_proximity != None:
+                print(vehicle._vehicle_in_proximity)
+                       
     def __remove_player(self, player: str) -> None:
         """
         Remove player from the game.
@@ -277,10 +285,10 @@ class DriverUI:
         print(f"Driver {player} connected!")
 
         self.__latest_driver_heartbeats[player] = time.time()
+        self.__run_async_task(self.__test(player))
         if not self.__checking_heartbeats_flag:
             self.__run_async_task(self.__check_driver_heartbeat_timeout())
             self.__checking_heartbeats_flag = True
-
         config = self.config_handler.get_configuration()
 
         picture = ''  # default picture can be added here

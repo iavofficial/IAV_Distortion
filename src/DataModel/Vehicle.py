@@ -37,6 +37,7 @@ class Vehicle:
         self._item_data_callback: Callable[[dict[str, str]], None] | None = None
 
         self._location_service: LocationService = location_service
+        self._vehicle_in_proximity : str | None = None
 
         if not disable_item_removal:
             self._effect_removal_task = asyncio.create_task(self._check_effect_removal())
