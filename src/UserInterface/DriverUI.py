@@ -34,6 +34,7 @@ class DriverUI:
         self.__latest_driver_heartbeats: dict = {}
         self.__checking_heartbeats_flag: bool = False
 
+
         try:
             self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]
                                                        ["driver_heartbeat_timeout_s"])
@@ -41,6 +42,14 @@ class DriverUI:
             logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
                            "value of 30 seconds")
             self.__driver_heartbeat_timeout = 30
+
+        try:
+            self.__driver_proximity_timer: int = int(self.config_handler.get_configuration()["driver"]
+                                                       ["driver_proximity_timer_s"])
+        except KeyError:
+            logger.warning("No valid value for driver: driver_proximity_timer in config_file. Using default "
+                           "value of 5 seconds")
+            self.__driver_proximity_timer = 5
 
         async def home_driver() -> str:
             """
@@ -229,13 +238,27 @@ class DriverUI:
                     logger.info(f'Player {player} timed out. Removing player from the game...')
                     self.__remove_player(player)
 
-    async def __test(self, player: str):
+    async def __send_proximity_vehicle(self, player: str):
         vehicle = self.get_vehicle_by_player(player=player)
-        while True:
-            await asyncio.sleep(0.1)
-            
-            if vehicle._vehicle_in_proximity != None:
-                print(vehicle._vehicle_in_proximity)
+        previous_value = None
+        if vehicle != None:
+            while True:
+                await asyncio.sleep(0.1)
+                if previous_value != vehicle.vehicle_in_proximity:
+                    uuid = vehicle.vehicle_id
+                    await self._sio.emit('send_proximity_vehicle', vehicle.vehicle_in_proximity)
+                    previous_value= vehicle.vehicle_in_proximity
+                    vehicle.proximity_timer = time.time()
+                else:
+                    if vehicle.vehicle_in_proximity != None:
+                        self.__run_async_task(self.__check_driver_proximity_timer(player))
+
+    async def __check_driver_proximity_timer(self, player: str):
+        vehicle = self.get_vehicle_by_player(player=player)
+        if time.time() - vehicle.proximity_timer > self.__driver_proximity_timer:
+            print("ok")
+            await self._sio.emit('send_finished_proximity_timer', vehicle.vehicle_in_proximity)
+
                        
     def __remove_player(self, player: str) -> None:
         """
@@ -271,7 +294,7 @@ class DriverUI:
         print(f"Driver {player} connected!")
 
         self.__latest_driver_heartbeats[player] = time.time()
-        self.__run_async_task(self.__test(player))
+        self.__run_async_task(self.__send_proximity_vehicle(player))
         if not self.__checking_heartbeats_flag:
             self.__run_async_task(self.__check_driver_heartbeat_timeout())
             self.__checking_heartbeats_flag = True

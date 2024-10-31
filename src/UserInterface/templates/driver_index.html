@@ -1,210 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Driver {{player}}</title>
 
     <!-- general style sheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='general.css')}}"
+    />
+    <!-- to include stylesheet when running webinterface with flask -->
+    <link rel="stylesheet" href="../static/general.css" />
+    <!-- link to stylesheet for development for working preview -->
 
     <!-- custom header stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='custom_header.css')}}"
+    />
+    <!-- to include stylesheet when running webinterface with flask -->
+    <link rel="stylesheet" href="../static/custom_header.css" />
+    <!-- link to stylesheet for development for working preview -->
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='driver.css')}}"
+    />
+    <!-- to include stylesheet when running webinterface with flask -->
+    <link rel="stylesheet" href="../static/driver.css" />
+    <!-- link to stylesheet for development for working preview -->
 
     <!-- Include socket.io library -->
-    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
-
-</head>
-<body>
-
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}"></script>
+  </head>
+  <body>
+    <div>
+      <p class="test"></p>
+    </div>
     <div class="overlay" id="infoBoxOverlay">
-        <div class="info-box">
-            <div class="info-title">
-                <h2>Information</h2>
-            </div>
-            <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait... <br>
-                Please don't leave this page for more than {{background_grace_period}} seconds. Otherwise you will be removed from the game.</p>
-            <button class="refresh-button" onclick="location.reload();"> <span class="reload_symbol">&circlearrowright;	</span> Refresh Page</button>
+      <div class="info-box">
+        <div class="info-title">
+          <h2>Information</h2>
         </div>
+        <p id="infoBoxContent">
+          Player {{player}} currently in queue. Please wait... <br />
+          Please don't leave this page for more than {{background_grace_period}}
+          seconds. Otherwise you will be removed from the game.
+        </p>
+        <button class="refresh-button" onclick="location.reload();">
+          <span class="reload_symbol">&circlearrowright; </span> Refresh Page
+        </button>
+      </div>
     </div>
 
     <div class="flexbox-container custom_header">
-        <p class="header">Player {{player}}</p>
-        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+      <p class="header">Player {{player}}</p>
+      <img
+        id="logo"
+        src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}"
+        onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'"
+      />
     </div>
 
     <div class="flexbox-container flexbox-controls" id="control">
-        <div class="flexbox-item flexbox-slider">
-            <input type="range" min="19" max="100" class="slider" id="speed_request">
+      <div class="flexbox-item flexbox-slider">
+        <input
+          type="range"
+          min="19"
+          max="100"
+          class="slider"
+          id="speed_request"
+        />
+      </div>
+
+      <div class="flexbox-container_middle">
+        <div class="speedometer">
+          <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
+          <span class="flexbox-item flexbox-speed_display"
+            ><strong>
+              <span id="speed_actual" class="flexbox-speed_display value">
+              </span>
+            </strong>
+            <span class="speed_unit"> km/h </span></span
+          >
         </div>
 
-        <div class="flexbox-container_middle">
-            <div class="speedometer">
-                <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
-                <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> km/h </span></span>
-            </div>
+        <div class="avatar">
+          <img
+            id="avatar"
+            src="{{ url_for('static', filename='images/' + picture) }}"
+            onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'"
+          />
 
-            <div class="avatar">
-
-                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
-
-                <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
-                    <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
-                    <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
-                </div>
-            </div>
-
+          <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
+            <p class="hackedInfo_text">
+              <strong> You have been hacked! </strong>
+            </p>
+            <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
+          </div>
         </div>
+      </div>
 
-        <div class="flexbox-container_right">
-            <div class="flexbox-driver_buttons">
-                <div class="flexbox-item flexbox-change_lane_buttons">
-                    <button class="driver-buttons" id="make_uturn">
-                        &curvearrowleft;
-                    </button>
-                </div>
+      <div class="flexbox-container_right">
+        <div class="flexbox-driver_buttons">
+          <div class="flexbox-item flexbox-change_lane_buttons">
+            <button class="driver-buttons" id="make_uturn">
+              &curvearrowleft;
+            </button>
+          </div>
 
-                <div class="flexbox-item flexbox-change_lane_buttons">
-                    <button class="driver-buttons" id="change_lane_left">
-                        &ShortLeftArrow;
-                    </button>
-                    <button class="driver-buttons" id="change_lane_right">
-                        &ShortRightArrow;
-                    </button>
-                </div>
-            </div>
+          <div class="flexbox-item flexbox-change_lane_buttons">
+            <button class="driver-buttons" id="change_lane_left">
+              &ShortLeftArrow;
+            </button>
+            <button class="driver-buttons" id="change_lane_right">
+              &ShortRightArrow;
+            </button>
+          </div>
+
+          <div class="flexbox-item flexbox-change_lane_buttons">
+            <button class="driver-buttons" id="hack-button"></button>
+          </div>
         </div>
+      </div>
     </div>
-
 
     <script type="text/javascript" charset="utf-8">
 
 
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
+      var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-        document.cookie = "player={{ player }}";
+      document.cookie = "player={{ player }}";
 
-        <!-- slider to control velocity-->
+      <!-- slider to control velocity-->
 
-        var slider = document.getElementById("speed_request");
-        var speed_actual = document.getElementById("speed_actual");
-
-
-        slider.oninput = function() {
-          let percentValue = 5+ ((this.value - 20) / (100 - 20)) * (95-5);
-          this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ percentValue +'%, #ddd ' + percentValue + '%, #ddd 100%)';
-          socket.emit('slider_changed', {player: '{{player}}', value: this.value});
-        };
-
-        <!-- buttons to control lanes -->
-        var buttonLeft = document.getElementById("change_lane_left");
-        var buttonRight = document.getElementById("change_lane_right");
-
-        buttonLeft.onclick = function() {
-          socket.emit('lane_change', {player: '{{player}}', direction: 'left'});
-        };
-
-        buttonRight.onclick = function() {
-          socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
-        };
-
-        <!-- buttons to control uturn -->
-        var buttonUTurn = document.getElementById("make_uturn");
-
-        buttonUTurn.onclick = function() {
-          socket.emit('make_uturn', {player: '{{player}}'});
-        };
-
-        <!-- loading window -->
-        window.onload = function() {
-            socket.emit('driver_active', {player: '{{player}}'});
-            let playerExists = {{ player_exists | tojson }};
-            if(!playerExists) {
-                document.getElementById("infoBoxOverlay").style.display = "flex";
-            }
-            else {
-                document.getElementById("infoBoxOverlay").style.display = "none";
-
-                var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
-                show_hacked_info(active_hacking_scenario);
-
-                var slider_temp = document.getElementById("speed_request");
-                slider_temp.value = {{ vehicle_information.speed_request }};
-                slider.oninput();
-            }
-        };
+      var slider = document.getElementById("speed_request");
+      var speed_actual = document.getElementById("speed_actual");
 
 
-        socket.on('connect', () => {
-            socket.emit('handle_connect', {player: '{{ player }}'});
-            console.log('Websocket connected');
-        });
+      slider.oninput = function() {
+        let percentValue = 5+ ((this.value - 20) / (100 - 20)) * (95-5);
+        this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ percentValue +'%, #ddd ' + percentValue + '%, #ddd 100%)';
+        socket.emit('slider_changed', {player: '{{player}}', value: this.value});
+      };
 
+      <!-- buttons to control lanes -->
+      var buttonLeft = document.getElementById("change_lane_left");
+      var buttonRight = document.getElementById("change_lane_right");
 
-        window.onunload = function() {
-            socket.emit('disconnected', {player: '{{ player }}'});
-        }
+      buttonLeft.onclick = function() {
+        socket.emit('lane_change', {player: '{{player}}', direction: 'left'});
+      };
 
-        setInterval(function(){
-            socket.emit('driver_heartbeat', {player: '{{ player }}'});
-        }, {{ heartbeat_interval }});
+      buttonRight.onclick = function() {
+        socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
+      };
 
-        <!-- driving data functions -->
-        function get_driving_data(){
-          socket.emit('get_driving_data');
-        };
+      <!-- buttons to control uturn -->
+      var buttonUTurn = document.getElementById("make_uturn");
 
-        socket.on('update_driving_data', function(data){
-          if(data.player == '{{player}}'){
-            speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
-            show_hacked_info(data.active_hacking_scenario);
-          }
-        });
+      buttonUTurn.onclick = function() {
+        socket.emit('make_uturn', {player: '{{player}}'});
+      };
 
-        function show_hacked_info(active_hacking_scenario){
-          if(active_hacking_scenario == "0") {
-            document.getElementById("hackedInfo").style.display = "none";
+      <!-- loading window -->
+      window.onload = function() {
+          socket.emit('driver_active', {player: '{{player}}'});
+          let playerExists = {{ player_exists | tojson }};
+          if(!playerExists) {
+              document.getElementById("infoBoxOverlay").style.display = "flex";
           }
           else {
-            document.getElementById("hackedInfo").style.display = "block";
+              document.getElementById("infoBoxOverlay").style.display = "none";
+
+              var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
+              show_hacked_info(active_hacking_scenario);
+
+              var slider_temp = document.getElementById("speed_request");
+              slider_temp.value = {{ vehicle_information.speed_request }};
+              slider.oninput();
           }
-        };
+      };
 
-        socket.on('player_active', function(data) {
-            if (data == "{{ player }}") {
-                window.location.reload();
-            }
-        });
 
-        socket.on('player_removed', function(data) {
-            if (data.player_id == "{{ player }}") {
+      socket.on('connect', () => {
+          socket.emit('handle_connect', {player: '{{ player }}'});
+          console.log('Websocket connected');
+      });
 
-                var baseUrl = 'http://' + document.domain + ':' + location.port + '/driver/exit';
-                var player = data.player_id;
-                var reason = data.message;
 
-                var fullUrl = baseUrl + "?player_id=" + encodeURIComponent(player) + "&reason=" + encodeURIComponent(reason);
-                window.location.href = fullUrl;
-            }
-        });
+      window.onunload = function() {
+          socket.emit('disconnected', {player: '{{ player }}'});
+      }
 
-        document.addEventListener('visibilitychange', function() {
-            console.log(document.visibilityState);
-            if (document.visibilityState === 'hidden') {
-                // e.g. changed to different tab
-                socket.emit('driver_inactive', {player: '{{player}}'});
-            }
-            else {
-            // The page is visible again
-                socket.emit('driver_active', {player: '{{player}}'});
-            }
-        });
+      setInterval(function(){
+          socket.emit('driver_heartbeat', {player: '{{ player }}'});
+      }, {{ heartbeat_interval }});
 
+      <!-- driving data functions -->
+      function get_driving_data(){
+        socket.emit('get_driving_data');
+      };
+
+      socket.on('update_driving_data', function(data){
+        if(data.player == '{{player}}'){
+          speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
+          show_hacked_info(data.active_hacking_scenario);
+        }
+      });
+
+      socket.on('send_proximity_vehicle', function(vehicle_id){
+
+        document.getElementsByClassName("test")[0].innerHTML = vehicle_id;
+      });
+
+      socket.on('send_finished_proximity_timer', function(vehicle_id){
+        console.log("yee");
+        document.getElementById("hack-button").style.display = "block";
+      });
+
+
+      function show_hacked_info(active_hacking_scenario){
+        if(active_hacking_scenario == "0") {
+          document.getElementById("hackedInfo").style.display = "none";
+        }
+        else {
+          document.getElementById("hackedInfo").style.display = "block";
+        }
+      };
+
+      socket.on('player_active', function(data) {
+          if (data == "{{ player }}") {
+              window.location.reload();
+          }
+      });
+
+      socket.on('player_removed', function(data) {
+          if (data.player_id == "{{ player }}") {
+
+              var baseUrl = 'http://' + document.domain + ':' + location.port + '/driver/exit';
+              var player = data.player_id;
+              var reason = data.message;
+
+              var fullUrl = baseUrl + "?player_id=" + encodeURIComponent(player) + "&reason=" + encodeURIComponent(reason);
+              window.location.href = fullUrl;
+          }
+      });
+
+      document.addEventListener('visibilitychange', function() {
+          console.log(document.visibilityState);
+          if (document.visibilityState === 'hidden') {
+              // e.g. changed to different tab
+              socket.emit('driver_inactive', {player: '{{player}}'});
+          }
+          else {
+          // The page is visible again
+              socket.emit('driver_active', {player: '{{player}}'});
+          }
+      });
     </script>
-
-</body>
+  </body>
 </html>
