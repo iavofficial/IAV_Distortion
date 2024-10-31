@@ -29,6 +29,8 @@ class Vehicle:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None
+        self.vehicle_in_proximity : str | None = None
+        self.proximity_timer: time = 0
 
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict[str, Any]], None] | None = None
