@@ -19,6 +19,7 @@ from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from UserInterface.DriverUI import DriverUI
 from UserInterface.StaffUI import StaffUI
 from UserInterface.CarMap import CarMap
+from UserInterface.Minigame import Minigame
 
 from quart import Quart
 from socketio import AsyncServer, ASGIApp
@@ -61,6 +62,12 @@ def create_app(admin_password: str):
 
     car_map = CarMap(environment_manager=environment_mng, sio=socket)
     car_map_blueprint = car_map.get_blueprint()
+
+    minigame_ui = Minigame(sio=socket)
+    minigame_ui_blueprint = minigame_ui.get_blueprint()
+
+    quart_app.register_blueprint(minigame_ui_blueprint, url_prefix='/minigame')
+
     quart_app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
 
     quart_app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
