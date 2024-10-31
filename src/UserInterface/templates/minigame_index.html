@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver {{player}}</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- custom header stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- Include socket.io library -->
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+
+</head>
+<body>
+
+    
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box">
+            <div class="info-title">
+                <h2>How to play</h2>
+            </div>
+            <p id="infoBoxContent"> blabla
+            </p>
+            <!-- TODO: Send accept to backend -->
+            <button class="close_tab_button" id="accept_button"> <span class="reload_symbol">&#10004;	</span> I understand the rules.</button>
+        </div>
+    </div>
+    
+    <div class="flexbox-container custom_header">
+        <p class="header">Player {{player}}</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+
+    <div class="flexbox-container flexbox-controls" id="control">    
+        
+    </div>
+
+
+    <script type="text/javascript" charset="utf-8">
+
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        document.cookie = "player={{ player }}";
+
+        window.onload = function() {
+            accept_button = document.getElementById("accept_button");
+            accept_button.onclick = function(){
+                document.getElementById("infoBoxOverlay").style.display = "none";
+                socket.emit('player_accept', {player: '{{player}}'});
+                
+            };
+        }
+        <!-- loading window -->
+        
+
+        socket.on('connect', () => {
+            socket.emit('handle_connect', {player: '{{ player }}'});
+            console.log('Websocket connected');
+        });
+
+
+        window.onunload = function() {
+            socket.emit('disconnected', {player: '{{ player }}'});
+        }
+
+
+        function show_hacked_info(active_hacking_scenario){
+          if(active_hacking_scenario == "0") {
+            document.getElementById("hackedInfo").style.display = "none";
+          }
+          else {
+            document.getElementById("hackedInfo").style.display = "block";
+          }
+        };
+
+        socket.on('player_active', function(data) {
+            if (data == "{{ player }}") {
+                window.location.reload();
+            }
+        });
+
+        socket.on('player_removed', function(data) {
+            if (data.player_id == "{{ player }}") {
+
+                var baseUrl = 'http://' + document.domain + ':' + location.port + '/driver/exit';
+                var player = data.player_id;
+                var reason = data.message;
+
+                var fullUrl = baseUrl + "?player_id=" + encodeURIComponent(player) + "&reason=" + encodeURIComponent(reason);
+                window.location.href = fullUrl;
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            console.log(document.visibilityState);
+            if (document.visibilityState === 'hidden') {
+                // e.g. changed to different tab
+                socket.emit('driver_inactive', {player: '{{player}}'});
+            }
+            else {
+            // The page is visible again
+                socket.emit('driver_active', {player: '{{player}}'});
+            }
+        });
+
+    </script>
+
+</body>
+</html>
