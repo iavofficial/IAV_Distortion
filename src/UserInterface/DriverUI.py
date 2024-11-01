@@ -15,6 +15,7 @@ import time
 
 from socketio import AsyncServer
 
+from DataModel.Effects.SwitchCars import SwitchCars
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
@@ -187,6 +188,12 @@ class DriverUI:
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
             return
+        
+        @self._sio.on('switch_cars')
+        def switch_cars(data: dict) -> None:
+            player = data["player"]
+            car = self.environment_mng.get_vehicle_by_player_id(player)
+            SwitchCars.switch(environment_mng, car)
 
     def update_driving_data(self, driving_data: dict) -> None:
         self.__run_async_task(self.__emit_driving_data(driving_data))
