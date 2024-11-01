@@ -34,9 +34,6 @@
     <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}"></script>
   </head>
   <body>
-    <div>
-      <p class="test"></p>
-    </div>
     <div class="overlay" id="infoBoxOverlay">
       <div class="info-box">
         <div class="info-title">
@@ -124,98 +121,155 @@
         </div>
       </div>
     </div>
+    <div class="loading-message" id="loadingMessage" style="display: none">
+      <p class="test"></p>
+    </div>
+
+    <div id="loading-bar" class="loading-bar" style="display: none">
+      <div id="loading-progress" class="loading-progress"></div>
+    </div>
 
     <script type="text/javascript" charset="utf-8">
 
-
       var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-      document.cookie = "player={{ player }}";
+            document.cookie = "player={{ player }}";
 
-      <!-- slider to control velocity-->
+            <!-- slider to control velocity-->
 
-      var slider = document.getElementById("speed_request");
-      var speed_actual = document.getElementById("speed_actual");
-
-
-      slider.oninput = function() {
-        let percentValue = 5+ ((this.value - 20) / (100 - 20)) * (95-5);
-        this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ percentValue +'%, #ddd ' + percentValue + '%, #ddd 100%)';
-        socket.emit('slider_changed', {player: '{{player}}', value: this.value});
-      };
-
-      <!-- buttons to control lanes -->
-      var buttonLeft = document.getElementById("change_lane_left");
-      var buttonRight = document.getElementById("change_lane_right");
-
-      buttonLeft.onclick = function() {
-        socket.emit('lane_change', {player: '{{player}}', direction: 'left'});
-      };
-
-      buttonRight.onclick = function() {
-        socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
-      };
-
-      <!-- buttons to control uturn -->
-      var buttonUTurn = document.getElementById("make_uturn");
-
-      buttonUTurn.onclick = function() {
-        socket.emit('make_uturn', {player: '{{player}}'});
-      };
-
-      <!-- loading window -->
-      window.onload = function() {
-          socket.emit('driver_active', {player: '{{player}}'});
-          let playerExists = {{ player_exists | tojson }};
-          if(!playerExists) {
-              document.getElementById("infoBoxOverlay").style.display = "flex";
-          }
-          else {
-              document.getElementById("infoBoxOverlay").style.display = "none";
-
-              var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
-              show_hacked_info(active_hacking_scenario);
-
-              var slider_temp = document.getElementById("speed_request");
-              slider_temp.value = {{ vehicle_information.speed_request }};
-              slider.oninput();
-          }
-      };
+            var slider = document.getElementById("speed_request");
+            var speed_actual = document.getElementById("speed_actual");
 
 
-      socket.on('connect', () => {
-          socket.emit('handle_connect', {player: '{{ player }}'});
-          console.log('Websocket connected');
-      });
+            slider.oninput = function() {
+              let percentValue = 5+ ((this.value - 20) / (100 - 20)) * (95-5);
+              this.style.background = 'linear-gradient(to right, #0091FF 0%, #0091FF '+ percentValue +'%, #ddd ' + percentValue + '%, #ddd 100%)';
+              socket.emit('slider_changed', {player: '{{player}}', value: this.value});
+            };
+
+            <!-- buttons to control lanes -->
+            var buttonLeft = document.getElementById("change_lane_left");
+            var buttonRight = document.getElementById("change_lane_right");
+
+            buttonLeft.onclick = function() {
+              socket.emit('lane_change', {player: '{{player}}', direction: 'left'});
+            };
+
+            buttonRight.onclick = function() {
+              socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
+            };
+
+            <!-- buttons to control uturn -->
+            var buttonUTurn = document.getElementById("make_uturn");
+
+            buttonUTurn.onclick = function() {
+              socket.emit('make_uturn', {player: '{{player}}'});
+            };
+
+            <!-- loading window -->
+            window.onload = function() {
+                socket.emit('driver_active', {player: '{{player}}'});
+                let playerExists = {{ player_exists | tojson }};
+                if(!playerExists) {
+                  document.getElementById("infoBoxOverlay").style.display = "flex";
+                }
+                else {
+                  document.getElementById("infoBoxOverlay").style.display = "none";
+
+                  var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
+                  show_hacked_info(active_hacking_scenario);
+
+                  var slider_temp = document.getElementById("speed_request");
+                  slider_temp.value = {{ vehicle_information.speed_request }};
+                  slider.oninput();
+                }
+            };
 
 
-      window.onunload = function() {
-          socket.emit('disconnected', {player: '{{ player }}'});
-      }
+            socket.on('connect', () => {
+              socket.emit('handle_connect', {player: '{{ player }}'});
+              console.log('Websocket connected');
+            });
 
-      setInterval(function(){
-          socket.emit('driver_heartbeat', {player: '{{ player }}'});
+
+            window.onunload = function() {
+              socket.emit('disconnected', {player: '{{ player }}'});
+            }
+
+            setInterval(function(){
+            socket.emit('driver_heartbeat', {player: '{{ player }}'});
       }, {{ heartbeat_interval }});
 
       <!-- driving data functions -->
       function get_driving_data(){
-        socket.emit('get_driving_data');
+          socket.emit('get_driving_data');
       };
 
-      socket.on('update_driving_data', function(data){
-        if(data.player == '{{player}}'){
-          speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
+        socket.on('update_driving_data', function(data){
+          if(data.player == '{{player}}'){
+            speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
           show_hacked_info(data.active_hacking_scenario);
         }
       });
 
-      socket.on('send_proximity_vehicle', function(vehicle_id){
+      let timerInterval;
 
-        document.getElementsByClassName("test")[0].innerHTML = vehicle_id;
+      socket.on('send_proximity_vehicle', function(data) {
+          clearInterval(timerInterval);
+
+          const vehicle_id = data.vehicle_id;
+          const proximityTimer = data.proximity_timer * 1000;
+
+          if (vehicle_id) {
+              startLoadingBar(proximityTimer,vehicle_id);
+          } else {
+              resetLoadingBar();
+          }
       });
 
+      socket.on('send_finished_proximity_timer', function(vehicle_id) {
+          document.getElementById("hack-button").style.display = "block";
+          clearInterval(timerInterval);
+          resetLoadingBar();
+      });
+
+      function startLoadingBar(duration,vehicle_id) {
+        const loadingBar = document.getElementById("loading-bar");
+        const progress = document.getElementById("loading-progress");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        loadingBar.style.display = "block";
+        loadingMessage.style.display = "block";
+        document.getElementsByClassName("test")[0].innerHTML = "Try Hacking: " + vehicle_id;
+
+
+        let startTime = Date.now();
+
+        timerInterval = setInterval(() => {
+          let elapsedTime = Date.now() - startTime;
+          let progressWidth = Math.min((elapsedTime / duration) * 100, 100);
+          progress.style.width = progressWidth + "%";
+
+          if (progressWidth === 100) {
+            clearInterval(timerInterval);
+          }
+        }, 100);
+      }
+
+      function resetLoadingBar() {
+        const loadingBar = document.getElementById("loading-bar");
+        const progress = document.getElementById("loading-progress");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        loadingBar.style.display = "none";
+        progress.style.width = "0%";
+        loadingMessage.style.display = "none";
+        clearInterval(timerInterval);
+      }
+
+
+
       socket.on('send_finished_proximity_timer', function(vehicle_id){
-        console.log("yee");
         document.getElementById("hack-button").style.display = "block";
       });
 
@@ -230,33 +284,32 @@
       };
 
       socket.on('player_active', function(data) {
-          if (data == "{{ player }}") {
-              window.location.reload();
-          }
+        if (data == "{{ player }}") {
+           window.location.reload();
+      }
       });
 
       socket.on('player_removed', function(data) {
-          if (data.player_id == "{{ player }}") {
+        if (data.player_id == "{{ player }}") {
+          var baseUrl = 'http://' + document.domain + ':' + location.port + '/driver/exit';
+          var player = data.player_id;
+          var reason = data.message;
 
-              var baseUrl = 'http://' + document.domain + ':' + location.port + '/driver/exit';
-              var player = data.player_id;
-              var reason = data.message;
-
-              var fullUrl = baseUrl + "?player_id=" + encodeURIComponent(player) + "&reason=" + encodeURIComponent(reason);
-              window.location.href = fullUrl;
-          }
+          var fullUrl = baseUrl + "?player_id=" + encodeURIComponent(player) + "&reason=" + encodeURIComponent(reason);
+          window.location.href = fullUrl;
+        }
       });
 
       document.addEventListener('visibilitychange', function() {
-          console.log(document.visibilityState);
-          if (document.visibilityState === 'hidden') {
-              // e.g. changed to different tab
-              socket.emit('driver_inactive', {player: '{{player}}'});
-          }
-          else {
+        console.log(document.visibilityState);
+        if (document.visibilityState === 'hidden') {
+          // e.g. changed to different tab
+          socket.emit('driver_inactive', {player: '{{player}}'});
+        }
+        else {
           // The page is visible again
-              socket.emit('driver_active', {player: '{{player}}'});
-          }
+          socket.emit('driver_active', {player: '{{player}}'});
+        }
       });
     </script>
   </body>

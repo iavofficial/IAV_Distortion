@@ -246,7 +246,7 @@ class DriverUI:
                 await asyncio.sleep(0.1)
                 if previous_value != vehicle.vehicle_in_proximity:
                     uuid = vehicle.vehicle_id
-                    await self._sio.emit('send_proximity_vehicle', vehicle.vehicle_in_proximity)
+                    await self._sio.emit('send_proximity_vehicle',{'vehicle_id': vehicle.vehicle_in_proximity,'proximity_timer': self.__driver_proximity_timer})
                     previous_value= vehicle.vehicle_in_proximity
                     vehicle.proximity_timer = time.time()
                 else:
@@ -256,7 +256,6 @@ class DriverUI:
     async def __check_driver_proximity_timer(self, player: str):
         vehicle = self.get_vehicle_by_player(player=player)
         if time.time() - vehicle.proximity_timer > self.__driver_proximity_timer:
-            print("ok")
             await self._sio.emit('send_finished_proximity_timer', vehicle.vehicle_in_proximity)
 
                        
