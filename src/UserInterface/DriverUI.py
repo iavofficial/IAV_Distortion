@@ -253,6 +253,13 @@ class DriverUI:
                     self.__remove_player(player)
 
     async def __send_proximity_vehicle(self, player: str):
+        """
+        Continuously monitors a vehicle's proximity status and emits an update when its proximity status changes
+        Parameters
+        ----------
+        player : str
+            The identifier for the player whose vehicle proximity is being monitored
+        """
         vehicle = self.get_vehicle_by_player(player=player)
         previous_value = None
         if vehicle != None:
@@ -268,6 +275,13 @@ class DriverUI:
                         self.__run_async_task(self.__check_driver_proximity_timer(player))
 
     async def __check_driver_proximity_timer(self, player: str):
+        """
+        Continuously monitors a vehicle's proximity timer and emits an update when its timer exceedes the limit
+        Parameters
+        ----------
+        player : str
+            The identifier for the player whose proximity timer is being monitored
+        """
         vehicle = self.get_vehicle_by_player(player=player)
         if vehicle != None:
             if time.time() - vehicle.proximity_timer > self.__driver_proximity_timer:
