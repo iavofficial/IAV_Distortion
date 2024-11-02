@@ -269,8 +269,9 @@ class DriverUI:
 
     async def __check_driver_proximity_timer(self, player: str):
         vehicle = self.get_vehicle_by_player(player=player)
-        if time.time() - vehicle.proximity_timer > self.__driver_proximity_timer:
-            await self._sio.emit('send_finished_proximity_timer', vehicle.vehicle_in_proximity)
+        if vehicle != None:
+            if time.time() - vehicle.proximity_timer > self.__driver_proximity_timer:
+                await self._sio.emit('send_finished_proximity_timer', vehicle.vehicle_in_proximity)
 
                        
     def __remove_player(self, player: str) -> None:
