@@ -269,13 +269,6 @@
         clearInterval(timerInterval);
       }
 
-
-
-      socket.on('send_finished_proximity_timer', function(vehicle_id){
-        document.getElementById("hack-button").style.display = "block";
-      });
-
-
       function show_hacked_info(active_hacking_scenario){
         if(active_hacking_scenario == "0") {
           document.getElementById("hackedInfo").style.display = "none";
