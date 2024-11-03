@@ -187,6 +187,8 @@
               startLoadingBar(proximityTimer,vehicle_id);
           } else {
               resetLoadingBar();
+              const hackButton = document.getElementById("hack-button");
+              hackButton.style.display = "none";
           }
       });
 
@@ -220,7 +222,6 @@
       }
 
       function resetLoadingBar() {
-        const hackButton = document.getElementById("hack-button");
         const loadingBar = document.getElementById("loading-bar");
         const progress = document.getElementById("loading-progress");
         const loadingMessage = document.getElementById("loadingMessage");
@@ -228,7 +229,6 @@
         loadingBar.style.display = "none";
         progress.style.width = "0%";
         loadingMessage.style.display = "none";
-        hackButton.style.display = "none";
         clearInterval(timerInterval);
       }
 
