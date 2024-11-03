@@ -1,7 +1,7 @@
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+body{
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 * {
@@ -10,23 +10,23 @@ body {
 
 /* container to arrange the elements on the page*/
 .flexbox-container {
-  justify-content: space-between;
-  width: 100%;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .flexbox-controls {
-  display: flex;
-  height: 90vh;
+    display: flex;
+    height: 90vh;
 }
 
-.flexbox-container_middle {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  flex-direction: column;
-  width: 50%;
-  height: 90%;
-  position: relative;
+.flexbox-container_middle{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    width: 50%;
+    height: 90%;
+    position: relative;
 }
 
 .avatar {
@@ -88,179 +88,181 @@ body {
     margin-right: 2vw;
 }
 
-.flexbox-container_right {
-  display: flex;
-  flex-direction: column;
-  height: 90%;
-  width: 25%;
-  justify-content: space-around;
+.flexbox-container_right{
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+    width: 25%;
+    justify-content: space-around;
 }
 
-.flexbox-item {
-  /*width: 300px;
+.flexbox-item{
+    /*width: 300px;
     margin: 10px;*/
-  /* below only for design*/
-  /*border: 3px solid #333;
+    /* below only for design*/
+    /*border: 3px solid #333;
     background-color: white;*/
 }
 
 .flexbox-slider {
-  display: flex;
-  align-items: center;
-  height: 90%;
-  width: 25%;
+    display: flex;
+    align-items: center;
+    height: 90%;
+    width: 25%;
 }
 
 /* container to group and arrange the buttons*/
-.flexbox-driver_buttons {
-  display: flex;
-  flex-direction: column;
+.flexbox-driver_buttons{
+    display: flex;
+    flex-direction: column;
 }
 
-.flexbox-change_lane_buttons {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+.flexbox-change_lane_buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 }
 
 /* style options for the slider to control the velocity */
 .slider {
-  -webkit-appearance: none;
-  width: 100vh;
-  height: 6vw;
-  background: #ddd;
-  outline: none;
-  border-radius: 1.25vw;
-  transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
+    -webkit-appearance: none;
+    width: 100vh;
+    height: 6vw;
+    background: #ddd;
+    outline: none;
+    border-radius: 1.25vw;
+    transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
 }
 
 /* style options for slider thumb*/
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 5vw;
-  height: 8vw;
-  background: #0091ff;
-  cursor: pointer;
-  /*border: 5px solid #0091FF;*/
-  border-radius: 5vw;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5vw;
+    height: 8vw;
+    background: #0091FF;
+    cursor: pointer;
+    /*border: 5px solid #0091FF;*/
+    border-radius: 5vw;
 }
 
 .slider::-webkit-slider-thumb:hover {
-  /*border: 5px solid #33A7FF;*/
+    /*border: 5px solid #33A7FF;*/
 }
 
 .slider::-webkit-slider-thumb:active {
-  /*border: 5px solid #0074CC;*/
-  background: #0074cc;
+    /*border: 5px solid #0074CC;*/
+    background: #0074CC;
 }
 
 .slider::-moz-range-thumb {
-  width: 5vw;
-  height: 8vw;
-  background: #0091ff;
-  cursor: pointer;
-  /*border: 5px solid #0091FF;*/
-  border-radius: 5vw;
+    width: 5vw;
+    height: 8vw;
+    background: #0091FF;
+    cursor: pointer;
+    /*border: 5px solid #0091FF;*/
+    border-radius: 5vw;
 }
 
 .slider::-moz-range-thumb:hover {
-  /*border: 5px solid #33A7FF;2*/
+    /*border: 5px solid #33A7FF;2*/
 }
 
 .slider::-moz-range-thumb:active {
-  /*border: 5px solid #0074CC;*/
-  background: #0074cc;
+    /*border: 5px solid #0074CC;*/
+    background: #0074CC;
 }
 
 .slider::-moz-range-progress {
-  background: #0091ff;
+    background: #0091FF;
 }
 
 .slider::-moz-range-track {
-  background: #ddd;
+    background: #ddd;
 }
 
 /* style for speed display */
 .speedometer {
+
 }
 
 .flexbox-speed_display-label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 6vh;
-  margin-bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6vh;
+    margin-bottom: 0px;
 }
 
 .flexbox-speed_display {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-end;
-  font-size: 10vh;
-  margin-top: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    font-size: 10vh;
+    margin-top: 0px;
 }
-.flexbox-speed_display.value {
-  margin-right: 5px;
+.flexbox-speed_display.value{
+
+    margin-right: 5px;
 }
 
-.speed_unit {
-  font-size: 6vh;
+.speed_unit{
+    font-size: 6vh;
 }
 
 /* style options for buttons */
 .driver-buttons {
-  width: 8vw;
-  height: 8vw;
-  font-size: 4vw;
-  border-radius: 25px;
-  /* color: #0091FF;
+    width: 8vw;
+    height: 8vw;
+    font-size: 4vw;
+    border-radius: 25px;
+    /* color: #0091FF;
     background: #FFFFFF;
     border: 5px solid #0091FF; */
 }
 
 .driver-buttons:hover {
-  /*color: #33A7FF;
+    /*color: #33A7FF;
     border: 5px solid #33A7FF;
     background: #FFFFFF;*/
 }
 
 .driver-buttons:active {
-  /*color: #FFFFFF;
+    /*color: #FFFFFF;
     border: 5px solid #0074CC;
     background: #0074CC;*/
 }
 
 .overlay {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.info-box {
-  display: flex;
-  flex-direction: column;
-  width: 50%;
-  background-color: #fff;
-  padding: 20px;
-  border: 0px solid #001a54;
-  border-radius: 15px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+.info-box{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    background-color: #fff;
+    padding: 20px;
+    border: 0px solid #001A54;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
 
 .info-title {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 .info-text {
@@ -295,9 +297,9 @@ body {
     color: #FFFFFF;
 }
 
-.exit_symbol {
-  font-size: 18px;
-  color: #ffffff;
+.exit_symbol{
+    font-size: 18px;
+    color: #FFFFFF;
 }
 
 #hack-button.driver-buttons {
