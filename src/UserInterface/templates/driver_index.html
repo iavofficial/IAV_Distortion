@@ -6,14 +6,14 @@
 
     <!-- general style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
 
     <!-- custom header stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
 
     <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
 
     <!-- Include socket.io library -->
     <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
@@ -76,10 +76,20 @@
                         &ShortRightArrow;
                     </button>
                 </div>
+
+            <div class="flexbox-item flexbox-change_lane_buttons">
+              <button class="driver-buttons" id="hack-button"></button>
             </div>
         </div>
+      </div>
+    </div>
+    <div class="loading-message" id="loadingMessage" style="display: none">
+      <p class="test"></p>
     </div>
 
+    <div id="loading-bar" class="loading-bar" style="display: none">
+      <div id="loading-progress" class="loading-progress"></div>
+    </div>
 
     <script type="text/javascript" charset="utf-8">
 
@@ -164,6 +174,63 @@
             show_hacked_info(data.active_hacking_scenario);
           }
         });
+
+      let timerInterval;
+
+      socket.on('send_proximity_vehicle', function(data) {
+          clearInterval(timerInterval);
+
+          const vehicle_id = data.vehicle_id;
+          const proximityTimer = data.proximity_timer * 1000;
+
+          if (vehicle_id) {
+              startLoadingBar(proximityTimer,vehicle_id);
+          } else {
+              resetLoadingBar();
+              const hackButton = document.getElementById("hack-button");
+              hackButton.style.display = "none";
+          }
+      });
+
+      socket.on('send_finished_proximity_timer', function(vehicle_id) {
+          document.getElementById("hack-button").style.display = "block";
+          clearInterval(timerInterval);
+          resetLoadingBar();
+      });
+
+      function startLoadingBar(duration,vehicle_id) {
+        const loadingBar = document.getElementById("loading-bar");
+        const progress = document.getElementById("loading-progress");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        loadingBar.style.display = "block";
+        loadingMessage.style.display = "block";
+        document.getElementsByClassName("test")[0].innerHTML = "Try Hacking: " + vehicle_id;
+
+
+        let startTime = Date.now();
+
+        timerInterval = setInterval(() => {
+          let elapsedTime = Date.now() - startTime;
+          let progressWidth = Math.min((elapsedTime / duration) * 100, 100);
+          progress.style.width = progressWidth + "%";
+
+          if (progressWidth === 100) {
+            clearInterval(timerInterval);
+          }
+        }, 100);
+      }
+
+      function resetLoadingBar() {
+        const loadingBar = document.getElementById("loading-bar");
+        const progress = document.getElementById("loading-progress");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        loadingBar.style.display = "none";
+        progress.style.width = "0%";
+        loadingMessage.style.display = "none";
+        clearInterval(timerInterval);
+      }
 
         function show_hacked_info(active_hacking_scenario){
           if(active_hacking_scenario == "0") {

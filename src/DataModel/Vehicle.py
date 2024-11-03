@@ -27,10 +27,13 @@ class Vehicle:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None
+        self.vehicle_in_proximity : str | None = None
+        self.proximity_timer: time = 0
 
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict], None] | None = None
         self._effects: List[VehicleEffect] = []
+        
 
         if not disable_item_removal:
             self._effect_removal_task = asyncio.create_task(self._test_effect_removal_task())

@@ -11,6 +11,8 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from DataModel.Vehicle import Vehicle
 from Items.Item import Item
 
+from LocationService.Trigo import  Position
+
 
 class CarMap:
     """
@@ -88,6 +90,36 @@ class CarMap:
         """
         data = {'car': vehicle_id, 'position': position, 'angle': angle}
         self.__run_async_task(self.send_car_position(data))
+        
+        if self._vehicles is not None:
+            self.check_vehicle_proximity(vehicle_id,position)             
+        return
+
+    def check_vehicle_proximity(self,vehicle_id: str, position: dict,) -> None:
+        """
+        Checks the proximity of a given vehicle to every other vehicle and updates
+        its `vehicle_in_proximity` attribute if any vehicle is within a specified distance.
+
+        Parameters
+        ----------
+        vehicle_id : str
+            D of the vehicle for which proximity is being checked.
+        position : dict
+            Dictionary containing the 'x' and 'y' coordinates of the vehicle's position in the simulation.
+        """
+        pos_self = Position(position['x'],position['y'])
+        proximity_vehicle_id: str = self._environment_manager.get_vehicle_by_vehicle_id(vehicle_id).vehicle_in_proximity
+        if proximity_vehicle_id != None:
+            pos_proximity_vehicle = self._environment_manager.get_vehicle_by_vehicle_id(proximity_vehicle_id)._location_service._current_position
+            if pos_proximity_vehicle.distance_to(pos_self) > 200:
+                self._environment_manager.get_vehicle_by_vehicle_id(vehicle_id).vehicle_in_proximity = None
+        else:
+            for vehicle in self._vehicles:
+                if vehicle.vehicle_id != vehicle_id:
+                    pos_other =vehicle._location_service._current_position
+                    if pos_other.distance_to(pos_self) < 200:
+                        self._environment_manager.get_vehicle_by_vehicle_id(vehicle_id).vehicle_in_proximity = vehicle.vehicle_id
+                        return
         return
 
     def update_item_positions(self, items: List[Item]):
