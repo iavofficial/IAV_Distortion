@@ -13,8 +13,9 @@ class SwitchCars:
             for v in vehicles:
                 logging.info(v.get_vehicle_id())
                 if v.get_vehicle_id() != car:
-                    new_driver = v.get_player_id
-                    v.remove_player
-                    vehicle.set_player(new_driver)
+                    if v.get_player_id != None:
+                        new_driver = v.get_player_id
+                        v.remove_player
+                        vehicle.set_player(new_driver)
                     v.set_player(driver)
                     break

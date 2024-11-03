@@ -206,11 +206,12 @@ class DriverUI:
             return
         
         @self._sio.on('switch_cars')
-        def switch_cars(sid, data: dict) -> None:
+        async def switch_cars(sid, data: dict) -> None:
             player = data["player"]
-            car = self.environment_mng.get_vehicle_by_player_id(player)
-            SwitchCars.switch(environment_mng, car)
-            return
+            vehicle = self.environment_mng.get_vehicle_by_player_id(player)
+            driver = vehicle.get_player_id()
+            self.environment_mng.manage_removal_from_car_for(driver, )
+        return
 
     def update_driving_data(self, driving_data: dict) -> None:
         self.__run_async_task(self.__emit_driving_data(driving_data))

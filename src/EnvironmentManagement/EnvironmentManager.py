@@ -334,6 +334,39 @@ class EnvironmentManager:
             return True
         else:
             return False
+        
+    def manage_removal_from_car_for(self,
+                                     player_id: str) -> bool:
+        
+        player_was_removed = (self.__remove_and_replace(player_id))
+
+        if player_was_removed:
+            self.update_staff_ui()
+            return True
+        else:
+            return False
+
+    def __remove_and_replace(self, player_id: str) -> bool:
+        
+        vehicle: Vehicle
+        for v in self._active_anki_cars:
+            if v.get_player_id() == player_id:
+                logger.info(f"Removing player with UUID {player_id} from vehicle")
+                v.remove_player()
+                vehicle = v
+                break
+        
+        if len(self._active_anki_cars) > 1:
+                for v in self._active_anki_cars:
+                    logging.info(v.get_vehicle_id())
+                    if v.get_vehicle_id() != vehicle.get_vehicle_id():
+                        new_driver = v.get_player_id
+                        v.remove_player
+                        vehicle.set_player(new_driver)
+                    v.set_player(player_id)
+                    return True
+        return False
+
 
     def __remove_player_from_waitlist(self, player_id: str) -> bool:
         """
