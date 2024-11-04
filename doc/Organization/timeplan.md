@@ -6,7 +6,7 @@
 - Hardware setup
 - Project running on everyones computer
 
-## Week 2 3.10.2024
+## Week 2 3.11.2024
 
 - Seemless Switch between cars (virtual) possible
 - Taking over of the real car
