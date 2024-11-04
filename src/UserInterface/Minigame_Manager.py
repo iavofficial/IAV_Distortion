@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 
-from quart import Blueprint, render_template, request
+from quart import Blueprint, render_template, request, Quart
 import uuid
 import logging
 import asyncio
@@ -18,33 +18,20 @@ from socketio import AsyncServer
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
+from Minigames import Minigame_Test
+
 logger = logging.getLogger(__name__)
+
+minigames = {"Minigame_Test" : Minigame_Test.Minigame_Test}
 
 
 class Minigame_Manager:
 
-    def __init__(self, sio: AsyncServer, name=__name__) -> None:
+    def __init__(self, sio: AsyncServer, quart_app : Quart, name=__name__) -> None:
         self.minigame_ui_blueprint: Blueprint = Blueprint(name='minigameUI_bp', import_name='minigameUI_bp')
         self._sio: AsyncServer = sio
+        self.quart_app = quart_app
         self._connected_players = []
-
-        async def home_minigame() -> str:
-            """
-            Load the minigame ui page.
-
-            Gets the clients cookie for identification, provides GUI for minigames.
-
-            Returns
-            -------
-                Returns a Response object representing a redirect to the minigame ui page.
-            """
-            player = request.cookies.get("player")
-            if player is None:
-                player = str(uuid.uuid4())
-
-            return await render_template(template_name_or_list='minigame_index.html', player=player)
-            
-        self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func=home_minigame)
 
 
         async def exit_minigame() -> str:
@@ -110,3 +97,32 @@ class Minigame_Manager:
         self._connected_players.remove(player)
         return
 
+    def set_minigame(self, minigame : str) -> None:
+        """
+        Set the Minigame that is to be played next with this Manager.
+
+        Parameters
+        ----------
+        minigame: str
+            Name of the minigame (class name)
+        """
+        async def home_minigame() -> str:
+            """
+            Load the minigame ui page.
+
+            Gets the clients cookie for identification, provides GUI for minigames.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the minigame ui page.
+            """
+            player = request.cookies.get("player")
+            if player is None:
+                player = str(uuid.uuid4())
+
+            return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = minigame)
+        
+        self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func = home_minigame)
+        minigame_object = minigames[minigame](self._sio, self.minigame_ui_blueprint)
+
+        self.quart_app.register_blueprint(self.minigame_ui_blueprint, url_prefix = "/minigame")

@@ -29,8 +29,8 @@ class Minigame:
             if player is None:
                 player = str(uuid.uuid4())
 
-            return await render_template(template_name_or_list=name + '.html', player=player)
-        print(name)
+            return await render_template(template_name_or_list=name + '.html', player = player)
+            
         self.minigame_ui_blueprint.add_url_rule(f'/{name}', name, view_func=home_minigame)
 
     @abstractmethod

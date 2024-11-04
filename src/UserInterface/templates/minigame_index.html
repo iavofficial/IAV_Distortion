@@ -18,6 +18,9 @@
     <!-- Include socket.io library -->
     <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
 
+    <!-- Include jqeury -->
+    <script src="{{ url_for('static', filename='external_resources/jquery-3.7.1.min.js')}}"></script>
+
 </head>
 <body>
 
@@ -40,12 +43,21 @@
     </div>
 
     <div class="flexbox-container flexbox-controls" id="control">    
-        
+        <div id="current-Minigame" name="{{minigame}}"></div>
     </div>
 
 
     <script type="text/javascript" charset="utf-8">
-
+        //Include the current Minigame's html
+        jQuery(document).ready(function(){
+            minigame = jQuery("#current-Minigame").attr("name");
+            alert(minigame);
+            jQuery("#current-Minigame").load("{{ url_for('minigameUI_bp.' + minigame)}}", function(response, status){
+                if(status === 'error'){
+                    alert("Failed to load minigameUI_bp.Minigame_Test");
+                }
+            });
+        });
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 

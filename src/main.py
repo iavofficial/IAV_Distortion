@@ -64,11 +64,10 @@ def create_app(admin_password: str):
     car_map = CarMap(environment_manager=environment_mng, sio=socket)
     car_map_blueprint = car_map.get_blueprint()
 
-    minigame_ui = Minigame_Manager(sio=socket)
+    minigame_ui = Minigame_Manager(sio=socket, quart_app=quart_app)
     minigame_ui_blueprint = minigame_ui.get_blueprint()
 
-    Minigame_Test(sio=socket, blueprint=minigame_ui_blueprint)  
-    quart_app.register_blueprint(minigame_ui_blueprint, url_prefix='/minigame')
+    minigame_ui.set_minigame("Minigame_Test")
 
     quart_app.register_blueprint(car_map_blueprint, url_prefix='/car_map')
 
