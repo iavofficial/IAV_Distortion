@@ -21,11 +21,12 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 logger = logging.getLogger(__name__)
 
 
-class Minigame:
+class Minigame_Manager:
 
     def __init__(self, sio: AsyncServer, name=__name__) -> None:
         self.minigame_ui_blueprint: Blueprint = Blueprint(name='minigameUI_bp', import_name='minigameUI_bp')
         self._sio: AsyncServer = sio
+        self._connected_players = []
 
         async def home_minigame() -> str:
             """
@@ -45,15 +46,16 @@ class Minigame:
             
         self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func=home_minigame)
 
+
         async def exit_minigame() -> str:
             player_id = request.args.get(key='player_id', type=str)
             reason = request.args.get(key='reason', default="The minigame has been cancelled.", type=str)
 
-            return await render_template(template_name_or_list='driver_exit.html', player=player_id, message=reason)
+            return await render_template(template_name_or_list='driver_index.html', player=player_id, message=reason)
 
         self.minigame_ui_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_minigame)
 
-        @self._sio.on('handle_connect')
+        @self._sio.on('minigame_handle_connect')
         def handle_connected(sid: str, data: dict) -> None:
             """
             Calls environment manager function to update queues and vehicles.
@@ -70,36 +72,23 @@ class Minigame:
                 Data received with websocket event.
             """
             player = data["player"]
+            logger.debug(f"Driver {player} connected to the minigame.")
             return
 
-        @self._sio.on('disconnected')
+        @self._sio.on('minigame_disconnected')
         def handle_disconnected(sid, data):
             player = data["player"]
-            logger.debug(f"Driver {player} disconnected!")
+            logger.debug(f"Driver {player} disconnected from the minigame!")
             self.__remove_player(player)
             return
 
-        @self._sio.on('disconnect')
+        @self._sio.on('minigame_disconnect')
         def handle_clienet_disconnect(sid):
-            logger.debug(f"Client {sid} disconnected.")
+            logger.debug(f"Client {sid} disconnected from the minigame.")
             return
-
-    def update_driving_data(self, driving_data: dict) -> None:
-        self.__run_async_task(self.__emit_driving_data(driving_data))
-        return
 
     def get_blueprint(self) -> Blueprint:
         return self.minigame_ui_blueprint
-
-    def get_vehicle_by_player(self, player: str):
-        temp_vehicle = [vehicle for vehicle in self.vehicles if vehicle.player == player]
-        if len(temp_vehicle) == 1:
-            return temp_vehicle[0]
-        elif len(temp_vehicle) < 1:
-            return None
-        else:
-            # Todo: define error reaction if same player is assigned to different vehicles
-            return None
 
     def __run_async_task(self, task):
         """
@@ -109,33 +98,15 @@ class Minigame:
         asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
 
-    async def __emit_driving_data(self, driving_data: dict) -> None:
-        await self._sio.emit('update_driving_data', driving_data)
-        return
-
-    async def __check_driver_heartbeat_timeout(self):
-        """
-        Continuously checks driver heartbeats for timeouts.
-        """
-        while True:
-            await asyncio.sleep(1)
-            players = list(self.__latest_driver_heartbeats.keys())
-            for player in players:
-                if time.time() - self.__latest_driver_heartbeats.get(player, 0) > self.__driver_heartbeat_timeout:
-                    logger.info(f'Player {player} timed out. Removing player from the game...')
-                    self.__remove_player(player)
-
     def __remove_player(self, player: str) -> None:
         """
-        Remove player from the game.
+        Remove player from the minigame.
 
         Parameters
         ----------
         player: str
             ID of player to be removed.
         """
-        if player in self.__latest_driver_heartbeats:
-            del self.__latest_driver_heartbeats[player]
-        grace_period = self.config_handler.get_configuration()["driver"]["driver_reconnect_grace_period_s"]
-        self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
+        self._connected_players.remove(player)
         return
+
