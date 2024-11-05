@@ -61,8 +61,6 @@
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-        document.cookie = "player={{ player }}";
-
         window.onload = function() {
             accept_button = document.getElementById("accept_button");
             accept_button.onclick = function(){

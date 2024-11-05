@@ -86,7 +86,7 @@
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-        document.cookie = "player={{ player }}";
+        document.cookie = "player={{ player }};path=/";
 
         <!-- slider to control velocity-->
 

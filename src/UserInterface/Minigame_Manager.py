@@ -118,7 +118,8 @@ class Minigame_Manager:
             """
             player = request.cookies.get("player")
             if player is None:
-                player = str(uuid.uuid4())
+                #TODO In this case, a player has connected to the minigame page without having connected as a driver before. They should probably notified that they need to drive first.
+                return
 
             return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = minigame)
         
