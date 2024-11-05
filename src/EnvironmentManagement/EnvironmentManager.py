@@ -326,6 +326,72 @@ class EnvironmentManager:
             return True
         else:
             return False
+        
+    def manage_car_switch_for(self,
+                                     player_id: str) -> bool:
+        
+        """
+        This function organizes the switch between cars for the player ID.
+        
+        Parameters
+        ----------
+        player_id: str
+            ID of player to organize car switch for.
+
+        Returns
+        -------
+        bool
+            is True, if player switched car successfully
+            is False, if player could not switch car
+        """
+        cars_switched = (self.__switch_player_cars(player_id))
+
+        if cars_switched:
+            self.update_staff_ui()
+            return True
+        else:
+            return False
+
+    def __switch_player_cars(self, player_id: str) -> bool:
+        
+        """
+        Switch cars for player ID
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to perform car switch for
+
+        Returns
+        -------
+        bool
+            is True, if player switched car successfully
+            is False, if player could not switch car
+        """
+        if len(self._active_anki_cars) > 1:
+            vehicle: Vehicle
+            for v in self._active_anki_cars:
+                if v.get_player_id() == player_id:
+                    v.remove_player()
+                    vehicle = v
+                    break
+            
+            
+            for v in self._active_anki_cars:
+                logging.info(v.get_vehicle_id())
+                if v.get_vehicle_id() != vehicle.get_vehicle_id():
+                    if v.is_free() == False:
+                        new_driver = v.get_player_id()
+                        logger.info(f"Switching cars from player with UUID {player_id} and player with UUID {new_driver}")
+                        v.remove_player()
+                        self._publish_player_active(player=new_driver)
+                        vehicle.set_player(new_driver)
+                    else: logger.info(f"Switching cars from player with UUID {player_id} to a free car")
+                    self._publish_player_active(player=player_id)
+                    v.set_player(player_id)
+                    return True
+        return False
+
 
     def __remove_player_from_waitlist(self, player_id: str) -> bool:
         """

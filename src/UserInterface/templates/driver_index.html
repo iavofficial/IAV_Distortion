@@ -63,6 +63,12 @@
         <div class="flexbox-container_right">
             <div class="flexbox-driver_buttons">
                 <div class="flexbox-item flexbox-change_lane_buttons">
+                    <button class="driver-buttons" id="switch_cars">
+                        Switch cars
+                    </button>
+                </div>
+
+                <div class="flexbox-item flexbox-change_lane_buttons">
                     <button class="driver-buttons" id="make_uturn">
                         &curvearrowleft;
                     </button>
@@ -127,6 +133,13 @@
 
         buttonUTurn.onclick = function() {
           socket.emit('make_uturn', {player: '{{player}}'});
+        };
+
+        <!-- buttons to switch cars -->
+        var buttonSwitchCars = document.getElementById("switch_cars");
+
+        buttonSwitchCars.onclick = function() {
+          socket.emit('switch_cars', {player: '{{player}}'});
         };
 
         <!-- loading window -->
