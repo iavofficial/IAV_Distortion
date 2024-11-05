@@ -352,9 +352,7 @@ class EnvironmentManager:
             vehicle: Vehicle
             for v in self._active_anki_cars:
                 if v.get_player_id() == player_id:
-                    logger.info(f"Removing player with UUID {player_id} from vehicle")
                     v.remove_player()
-                    self.update_staff_ui()
                     vehicle = v
                     break
             
@@ -364,15 +362,13 @@ class EnvironmentManager:
                 if v.get_vehicle_id() != vehicle.get_vehicle_id():
                     if v.is_free() == False:
                         new_driver = v.get_player_id()
-                        logger.info(f"Removing player with UUID {new_driver} from vehicle")
+                        logger.info(f"Switching cars from player with UUID {player_id} and player with UUID {new_driver}")
                         v.remove_player()
-                        self.update_staff_ui()
                         self._publish_player_active(player=new_driver)
                         vehicle.set_player(new_driver)
-                        self.update_staff_ui()
+                    else: logger.info(f"Switching cars from player with UUID {player_id} to a free car")
                     self._publish_player_active(player=player_id)
                     v.set_player(player_id)
-                    self.update_staff_ui()
                     return True
         return False
 
