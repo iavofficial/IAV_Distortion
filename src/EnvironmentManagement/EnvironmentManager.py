@@ -355,9 +355,9 @@ class EnvironmentManager:
                 logging.info(v.get_vehicle_id())
                 if v.get_vehicle_id() != vehicle.get_vehicle_id():
                     if v.is_free() == False:
-                        new_driver = v.get_player_id
+                        new_driver = v.get_player_id()
                         logger.info(f"Removing player with UUID {new_driver} from vehicle")
-                        v.remove_player
+                        v.remove_player()
                         self.update_staff_ui()
                         self._publish_player_active(player=new_driver)
                         vehicle.set_player(new_driver)
