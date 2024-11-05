@@ -327,19 +327,47 @@ class EnvironmentManager:
         else:
             return False
         
-    def manage_removal_from_car_for(self,
+    def manage_car_switch_for(self,
                                      player_id: str) -> bool:
         
-        player_was_removed = (self.__remove_and_replace(player_id))
+        """
+        This function organizes the switch between cars for the player ID.
+        
+        Parameters
+        ----------
+        player_id: str
+            ID of player to organize car switch for.
 
-        if player_was_removed:
+        Returns
+        -------
+        bool
+            is True, if player switched car successfully
+            is False, if player could not switch car
+        """
+        cars_switched = (self.__switch_player_cars(player_id))
+
+        if cars_switched:
             self.update_staff_ui()
             return True
         else:
             return False
 
-    def __remove_and_replace(self, player_id: str) -> bool:
+    def __switch_player_cars(self, player_id: str) -> bool:
         
+        """
+        Switch cars for player ID
+
+        Parameters
+        ----------
+        player_id: str
+            ID of player to perform car switch for
+
+        Returns
+        -------
+        bool
+            is True, if player switched car successfully
+            is False, if player could not switch car
+        """
         if len(self._active_anki_cars) > 1:
             vehicle: Vehicle
             for v in self._active_anki_cars:

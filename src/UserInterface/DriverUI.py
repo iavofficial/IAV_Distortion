@@ -193,7 +193,7 @@ class DriverUI:
             player = data["player"]
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
             driver = vehicle.get_player_id()
-            self.environment_mng.manage_removal_from_car_for(driver)
+            self.environment_mng.manage_car_switch_for(driver)
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
