@@ -188,7 +188,7 @@ class DriverUI:
             return
         
         @self._sio.on('switch_cars')
-        async def switch_cars(sid, data: dict) -> None:
+        def switch_cars(sid, data: dict) -> None:
             player = data["player"]
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
             driver = vehicle.get_player_id()

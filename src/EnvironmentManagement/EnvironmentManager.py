@@ -340,19 +340,22 @@ class EnvironmentManager:
 
     def __remove_and_replace(self, player_id: str) -> bool:
         
-        vehicle: Vehicle
-        for v in self._active_anki_cars:
-            if v.get_player_id() == player_id:
-                logger.info(f"Removing player with UUID {player_id} from vehicle")
-                v.remove_player()
-                vehicle = v
-                break
-        
         if len(self._active_anki_cars) > 1:
-                for v in self._active_anki_cars:
-                    logging.info(v.get_vehicle_id())
-                    if v.get_vehicle_id() != vehicle.get_vehicle_id():
+            vehicle: Vehicle
+            for v in self._active_anki_cars:
+                if v.get_player_id() == player_id:
+                    logger.info(f"Removing player with UUID {player_id} from vehicle")
+                    v.remove_player()
+                    vehicle = v
+                    break
+            
+            
+            for v in self._active_anki_cars:
+                logging.info(v.get_vehicle_id())
+                if v.get_vehicle_id() != vehicle.get_vehicle_id():
+                    if v.get_player_id != None:
                         new_driver = v.get_player_id
+                        logger.info(f"Removing player with UUID {new_driver} from vehicle")
                         v.remove_player
                         vehicle.set_player(new_driver)
                     v.set_player(player_id)
