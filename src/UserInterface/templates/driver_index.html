@@ -1,96 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Driver {{player}}</title>
 
     <!-- general style sheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='general.css')}}"
+    />
+    <!-- to include stylesheet when running webinterface with flask -->
+    <link rel="stylesheet" href="../static/general.css" />
+    <!-- link to stylesheet for development for working preview -->
 
     <!-- custom header stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='custom_header.css')}}"
+    />
+    <!-- to include stylesheet when running webinterface with flask -->
+    <link rel="stylesheet" href="../static/custom_header.css" />
+    <!-- link to stylesheet for development for working preview -->
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='driver.css')}}"
+    />
+    <!-- to include stylesheet when running webinterface with flask -->
+    <link rel="stylesheet" href="../static/driver.css" />
+    <!-- link to stylesheet for development for working preview -->
 
     <!-- Include socket.io library -->
-    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
-
-</head>
-<body>
-
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}"></script>
+  </head>
+  <body>
     <div class="overlay" id="infoBoxOverlay">
-        <div class="info-box">
-            <div class="info-title">
-                <h2>Information</h2>
-            </div>
-            <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait... <br>
-                Please don't leave this page for more than {{background_grace_period}} seconds. Otherwise you will be removed from the game.</p>
-            <button class="refresh-button" onclick="location.reload();"> <span class="reload_symbol">&circlearrowright;	</span> Refresh Page</button>
+      <div class="info-box">
+        <div class="info-title">
+          <h2>Information</h2>
         </div>
+        <p id="infoBoxContent">
+          Player {{player}} currently in queue. Please wait... <br />
+          Please don't leave this page for more than {{background_grace_period}}
+          seconds. Otherwise you will be removed from the game.
+        </p>
+        <button class="refresh-button" onclick="location.reload();">
+          <span class="reload_symbol">&circlearrowright; </span> Refresh Page
+        </button>
+      </div>
     </div>
 
     <div class="flexbox-container custom_header">
-        <p class="header">Player {{player}}</p>
-        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+      <p class="header">Player {{player}}</p>
+      <img
+        id="logo"
+        src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}"
+        onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'"
+      />
     </div>
 
     <div class="flexbox-container flexbox-controls" id="control">
-        <div class="flexbox-item flexbox-slider">
-            <input type="range" min="19" max="100" class="slider" id="speed_request">
+      <div class="flexbox-item flexbox-slider">
+        <input
+          type="range"
+          min="19"
+          max="100"
+          class="slider"
+          id="speed_request"
+        />
+      </div>
+
+      <div class="flexbox-container_middle">
+        <div class="speedometer">
+          <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
+          <span class="flexbox-item flexbox-speed_display"
+            ><strong>
+              <span id="speed_actual" class="flexbox-speed_display value">
+              </span>
+            </strong>
+            <span class="speed_unit"> km/h </span></span
+          >
         </div>
 
-        <div class="flexbox-container_middle">
-            <div class="speedometer">
-                <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
-                <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> km/h </span></span>
-            </div>
+        <div class="avatar">
+          <img
+            id="avatar"
+            src="{{ url_for('static', filename='images/' + picture) }}"
+            onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'"
+          />
 
-            <div class="avatar">
-
-                <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
-
-                <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
-                    <p class="hackedInfo_text"><strong> You have been hacked! </strong> </p>
-                    <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
-                </div>
-            </div>
-
+          <div class="flexbox-item flexbox-hackedInfo" id="hackedInfo">
+            <p class="hackedInfo_text">
+              <strong> You have been hacked! </strong>
+            </p>
+            <p class="hackedInfo_text"><strong>Ask IAV for help.</strong></p>
+          </div>
         </div>
+      </div>
 
-        <div class="flexbox-container_right">
-            <div class="flexbox-driver_buttons">
-                <div class="flexbox-item flexbox-change_lane_buttons">
-                    <button class="driver-buttons" id="switch_cars">
-                        Switch cars
-                    </button>
-                </div>
+      <div class="flexbox-container_right">
+        <div class="flexbox-driver_buttons">
+          <div class="flexbox-item flexbox-change_lane_buttons">
+            <button class="driver-buttons" id="make_uturn">
+              &curvearrowleft;
+            </button>
+          </div>
 
-                <div class="flexbox-item flexbox-change_lane_buttons">
-                    <button class="driver-buttons" id="make_uturn">
-                        &curvearrowleft;
-                    </button>
-                </div>
+          <div class="flexbox-item flexbox-change_lane_buttons">
+            <button class="driver-buttons" id="change_lane_left">
+              &ShortLeftArrow;
+            </button>
+            <button class="driver-buttons" id="change_lane_right">
+              &ShortRightArrow;
+            </button>
+          </div>
 
-                <div class="flexbox-item flexbox-change_lane_buttons">
-                    <button class="driver-buttons" id="change_lane_left">
-                        &ShortLeftArrow;
-                    </button>
-                    <button class="driver-buttons" id="change_lane_right">
-                        &ShortRightArrow;
-                    </button>
-                </div>
-
-            <div class="flexbox-item flexbox-change_lane_buttons">
-              <button class="driver-buttons" id="hack-button"></button>
-            </div>
+          <div class="flexbox-item flexbox-change_lane_buttons">
+            <button class="driver-buttons" id="switch_cars">Hack</button>
+          </div>
         </div>
       </div>
     </div>
     <div class="loading-message" id="loadingMessage" style="display: none">
-      <p class="test"></p>
+      <p class="loading_bar"></p>
     </div>
 
     <div id="loading-bar" class="loading-bar" style="display: none">
@@ -191,7 +223,7 @@
       let timerInterval;
 
       socket.on('send_proximity_vehicle', function(data) {
-          clearInterval(timerInterval);
+        clearInterval(timerInterval);
 
           const vehicle_id = data.vehicle_id;
           const proximityTimer = data.proximity_timer * 1000;
@@ -200,13 +232,12 @@
               startLoadingBar(proximityTimer,vehicle_id);
           } else {
               resetLoadingBar();
-              const hackButton = document.getElementById("hack-button");
-              hackButton.style.display = "none";
+              buttonSwitchCars.style.display = "none";
           }
       });
 
       socket.on('send_finished_proximity_timer', function(vehicle_id) {
-          document.getElementById("hack-button").style.display = "block";
+          buttonSwitchCars.style.display = "block";
           clearInterval(timerInterval);
           resetLoadingBar();
       });
@@ -218,7 +249,7 @@
 
         loadingBar.style.display = "block";
         loadingMessage.style.display = "block";
-        document.getElementsByClassName("test")[0].innerHTML = "Try Hacking: " + vehicle_id;
+        document.getElementsByClassName("loading_bar")[0].innerHTML = "Try Hacking: " + vehicle_id;
 
 
         let startTime = Date.now();
@@ -283,8 +314,6 @@
                 socket.emit('driver_active', {player: '{{player}}'});
             }
         });
-
     </script>
-
-</body>
+  </body>
 </html>
