@@ -135,7 +135,7 @@ class CarMap:
             if pos_proximity_vehicle.distance_to(pos_self) > 200:
                 self._environment_manager.get_vehicle_by_vehicle_id(vehicle_id).vehicle_in_proximity = None
         else:
-            for target_v_id in self._environment_manager._active_physical_cars
+            for target_v_id in self._environment_manager._active_physical_cars:
                 vehicle = self._environment_manager.get_vehicle_by_vehicle_id(target_v_id)
                 pos_other = vehicle._location_service._current_position
                 if pos_other.distance_to(pos_self) < 200:
