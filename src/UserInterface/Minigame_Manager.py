@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 
-from quart import Blueprint, render_template, request, Quart
+from quart import Blueprint, render_template, request
 import uuid
 import logging
 import asyncio
@@ -15,24 +15,46 @@ import time
 
 from socketio import AsyncServer
 
-from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
-from Minigames import Minigame_Test
+from Minigames.Minigame import Minigame
+from Minigames.Minigame_Test import Minigame_Test
 
 logger = logging.getLogger(__name__)
 
-minigames = {"Minigame_Test" : Minigame_Test.Minigame_Test}
+minigames = {"Minigame_Test" : Minigame_Test}
 
 
 class Minigame_Manager:
 
-    def __init__(self, sio: AsyncServer, quart_app : Quart, name=__name__) -> None:
+    def __init__(self, sio: AsyncServer, name=__name__) -> None:
         self.minigame_ui_blueprint: Blueprint = Blueprint(name='minigameUI_bp', import_name='minigameUI_bp')
         self._sio: AsyncServer = sio
-        self.quart_app = quart_app
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
         self._connected_players = []
+        
+    
+        try:
+            self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]
+                                                       ["driver_heartbeat_timeout_s"])
+        except KeyError:
+            logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
+                           "value of 30 seconds")
+            self.__driver_heartbeat_timeout = 30
 
+        self.minigame_objects : dict = {}
+        for minigame in minigames.keys():
+            self.minigame_objects[minigame] = minigames[minigame](self._sio, self.minigame_ui_blueprint)
+
+        async def home_minigame() -> str:
+            player = request.cookies.get("player")
+            if player is None:
+                #TODO In this case, a player has connected to the minigame page without having connected as a driver before. They should probably notified that they need to drive first.
+                return
+
+            return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = minigame, heartbeat_interval = self.__driver_heartbeat_timeout)
+        
+        self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func = home_minigame)
 
         async def exit_minigame() -> str:
             player_id = request.args.get(key='player_id', type=str)
@@ -60,6 +82,8 @@ class Minigame_Manager:
             """
             player = data["player"]
             logger.debug(f"Driver {player} connected to the minigame.")
+            print(data.keys())
+            asyncio.create_task(self.send_description(data["minigame"]))
             return
 
         @self._sio.on('minigame_disconnected')
@@ -73,6 +97,11 @@ class Minigame_Manager:
         def handle_clienet_disconnect(sid):
             logger.debug(f"Client {sid} disconnected from the minigame.")
             return
+
+        Minigame_Manager.instance = self
+
+    def getInstance() -> "Minigame_Manager":
+        return Minigame_Manager.instance
 
     def get_blueprint(self) -> Blueprint:
         return self.minigame_ui_blueprint
@@ -97,33 +126,29 @@ class Minigame_Manager:
         self._connected_players.remove(player)
         return
 
-    def set_minigame(self, minigame : str) -> None:
+    def get_minigame_object(self, minigame : str) -> Minigame:
         """
-        Set the Minigame that is to be played next with this Manager.
+        Get the object/instance of the specified minigame
 
-        Parameters
-        ----------
+        Parameters:
+        -----------
         minigame: str
             Name of the minigame (class name)
         """
-        async def home_minigame() -> str:
-            """
-            Load the minigame ui page.
+        return self.minigame_objects.get(minigame)
 
-            Gets the clients cookie for identification, provides GUI for minigames.
-
-            Returns
-            -------
-                Returns a Response object representing a redirect to the minigame ui page.
-            """
-            player = request.cookies.get("player")
-            if player is None:
-                #TODO In this case, a player has connected to the minigame page without having connected as a driver before. They should probably notified that they need to drive first.
-                return
-
-            return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = minigame)
+    async def send_description(self, minigame : str):
+        """
+        Sends the description of the specified minigame via socketio
         
-        self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func = home_minigame)
-        minigame_object = minigames[minigame](self._sio, self.minigame_ui_blueprint)
-
-        self.quart_app.register_blueprint(self.minigame_ui_blueprint, url_prefix = "/minigame")
+        Parameters:
+        -----------
+        minigame: str
+            The name of the minigame (class name) which's description is to be sent
+        """
+        minigame_object : Minigame = self.get_minigame_object(minigame)
+        if minigame_object is None:
+            description = "This minigame could not be found."
+        else:
+            description = minigame_object.description()
+        await self._sio.emit("send_description", {"minigame": minigame, "description": description})

@@ -30,7 +30,7 @@
             <div class="info-title">
                 <h2>How to play</h2>
             </div>
-            <p id="infoBoxContent"> blabla
+            <p id="infoBoxContent"> A description of the Minigame should have appeared here...
             </p>
             <!-- TODO: Send accept to backend -->
             <button class="close_tab_button" id="accept_button"> <span class="reload_symbol">&#10004;	</span> I understand the rules.</button>
@@ -48,15 +48,14 @@
 
 
     <script type="text/javascript" charset="utf-8">
-        //Include the current Minigame's html
-        jQuery(document).ready(function(){
-            minigame = jQuery("#current-Minigame").attr("name");
-            alert(minigame);
-            jQuery("#current-Minigame").load("{{ url_for('minigameUI_bp.' + minigame)}}", function(response, status){
-                if(status === 'error'){
-                    alert("Failed to load minigameUI_bp.Minigame_Test");
-                }
-            });
+        const minigame = jQuery("#current-Minigame").attr("name");
+
+        //Include the current Minigame's htm       
+        alert(minigame);
+        jQuery("#current-Minigame").load("{{ url_for('minigameUI_bp.' + minigame)}}", function(response, status){
+            if(status === 'error'){
+                alert("Failed to load minigameUI_bp.Minigame_Test");
+            }
         });
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -69,11 +68,14 @@
                 
             };
         }
-        <!-- loading window -->
+       
+        setInterval(function(){
+            socket.emit('driver_heartbeat', {player: '{{ player }}'});
+        }, {{ heartbeat_interval }});
         
-
+        console.log(minigame);
         socket.on('connect', () => {
-            socket.emit('minigame_handle_connect', {player: '{{ player }}'});
+            socket.emit('minigame_handle_connect', {player: '{{ player }}', minigame: minigame});
             console.log('Websocket connected');
         });
 
@@ -81,6 +83,14 @@
         window.onunload = function() {
             socket.emit('minigame_disconnected', {player: '{{ player }}'});
         }
+
+        socket.on('send_description', (data) => {
+            if (data.minigame != minigame)
+                return;
+
+            descriptionElement = document.getElementById("infoBoxContent");
+            descriptionElement.textContent = data.description;
+        })
 
     </script>
 
