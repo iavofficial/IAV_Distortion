@@ -394,7 +394,9 @@ class EnvironmentManager:
         self._publish_player_active(player=player_id)
         target_vehicle.set_player(player_id)
         vehicle.vehicle_in_proximity = None  
+        vehicle.reset_proximity_timer()
         target_vehicle.vehicle_in_proximity = None
+        target_vehicle.reset_proximity_timer()
         return True
         
 
