@@ -21,7 +21,26 @@
 </head>
 <body>
 
-    Hello World
+    <input type="text" id="textInput">
 
+    <script type="text/javascript" charset="utf-8">
+    
+        var socket = io.connect('http://' + document.domain + ':' + location.port);  
+
+        socket.on('connect', () => {
+            socket.emit('minigame_test_handle_connect', {player: '{{ player }}'});
+            console.log('Websocket connected');
+        });
+
+        window.onunload = function() {
+            socket.emit('minigame_test_disconnected', {player: '{{ player }}'});
+        }
+
+        textInput = document.getElementById("textInput");
+        textInput.onchange = function(){
+            socket.emit('minigame_test_value_submit', {player: '{{ player }}', value: textInput.value})
+        }
+
+    </script>
 </body>
 </html>

@@ -21,6 +21,9 @@ from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from VehicleMovementManagement.BehaviourController import BehaviourController
 
+from UserInterface.Minigame_Manager import Minigame_Manager
+from Minigames.Minigame import Minigame
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,6 +39,10 @@ class DriverUI:
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
+
+        self.minigame_players : set = set()
+
+        self.minigame_players : set = set()
 
         self.__latest_driver_heartbeats: dict[str, float] = {}
         self.__checking_heartbeats_flag: bool = False
@@ -61,6 +68,13 @@ class DriverUI:
             player = request.cookies.get("player")
             if player is None:
                 player = str(uuid.uuid4())
+            
+            self.minigame_players.add(player)
+            print("MINGIGAME PLAYERS", self.minigame_players)
+            if len(self.minigame_players) >= 2:
+                minigame_manager = Minigame_Manager.getInstance()
+                minigame = minigame_manager.get_minigame_object("Minigame_Test")
+                asyncio.create_task(minigame.play(self.minigame_players.pop(), self.minigame_players.pop()))
 
             config = self.config_handler.get_configuration()
 
