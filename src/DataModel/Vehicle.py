@@ -17,6 +17,7 @@ from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
 from LocationService.Trigo import Position, Angle
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +97,12 @@ class Vehicle:
         Returns the name (for real vehicles UUID) of the vehicle
         """
         return self.vehicle_id
+
+    def reset_proximity_timer(self) -> None:
+        """
+        Reset this vehicle's proximity timer
+        """
+        self.proximity_timer = time.time()
 
     def get_speed_with_effects_applied(self, requested_speed: float) -> int:
         """

@@ -178,34 +178,39 @@
       let timerInterval;
 
       socket.on('send_proximity_vehicle', function(data) {
-          clearInterval(timerInterval);
-
-          const vehicle_id = data.vehicle_id;
+        clearInterval(timerInterval);
+          const hacker_vehicle_id = data.hacker_vehicle_id;
+          const getting_hacked_vehicle_id = data.getting_hacked_vehicle_id;
+          const hacker_driver_id = data.hacker_driver_id;
+          const getting_hacked_driver_id = data.getting_hacked_driver_id;
           const proximityTimer = data.proximity_timer * 1000;
 
-          if (vehicle_id) {
-              startLoadingBar(proximityTimer,vehicle_id);
+          if (hacker_driver_id == "{{ player }}" && getting_hacked_vehicle_id != null){
+            startLoadingBar(proximityTimer, getting_hacked_driver_id, "Trying to Hack: ");
+          } else if (getting_hacked_driver_id == "{{ player }}" && hacker_driver_id != null){
+            startLoadingBar(proximityTimer, hacker_driver_id, "Getting Hacked by: ")  
           } else {
               resetLoadingBar();
               buttonSwitchCars.style.display = "none";
           }
       });
 
-      socket.on('send_finished_proximity_timer', function(vehicle_id) {
-          buttonSwitchCars.style.display = "block";
+      socket.on('send_finished_proximity_timer', function(data) {
+          if (data.hacker_driver_id == "{{ player }}"){
+            buttonSwitchCars.style.display = "block";
+            resetLoadingBar();
+          }
           clearInterval(timerInterval);
-          resetLoadingBar();
       });
 
-      function startLoadingBar(duration,vehicle_id) {
+      function startLoadingBar(duration,vehicle_id, displayMessage) {
         const loadingBar = document.getElementById("loading-bar");
         const progress = document.getElementById("loading-progress");
         const loadingMessage = document.getElementById("loadingMessage");
 
         loadingBar.style.display = "block";
         loadingMessage.style.display = "block";
-        document.getElementsByClassName("loading_bar")[0].innerHTML = "Try Hacking: " + vehicle_id;
-
+        document.getElementsByClassName("loading_bar")[0].innerHTML = displayMessage + vehicle_id;
 
         let startTime = Date.now();
 
