@@ -401,11 +401,15 @@ class EnvironmentManager:
         else: logger.info(f"Switching cars from player with UUID {player_id} to a free car")
         self._publish_player_active(player=player_id)
         target_vehicle.set_player(player_id)
+        asyncio.create_task(self.test(vehicle,target_vehicle))
+        return True
+
+    async def test(self, vehicle: Vehicle, target_vehicle: Vehicle) -> None:
+        await(1)
         vehicle.vehicle_in_proximity = None  
         vehicle.reset_proximity_timer()
         target_vehicle.vehicle_in_proximity = None
         target_vehicle.reset_proximity_timer()
-        return True
         
 
 
