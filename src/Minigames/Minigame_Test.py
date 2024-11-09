@@ -27,12 +27,23 @@ class Minigame_Test(Minigame):
             print("PLAYER", player, "HAS SUBMITTED", data["value"])
         
 
-    async def play(self, player1 : str, player2 : str = None) -> str:
+    async def play(self, *players : str) -> str:
+        if players is None or len(players) < 2:
+            raise Exception(f"Not enough players were given for minigame {self.name}.")
+        player1 : str = players[0]
+        player2 : str = players[1]    
+        self._players.clear()
+        self._players.append(player1)
+        self._players.append(player2)
+        self.values.clear()
         while player1 not in self.values.keys() or player2 not in self.values.keys():
             await asyncio.sleep(1.0)
         player1_value : str = self.values[player1]
         player2_value : str = self.values[player2]
         print("PLAYER1 VALUE", player1_value, "PLAYER2 VALUE", player2_value)
+
+        self._players.clear()
+
         if len(player1_value) > len(player2_value):
             return player1
         else:
@@ -44,4 +55,6 @@ class Minigame_Test(Minigame):
     def description(self) -> str:
         return "Longest text = winner"
 
+    def get_players(self) -> list[str]:
+        return self._players.copy()
    

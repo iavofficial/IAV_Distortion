@@ -92,6 +92,11 @@
             descriptionElement.textContent = data.description;
         })
 
+        socket.on('redirect_to_driver_ui', function() {
+            console.log("REDIRECT TO DRIVER UI");
+            window.location = 'http://' + document.domain + ':' + location.port + '/driver';
+        });
+
     </script>
 
 </body>

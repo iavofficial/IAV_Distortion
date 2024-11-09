@@ -68,13 +68,6 @@ class DriverUI:
             player = request.cookies.get("player")
             if player is None:
                 player = str(uuid.uuid4())
-            
-            self.minigame_players.add(player)
-            print("MINGIGAME PLAYERS", self.minigame_players)
-            if len(self.minigame_players) >= 2:
-                minigame_manager = Minigame_Manager.getInstance()
-                minigame = minigame_manager.get_minigame_object("Minigame_Test")
-                asyncio.create_task(minigame.play(self.minigame_players.pop(), self.minigame_players.pop()))
 
             config = self.config_handler.get_configuration()
 
@@ -82,6 +75,14 @@ class DriverUI:
             background_grace_period = config["driver"]["driver_background_grace_period_s"]
             vehicle_scale = config["environment"]["env_vehicle_scale"]
             player_exists, picture, vehicle_information = self._prepare_html_data(player)
+
+            self.minigame_players.add(player)
+            print("MINGIGAME PLAYERS", self.minigame_players)
+            if len(self.minigame_players) >= 2:
+                minigame_manager = Minigame_Manager.getInstance()
+                print("DRIVER UI PLAYER SET", self.minigame_players)
+                print("DRIVER UI PLAYER LIST", list(self.minigame_players))
+                asyncio.create_task(minigame_manager.play_random_available_minigame(*list(self.minigame_players)))
 
             return await render_template(template_name_or_list='driver_index.html', player=player,
                                          player_exists=player_exists,
@@ -120,6 +121,7 @@ class DriverUI:
             """
             player = data["player"]
             self.environment_mng.put_player_on_next_free_spot(player)
+            self.__run_async_task(self._sio.enter_room(sid, player))
             return
 
         @self._sio.on('disconnected')
@@ -127,6 +129,7 @@ class DriverUI:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
+            self.__run_async_task(self._sio.close_room(player))
             return
 
         @self._sio.on('disconnect')

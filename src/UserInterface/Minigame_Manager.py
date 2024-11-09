@@ -12,8 +12,11 @@ import uuid
 import logging
 import asyncio
 import time
+import random
 
 from socketio import AsyncServer
+
+from quart import url_for
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
@@ -43,8 +46,10 @@ class Minigame_Manager:
             self.__driver_heartbeat_timeout = 30
 
         self.minigame_objects : dict = {}
+        self._available_minigames : list[str] = []
         for minigame in minigames.keys():
             self.minigame_objects[minigame] = minigames[minigame](self._sio, self.minigame_ui_blueprint)
+            self._available_minigames.append(minigame)
 
         async def home_minigame() -> str:
             player = request.cookies.get("player")
@@ -81,21 +86,21 @@ class Minigame_Manager:
                 Data received with websocket event.
             """
             player = data["player"]
-            logger.debug(f"Driver {player} connected to the minigame.")
-            print(data.keys())
+            logger.debug(f"Driver {player} connected to the minigame lobby.")
             asyncio.create_task(self.send_description(data["minigame"]))
+            asyncio.create_task(self._sio.enter_room(sid, player))
             return
 
         @self._sio.on('minigame_disconnected')
         def handle_disconnected(sid, data):
             player = data["player"]
-            logger.debug(f"Driver {player} disconnected from the minigame!")
+            logger.debug(f"Driver {player} disconnected from the minigame lobby!")
             self.__remove_player(player)
             return
 
         @self._sio.on('minigame_disconnect')
         def handle_clienet_disconnect(sid):
-            logger.debug(f"Client {sid} disconnected from the minigame.")
+            logger.debug(f"Client {sid} disconnected from the minigame lobby.")
             return
 
         Minigame_Manager.instance = self
@@ -105,14 +110,6 @@ class Minigame_Manager:
 
     def get_blueprint(self) -> Blueprint:
         return self.minigame_ui_blueprint
-
-    def __run_async_task(self, task):
-        """
-        Run a asyncio awaitable task
-        task: awaitable task
-        """
-        asyncio.create_task(task)
-        # TODO: Log error, if the coroutine doesn't end successfully
 
     def __remove_player(self, player: str) -> None:
         """
@@ -137,6 +134,17 @@ class Minigame_Manager:
         """
         return self.minigame_objects.get(minigame)
 
+    def get_minigame_name_list(self) -> list[str]:
+        """
+        Get a list of the names of all minigames
+
+        Returns:
+        --------
+        list[str]
+            list of names of minigames
+        """
+        return self.minigame_objects.keys()
+
     async def send_description(self, minigame : str):
         """
         Sends the description of the specified minigame via socketio
@@ -152,3 +160,86 @@ class Minigame_Manager:
         else:
             description = minigame_object.description()
         await self._sio.emit("send_description", {"minigame": minigame, "description": description})
+
+    async def play_random_available_minigame(self, *players : str) -> str:
+        """
+        Play a random available minigame with the specified players. 
+        Will redirect the players from the driver UI to the minigame UI and back to the driver UI once the minigame is finished.
+
+        Parameters:
+        -----------
+        *players : str
+            IDs of the players that are supposed to play
+        
+        Returns:
+        --------
+        str
+            The ID of the player that has won the minigame
+        """
+        if len(self._available_minigames) == 0:
+            raise Exception("No minigame is currently available.")
+        minigame = random.choice(self._available_minigames)
+
+        return await self._play_minigame(minigame, *players)
+
+    async def _play_minigame(self, minigame : str, *players : str) -> str:
+        """
+        Play the selected minigame with the specified players. 
+
+        Parameters:
+        -----------
+        minigame: str
+            Name of the minigame to play
+        *players : str
+            IDs of the players that are supposed to play
+        
+        Returns:
+        --------
+        str
+            The ID of the player that has won the minigame
+        """
+        minigame_object : Minigame = self.minigame_objects.get(minigame)
+
+        if minigame_object is None:
+            raise Exception("The selected minigame does not exist.")
+
+        if minigame not in self._available_minigames:
+            raise Exception("The selected minigame is not currently available.") 
+
+        self._available_minigames.remove(minigame)
+
+        running_game_task = asyncio.create_task(minigame_object.play(*players))
+
+        # Wait for every browser to catch up
+        await asyncio.sleep(1)
+
+        actually_playing = minigame_object.get_players()
+        await self.redirect_to_minigame_ui(*actually_playing)
+
+        winner = await running_game_task
+        print("WINNER", winner)
+        self._available_minigames.append(minigame)
+        
+        await asyncio.sleep(2)
+        await self.redirect_to_driver_ui(*actually_playing)
+
+        return winner
+
+    async def redirect_to_minigame_ui(self, *players : str) -> None:
+        """
+        Redirects the specified players from the driver UI to the minigame UI.
+        """
+        for room in players:
+            if room is None:
+                continue
+            await self._sio.emit("redirect_to_minigame_ui", to=room)
+
+    async def redirect_to_driver_ui(self, *players : str) -> None:
+        """
+        Redirects the specified players from the minigame UI to the driver UI.
+        """
+        for room in players:
+            print(f"REDIRECTING {room} to driver UI")
+            if room is None:
+                continue
+            await self._sio.emit("redirect_to_driver_ui", to=room)
