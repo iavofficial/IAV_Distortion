@@ -70,5 +70,8 @@
 			"disp_cm_track_border_color": "#001a54",
 			"disp_cm_start_line_color": "#5500b4"
 		}
+	],
+	"minigame" : {
+		"driving_speed_while_playing" : 30
 	}
 }

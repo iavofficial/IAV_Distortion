@@ -19,6 +19,9 @@ from socketio import AsyncServer
 from quart import url_for
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from VehicleMovementManagement.BehaviourController import BehaviourController
+
 
 from Minigames.Minigame import Minigame
 from Minigames.Minigame_Test import Minigame_Test
@@ -30,12 +33,18 @@ minigames = {"Minigame_Test" : Minigame_Test}
 
 class Minigame_Manager:
 
-    def __init__(self, sio: AsyncServer, name=__name__) -> None:
+    def __init__(self, sio: AsyncServer, environment_mng : EnvironmentManager, behaviour_ctrl : BehaviourController, name=__name__) -> None:
         self.minigame_ui_blueprint: Blueprint = Blueprint(name='minigameUI_bp', import_name='minigameUI_bp')
         self._sio: AsyncServer = sio
+        self._environment_mng : EnvironmentManager = environment_mng
+        self._behaviour_ctrl = behaviour_ctrl
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
         self._connected_players = []
-        
+        try:
+            self._driving_speed_while_playing = self.config_handler.get_configuration()['minigame']['driving_speed_while_playing']
+        except KeyError:
+            logger.warning("No valid value for minigame: driving_speed_while_playing in config_file. Using default value of 30")
+            self._driving_speed_while_playing = 30
     
         try:
             self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]
@@ -165,6 +174,7 @@ class Minigame_Manager:
         """
         Play a random available minigame with the specified players. 
         Will redirect the players from the driver UI to the minigame UI and back to the driver UI once the minigame is finished.
+        The players' vehicles will be set to drive at the same speed while playing.
 
         Parameters:
         -----------
@@ -185,6 +195,8 @@ class Minigame_Manager:
     async def _play_minigame(self, minigame : str, *players : str) -> str:
         """
         Play the selected minigame with the specified players. 
+        Will redirect the players from the driver UI to the minigame UI and back to the driver UI once the minigame is finished.
+        The players' vehicles will be set to drive at the same speed while playing.
 
         Parameters:
         -----------
@@ -214,7 +226,10 @@ class Minigame_Manager:
         await asyncio.sleep(1)
 
         actually_playing = minigame_object.get_players()
+        
         await self.redirect_to_minigame_ui(*actually_playing)
+
+        self.make_vehicles_drive_continuously(*actually_playing)
 
         winner = await running_game_task
         print("WINNER", winner)
@@ -243,3 +258,20 @@ class Minigame_Manager:
             if room is None:
                 continue
             await self._sio.emit("redirect_to_driver_ui", to=room)
+
+    def make_vehicles_drive_continuously(self, *players : str) -> None:
+        """
+        Makes the vehicles of the given players drive at the same speed.
+        """
+        for player in players:
+            vehicle = self._environment_mng.get_vehicle_by_player_id(player)
+            if vehicle is None:
+                logger.warning("No vehicle was found for player %s. "
+                               "Ignoring the request", player)
+                continue
+            vehicle_id = vehicle.get_vehicle_id()
+            if vehicle_id is None:
+                logger.warning("No vehicle_id was found for vehicle %s of player %s. "
+                               "Ignoring the request", vehicle.__str__(), player)
+                continue
+            self._behaviour_ctrl.request_speed_change_for(uuid = vehicle_id, value_perc = self._driving_speed_while_playing)
