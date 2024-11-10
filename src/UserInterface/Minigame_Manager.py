@@ -251,7 +251,7 @@ class Minigame_Manager:
         print("WINNER", winner)
         self._available_minigames.append(minigame)
         
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         await self.redirect_to_driver_ui(*actually_playing)
 
         return winner
@@ -261,19 +261,16 @@ class Minigame_Manager:
         Redirects the specified players from the driver UI to the minigame UI.
         """
         for room in players:
-            if room is None:
-                continue
             await self._sio.emit("redirect_to_minigame_ui", to=room)
 
     async def redirect_to_driver_ui(self, *players : str) -> None:
         """
         Redirects the specified players from the minigame UI to the driver UI.
         """
-        for room in players:
-            print(f"REDIRECTING {room} to driver UI")
-            if room is None:
-                continue
-            await self._sio.emit("redirect_to_driver_ui", to=room)
+        data = {}
+        for i, player in enumerate(players):
+            data[f"player{i}"] = player
+        await self._sio.emit("redirect_to_driver_ui", data = data)
 
     def make_vehicles_drive_continuously(self, *players : str) -> None:
         """

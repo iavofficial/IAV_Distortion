@@ -51,7 +51,6 @@
         const minigame = jQuery("#current-Minigame").attr("name");
 
         //Include the current Minigame's htm       
-        alert(minigame);
         jQuery("#current-Minigame").load("{{ url_for('minigameUI_bp.' + minigame)}}", function(response, status){
             if(status === 'error'){
                 alert("Failed to load minigameUI_bp.Minigame_Test");
@@ -92,10 +91,11 @@
             descriptionElement.textContent = data.description;
         })
 
-        socket.on('redirect_to_driver_ui', function() {
-            console.log("REDIRECT TO DRIVER UI");
+        socket.on('redirect_to_driver_ui', (data) => {
+            if (Object.values(data).indexOf('{{ player }}') == -1)
+                return
             window.location = 'http://' + document.domain + ':' + location.port + '/driver';
-        });
+        }); 
 
     </script>
 
