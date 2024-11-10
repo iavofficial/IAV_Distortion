@@ -16,6 +16,7 @@ class Minigame:
         if "." in name:
             self.name = name.split(".")[-1]
         self._players : list[str] = []
+        self._task = None
 
         async def home_minigame() -> str:
             """
@@ -35,8 +36,23 @@ class Minigame:
             
         self.minigame_ui_blueprint.add_url_rule(f'/{self.name}', self.name, view_func=home_minigame)
 
-    @abstractmethod
     async def play(self, *players : str) -> str:
+        """
+        Starts the task of playing the minigame 
+
+        Parameters
+        ----------
+        *players: The ID of the first player
+
+        Returns
+        ----------
+        ID of the victor
+        """
+        self._task = asyncio.create_task(self._play(*players))
+        return await self._task
+
+    @abstractmethod
+    async def _play(self, *players : str) -> str:
         """
         Starts the minigame with the given player ids. When done returns the winner of the game.
         Should redirect the players from the driver UI to the minigame UI and back to the driver UI once the minigame is finished.
@@ -52,11 +68,13 @@ class Minigame:
         ID of the victor
         """
 
-    @abstractmethod
     def cancel(self) -> None:
         """
         Immediately Cancels the game without winner or loser.
         """
+        print("MINIGAQME CANCELLED")
+        self._players.clear()
+        self._task.cancel()
 
     @abstractmethod
     def description(self) -> str:
@@ -64,8 +82,8 @@ class Minigame:
         Returns a very short description of the game / how to play it.
         """
 
-    @abstractmethod
     def get_players(self) -> list[str]:
         """
         Returns a list of the IDs of the players that were selected for this minigame
         """
+        return self._players.copy()
