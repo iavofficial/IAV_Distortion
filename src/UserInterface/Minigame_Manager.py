@@ -105,14 +105,24 @@ class Minigame_Manager:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected from the minigame lobby!")
             self.__remove_player(player)
-            return
-
-        @self._sio.on('minigame_disconnect')
-        def handle_clienet_disconnect(sid):
-            logger.debug(f"Client {sid} disconnected from the minigame lobby.")
+            for minigame_object in self.minigame_objects.values():
+                if player in minigame_object.get_players():
+                    minigame_object.cancel()
             return
 
         Minigame_Manager.instance = self
+
+    async def checK_players_still_connected(self):
+        """
+        Continuously checks if the players that are assigned to current minigames are still active. If not the minigames with inactive players are cancelled.
+        This is done by checking wether or not they still have assigned vehicles.
+        """
+        while True:
+            await asyncio.sleep(1)
+            for minigame_object in self.minigame_objects.values():
+                for player in minigame_object.get_players():
+                    if self._environment_mng.get_vehicle_by_player_id(player) is None:
+                        minigame_object.cancel()
 
     def getInstance() -> "Minigame_Manager":
         return Minigame_Manager.instance
@@ -231,7 +241,13 @@ class Minigame_Manager:
 
         self.make_vehicles_drive_continuously(*actually_playing)
 
-        winner = await running_game_task
+        while not running_game_task.done() and not running_game_task.cancelled():
+            await asyncio.sleep(1)
+        
+        if running_game_task.cancelled():
+            winner = None
+        else:
+            winner = await running_game_task 
         print("WINNER", winner)
         self._available_minigames.append(minigame)
         
@@ -266,12 +282,12 @@ class Minigame_Manager:
         for player in players:
             vehicle = self._environment_mng.get_vehicle_by_player_id(player)
             if vehicle is None:
-                logger.warning("No vehicle was found for player %s. "
+                logger.warning("Minigame_Manager.make_vehicles_drive_continuously: No vehicle was found for player %s. "
                                "Ignoring the request", player)
                 continue
             vehicle_id = vehicle.get_vehicle_id()
             if vehicle_id is None:
-                logger.warning("No vehicle_id was found for vehicle %s of player %s. "
+                logger.warning("Minigame_Manager.make_vehicles_drive_continuously: No vehicle_id was found for vehicle %s of player %s. "
                                "Ignoring the request", vehicle.__str__(), player)
                 continue
             self._behaviour_ctrl.request_speed_change_for(uuid = vehicle_id, value_perc = self._driving_speed_while_playing)

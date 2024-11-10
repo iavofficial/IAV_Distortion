@@ -27,7 +27,7 @@ class Minigame_Test(Minigame):
             print("PLAYER", player, "HAS SUBMITTED", data["value"])
         
 
-    async def play(self, *players : str) -> str:
+    async def _play(self, *players : str) -> str:
         if players is None or len(players) < 2:
             raise Exception(f"Not enough players were given for minigame {self.name}.")
         player1 : str = players[0]
@@ -48,13 +48,10 @@ class Minigame_Test(Minigame):
             return player1
         else:
             return player2
-    
-    def cancel(self) -> None:
-        return
 
     def description(self) -> str:
         return "Longest text = winner"
 
-    def get_players(self) -> list[str]:
-        return self._players.copy()
-   
+    def cancel(self) -> None:
+        super().cancel()
+        self.values.clear()

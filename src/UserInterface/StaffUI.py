@@ -21,6 +21,7 @@ from socketio import AsyncServer
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from UserInterface.Minigame_Manager import Minigame_Manager
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +107,10 @@ class StaffUI:
             """
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
+
+            # TODO: This task should be started in Minigame_Manager.py. But the asyncio event loop has not been created during its __init__
+            asyncio.create_task(Minigame_Manager.getInstance().checK_players_still_connected())
+
             # TODO: Show selection of choose hacking scenarios always sorted by player number
             virtual_cars_pics = self.config_handler.get_configuration()["virtual_cars_pics"]
             return await render_template('staff_control.html', activeScenarios=active_scenarios,
