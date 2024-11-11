@@ -102,7 +102,7 @@
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-        document.cookie = "player={{ player }}";
+        document.cookie = "player={{ player }};path=/";
 
         <!-- slider to control velocity-->
 
@@ -282,6 +282,10 @@
             // The page is visible again
                 socket.emit('driver_active', {player: '{{player}}'});
             }
+        });
+
+        socket.on('redirect_to_minigame_ui', function() {
+            window.location = 'http://' + document.domain + ':' + location.port + '/minigame';
         });
 
     </script>

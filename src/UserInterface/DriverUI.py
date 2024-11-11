@@ -18,6 +18,10 @@ from socketio import AsyncServer
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
+from UserInterface.MinigameUI import Minigame_UI
+from Minigames.Minigame_Controller import Minigame_Controller
+from Minigames.Minigame import Minigame
+
 logger = logging.getLogger(__name__)
 
 
@@ -109,6 +113,7 @@ class DriverUI:
             """
             player = data["player"]
             self.environment_mng.put_player_on_next_free_spot(player)
+            self.__run_async_task(self._sio.enter_room(sid, player))
             return
 
         @self._sio.on('disconnected')
@@ -116,6 +121,7 @@ class DriverUI:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
+            self.__run_async_task(self._sio.close_room(player))
             return
 
         @self._sio.on('disconnect')
