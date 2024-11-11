@@ -21,6 +21,7 @@ from socketio import AsyncServer
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from Minigames.Minigame_Controller import Minigame_Controller
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,8 @@ class StaffUI:
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
         self.environment_mng.set_vehicle_added_callback(self.publish_vehicle_added)
+
+        self._minigame_players : list[str] = []
 
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
@@ -511,6 +514,15 @@ class StaffUI:
                 logger.warning("System shutdown button pressed, but not running on Linux system")
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
+        
+        @self._sio.on('queue_up_for_minigame')
+        async def start_minigame(sid, player : str):
+            self._minigame_players.append(player)
+            if len(self._minigame_players) < 2:
+                return
+            
+            Minigame_Controller.get_instance().play_random_available_minigame(*self._minigame_players[0:2])
+            self._minigame_players.clear()
 
         async def apply_display_settings(restore_default: bool = False) -> Any:
             """
