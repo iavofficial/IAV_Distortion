@@ -29,7 +29,7 @@ class Minigame_Test(Minigame):
 
     async def _play(self, *players : str) -> str:
         if players is None or len(players) < 2:
-            raise Exception(f"Not enough players were given for minigame {self.name}.")
+            raise Exception(f"Not enough players were given for minigame {self.get_name()}.")
         player1 : str = players[0]
         player2 : str = players[1]    
         self._players.clear()

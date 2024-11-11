@@ -8,30 +8,21 @@
 #
 
 from quart import Blueprint, render_template, request
-import uuid
 import logging
 import asyncio
-import time
-import random
 
 from socketio import AsyncServer
-
-from quart import url_for
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from VehicleMovementManagement.BehaviourController import BehaviourController
 
-
-from Minigames.Minigame import Minigame
-from Minigames.Minigame_Test import Minigame_Test
+from Minigames.Minigame_Controller import Minigame_Controller
 
 logger = logging.getLogger(__name__)
 
-minigames = {"Minigame_Test" : Minigame_Test}
 
-
-class Minigame_Manager:
+class Minigame_UI:
 
     def __init__(self, sio: AsyncServer, environment_mng : EnvironmentManager, behaviour_ctrl : BehaviourController, name=__name__) -> None:
         self.minigame_ui_blueprint: Blueprint = Blueprint(name='minigameUI_bp', import_name='minigameUI_bp')
@@ -39,7 +30,7 @@ class Minigame_Manager:
         self._environment_mng : EnvironmentManager = environment_mng
         self._behaviour_ctrl = behaviour_ctrl
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
-        self._connected_players = []
+        self._minigame_controller : Minigame_Controller = Minigame_Controller.get_instance(sio = self._sio, minigame_ui_blueprint = self.minigame_ui_blueprint)
         try:
             self._driving_speed_while_playing = self.config_handler.get_configuration()['minigame']['driving_speed_while_playing']
         except KeyError:
@@ -53,12 +44,6 @@ class Minigame_Manager:
             logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
                            "value of 30 seconds")
             self.__driver_heartbeat_timeout = 30
-
-        self.minigame_objects : dict = {}
-        self._available_minigames : list[str] = []
-        for minigame in minigames.keys():
-            self.minigame_objects[minigame] = minigames[minigame](self._sio, self.minigame_ui_blueprint)
-            self._available_minigames.append(minigame)
 
         async def home_minigame() -> str:
             player = request.cookies.get("player")
@@ -110,22 +95,6 @@ class Minigame_Manager:
                     minigame_object.cancel()
             return
 
-        Minigame_Manager.instance = self
-
-    async def checK_players_still_connected(self):
-        """
-        Continuously checks if the players that are assigned to current minigames are still active. If not the minigames with inactive players are cancelled.
-        This is done by checking wether or not they still have assigned vehicles.
-        """
-        while True:
-            await asyncio.sleep(1)
-            for minigame_object in self.minigame_objects.values():
-                for player in minigame_object.get_players():
-                    if self._environment_mng.get_vehicle_by_player_id(player) is None:
-                        minigame_object.cancel()
-
-    def getInstance() -> "Minigame_Manager":
-        return Minigame_Manager.instance
 
     def get_blueprint(self) -> Blueprint:
         return self.minigame_ui_blueprint
@@ -142,43 +111,23 @@ class Minigame_Manager:
         self._connected_players.remove(player)
         return
 
-    def get_minigame_object(self, minigame : str) -> Minigame:
+    async def _send_description(self, minigame : str) -> None:
         """
-        Get the object/instance of the specified minigame
+        Sends the description of the specified minigame via the SocketIO event 'send_description'
 
         Parameters:
         -----------
         minigame: str
-            Name of the minigame (class name)
-        """
-        return self.minigame_objects.get(minigame)
-
-    def get_minigame_name_list(self) -> list[str]:
-        """
-        Get a list of the names of all minigames
+            Name of the minigame
 
         Returns:
         --------
-        list[str]
-            list of names of minigames
+        Nothing
         """
-        return self.minigame_objects.keys()
-
-    async def send_description(self, minigame : str):
-        """
-        Sends the description of the specified minigame via socketio
-        
-        Parameters:
-        -----------
-        minigame: str
-            The name of the minigame (class name) which's description is to be sent
-        """
-        minigame_object : Minigame = self.get_minigame_object(minigame)
-        if minigame_object is None:
-            description = "This minigame could not be found."
-        else:
-            description = minigame_object.description()
-        await self._sio.emit("send_description", {"minigame": minigame, "description": description})
+        description = self._minigame_controller.get_description(minigame)
+        if description is None:
+            description = f"A description for the minigame {minigame} could not be found."
+        await self._sio.emit('send_description', {"minigame" : minigame, "description": description})
 
     async def play_random_available_minigame(self, *players : str) -> str:
         """
@@ -193,44 +142,14 @@ class Minigame_Manager:
         
         Returns:
         --------
-        str
-            The ID of the player that has won the minigame
+        str: The ID of the player that has won the minigame
+        None: If no minigame could be created or it has been cancelled
         """
-        if len(self._available_minigames) == 0:
-            raise Exception("No minigame is currently available.")
-        minigame = random.choice(self._available_minigames)
+        minigame_task, minigame_object = self._minigame_controller.play_random_available_minigame(*players)
 
-        return await self._play_minigame(minigame, *players)
-
-    async def _play_minigame(self, minigame : str, *players : str) -> str:
-        """
-        Play the selected minigame with the specified players. 
-        Will redirect the players from the driver UI to the minigame UI and back to the driver UI once the minigame is finished.
-        The players' vehicles will be set to drive at the same speed while playing.
-
-        Parameters:
-        -----------
-        minigame: str
-            Name of the minigame to play
-        *players : str
-            IDs of the players that are supposed to play
-        
-        Returns:
-        --------
-        str
-            The ID of the player that has won the minigame
-        """
-        minigame_object : Minigame = self.minigame_objects.get(minigame)
-
-        if minigame_object is None:
-            raise Exception("The selected minigame does not exist.")
-
-        if minigame not in self._available_minigames:
-            raise Exception("The selected minigame is not currently available.") 
-
-        self._available_minigames.remove(minigame)
-
-        running_game_task = asyncio.create_task(minigame_object.play(*players))
+        if minigame_task is None:
+            logger.warning("No minigame could be started at the moment.")
+            return None
 
         # Wait for every browser to catch up
         await asyncio.sleep(1)
@@ -241,13 +160,13 @@ class Minigame_Manager:
 
         self.make_vehicles_drive_continuously(*actually_playing)
 
-        while not running_game_task.done() and not running_game_task.cancelled():
+        while not minigame_task.done() and not minigame_task.cancelled():
             await asyncio.sleep(1)
         
-        if running_game_task.cancelled():
+        if minigame_task.cancelled():
             winner = None
         else:
-            winner = await running_game_task 
+            winner = await minigame_task 
         print("WINNER", winner)
         self._available_minigames.append(minigame)
         
