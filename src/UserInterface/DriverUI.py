@@ -35,8 +35,6 @@ class DriverUI:
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
-        self.minigame_players : set = set()
-
         self.__latest_driver_heartbeats: dict = {}
         self.__checking_heartbeats_flag: bool = False
 
@@ -68,14 +66,6 @@ class DriverUI:
             background_grace_period = config["driver"]["driver_background_grace_period_s"]
             vehicle_scale = config["environment"]["env_vehicle_scale"]
             player_exists, picture, vehicle_information = self._prepare_html_data(player)
-
-            self.minigame_players.add(player)
-            print("MINGIGAME PLAYERS", self.minigame_players)
-            if len(self.minigame_players) >= 2:
-                minigame_controller = Minigame_Controller.get_instance()
-                print("DRIVER UI PLAYER SET", self.minigame_players)
-                print("DRIVER UI PLAYER LIST", list(self.minigame_players))
-                minigame_controller.play_random_available_minigame(*list(self.minigame_players))
 
             return await render_template(template_name_or_list='driver_index.html', player=player,
                                          player_exists=player_exists,
