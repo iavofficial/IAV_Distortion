@@ -492,3 +492,21 @@ def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
     env_manager._add_to_active_vehicle_list(new_vehicle_2)
     env_manager._add_to_active_vehicle_list(new_vehicle_2)
     assert len(env_manager._active_anki_cars) == 2
+
+
+def test_switch_cars(get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
+    fleet_mock, config_mock = initialise_dependencies
+    env_manager = EnvironmentManager(fleet_mock, config_mock)
+
+    dummy_player1, dummy_player2 = get_two_dummy_player
+    dummy_vehicle1, dummy_vehicle2 = get_two_dummy_vehicles
+
+    env_manager._add_to_active_vehicle_list(dummy_vehicle1)
+    env_manager._add_to_active_vehicle_list(dummy_vehicle2)
+
+    dummy_vehicle1.set_player(dummy_player1)
+    dummy_vehicle2.set_player(dummy_player2)
+
+    env_manager.manage_car_switch_for(dummy_player1)
+    new_vehicle = env_manager.get_vehicle_by_player_id(dummy_player1)
+    assert new_vehicle == dummy_vehicle2
