@@ -18,7 +18,8 @@ from socketio import AsyncServer
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
-from UserInterface.Minigame_Manager import Minigame_Manager
+from UserInterface.MinigameUI import Minigame_UI
+from Minigames.Minigame_Controller import Minigame_Controller
 from Minigames.Minigame import Minigame
 
 logger = logging.getLogger(__name__)
@@ -71,10 +72,10 @@ class DriverUI:
             self.minigame_players.add(player)
             print("MINGIGAME PLAYERS", self.minigame_players)
             if len(self.minigame_players) >= 2:
-                minigame_manager = Minigame_Manager.getInstance()
+                minigame_controller = Minigame_Controller.get_instance()
                 print("DRIVER UI PLAYER SET", self.minigame_players)
                 print("DRIVER UI PLAYER LIST", list(self.minigame_players))
-                asyncio.create_task(minigame_manager.play_random_available_minigame(*list(self.minigame_players)))
+                minigame_controller.play_random_available_minigame(*list(self.minigame_players))
 
             return await render_template(template_name_or_list='driver_index.html', player=player,
                                          player_exists=player_exists,

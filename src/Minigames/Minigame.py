@@ -12,9 +12,9 @@ class Minigame:
     def __init__(self, sio: AsyncServer, blueprint : Blueprint, name=__name__):
         self.minigame_ui_blueprint: Blueprint = blueprint
         self._sio: AsyncServer = sio
-        self.name = name
+        self._name = name
         if "." in name:
-            self.name = name.split(".")[-1]
+            self._name = name.split(".")[-1]
         self._players : list[str] = []
         self._task = None
 
@@ -32,9 +32,9 @@ class Minigame:
             if player is None:
                 player = str(uuid.uuid4())
 
-            return await render_template(template_name_or_list=self.name + '.html', player = player)
+            return await render_template(template_name_or_list=self._name + '.html', player = player)
             
-        self.minigame_ui_blueprint.add_url_rule(f'/{self.name}', self.name, view_func=home_minigame)
+        self.minigame_ui_blueprint.add_url_rule(f'/{self._name}', self._name, view_func=home_minigame)
 
     async def play(self, *players : str) -> str:
         """
@@ -87,3 +87,6 @@ class Minigame:
         Returns a list of the IDs of the players that were selected for this minigame
         """
         return self._players.copy()
+
+    def get_name(self) -> str:
+        return self._name
