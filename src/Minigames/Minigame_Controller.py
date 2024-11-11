@@ -1,8 +1,10 @@
 from quart import Blueprint
 import asyncio
+from asyncio import Task
 import random
 
 from socketio import AsyncServer
+from typing import Callable
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
@@ -51,6 +53,28 @@ class Minigame_Controller:
 
         Minigame_Controller.instance = self
 
+    def set_minigame_start_callback(self, callback : Callable[Task, Minigame]) -> None:
+        """
+        Set a callback function to be called when a new minigame has started.
+
+        Parameters:
+        -----------
+        callback: callable
+            Callback function
+        """
+        self._minigame_start_callback = callback
+
+    def _execute_minigame_start_callback(self, minigame_task : Task, minigame_object : Minigame) -> None:
+        """
+        Execute the minigame start callback function with info about the minigame and the players.
+
+        Parameters:
+        -----------
+        minigame_object: Minigame
+            Object/Instance of the minigame that has just started
+        """
+        self._minigame_start_callback(minigame_task, minigame_object)
+
     def get_instance(sio: AsyncServer = None, minigame_ui_blueprint : Blueprint = None) -> "Minigame_Controller":
         if Minigame_Controller.instance is None:
             Minigame_Controller.instance = Minigame_Controller(sio = sio, minigame_ui_blueprint = minigame_ui_blueprint)
@@ -67,7 +91,7 @@ class Minigame_Controller:
             UUID of the player to be removed
         """
         for minigame_object in self._minigame_objects.values():
-            if player in minigame_object.get_players():
+            if player_id in minigame_object.get_players():
                 minigame_object.cancel()
 
     def get_minigame_object(self, minigame : str) -> Minigame:
@@ -162,6 +186,8 @@ class Minigame_Controller:
 
         running_game_task : asyncio.Task = asyncio.create_task(minigame_object.play(*players))
         running_game_task.add_done_callback(self._minigame_done_callback(minigame_object))
+
+        self._minigame_start_callback(running_game_task, minigame_object)
 
         return running_game_task, minigame_object
 

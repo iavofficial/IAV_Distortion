@@ -10,6 +10,7 @@
 from quart import Blueprint, render_template, request
 import logging
 import asyncio
+from asyncio import Task
 
 from socketio import AsyncServer
 
@@ -18,6 +19,7 @@ from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from VehicleMovementManagement.BehaviourController import BehaviourController
 
 from Minigames.Minigame_Controller import Minigame_Controller
+from Minigames.Minigame import Minigame
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,7 @@ class Minigame_UI:
         self._behaviour_ctrl = behaviour_ctrl
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
         self._minigame_controller : Minigame_Controller = Minigame_Controller.get_instance(sio = self._sio, minigame_ui_blueprint = self.minigame_ui_blueprint)
+        self._minigame_controller.set_minigame_start_callback(self._minigame_started_callback)
         try:
             self._driving_speed_while_playing = self.config_handler.get_configuration()['minigame']['driving_speed_while_playing']
         except KeyError:
@@ -129,51 +132,45 @@ class Minigame_UI:
             description = f"A description for the minigame {minigame} could not be found."
         await self._sio.emit('send_description', {"minigame" : minigame, "description": description})
 
-    async def play_random_available_minigame(self, *players : str) -> str:
+    def _minigame_started_callback(self, minigame_task : Task, minigame_object : Minigame) -> None:
         """
-        Play a random available minigame with the specified players. 
-        Will redirect the players from the driver UI to the minigame UI and back to the driver UI once the minigame is finished.
-        The players' vehicles will be set to drive at the same speed while playing.
+        Function to be executed once a new minigame has started.
+        Will redirect the minigame's players to the minigame ui and back to the driver ui once the minigame is done/cancelled.
 
         Parameters:
         -----------
-        *players : str
-            IDs of the players that are supposed to play
-        
-        Returns:
-        --------
-        str: The ID of the player that has won the minigame
-        None: If no minigame could be created or it has been cancelled
-        """
-        minigame_task, minigame_object = self._minigame_controller.play_random_available_minigame(*players)
+        minigame_object: Minigame
+            Object/Instance of the minigame that has just started
+        """      
 
         if minigame_task is None:
-            logger.warning("No minigame could be started at the moment.")
+            logger.warning("MinigameUI: No minigame task was provided.")
+            return None
+        if minigame_object is None:
+            logger.warning("MinigameUI: No minigame object was provided.")
             return None
 
-        # Wait for every browser to catch up
-        await asyncio.sleep(1)
-
-        actually_playing = minigame_object.get_players()
-        
-        await self.redirect_to_minigame_ui(*actually_playing)
-
-        self.make_vehicles_drive_continuously(*actually_playing)
-
-        while not minigame_task.done() and not minigame_task.cancelled():
+        async def manage_players():
             await asyncio.sleep(1)
-        
-        if minigame_task.cancelled():
-            winner = None
-        else:
-            winner = await minigame_task 
-        print("WINNER", winner)
-        self._available_minigames.append(minigame)
-        
-        await asyncio.sleep(1)
-        await self.redirect_to_driver_ui(*actually_playing)
 
-        return winner
+            actually_playing = minigame_object.get_players()
+            
+            await self.redirect_to_minigame_ui(*actually_playing)
+
+            self.make_vehicles_drive_continuously(*actually_playing)
+
+            while not minigame_task.done() and not minigame_task.cancelled():
+                await asyncio.sleep(1)
+            
+            if minigame_task.cancelled():
+                winner = None
+            else:
+                winner = await minigame_task 
+            
+            await asyncio.sleep(1)
+            await self.redirect_to_driver_ui(*actually_playing)
+
+        asyncio.create_task(manage_players())
 
     async def redirect_to_minigame_ui(self, *players : str) -> None:
         """
