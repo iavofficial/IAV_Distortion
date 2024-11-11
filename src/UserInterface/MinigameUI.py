@@ -51,7 +51,7 @@ class Minigame_UI:
                 #TODO In this case, a player has connected to the minigame page without having connected as a driver before. They should probably notified that they need to drive first.
                 return
 
-            return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = minigame, heartbeat_interval = self.__driver_heartbeat_timeout)
+            return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = self._minigame_controller.get_minigame_name_by_player_id(player), heartbeat_interval = self.__driver_heartbeat_timeout)
         
         self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func = home_minigame)
 
@@ -81,7 +81,7 @@ class Minigame_UI:
             """
             player = data["player"]
             logger.debug(f"Driver {player} connected to the minigame lobby.")
-            asyncio.create_task(self.send_description(data["minigame"]))
+            asyncio.create_task(self._send_description(data["minigame"]))
             asyncio.create_task(self._sio.enter_room(sid, player))
             return
 

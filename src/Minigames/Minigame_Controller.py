@@ -112,7 +112,7 @@ class Minigame_Controller:
         else:
             return minigame_object.description()
 
-    def play_random_available_minigame(self, *players : str) -> asyncio.Task | None:
+    def play_random_available_minigame(self, *players : str):
         """
         Play a random available minigame with the specified players. 
 
@@ -123,7 +123,7 @@ class Minigame_Controller:
         
         Returns:
         --------
-        asyncio.Task: Task of the running game. Will return the winner's uuid once finished or None if cancelled
+        (asyncio.Task, Minigame): Task of the running game and object/instance of it. Will return the winner's uuid once finished or None if cancelled
         None: if the minigame could not be started for some reason
         """
         if len(self._available_minigames) == 0:
@@ -132,7 +132,7 @@ class Minigame_Controller:
 
         return self._play_minigame(minigame, *players)
 
-    def _play_minigame(self, minigame : str, *players : str) -> (asyncio.Task, Minigame) | None:
+    def _play_minigame(self, minigame : str, *players : str):
         """
         Create an asyncio of the minigame playing with the specified players.
 
@@ -163,7 +163,7 @@ class Minigame_Controller:
         running_game_task : asyncio.Task = asyncio.create_task(minigame_object.play(*players))
         running_game_task.add_done_callback(self._minigame_done_callback(minigame_object))
 
-        return running_game_task
+        return running_game_task, minigame_object
 
     def _minigame_done_callback(self, minigame_object : Minigame) -> None:
         """
@@ -175,3 +175,25 @@ class Minigame_Controller:
             The minigame object/instance that is done
         """
         self._available_minigames.append(minigame_object.get_name())
+
+    def get_minigame_name_by_player_id(self, player_id : str) -> str | None:
+        """
+        Returns the name of the minigame that the specified player is currently associated with.
+
+        Parameters:
+        -----------
+        player_id: str
+            UUID of the player
+
+        Returns:
+        --------
+        str: Name of the minigame the player is participating in
+        None: If the player is not currently participating in any minigames
+        """
+        if player_id is None:
+            return None
+
+        for minigame_object in self._minigame_objects.values():
+            if player_id in minigame_object.get_players():
+                return minigame_object.get_name()
+        return None
