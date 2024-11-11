@@ -7,7 +7,7 @@
 # file that should have been included as part of this package.
 #
 
-from quart import Blueprint, render_template, request
+from quart import Blueprint, render_template, request, redirect, url_for
 import logging
 import asyncio
 from asyncio import Task
@@ -50,9 +50,8 @@ class Minigame_UI:
 
         async def home_minigame() -> str:
             player = request.cookies.get("player")
-            if player is None:
-                #TODO In this case, a player has connected to the minigame page without having connected as a driver before. They should probably notified that they need to drive first.
-                return
+            if player is None or self._minigame_controller.get_minigame_name_by_player_id(player) is None:
+                return redirect(url_for("driverUI_bp.home_driver"))
 
             return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = self._minigame_controller.get_minigame_name_by_player_id(player), heartbeat_interval = self.__driver_heartbeat_timeout)
         
@@ -101,18 +100,6 @@ class Minigame_UI:
 
     def get_blueprint(self) -> Blueprint:
         return self.minigame_ui_blueprint
-
-    def __remove_player(self, player: str) -> None:
-        """
-        Remove player from the minigame.
-
-        Parameters
-        ----------
-        player: str
-            ID of player to be removed.
-        """
-        self._connected_players.remove(player)
-        return
 
     async def _send_description(self, minigame : str) -> None:
         """

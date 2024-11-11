@@ -48,7 +48,7 @@
 
 
     <script type="text/javascript" charset="utf-8">
-        const minigame = jQuery("#current-Minigame").attr("name");
+        const minigame = "{{ minigame }}";
 
         //Include the current Minigame's htm       
         jQuery("#current-Minigame").load("{{ url_for('minigameUI_bp.' + minigame)}}", function(response, status){
