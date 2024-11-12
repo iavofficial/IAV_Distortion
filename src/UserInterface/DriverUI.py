@@ -16,6 +16,7 @@ import time
 
 from socketio import AsyncServer
 
+from DataModel.Driver import Driver
 from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -172,6 +173,16 @@ class DriverUI:
             """
             player = data["player"]
             self.__latest_driver_heartbeats[player] = time.time()
+            vehicle = self.get_vehicle_by_player(player=player)
+            if vehicle is not None:
+                if "Virtual" in vehicle.get_vehicle_id():
+                    logger.info(player)
+                    driver = self.environment_mng.get_driver_by_id(player_id=player)
+                    logger.debug(driver.get_player_id())
+                    if driver is not None:
+                        driver.increase_score(1)
+                        self.__run_async_task(self.__emit_player_score(driver.get_score(), driver.get_player_id()))
+                        logger.info(driver.get_score())
             return
 
         @self._sio.on('driver_inactive')
@@ -230,6 +241,10 @@ class DriverUI:
         else:
             # Todo: define error reaction if same player is assigned to different vehicles
             return None
+
+    async def __emit_player_score(self, score: int, player: str) -> None:
+        await self._sio.emit('update_player_score', score, player)
+        return
 
     async def __check_driver_heartbeat_timeout(self):
         """

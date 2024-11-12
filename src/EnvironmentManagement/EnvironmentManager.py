@@ -16,6 +16,7 @@ from typing import Callable, Any
 from collections import deque
 from deprecated import deprecated
 
+from DataModel.Driver import Driver
 from Items.ItemCollisionDetection import ItemCollisionDetector
 from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
@@ -55,6 +56,7 @@ class EnvironmentManager:
 
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: list[Vehicle] = []
+        self._player_list: list[Driver] = []
 
         self.__update_staff_ui_callback: Callable[[list[dict[str, str]], list[str], list[str]], None] | None = None
         self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
@@ -249,6 +251,15 @@ class EnvironmentManager:
                 return False
 
         result = self._add_player_to_queue(player_id)
+
+        isNewPlayer = 1
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                isNewPlayer = 0
+        if isNewPlayer == 1:
+            newDriver = Driver(player_id=player_id)
+            self._player_list.append(newDriver)
+            logger.info(newDriver.get_player_id())
         return result
 
     def put_player_on_next_free_spot(self, player_id: str) -> bool:
@@ -745,3 +756,9 @@ class EnvironmentManager:
 
     def get_item_collision_detector(self) -> ItemCollisionDetector:
         return self._item_collision_detector
+
+    def get_driver_by_id(self, player_id: str) -> Driver:
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                return p
+        return None
