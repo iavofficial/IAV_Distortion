@@ -153,8 +153,9 @@ class Minigame_UI:
                 winner = None
             else:
                 winner = await minigame_task 
+            await self._sio.emit('minigame_winner', {'minigame' : minigame_object.get_name(), 'winner' : winner})
             
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
             await self.redirect_to_driver_ui(*actually_playing)
 
         asyncio.create_task(manage_players())

@@ -42,7 +42,8 @@
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
-    <div class="flexbox-container flexbox-controls" id="control">    
+    <div class="flexbox-container flexbox-controls" id="control">   
+        <div class="popup" id="popup" style="display: none; font-size: larger;"></div> 
         <div id="current-Minigame" name="{{minigame}}"></div>
     </div>
 
@@ -96,6 +97,22 @@
                 return
             window.location = 'http://' + document.domain + ':' + location.port + '/driver';
         }); 
+
+        socket.on('minigame_winner', (data) => {
+            if (data.minigame != minigame)
+                return;
+
+            let popup = document.getElementById("popup")
+            document.getElementById("current-Minigame").style.display = 'none'
+            if (data.winner == '{{ player }}'){
+                popup.innerText = "Du hast das Minispiel gewonnen. Du übernimmst nun das Auto deines Gegners."
+            }else if(data.winner) {
+                popup.innerText = "Du hast das Minispiel verloren. Dein Gegner übernimmt jetzt dein Auto und du seins."
+            }else{
+                popup.innerText = "Das Minigspiel wurde abgebrochen. Es gibt keinen Gewinner."
+            }
+            popup.style.display = 'block'
+        })
 
     </script>
 
