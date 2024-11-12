@@ -270,7 +270,7 @@ body{
     color: #FFFFFF;
 }
 
-#hack-button.driver-buttons {
+#switch_cars.driver-buttons {
   display: none;
   font-size: 18px;
 }

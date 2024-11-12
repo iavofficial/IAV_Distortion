@@ -97,13 +97,29 @@ class CarMap:
 
     def check_vehicle_proximity(self,vehicle_id: str, position: dict,) -> None:
         """
+        Checks if the given vehicle (vehicle_id) is a virtual vehicle and, if so, performs a proximity check.
+
+        Parameters
+        ----------
+        vehicle_id : str
+            ID of the vehicle for which proximity is being checked.
+        position : dict
+            Dictionary containing the 'x' and 'y' coordinates of the vehicle's position in the simulation.
+        """
+        for v in self._environment_manager._active_virtual_cars:
+            if v == vehicle_id:
+                self.check_virtual_vehicle_proximity(vehicle_id, position)
+        return
+
+    def check_virtual_vehicle_proximity(self,vehicle_id: str, position: dict,) -> None:
+        """
         Checks the proximity of a given vehicle to every other vehicle and updates
         its `vehicle_in_proximity` attribute if any vehicle is within a specified distance.
 
         Parameters
         ----------
         vehicle_id : str
-            D of the vehicle for which proximity is being checked.
+            ID of the vehicle for which proximity is being checked.
         position : dict
             Dictionary containing the 'x' and 'y' coordinates of the vehicle's position in the simulation.
         """
@@ -114,11 +130,11 @@ class CarMap:
             if pos_proximity_vehicle.distance_to(pos_self) > 200:
                 self._environment_manager.get_vehicle_by_vehicle_id(vehicle_id).vehicle_in_proximity = None
         else:
-            for vehicle in self._vehicles:
-                if vehicle.vehicle_id != vehicle_id:
-                    pos_other =vehicle._location_service._current_position
-                    if pos_other.distance_to(pos_self) < 200:
-                        self._environment_manager.get_vehicle_by_vehicle_id(vehicle_id).vehicle_in_proximity = vehicle.vehicle_id
+            for target_v_id in self._environment_manager._active_physical_cars:
+                vehicle = self._environment_manager.get_vehicle_by_vehicle_id(target_v_id)
+                pos_other = vehicle._location_service._current_position
+                if pos_other.distance_to(pos_self) < 200:
+                        self._environment_manager.get_vehicle_by_vehicle_id(vehicle_id).vehicle_in_proximity = target_v_id
                         return
         return
 

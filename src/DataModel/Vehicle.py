@@ -18,6 +18,7 @@ from LocationService import LocationService
 from LocationService.Track import FullTrack
 from VehicleManagement.VehicleController import VehicleController
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +81,12 @@ class Vehicle:
         Returns the name (for real vehicles UUID) of the vehicle
         """
         return self.vehicle_id
+
+    def reset_proximity_timer(self) -> None:
+        """
+        Reset this vehicle's proximity timer
+        """
+        self.proximity_timer = time.time()
 
     @abstractmethod
     def __del__(self) -> None:

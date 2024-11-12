@@ -202,13 +202,13 @@ class DriverUI:
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
             return
-        
+
         @self._sio.on('switch_cars')
         def switch_cars(sid, data: dict) -> None:
             player = data["player"]
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
-            driver = vehicle.get_player_id()
-            self.environment_mng.manage_car_switch_for(driver)
+            target_vehicle = vehicle.vehicle_in_proximity
+            self.environment_mng.manage_car_switch_for(player, target_vehicle)
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
@@ -261,15 +261,29 @@ class DriverUI:
             The identifier for the player whose vehicle proximity is being monitored
         """
         vehicle = self.get_vehicle_by_player(player=player)
-        previous_value = None
+        previous_vehicle_in_proximity = None
+        previous_driver_getting_hacked = None
         if vehicle != None:
             while True:
+                vehicle = self.get_vehicle_by_player(player=player)
                 await asyncio.sleep(0.1)
-                if previous_value != vehicle.vehicle_in_proximity:
+                if previous_vehicle_in_proximity != vehicle.vehicle_in_proximity:
                     uuid = vehicle.vehicle_id
-                    await self._sio.emit('send_proximity_vehicle',{'vehicle_id': vehicle.vehicle_in_proximity,'proximity_timer': self.__driver_proximity_timer})
-                    previous_value= vehicle.vehicle_in_proximity
-                    vehicle.proximity_timer = time.time()
+                    proximity_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(vehicle.vehicle_in_proximity)
+                    if proximity_vehicle is None:
+                        driver_getting_hacked = None
+                    else:
+                        driver_getting_hacked = proximity_vehicle.get_player_id()
+                        previous_driver_getting_hacked = driver_getting_hacked
+
+                    # Emit message only to the hacking driver and the driver that is being hacked
+                    for room in [player, driver_getting_hacked, previous_driver_getting_hacked]:
+                        if room is None:
+                            continue
+                        self.__run_async_task(self._sio.emit('send_proximity_vehicle', {'hacker_vehicle_id': uuid, 'hacker_driver_id': player, 'getting_hacked_vehicle_id': vehicle.vehicle_in_proximity, 'getting_hacked_driver_id' : driver_getting_hacked, 'proximity_timer': self.__driver_proximity_timer}, to=room))
+                   
+                    previous_vehicle_in_proximity= vehicle.vehicle_in_proximity
+                    vehicle.reset_proximity_timer()
                 else:
                     if vehicle.vehicle_in_proximity != None:
                         self.__run_async_task(self.__check_driver_proximity_timer(player))
@@ -285,7 +299,14 @@ class DriverUI:
         vehicle = self.get_vehicle_by_player(player=player)
         if vehicle != None:
             if time.time() - vehicle.proximity_timer > self.__driver_proximity_timer:
-                await self._sio.emit('send_finished_proximity_timer', vehicle.vehicle_in_proximity)
+                proximity_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(vehicle.vehicle_in_proximity)
+                if proximity_vehicle is None:
+                    return
+                driver_getting_hacked = proximity_vehicle.get_player_id()
+                for room in [player, driver_getting_hacked]:
+                    if room is None:
+                        continue
+                    await self._sio.emit('send_finished_proximity_timer', {'hacker_driver_id' : player, 'getting_hacked_driver_id' : driver_getting_hacked}, to=room)
 
                        
     def __remove_player(self, player: str) -> None:
