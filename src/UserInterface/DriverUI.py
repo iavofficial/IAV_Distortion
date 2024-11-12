@@ -176,13 +176,10 @@ class DriverUI:
             vehicle = self.get_vehicle_by_player(player=player)
             if vehicle is not None:
                 if "Virtual" in vehicle.get_vehicle_id():
-                    logger.info(player)
                     driver = self.environment_mng.get_driver_by_id(player_id=player)
-                    logger.debug(driver.get_player_id())
                     if driver is not None:
                         driver.increase_score(1)
-                        self.__run_async_task(self.__emit_player_score(driver.get_score(), driver.get_player_id()))
-                        logger.info(driver.get_score())
+                        self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
             return
 
         @self._sio.on('driver_inactive')
@@ -203,6 +200,16 @@ class DriverUI:
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
+            return
+        
+        @self._sio.on('switch_cars')
+        def switch_cars(sid, data: dict) -> None:
+            player = data["player"]
+            vehicle = self.environment_mng.get_vehicle_by_player_id(player)
+            player_id = vehicle.get_player_id()
+            self.environment_mng.manage_car_switch_for(player_id)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
@@ -243,7 +250,7 @@ class DriverUI:
             return None
 
     async def __emit_player_score(self, score: int, player: str) -> None:
-        await self._sio.emit('update_player_score', score, player)
+        await self._sio.emit('update_player_score', {'score': score, 'player': player})
         return
 
     async def __check_driver_heartbeat_timeout(self):

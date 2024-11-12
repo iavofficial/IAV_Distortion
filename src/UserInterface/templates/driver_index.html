@@ -48,6 +48,11 @@
                 <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> km/h </span></span>
             </div>
 
+            <div class="score">
+                <span class="flexbox-item flexbox-score_display-label">Score:</span>
+                <span class="flexbox-item flexbox-score_display"> <span id="player_score" class="flexbox-score_display value">0 </span> </span>
+            </div>
+
             <div class="avatar">
 
                 <img id="avatar" src="{{ url_for('static', filename='images/' + picture) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
@@ -163,6 +168,12 @@
             speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
             show_hacked_info(data.active_hacking_scenario);
           }
+        });
+
+        socket.on('update_player_score', function(data){
+            if(data.player == '{{ player }}'){
+                document.getElementById("player_score").innerHTML = data.score;
+            }
         });
 
         function show_hacked_info(active_hacking_scenario){
