@@ -2,6 +2,7 @@ from quart import Blueprint
 import asyncio
 from asyncio import Task
 import random
+import logging
 
 from socketio import AsyncServer
 from typing import Callable
@@ -10,6 +11,8 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 from Minigames.Minigame import Minigame
 from Minigames.Minigame_Test import Minigame_Test
+
+logger = logging.getLogger(__name__)
 
 class Minigame_Controller:
 
@@ -136,7 +139,7 @@ class Minigame_Controller:
         else:
             return minigame_object.description()
 
-    def play_random_available_minigame(self, *players : str):
+    def play_random_available_minigame(self, *players : str) -> tuple[asyncio.Task, Minigame] | tuple[None, None]:
         """
         Play a random available minigame with the specified players. 
 
@@ -147,8 +150,8 @@ class Minigame_Controller:
         
         Returns:
         --------
-        (asyncio.Task, Minigame): Task of the running game and object/instance of it. Will return the winner's uuid once finished or None if cancelled
-        None: if the minigame could not be started for some reason
+        tuple[asyncio.Task, Minigame]: Task of the running game and object/instance of it. Will return the winner's uuid once finished or None if cancelled
+        tuple[None, None]: if the minigame could not be started for some reason
         """
         if len(self._available_minigames) == 0:
             raise Exception("No minigame is currently available.")
@@ -156,7 +159,7 @@ class Minigame_Controller:
 
         return self._play_minigame(minigame, *players)
 
-    def _play_minigame(self, minigame : str, *players : str):
+    def _play_minigame(self, minigame : str, *players : str) -> tuple[asyncio.Task, Minigame] | tuple[None, None]:
         """
         Create an asyncio of the minigame playing with the specified players.
 
@@ -169,18 +172,18 @@ class Minigame_Controller:
         
         Returns:
         --------
-        (asyncio.Task, Minigame): Task of the running game and object/instance of it. Will return the winner's uuid once finished or None if cancelled
-        None: if the minigame could not be started for some reason
+        tuple[asyncio.Task, Minigame]: Task of the running game and object/instance of it. Will return the winner's uuid once finished or None if cancelled
+        tuple[None, None]: if the minigame could not be started for some reason
         """
         minigame_object : Minigame = self._minigame_objects.get(minigame)
 
         if minigame_object is None:
             logger.warning("The selected minigame does not exist.")
-            return None
+            return None, None
 
         if minigame not in self._available_minigames:
             logger.warning("The selected minigame is not currently available.") 
-            return None
+            return None, None
 
         self._available_minigames.remove(minigame)
 
