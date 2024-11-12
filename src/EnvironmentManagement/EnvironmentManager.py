@@ -251,7 +251,6 @@ class EnvironmentManager:
         if isNewPlayer == 1:
             newDriver = Driver(player_id=player_id)
             self._player_list.append(newDriver)
-            logger.info(newDriver.get_player_id())
         return result
 
     def put_player_on_next_free_spot(self, player_id: str) -> bool:
