@@ -200,6 +200,8 @@ class DriverUI:
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
             return
         
         @self._sio.on('switch_cars')
@@ -208,6 +210,8 @@ class DriverUI:
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
             player_id = vehicle.get_player_id()
             self.environment_mng.manage_car_switch_for(player_id)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
             driver = self.environment_mng.get_driver_by_id(player_id=player)
             self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
             return
