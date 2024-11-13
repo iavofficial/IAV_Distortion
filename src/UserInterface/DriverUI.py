@@ -195,6 +195,7 @@ class DriverUI:
             self.environment_mng.put_player_on_next_free_spot(player)
             vehicle = self.get_vehicle_by_player(player=player)
             driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_driver_score(driver=driver))
             if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
                 self.__run_async_task(self.__in_physical_vehicle(driver))
             return
@@ -206,6 +207,7 @@ class DriverUI:
             player_id = vehicle.get_player_id()
             self.environment_mng.manage_car_switch_for(player_id)
             driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_driver_score(driver=driver))
             # For reasons unknown to me, 'driver.get_is_in_physical_vehicle() is not True' seems to be ignored, so the score rises faster and faster when switching between vehicles meeting the increasement requirements
             if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
                 self.__run_async_task(self.__in_physical_vehicle(driver))
@@ -247,6 +249,9 @@ class DriverUI:
         else:
             # Todo: define error reaction if same player is assigned to different vehicles
             return None
+
+    async def __emit_driver_score(self, driver: Driver) -> None:
+        await self._sio.emit('update_player_score', {'score': driver.get_score().__round__(0), 'player': driver.get_player_id()})
 
     async def __in_physical_vehicle(self, driver: Driver) -> None:
         driver.set_is_in_physical_vehicle(True)
