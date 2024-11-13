@@ -312,6 +312,8 @@ class DriverUI:
         if vehicle != None:
             while True:
                 vehicle = self.get_vehicle_by_player(player=player)
+                if vehicle is None:
+                    return
                 await asyncio.sleep(0.1)
                 if previous_vehicle_in_proximity != vehicle.vehicle_in_proximity:
                     uuid = vehicle.vehicle_id
