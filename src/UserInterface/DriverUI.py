@@ -206,8 +206,7 @@ class DriverUI:
             player_id = vehicle.get_player_id()
             self.environment_mng.manage_car_switch_for(player_id)
             driver = self.environment_mng.get_driver_by_id(player_id=player)
-            self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
-            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            # For reasons unknown to me, 'driver.get_is_in_physical_vehicle() is not True' seems to be ignored, so the score rises faster and faster when switching between vehicles meeting the increasement requirements
             if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
                 self.__run_async_task(self.__in_physical_vehicle(driver))
             return
@@ -251,10 +250,10 @@ class DriverUI:
 
     async def __in_physical_vehicle(self, driver: Driver) -> None:
         driver.set_is_in_physical_vehicle(True)
-        while "Virtual" in self.get_vehicle_by_player(player=driver.get_player_id()).get_vehicle_id():
-            driver.increase_score(1)
-            await self._sio.emit('update_player_score', {'score': driver.get_score(), 'player': driver.get_player_id()})
-            await self._sio.sleep(1)
+        while self.get_vehicle_by_player(player=driver.get_player_id()) is not None and "Virtual" not in self.get_vehicle_by_player(player=driver.get_player_id()).get_vehicle_id():
+            driver.increase_score(0.1)
+            await self._sio.emit('update_player_score', {'score': driver.get_score().__round__(0), 'player': driver.get_player_id()})
+            await self._sio.sleep(0.2)
         driver.set_is_in_physical_vehicle(False)
         return
 

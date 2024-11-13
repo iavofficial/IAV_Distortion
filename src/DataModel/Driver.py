@@ -4,14 +4,14 @@ from DataModel.Vehicle import Vehicle
 class Driver:
     def __init__(self, player_id: str) -> None:
         self.player: str = player_id
-        self.score: int = 0
+        self.score: float = 0
         self.in_physical_vehicle: bool = False
         return
     
-    def get_score(self) -> int:
+    def get_score(self) -> float:
         return self.score
     
-    def increase_score(self, amount: int) -> None:
+    def increase_score(self, amount: float) -> None:
         self.score += amount
 
     def set_is_in_physical_vehicle(self, b: bool) -> None:
