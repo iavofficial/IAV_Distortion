@@ -105,9 +105,17 @@
             let popup = document.getElementById("popup")
             document.getElementById("current-Minigame").style.display = 'none'
             if (data.winner == '{{ player }}'){
-                popup.innerText = "Du hast das Minispiel gewonnen. Du übernimmst nun das Auto deines Gegners."
+                if (data.owner_of_physical_vehicle_at_start == '{{ player }}'){
+                    popup.innerText = "Du hast das Minispiel gewonnen. Du behälst dein echtes Auto."
+                }else{
+                    popup.innerText = "Du hast das Minispiel gewonnen. Du übernimmst nun das Auto deines Gegners."
+                }      
             }else if(data.winner) {
-                popup.innerText = "Du hast das Minispiel verloren. Dein Gegner übernimmt jetzt dein Auto und du seins."
+                if (data.owner_of_physical_vehicle_at_start == '{{ player }}'){
+                    popup.innerText = "Du hast das Minispiel verloren. Dein Gegner übernimmt jetzt dein Auto und du seins."
+                }else{
+                    popup.innerText = "Du hast das Minispiel verloren. Du behälst dein virtuelles Auto."
+                }
             }else{
                 popup.innerText = "Das Minigspiel wurde abgebrochen. Es gibt keinen Gewinner."
             }

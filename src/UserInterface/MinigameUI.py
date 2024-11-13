@@ -141,6 +141,11 @@ class Minigame_UI:
             await asyncio.sleep(1)
 
             actually_playing = minigame_object.get_players()
+            owner_of_physical_vehicle_at_start = None
+            for player in actually_playing:
+                if "Virtual" not in self._environment_mng.get_vehicle_by_player_id(player).get_vehicle_id():
+                    owner_of_physical_vehicle_at_start = player
+                    break
             
             await self.redirect_to_minigame_ui(*actually_playing)
 
@@ -153,7 +158,8 @@ class Minigame_UI:
                 winner = None
             else:
                 winner = await minigame_task 
-            await self._sio.emit('minigame_winner', {'minigame' : minigame_object.get_name(), 'winner' : winner})
+            
+            await self._sio.emit('minigame_winner', {'minigame' : minigame_object.get_name(), 'winner' : winner, 'owner_of_physical_vehicle_at_start' : owner_of_physical_vehicle_at_start})
             
             await asyncio.sleep(5)
             await self.redirect_to_driver_ui(*actually_playing)
