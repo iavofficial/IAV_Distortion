@@ -757,6 +757,14 @@ class EnvironmentManager:
         return self._item_collision_detector
 
     def get_driver_by_id(self, player_id: str) -> Driver:
+        """
+        Returns the Driver instance for a specific player_id.
+
+        Parameters
+        ----------
+        player_id:
+            ID of player to return Driver instance of
+        """
         for p in self._player_list:
             if p.get_player_id() == player_id:
                 return p
