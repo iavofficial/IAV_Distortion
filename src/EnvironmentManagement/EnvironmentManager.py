@@ -16,6 +16,7 @@ from typing import List, Dict, Callable
 from collections import deque
 from deprecated import deprecated
 
+from DataModel.Driver import Driver
 from Items.ItemCollisionDetection import ItemCollisionDetector
 from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
@@ -56,6 +57,7 @@ class EnvironmentManager:
 
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
+        self._player_list: List[Driver] = []
 
         # vehicle_ids for the switch of vehicles
         self._active_virtual_cars: List[str] = []
@@ -249,6 +251,14 @@ class EnvironmentManager:
                 return False
 
         result = self._add_player_to_queue(player_id)
+
+        isNewPlayer = 1
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                isNewPlayer = 0
+        if isNewPlayer == 1:
+            newDriver = Driver(player_id=player_id)
+            self._player_list.append(newDriver)
         return result
 
     def put_player_on_next_free_spot(self, player_id: str) -> bool:
@@ -807,3 +817,17 @@ class EnvironmentManager:
 
     def get_item_collision_detector(self) -> ItemCollisionDetector:
         return self._item_collision_detector
+
+    def get_driver_by_id(self, player_id: str) -> Driver:
+        """
+        Returns the Driver instance for a specific player_id.
+
+        Parameters
+        ----------
+        player_id:
+            ID of player to return Driver instance of
+        """
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                return p
+        return None
