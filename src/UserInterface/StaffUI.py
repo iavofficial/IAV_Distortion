@@ -20,6 +20,7 @@ from socketio import AsyncServer
 
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from Minigames.Minigame_Controller import Minigame_Controller
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,8 @@ class StaffUI:
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
+
+        self._minigame_players : list[str] = []
 
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
@@ -101,6 +104,7 @@ class StaffUI:
             """
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
+
             # TODO: Show selection of choose hacking scenarios always sorted by player number
             return await render_template('staff_control.html', activeScenarios=active_scenarios,
                                          uuids=environment_mng.get_controlled_cars_list(), names=names,
@@ -469,6 +473,15 @@ class StaffUI:
                 logger.warning("System shutdown button pressed, but not running on Linux system")
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
+        
+        @self._sio.on('queue_up_for_minigame')
+        async def start_minigame(sid, player : str):
+            self._minigame_players.append(player)
+            if len(self._minigame_players) < 2:
+                return
+            
+            Minigame_Controller.get_instance().play_random_available_minigame(*self._minigame_players[0:2])
+            self._minigame_players.clear()
 
     def get_blueprint(self) -> Blueprint:
         """
