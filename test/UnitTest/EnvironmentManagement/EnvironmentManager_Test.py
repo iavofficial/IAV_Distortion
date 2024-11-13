@@ -513,7 +513,7 @@ def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
     assert len(env_manager._active_anki_cars) == 2
 
 
-class TestSwitchVirtualCars:
+class TestSwitchCars:
 
     def test_manage_car_switch(self, get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
         # Arrange
@@ -523,14 +523,14 @@ class TestSwitchVirtualCars:
         dummy_player1, dummy_player2 = get_two_dummy_player
         dummy_vehicle1, dummy_vehicle2 = get_two_dummy_vehicles
 
-        env_manager._add_to_active_vehicle_list(dummy_vehicle1)
-        env_manager._add_to_active_vehicle_list(dummy_vehicle2)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle1, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle2, True)
 
         dummy_vehicle1.set_player(dummy_player1)
         dummy_vehicle2.set_player(dummy_player2)
 
         # Act
-        env_manager.manage_car_switch_for(dummy_player1)
+        env_manager.manage_car_switch_for(dummy_player1, dummy_vehicle2.get_vehicle_id())
 
         # Assert
         new_vehicle = env_manager.get_vehicle_by_player_id(dummy_player1)
@@ -546,15 +546,15 @@ class TestSwitchVirtualCars:
         dummy_player1, dummy_player2 = get_two_dummy_player
         dummy_vehicle1, dummy_vehicle2 = get_two_dummy_vehicles
 
-        env_manager._add_to_active_vehicle_list(dummy_vehicle1)
-        env_manager._add_to_active_vehicle_list(dummy_vehicle2)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle1, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle2, True)
 
         dummy_vehicle1.set_player(dummy_player1)
         dummy_vehicle2.set_player(dummy_player2)
 
         # Act
         start_time = time.time()
-        env_manager.manage_car_switch_for(dummy_player1)
+        env_manager.manage_car_switch_for(dummy_player1, dummy_vehicle2.get_vehicle_id())
         end_time = time.time()
         duration = (end_time - start_time)
         print(f"\nTime in seconds: {duration}")
@@ -570,10 +570,10 @@ class TestSwitchVirtualCars:
         dummy_player1, dummy_player2, dummy_player3, dummy_player4 = get_four_dummy_player
         dummy_vehicle1, dummy_vehicle2, dummy_vehicle3, dummy_vehicle4 = get_four_dummy_vehicles
 
-        env_manager._add_to_active_vehicle_list(dummy_vehicle1)
-        env_manager._add_to_active_vehicle_list(dummy_vehicle2)
-        env_manager._add_to_active_vehicle_list(dummy_vehicle3)
-        env_manager._add_to_active_vehicle_list(dummy_vehicle4)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle1, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle2, True)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle3, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle4, True)
 
         dummy_vehicle1.set_player(dummy_player1)
         dummy_vehicle2.set_player(dummy_player2)
@@ -581,8 +581,8 @@ class TestSwitchVirtualCars:
         dummy_vehicle4.set_player(dummy_player4)
 
         # Act
-        env_manager.manage_car_switch_for(dummy_player1)
-        env_manager.manage_car_switch_for(dummy_player3)
+        env_manager.manage_car_switch_for(dummy_player1, dummy_vehicle2.get_vehicle_id())
+        env_manager.manage_car_switch_for(dummy_player3, dummy_vehicle4.get_vehicle_id())
 
         # Assert
         vehicle1 = env_manager.get_vehicle_by_vehicle_id(dummy_player1)
