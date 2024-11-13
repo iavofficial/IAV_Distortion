@@ -240,7 +240,6 @@ class DriverUI:
             self.environment_mng.manage_car_switch_for(player, target_vehicle_id)
             driver = self.environment_mng.get_driver_by_id(player_id=player)
             self.__run_async_task(self.__emit_driver_score(driver=driver))
-            # For reasons unknown to me, 'driver.get_is_in_physical_vehicle() is not True' seems to be ignored, so the score rises faster and faster when switching between vehicles meeting the increasement requirements
             if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
                 self.__run_async_task(self.__in_physical_vehicle(driver))
             return
