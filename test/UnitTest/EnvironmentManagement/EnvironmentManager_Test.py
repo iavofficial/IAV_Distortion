@@ -79,7 +79,7 @@ def get_two_dummy_player() -> list[str]:
     return output
 
 @pytest.fixture(scope="module")
-def get_four_dummy_player() -> list[str]:
+def get_four_dummy_players() -> list[str]:
     dummy1: str = "DummyPlayer1"
     dummy2: str = "DummyPlayer2"
     dummy3: str = "DummyPlayer3"
@@ -562,12 +562,12 @@ class TestSwitchCars:
         # Assert
         assert duration <= 0.3
 
-    def test_manage_multiple_car_switch(self, get_four_dummy_player, get_four_dummy_vehicles, initialise_dependencies):
+    def test_manage_multiple_car_switch(self, get_four_dummy_players, get_four_dummy_vehicles, initialise_dependencies):
         # Arrange
         fleet_mock, config_mock = initialise_dependencies
         env_manager = EnvironmentManager(fleet_mock, config_mock)
 
-        dummy_player1, dummy_player2, dummy_player3, dummy_player4 = get_four_dummy_player
+        dummy_player1, dummy_player2, dummy_player3, dummy_player4 = get_four_dummy_players
         dummy_vehicle1, dummy_vehicle2, dummy_vehicle3, dummy_vehicle4 = get_four_dummy_vehicles
 
         env_manager._add_to_active_vehicle_list(dummy_vehicle1, False)
