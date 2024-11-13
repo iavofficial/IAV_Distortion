@@ -204,11 +204,34 @@ class DriverUI:
             return
 
         @self._sio.on('switch_cars')
-        def switch_cars(sid, data: dict) -> None:
+        async def switch_cars(sid, data: dict) -> None:
             player = data["player"]
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
-            target_vehicle = vehicle.vehicle_in_proximity
-            self.environment_mng.manage_car_switch_for(player, target_vehicle)
+            if vehicle is None:
+                logger.warn(f"Driver UI: No vehicle for player {player} could be found. Ignoring the switch request.")
+                return
+            target_vehicle_id = vehicle.vehicle_in_proximity
+            if target_vehicle_id is None:
+                logger.warn(f"Driver UI: No target vehicle id for player {player} driving {vehicle.get_vehicle_id()} could be found. Ignoring the switch request.")
+                return
+            target_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(target_vehicle_id)
+            if target_vehicle is None:
+                logger.warn(f"Driver UI: No target vehicle for player {player} driving {vehicle.get_vehicle_id()} with target_vehicle_id {target_vehicle_id} could be found. Ignoring the switch request.")
+                return
+            target_player = target_vehicle.get_player_id()
+
+            # Try to start Minigame
+            minigame_task, minigame_object = Minigame_Controller.get_instance().play_random_available_minigame(player, target_player)
+            
+            if minigame_task is None or minigame_object is None:
+                logger.warning(f"DriverUI: The minigame for player {player} and player {target_player} could not be started for some reason. Ignoring the request.")
+                return
+            winner = await minigame_task
+            logger.debug(f"DriverUI: The player {player} has won a minigame that was initiated by a hack of vehicle {target_vehicle_id}.")
+            if winner is None or winner == target_player:
+                return
+
+            self.environment_mng.manage_car_switch_for(player, target_vehicle_id)
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
