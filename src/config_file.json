@@ -94,5 +94,8 @@
 			"length": 349,
 			"diameter": 184
 		}
-	]
+	],
+	"minigame" : {
+		"driving_speed_while_playing" : 30
+	}
 }
