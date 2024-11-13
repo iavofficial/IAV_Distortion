@@ -176,13 +176,6 @@ class DriverUI:
             """
             player = data["player"]
             self.__latest_driver_heartbeats[player] = time.time()
-            vehicle = self.get_vehicle_by_player(player=player)
-            if vehicle is not None:
-                if "Virtual" in vehicle.get_vehicle_id():
-                    driver = self.environment_mng.get_driver_by_id(player_id=player)
-                    if driver is not None:
-                        driver.increase_score(1)
-                        self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
             return
 
         @self._sio.on('driver_inactive')
@@ -203,8 +196,10 @@ class DriverUI:
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
-            driver = self.environment_mng.get_driver_by_id(player_id=player)
-            self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
+            vehicle = self.get_vehicle_by_player(player=player)
+            if vehicle is not None:
+                self.__run_async_task(self.__update_score(player))
+
             return
         
         @self._sio.on('switch_cars')
@@ -215,8 +210,8 @@ class DriverUI:
             self.environment_mng.manage_car_switch_for(player_id)
             driver = self.environment_mng.get_driver_by_id(player_id=player)
             self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
-            driver = self.environment_mng.get_driver_by_id(player_id=player)
-            self.__run_async_task(self.__emit_player_score(score=driver.get_score(), player=driver.get_player_id()))
+            if vehicle is not None:
+                self.__run_async_task(self.__update_score(player))
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
@@ -248,9 +243,13 @@ class DriverUI:
         await self._sio.emit('update_driving_data', driving_data)
         return
     
-    async def __emit_player_score(self, score: int, player: str) -> None:
-        await self._sio.emit('update_player_score', {'score': score, 'player': player})
-        return
+    async def __update_score(self, player: str) -> None:
+        driver = self.environment_mng.get_driver_by_id(player_id=player)
+        while "Virtual" in self.get_vehicle_by_player(player=player).get_vehicle_id():
+            driver.increase_score(1)
+            await self._sio.emit('update_player_score', {'score': driver.get_score(), 'player': player})
+            await self._sio.sleep(1)
+    
 
     async def __check_driver_heartbeat_timeout(self):
         """
