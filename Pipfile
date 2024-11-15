@@ -8,11 +8,11 @@ bleak = "*"
 quart = "*"
 hypercorn = "*"
 deprecated = "*"
+python-socketio = "*"
 
 [dev-packages]
 sphinx = "*"
 pytest = "*"
-python-socketio = "*"
 pytest-asyncio = "*"
 pluggy = "==1.5.0"
 
