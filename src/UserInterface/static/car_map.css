@@ -1,0 +1,71 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.container_left {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    width: 85vw;
+    position: relative;
+}
+
+.canvas {
+    width: 85vw;
+    height: 100%;
+    flex: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.instructions {
+    width: 15vw;
+    height:  100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-right: 15px;
+}
+
+.qr-code {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.qr-code img{
+    max-width: 100%;;
+    height: auto;
+    margin: 15px 0;
+}
+
+.slogan {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 50px;
+    font-size: larger;
+}

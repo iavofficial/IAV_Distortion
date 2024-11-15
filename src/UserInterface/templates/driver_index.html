@@ -26,8 +26,8 @@
             <div class="info-title">
                 <h2>Information</h2>
             </div>
-            <p id="infoBoxContent"> Player {{player}} currently in queue. Please wait... <br>
-                Please don't leave this page for more than {{background_grace_period}} seconds. Otherwise you will be removed from the game.</p>
+            <p id="infoBoxContent" class="info-text"> You are currently in the queue. Please wait... </p>
+            <p class="info-text"> Please don't leave this page for more than {{background_grace_period}} seconds. Otherwise you will be removed from the game.</p>
             <button class="refresh-button" onclick="location.reload();"> <span class="reload_symbol">&circlearrowright;	</span> Refresh Page</button>
         </div>
     </div>
@@ -281,6 +281,32 @@
             }
         });
 
+        /**
+        * item-update websocket event
+        *
+        * used to update items and item effect on driver ui of according player_id
+        *
+        * data send with websocket event:
+        * data = {'player_id': player_id;
+        *         'vehicle_id': vehicle_id;
+        *         'item_stash': 'None';
+        *         'item_active': 'None'}
+        */
+        const avatarElement = document.querySelector('.avatar');
+        socket.on('item_update', function(data) {
+            if (data.player_id == "{{ player }}") {
+                if (data.item_active === 'hacking_protection') {
+                    avatarElement.classList.add('protection-active');
+                }
+                else {
+                    avatarElement.classList.remove('protection-active');
+                }
+            }
+        });
+
+        /**
+        * Check if player leaves or enters the ui.
+        */
         document.addEventListener('visibilitychange', function() {
             console.log(document.visibilityState);
             if (document.visibilityState === 'hidden') {
@@ -295,6 +321,11 @@
 
         socket.on('redirect_to_minigame_ui', function() {
             window.location = 'http://' + document.domain + ':' + location.port + '/minigame';
+        /**
+         * Reload the page when told. Used when display settings changed
+         */
+         socket.on('reload_uis', function(data) {
+            window.location.reload();
         });
 
     </script>
