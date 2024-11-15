@@ -1,0 +1,18 @@
+Mehrspieler Teamversion IAV Distortion
+
+- Der Spielmodus wird in zweier Teams gespielt, kann also nur mit einer gerader Anzahl Spieler gespielt werden. (4, 6, 8, 10, ...?)
+- Ein Team besteht aus einem physischem und einem virtuellem Auto.
+- Sobald das erste Team die Hälfte der Runden (oder Strecke) erreicht hat wird das Spiel pausiert und die Rollen in den Teams werden getauscht.
+
+- Ziele der Teams:
+	- Das Team, dass als erstes eine bestimmte Anzahl an Runden (oder eine bestimmte Strecke) gefahren ist hat gewonnen.
+	- Währenddessen müssen Punkte von der Strecke gesammelt werden, um die gegnerischen Teams zu stören und das eigene physische Auto zu unterstützen.
+
+- Aufgaben der verschiedenen Autos:
+	- physische Autos:
+	...fahren die Strecke schnellst möglich ab und versuchen dabei nicht überholt zu werden.
+	...sammeln Punkte fürs Team von der Strecke auf. (dafür müsste der Spieler entweder Sicht auf die virtuelle Strecke haben oder durch Kommunikation zu den Punkten geführt werden)
+
+	- virtuelle Autos können mit Teampunkten:
+	...die gegnerischen Autos in der Nähe des eigenen Autos hacken. (verlangsamen und abschalten oder ggf. umdrehen und die Fahrhilfe abschalten)
+	...beim Fahren in der Nähe des gehackten verbündeten Autos dieses wieder "heilen" oder "reparieren".

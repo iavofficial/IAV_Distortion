@@ -102,6 +102,10 @@
         header_uuid.innerText = 'UUID';
         header_row.appendChild(header_uuid);
 
+        var header_play_minigame = document.createElement('th');
+        header_play_minigame.innerText = 'Minigame';
+        header_row.appendChild(header_play_minigame);
+
         thead.appendChild(header_row);
         uuids_table.appendChild(thead);
 
@@ -114,6 +118,8 @@
             let cell_player = document.createElement('td');
             let cell_uuid = document.createElement('td');
             let cell_del = document.createElement('td');
+            let cell_play_minigame = document.createElement('td');
+            let playMinigame = document.createElement('button');
             let delPlayerButton = document.createElement('button');
             let delVehicleButton = document.createElement('button');
             delPlayerButton.textContent = 'Remove Player';
@@ -132,6 +138,11 @@
                 }
             };
 
+            playMinigame.textContent = 'Queue up for minigame';
+            playMinigame.className = 'button_small button_pink'
+            playMinigame.onclick = function(){
+                queue_up_for_minigame(c_map.player);
+            };
             img_name = virtualCarsPics[c_map.car];
             var img = document.createElement('img');
             img.src = `../static/images/Virtual_Vehicles/${img_name}`;
@@ -148,7 +159,7 @@
             row.appendChild(cell_uuid);
             row.appendChild(delPlayerButton);
             row.appendChild(delVehicleButton);
-
+            row.appendChild(playMinigame)
 
             uuids_table.appendChild(row);
         }
@@ -161,7 +172,6 @@
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
             let delPlayerButton = document.createElement('button');
-
             delPlayerButton.textContent = 'Remove Player';
             delPlayerButton.className = 'button_small button_pink'
             delPlayerButton.onclick = function(){
@@ -187,7 +197,6 @@
             var cell_carPicture = document.createElement('td');
             var cell_player = document.createElement('td');
             var cell_uuid = document.createElement('td');
-
             let delVehicleButton = document.createElement('button');
             delVehicleButton.textContent = 'Remove Vehicle';
             delVehicleButton.className = 'button_small button_pink'
@@ -217,6 +226,11 @@
 
        socket.emit('get_update_hacking_scenarios');
     });
+
+    function queue_up_for_minigame(player){
+        console.log("PLAYER " + player + " has queued up to play a minigame")
+        socket.emit('queue_up_for_minigame', player)
+    }
 
     /**
     * Handles 'update_hacking_scenarios' event.

@@ -17,6 +17,7 @@ from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
 from LocationService.Trigo import Position, Angle
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,8 @@ class Vehicle:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None
+        self.vehicle_in_proximity : str | None = None
+        self.proximity_timer: time = 0
 
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict], None] | None = None
@@ -34,6 +37,8 @@ class Vehicle:
         self._item_data_callback: Callable[[dict], None] | None = None
 
         self._location_service: LocationService = location_service
+        self._effects: List[VehicleEffect] = []
+        
 
         if not disable_item_removal:
             self._effect_removal_task = asyncio.create_task(self._check_effect_removal())
@@ -100,6 +105,12 @@ class Vehicle:
         self._current_driving_speed = 0
         self._on_driving_data_change()
         return 0
+
+    def reset_proximity_timer(self) -> None:
+        """
+        Reset this vehicle's proximity timer
+        """
+        self.proximity_timer = time.time()
 
     def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
         self._driving_data_callback = function_name
