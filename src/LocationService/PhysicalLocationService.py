@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class PhysicalLocationService(LocationService):
     def __init__(self,
-                 track: FullTrack,
+                 track: FullTrack | None,
                  starting_offset: float = 0,
                  simulation_ticks_per_second: int = 24,
                  start_immediately: bool = False) -> None:

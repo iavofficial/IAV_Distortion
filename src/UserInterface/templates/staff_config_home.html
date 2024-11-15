@@ -3,6 +3,16 @@
 {% block content %}
 
 <div class="flexbox-item config_content">
+    <div class="felxbox-item qr_codes_block">
+        <div class="felxbox-item qr_code">
+            <h1>1. Connect to IAV Distortion</h1>
+            <img id="qr_wifi_ap" src="{{ url_for('static', filename='images/' + 'QR_wifi_access_distortion-ap.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+        </div>
+        <div class="felxbox-item qr_code">
+            <h1>2. Enter Driver UI</h1>
+            <img id="qr_driver" src="{{ url_for('static', filename='images/' + 'QR_driver_url.PNG') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'">
+        </div>
+    </div>
     <h2>Rescan track:</h2>
     <button id="reload_cars">Reload available cars</button>
     <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
