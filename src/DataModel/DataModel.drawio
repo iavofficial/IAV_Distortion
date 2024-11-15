@@ -1,68 +1,49 @@
-<mxfile host="Electron" modified="2024-08-22T14:37:35.433Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.5.3 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="tnxYkBkmcFwXE0DveWXL" version="24.5.3" type="device">
+<mxfile host="Electron" modified="2024-09-05T08:43:18.327Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.5.3 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="LiMfdOLqm_SRgIa2nmsK" version="24.5.3" type="device">
   <diagram name="Seite-1" id="lv4e1EymGRjTfMo3LtVk">
-    <mxGraphModel dx="8074" dy="3536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+    <mxGraphModel dx="3055" dy="502" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="RWERQ9epUvpY3rjrx78r-1" value="DataModel" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;align=left;verticalAlign=top;" parent="1" vertex="1">
           <mxGeometry x="-1100" y="20" width="1760" height="1710" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-2" value="ModelCar" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-980" y="870" width="560" height="820" as="geometry" />
-        </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-3" value="&lt;div&gt;Base Car implementation that reacts to hacking effects and forwards speed/offset changes to&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;the controller, if appropriate&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-2" vertex="1">
-          <mxGeometry y="26" width="560" height="54" as="geometry" />
-        </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-4" value="&lt;div&gt;- speed: int&lt;/div&gt;&lt;div&gt;- speed_request: int&lt;/div&gt;&lt;div&gt;- speed_factor: float&lt;/div&gt;&lt;div&gt;- min_speed_thr: int&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- lane_change: int&lt;/div&gt;&lt;div&gt;- lane_change_request: int&lt;/div&gt;&lt;div&gt;- lange_change_blocked: bool&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- turn: int&lt;/div&gt;&lt;div&gt;- turn_request: int&lt;/div&gt;&lt;div&gt;- turn_blocked: bool&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- is_light_on: bool&lt;/div&gt;&lt;div&gt;- is_light_inverted: bool&lt;/div&gt;&lt;div&gt;- is_safemode_on: bool&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;# road_piece: int&lt;/div&gt;&lt;div&gt;# prev_road_piece: int&lt;/div&gt;&lt;div&gt;# road_location: int&lt;/div&gt;&lt;div&gt;# offset_from_center: float&lt;/div&gt;&lt;div&gt;# speed_actual: int&lt;/div&gt;&lt;div&gt;# direction: int&lt;/div&gt;&lt;div&gt;# battery: str&lt;/div&gt;&lt;div&gt;# version: str&lt;/div&gt;&lt;div&gt;# model_car_not_reachable_callback: Callable[[str, str, str], None] | None&lt;/div&gt;&lt;div&gt;# virtual_location_update_callback: Callable[[str, dict, float], None] | None&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-2" vertex="1">
-          <mxGeometry y="80" width="560" height="410" as="geometry" />
-        </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-5" value="&lt;div&gt;+ &lt;b&gt;__init__&lt;/b&gt;(vehicle_id: str): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;# &lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;on_driving_data_change&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;(): None0&lt;/span&gt;&lt;/div&gt;&lt;div&gt;# &lt;b&gt;on_model_car_not_reachable&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;on_virtual_location_update&lt;/b&gt;(pos: Position, angle: Angle, _: dict)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;calculate_speed&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;update_own_lane_change&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;- &lt;b&gt;calculate_lane_change&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;calculate_turn&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;switch_lights&lt;/b&gt;(value: bool): None&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;set_safemode&lt;/b&gt;(value: bool): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;#&lt;b&gt; receive_location&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_transition&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_offset_update&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_version&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_battery&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;location_service_update&lt;/b&gt;(pos: Position, rot: Angle, data: dict): None&lt;br&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-2" vertex="1">
-          <mxGeometry y="490" width="560" height="330" as="geometry" />
-        </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-6" value="PhysicalCar" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-260" y="890" width="570" height="170" as="geometry" />
+          <mxGeometry x="-360" y="600" width="570" height="300" as="geometry" />
         </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-7" value="Implementation of the physical car, that reacts to hacking effects and forwards the controls to the controller" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
-          <mxGeometry y="26" width="570" height="44" as="geometry" />
+          <mxGeometry y="26" width="570" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-8" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- controller: AnkiController&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- location_service: LocationService&amp;nbsp;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
-          <mxGeometry y="70" width="570" height="60" as="geometry" />
+        <mxCell id="RWERQ9epUvpY3rjrx78r-8" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- &lt;b&gt;controller&lt;/b&gt;: AnkiController&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;location_service&lt;/b&gt;: PhysicalLocationService&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
+          <mxGeometry y="66" width="570" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-9" value="&lt;div&gt;+ &lt;b&gt;__init__&lt;/b&gt;(vehicle_id: str, controller: AnkiController, location_service: PhysicalLocationService): None&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ async &lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;initiate_connection&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;(uuid: str): bool&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
-          <mxGeometry y="130" width="570" height="40" as="geometry" />
+        <mxCell id="RWERQ9epUvpY3rjrx78r-9" value="&lt;div&gt;+ &lt;b&gt;__init__&lt;/b&gt;(vehicle_id: str, controller: AnkiController, location_service: PhysicalLocationService): None&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ async &lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;initiate_connection&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;(uuid: str): bool&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;#&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;receive_location&lt;/b&gt;(value_tuple): None&lt;/span&gt;&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_transition&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;extract_controller&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;insert_controller&lt;/b&gt;(controller: AnkiController)&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;set_vehicle_not_reachable_callback&lt;/b&gt;(function_name: Callable[[str, str | None], None]): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;model_car_not_reachable_callback&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;new_speed_calculated&lt;/b&gt;(new_speed: int): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;new_offset_calculated&lt;/b&gt;(current_lane: int): None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;uturn_starting&lt;/b&gt;(self)&lt;br&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-6" vertex="1">
+          <mxGeometry y="126" width="570" height="174" as="geometry" />
         </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-10" value="Vehicle" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-960" y="64" width="520" height="740" as="geometry" />
+          <mxGeometry x="-960" y="64" width="520" height="1040" as="geometry" />
         </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-11" value="Base implementation of vehicle object, defining its properties" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
           <mxGeometry y="26" width="520" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-12" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- vehicle_id: str&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- player: str | None&lt;/div&gt;&lt;div&gt;- game_start: datetime | None&lt;/div&gt;&lt;div&gt;- active_hacking_scenario: str&lt;/div&gt;&lt;div&gt;# driving_data_callback: Callable[[dict], None] | None&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
-          <mxGeometry y="70" width="520" height="92" as="geometry" />
+        <mxCell id="RWERQ9epUvpY3rjrx78r-12" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- &lt;b&gt;vehicle_id&lt;/b&gt;: str&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;player&lt;/b&gt;: str | None&lt;/div&gt;&lt;div&gt;- &lt;b&gt;game_start&lt;/b&gt;: datetime | None&lt;/div&gt;&lt;div&gt;- &lt;b&gt;active_hacking_scenario&lt;/b&gt;: str&lt;/div&gt;&lt;div&gt;# &lt;b&gt;driving_data_callback&lt;/b&gt;: Callable[[dict], None] | None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;effects&lt;/b&gt;: List[VehicleEffect]&lt;br&gt;&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;location_service&lt;/b&gt;: LocationService&lt;/div&gt;&lt;div&gt;# &lt;b&gt;requested_speed&lt;/b&gt;: float&lt;br&gt;&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;speed_factor&lt;/b&gt;: float&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;current_driving_speed&lt;/b&gt;: int&lt;/div&gt;&lt;div&gt;-&amp;nbsp;&lt;b&gt;lane_change&lt;/b&gt;: int&lt;/div&gt;&lt;div&gt;-&amp;nbsp;&lt;b&gt;lange_change_blocked&lt;/b&gt;: bool&lt;/div&gt;&lt;div&gt;-&amp;nbsp;&lt;b&gt;turn_blocked&lt;/b&gt;: bool&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;is_safemode_on&lt;/b&gt;: bool&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;virtual_location_update_callback&lt;/b&gt;: Callable[[str, dict, float], None] | None&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
+          <mxGeometry y="70" width="520" height="250" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-13" value="&lt;div&gt;+ &lt;b&gt;__init__&lt;/b&gt;(vehicle_id: str): None&lt;/div&gt;&lt;div&gt;&lt;div&gt;@&amp;nbsp;&lt;b&gt;notify_new_track&lt;/b&gt;(new_track: FullTrack): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;extract_controller&lt;/b&gt;(): VehicleController | None&lt;br&gt;+&amp;nbsp;&lt;b&gt;insert_controller&lt;/b&gt;(): None&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;set_player&lt;/b&gt;(key: str): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;remove_player&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;is_free&lt;/b&gt;(): bool&lt;/div&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;get_player_id&lt;/b&gt;(): str | None&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;get_vehicle_id&lt;/b&gt;(): str | None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;__del__&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;get_typ_of_controller&lt;/b&gt;(): VehicleController&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;get_typ_of_location_service&lt;/b&gt;():&amp;nbsp;LocationService&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;set_driving_data_callback&lt;/b&gt;(function_name: Callable[[dict], None]): None&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;set_vehicle_not_reachable_callback&lt;/b&gt;(function_name: Callable[[str, str, str], None]): None&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;set_virtual_location_update_callback&lt;/b&gt;(function_name: Callable[[str, dict, float], None]): None&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;hacking_scenario&lt;/b&gt;(): str&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;hacking_scenario&lt;/b&gt;(value: str): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;get_driving_data&lt;/b&gt;(): dict[str, str | bool | int | float]&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;@&lt;b&gt; speed_request&lt;/b&gt;(): float&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;speed_request&lt;/b&gt;(value: float)&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;speed_factor&lt;/b&gt;(): float&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;speed_factor&lt;/b&gt;(value: float)&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;speed&lt;/b&gt;(): float&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;lane_change_request&lt;/b&gt;(): int&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;lane_change_request&lt;/b&gt;(value: int): None&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;lange_change_blocked&lt;/b&gt;(): bool&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;lange_change_blocked&lt;/b&gt;(value: bool): None&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;lane_change&lt;/b&gt;(): int&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;turn_request&lt;/b&gt;(): int&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;turn_request&lt;/b&gt;(value: int): None&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;turn_blocked&lt;/b&gt;(): bool&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;turn_blocked&lt;/b&gt;(value: bool): None&lt;/div&gt;&lt;div&gt;@ &lt;b&gt;turn&lt;/b&gt;(): None&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
-          <mxGeometry y="162" width="520" height="578" as="geometry" />
+        <mxCell id="RWERQ9epUvpY3rjrx78r-13" value="&lt;div&gt;+ &lt;b&gt;__init__&lt;/b&gt;(vehicle_id: str): None&lt;/div&gt;&lt;div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;notify_new_track&lt;/b&gt;(new_track: FullTrack): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;set_player&lt;/b&gt;(key: str): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;remove_player&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;is_free&lt;/b&gt;(): bool&lt;/div&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;get_player_id&lt;/b&gt;(): str | None&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;get_vehicle_id&lt;/b&gt;(): str | None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;set_driving_data_callback&lt;/b&gt;(function_name: Callable[[dict], None]): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;get_speed_with_effects_applied&lt;/b&gt;(requested_speed: float): int&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;on_driving_data_change&lt;/b&gt;(): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;request_speed_percent&lt;/b&gt;(requested_speed: float)&lt;br&gt;&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;request_lanechange&lt;/b&gt;(direction: int)&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;request_uturn&lt;/b&gt;()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;# &lt;b&gt;new_speed_calculated&lt;/b&gt;(new_speed: int): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;new_offset_calculated&lt;/b&gt;(current_lane: int): None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;uturn_starting&lt;/b&gt;()&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;hacking_scenario&lt;/b&gt;(): str&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;hacking_scenario&lt;/b&gt;(value: str): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;speed_factor&lt;/b&gt;(): float&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;speed_factor&lt;/b&gt;(value: float): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;lange_change_blocked&lt;/b&gt;(): bool&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;lange_change_blocked&lt;/b&gt;(value: bool): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;lane_change&lt;/b&gt;(): int&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;turn_blocked&lt;/b&gt;(): bool&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;turn_blocked&lt;/b&gt;(value: bool): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;update_own_lane_change&lt;/b&gt;(): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;calculate_lane_change&lt;/b&gt;(change_request: int): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;- &lt;b&gt;calculate_turn&lt;/b&gt;(): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;set_safemode&lt;/b&gt;(value: bool): None&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;get_driving_data&lt;/b&gt;(): dict[str, Any]&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_transition&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_offset_update&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;receive_version&lt;/b&gt;(value_tuple): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;receive_battery&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;set_virtual_location_update_callback&lt;/b&gt;(function_name: Callable[[str, dict, float], None]): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;on_virtual_location_update&lt;/b&gt;(pos: Position, angle: Angle, _: dict): None&lt;/div&gt;&lt;div&gt;#&amp;nbsp;&lt;b&gt;location_service_update&lt;/b&gt;(pos: Position, rot: Angle, data: dict): None&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;notify_item_collected&lt;/b&gt;(item: Item&lt;span style=&quot;background-color: initial;&quot;&gt;)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;get_active_effects&lt;/b&gt;()&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;apply_effect&lt;/b&gt;(new_effect: VehicleEffect)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;remove_effect&lt;/b&gt;(effect: VehicleEffect)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;# async&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;test_effect_removal_task&lt;/b&gt;()&lt;/span&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-10" vertex="1">
+          <mxGeometry y="320" width="520" height="720" as="geometry" />
         </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-14" value="VirtualCar" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-260" y="1140" width="200" height="140" as="geometry" />
+          <mxGeometry x="-570" y="1181" width="530" height="120" as="geometry" />
         </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-15" value="Implementation of the virtual car" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
-          <mxGeometry y="26" width="200" height="34" as="geometry" />
+          <mxGeometry y="26" width="530" height="34" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-16" value="# controller: EmptyController&lt;div&gt;# location_service: LocationService&lt;br&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
-          <mxGeometry y="60" width="200" height="50" as="geometry" />
+        <mxCell id="RWERQ9epUvpY3rjrx78r-16" value="&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;# &lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;location_service&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;: LocationService&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
+          <mxGeometry y="60" width="530" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-17" value="" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
-          <mxGeometry y="110" width="200" height="30" as="geometry" />
+        <mxCell id="RWERQ9epUvpY3rjrx78r-17" value="+&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;__init__&lt;/b&gt;(vehicle_id: str,&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;location_service: LocationService,&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;disable_item_removal=False): None&lt;/span&gt;" style="html=1;whiteSpace=wrap;verticalAlign=top;align=left;" parent="RWERQ9epUvpY3rjrx78r-14" vertex="1">
+          <mxGeometry y="90" width="530" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-18" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="RWERQ9epUvpY3rjrx78r-2" target="RWERQ9epUvpY3rjrx78r-10" edge="1">
-          <mxGeometry width="160" relative="1" as="geometry">
-            <mxPoint x="-560" y="700" as="sourcePoint" />
-            <mxPoint x="-1240" y="620" as="targetPoint" />
-            <Array as="points" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-19" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-14" target="RWERQ9epUvpY3rjrx78r-2" edge="1">
+        <mxCell id="RWERQ9epUvpY3rjrx78r-19" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-14" target="RWERQ9epUvpY3rjrx78r-13" edge="1">
           <mxGeometry width="160" relative="1" as="geometry">
             <mxPoint x="-778" y="980" as="sourcePoint" />
             <mxPoint x="-780" y="1382.5" as="targetPoint" />
@@ -96,21 +77,21 @@
         <mxCell id="RWERQ9epUvpY3rjrx78r-25" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" parent="1" vertex="1">
           <mxGeometry x="-900" y="530" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-26" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;" parent="1" source="RWERQ9epUvpY3rjrx78r-2" edge="1">
+        <mxCell id="RWERQ9epUvpY3rjrx78r-26" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;" parent="1" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-930" y="795.66" as="sourcePoint" />
+            <mxPoint x="-980" y="1404.5454545454545" as="sourcePoint" />
             <mxPoint x="-1140" y="1270" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-27" value="VehicleController" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-26" vertex="1" connectable="0">
           <mxGeometry x="0.3746" y="1" relative="1" as="geometry">
-            <mxPoint x="-100" y="-4" as="offset" />
+            <mxPoint x="-89" y="-43" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-28" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=-0.002;exitY=0.854;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-4" edge="1">
+        <mxCell id="RWERQ9epUvpY3rjrx78r-28" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=halfCircle;endFill=0;endSize=6;strokeWidth=1;sketch=0;fontSize=12;curved=1;exitX=-0.002;exitY=0.854;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-910" y="820" as="sourcePoint" />
-            <mxPoint x="-1140" y="1300" as="targetPoint" />
+            <mxPoint x="-981.1199999999999" y="1660.1399999999999" as="sourcePoint" />
+            <mxPoint x="-1200" y="1490" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="RWERQ9epUvpY3rjrx78r-29" value="FullTrack" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="RWERQ9epUvpY3rjrx78r-28" vertex="1" connectable="0">
@@ -157,51 +138,134 @@
         <mxCell id="RWERQ9epUvpY3rjrx78r-37" value="" style="ellipse;whiteSpace=wrap;html=1;align=center;aspect=fixed;fillColor=none;strokeColor=none;resizable=0;perimeter=centerPerimeter;rotatable=0;allowArrows=0;points=[];outlineConnect=1;" parent="1" vertex="1">
           <mxGeometry x="-640" y="800" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="RWERQ9epUvpY3rjrx78r-38" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-6" target="RWERQ9epUvpY3rjrx78r-3" edge="1">
+        <mxCell id="RWERQ9epUvpY3rjrx78r-38" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;" parent="1" source="RWERQ9epUvpY3rjrx78r-6" target="RWERQ9epUvpY3rjrx78r-13" edge="1">
           <mxGeometry width="160" relative="1" as="geometry">
             <mxPoint x="-549.5795905809696" y="1258.03" as="sourcePoint" />
             <mxPoint x="-580" y="1399.3478260869565" as="targetPoint" />
             <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-16" value="" style="group" vertex="1" connectable="0" parent="1">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-16" value="" style="group" parent="1" vertex="1" connectable="0">
           <mxGeometry x="-410" y="230" width="1030" height="330" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-15" value="InitializationCar" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;align=left;verticalAlign=top;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-16">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-15" value="InitializationCar" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;align=left;verticalAlign=top;" parent="WbXBVxSet6s21dV8RhPH-16" vertex="1">
           <mxGeometry width="1030" height="330" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WbXBVxSet6s21dV8RhPH-16" source="WbXBVxSet6s21dV8RhPH-4" target="WbXBVxSet6s21dV8RhPH-9">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WbXBVxSet6s21dV8RhPH-16" source="WbXBVxSet6s21dV8RhPH-4" target="WbXBVxSet6s21dV8RhPH-9" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-4" value="InitializationCar" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-16">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-4" value="InitializationCar" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="WbXBVxSet6s21dV8RhPH-16" vertex="1">
           <mxGeometry x="31.53061224489796" y="69" width="550" height="210" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-5" value="# controller: AnkiController&lt;div&gt;#&amp;nbsp;piece_ids: List[ScannedPiece]&lt;/div&gt;&lt;div&gt;#&amp;nbsp;finished_scanning_event: Event&lt;/div&gt;&lt;div&gt;#&amp;nbsp;new_piece: bool&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-4">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-5" value="# controller: AnkiController&lt;div&gt;#&amp;nbsp;piece_ids: List[ScannedPiece]&lt;/div&gt;&lt;div&gt;#&amp;nbsp;finished_scanning_event: Event&lt;/div&gt;&lt;div&gt;#&amp;nbsp;new_piece: bool&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="WbXBVxSet6s21dV8RhPH-4" vertex="1">
           <mxGeometry y="26" width="550" height="74" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-6" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-4">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-6" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="WbXBVxSet6s21dV8RhPH-4" vertex="1">
           <mxGeometry y="100" width="550" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-7" value="+ async &lt;b&gt;run&lt;/b&gt;(): List[TrackPiece] | None&lt;div&gt;#&amp;nbsp;async &lt;b&gt;scan_for_track_ids&lt;/b&gt;(): List[ScannedPiece]&lt;/div&gt;&lt;div&gt;# &lt;b&gt;receive_location&lt;/b&gt;(value_tuple): None&lt;br&gt;#&amp;nbsp;&lt;b&gt;receive_transition&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;nop&lt;/b&gt;(): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;# &lt;b&gt;convert_collected_data_to_pieces&lt;/b&gt;(scanned_pieces:&amp;nbsp; list[ScannedPiece]): list[TrackPiece]&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-4">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-7" value="+ async &lt;b&gt;run&lt;/b&gt;(): List[TrackPiece] | None&lt;div&gt;#&amp;nbsp;async &lt;b&gt;scan_for_track_ids&lt;/b&gt;(): List[ScannedPiece]&lt;/div&gt;&lt;div&gt;# &lt;b&gt;receive_location&lt;/b&gt;(value_tuple): None&lt;br&gt;#&amp;nbsp;&lt;b&gt;receive_transition&lt;/b&gt;(value_tuple): None&lt;/div&gt;&lt;div&gt;# &lt;b&gt;nop&lt;/b&gt;(): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;# &lt;b&gt;convert_collected_data_to_pieces&lt;/b&gt;(scanned_pieces:&amp;nbsp; list[ScannedPiece]): list[TrackPiece]&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="WbXBVxSet6s21dV8RhPH-4" vertex="1">
           <mxGeometry y="108" width="550" height="102" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WbXBVxSet6s21dV8RhPH-16" source="WbXBVxSet6s21dV8RhPH-8" target="WbXBVxSet6s21dV8RhPH-13">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WbXBVxSet6s21dV8RhPH-16" source="WbXBVxSet6s21dV8RhPH-8" target="WbXBVxSet6s21dV8RhPH-13" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-8" value="ScannedPiece" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-16">
-          <mxGeometry x="630.001224489796" y="64" width="315.3061224489796" height="168" as="geometry" />
+        <mxCell id="WbXBVxSet6s21dV8RhPH-8" value="ScannedPiece" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="WbXBVxSet6s21dV8RhPH-16" vertex="1">
+          <mxGeometry x="630.001224489796" y="64" width="315.31" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-9" value="# piece_id: int&lt;div&gt;# locations: List[int]&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-8">
-          <mxGeometry y="26" width="315.3061224489796" height="44" as="geometry" />
+        <mxCell id="WbXBVxSet6s21dV8RhPH-9" value="# piece_id: int&lt;div&gt;# locations: List[int]&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="WbXBVxSet6s21dV8RhPH-8" vertex="1">
+          <mxGeometry y="26" width="315.31" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-10" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-8">
-          <mxGeometry y="70" width="315.3061224489796" height="8" as="geometry" />
+        <mxCell id="WbXBVxSet6s21dV8RhPH-10" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="WbXBVxSet6s21dV8RhPH-8" vertex="1">
+          <mxGeometry y="70" width="315.31" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-11" value="+ &lt;b&gt;get_id&lt;/b&gt;():&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;int | None&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;add_location&lt;/b&gt;(location: int): None&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ &lt;b&gt;reset_locations&lt;/b&gt;(): None&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;is_fully_scanned&lt;/b&gt;(): bool&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;is_location_counting_downwards&lt;/b&gt;(): bool | None&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-8">
-          <mxGeometry y="78" width="315.3061224489796" height="90" as="geometry" />
+        <mxCell id="WbXBVxSet6s21dV8RhPH-11" value="&lt;div&gt;+&amp;nbsp;&lt;b&gt;__eq__&lt;/b&gt;(other): bool&lt;/div&gt;+ &lt;b&gt;get_id&lt;/b&gt;():&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;int | None&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;add_location&lt;/b&gt;(location: int): None&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ &lt;b&gt;reset_locations&lt;/b&gt;(): None&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;is_fully_scanned&lt;/b&gt;(): bool&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;is_location_counting_downwards&lt;/b&gt;(): bool | None&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="WbXBVxSet6s21dV8RhPH-8" vertex="1">
+          <mxGeometry y="78" width="315.31" height="102" as="geometry" />
         </mxCell>
-        <mxCell id="WbXBVxSet6s21dV8RhPH-13" value="# &lt;b&gt;raw_location_to_normalized_location&lt;/b&gt;(piece: int, location: int): int" style="rounded=0;whiteSpace=wrap;html=1;align=left;" vertex="1" parent="WbXBVxSet6s21dV8RhPH-16">
+        <mxCell id="WbXBVxSet6s21dV8RhPH-13" value="# &lt;b&gt;raw_location_to_normalized_location&lt;/b&gt;(piece: int, location: int): int" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="WbXBVxSet6s21dV8RhPH-16" vertex="1">
           <mxGeometry x="630.001224489796" y="264" width="399.3877551020408" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-1" value="Effects" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;" vertex="1" parent="1">
+          <mxGeometry x="750" y="30" width="740" height="670" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-2" value="VehicleEffect&lt;div&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;{abstract}&lt;/span&gt;&lt;/div&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="790" y="100" width="290" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-2">
+          <mxGeometry y="40" width="290" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-5" value="@ &lt;b&gt;identify&lt;/b&gt;(): VehicleEffectIdentification&lt;div&gt;+ &lt;b&gt;can_be_applied&lt;/b&gt;(vehicle: &#39;Vehicle&#39;): bool&lt;/div&gt;&lt;div&gt;+ &lt;b&gt;on_start&lt;/b&gt;(vehicle: &#39;Vehicle&#39;): None&lt;br&gt;&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;on_end&lt;/b&gt;(vehicle: &#39;Vehicle&#39;): None&lt;/div&gt;&lt;div&gt;@&amp;nbsp;&lt;b&gt;effect_should_end&lt;/b&gt;(vehicle: &#39;Vehicle&#39;): bool&lt;/div&gt;&lt;div&gt;+&amp;nbsp;&lt;b&gt;conflicts_with&lt;/b&gt;(): List[VehicleEffectIdentification]&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-2">
+          <mxGeometry y="48" width="290" height="112" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-6" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;&amp;lt;&amp;lt;enum&amp;gt;&amp;gt;&lt;/span&gt;&lt;br&gt;VehicleEffectList" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="110" width="240" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-7" value="&lt;div&gt;HACKING_PROTECTION = 1&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;HACKED_REDUCED_SPEED = 2&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;HACKED_NO_DRIVING = 3&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;HACKED_NO_SAFETY_MODULE = 4&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;CLEAN_HACKED_EFFECTS = 5&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-6">
+          <mxGeometry y="40" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-6">
+          <mxGeometry y="120" width="240" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-10" value="HackingEffects" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="790" y="300" width="650" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" parent="1" source="nWTy7DS2E0MgDIy3HXsS-11" target="nWTy7DS2E0MgDIy3HXsS-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-11" value="CleanHackingEffect" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="400" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-12" value="#&amp;nbsp;_scenario: str" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-11">
+          <mxGeometry y="26" width="160" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-13" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-11">
+          <mxGeometry y="52" width="160" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" parent="1" source="nWTy7DS2E0MgDIy3HXsS-16" target="nWTy7DS2E0MgDIy3HXsS-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-16" value="HackedEffect&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;{abstract}&lt;/span&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="400" width="330" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-17" value="#&amp;nbsp;_scenario: str" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-16">
+          <mxGeometry y="40" width="330" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-18" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-16">
+          <mxGeometry y="66" width="330" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-19" value="+&amp;nbsp;&lt;b&gt;remove_other_hacking_effects&lt;/b&gt;(vehicle: Vehicle): None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-16">
+          <mxGeometry y="74" width="330" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" parent="1" source="nWTy7DS2E0MgDIy3HXsS-21" target="nWTy7DS2E0MgDIy3HXsS-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-21" value="HackedNoDriving" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="890" y="580" width="160" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-23" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-21">
+          <mxGeometry y="26" width="160" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" parent="1" source="nWTy7DS2E0MgDIy3HXsS-26" target="nWTy7DS2E0MgDIy3HXsS-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-26" value="HackedNoSafetyModule" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="580" width="160" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-28" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-26">
+          <mxGeometry y="26" width="160" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;" edge="1" parent="1" source="nWTy7DS2E0MgDIy3HXsS-31" target="nWTy7DS2E0MgDIy3HXsS-16">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1330" y="540" />
+              <mxPoint x="1165" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-31" value="HackedReducedSpeed" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="580" width="160" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="nWTy7DS2E0MgDIy3HXsS-33" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="nWTy7DS2E0MgDIy3HXsS-31">
+          <mxGeometry y="26" width="160" height="8" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

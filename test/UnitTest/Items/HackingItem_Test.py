@@ -8,14 +8,12 @@ from DataModel.Effects.HackingEffects.HackedNoSafetyModule import HackedNoSafety
 from DataModel.Effects.HackingEffects.HackedReducedSpeed import HackedReducedSpeed
 from DataModel.VirtualCar import VirtualCar
 from LocationService.LocationService import LocationService
-from VehicleManagement.VehicleController import VehicleController
 
 
 @pytest.fixture
 def init_vehicle():
     location_mock = MagicMock(spec=LocationService)
-    controller_mock = MagicMock(spec=VehicleController)
-    car = VirtualCar('123', controller_mock, location_mock, disable_item_removal=True)
+    car = VirtualCar('123', location_mock, disable_item_removal=True)
     return car
 
 
@@ -78,7 +76,7 @@ async def test_hacking_effects_change_speedfactor(init_vehicle, init_effects):
     car.remove_effect(no_driving_effect)
 
     car.apply_effect(no_safemodule_effect)
-    assert not car.isSafeModeOn
+    assert not car._is_safemode_on
     assert car.speed_factor == 1.5
     car.remove_effect(no_safemodule_effect)
 

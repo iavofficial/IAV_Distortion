@@ -7,6 +7,7 @@ from socketio import AsyncServer
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from LocationService.LocationService import LocationService
 from UserInterface.DriverUI import DriverUI
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
@@ -31,7 +32,8 @@ def initialise_dependencies():
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_manager, sio=socket)
 
-    vehicle: Vehicle = Vehicle('1234', disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle: Vehicle = Vehicle('1234', location_service_mock, disable_item_removal=True)
 
     return driver_ui, environment_manager, vehicle
 

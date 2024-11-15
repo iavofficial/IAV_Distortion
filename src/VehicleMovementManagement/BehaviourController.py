@@ -27,7 +27,7 @@ class BehaviourController:
     # Driver Controller
     def request_speed_change_for(self, uuid: str, value_perc: float) -> None:
         vehicle = self.get_vehicle_by_uuid(uuid)
-        vehicle.speed_request = value_perc
+        vehicle.request_speed_percent(value_perc)
 
         print(f"Switch speed to {value_perc}. UUID: {uuid}")
         return
@@ -35,22 +35,22 @@ class BehaviourController:
     def request_lane_change_for(self, uuid: str, value: str) -> None:
         vehicle = self.get_vehicle_by_uuid(uuid)
         if value == "right":
-            vehicle.lane_change_request = 1
-            print(f"Switch Lane to right ({vehicle.lane_change_request}) for {uuid}")
+            vehicle.request_lanechange(1)
+            print(f"Switch Lane to right (1) for {uuid}")
 
         elif value == "left":
-            vehicle.lane_change_request = -1
-            print(f"Switch Lane to left ({vehicle.lane_change_request}) for {uuid}")
+            vehicle.request_lanechange(-1)
+            print(f"Switch Lane to left (-1) for {uuid}")
 
         else:
-            vehicle.lane_change_request = 0
-            print(f"Stay in lane ({vehicle.lane_change_request}) for {uuid}")
+            vehicle.request_lanechange(0)
+            print(f"Stay in lane (0) for {uuid}")
 
         return
 
     def request_uturn_for(self, uuid: str) -> None:
         vehicle = self.get_vehicle_by_uuid(uuid)
-        vehicle.turn_request = 3
+        vehicle.request_uturn()
         print(f"Make u-turn for ({uuid})")
         return
 

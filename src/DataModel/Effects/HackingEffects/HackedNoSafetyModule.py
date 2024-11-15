@@ -11,8 +11,8 @@ class HackedNoSafetyModule(HackedEffect):
         super().on_start(vehicle)
         self.remove_other_hacking_effects(vehicle)
         vehicle.speed_factor = 1.5
-        vehicle.isSafeModeOn = False
+        vehicle.set_safemode(False)
 
     def on_end(self, vehicle: 'Vehicle') -> None:
         vehicle.speed_factor = 1
-        vehicle.isSafeModeOn = True
+        vehicle.set_safemode(True)
