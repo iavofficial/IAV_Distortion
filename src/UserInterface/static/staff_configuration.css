@@ -51,3 +51,23 @@ body{
     background-color: white;
     padding: 10px;
 }
+
+.qr_codes_block {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.qr_code {
+    display: flex;
+    flex-direction: column;
+    max-width: 30vw;
+}
+
+.menu_item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0px 10px 10px 10px;
+}

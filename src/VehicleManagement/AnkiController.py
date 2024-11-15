@@ -10,6 +10,8 @@ import asyncio
 import struct
 import logging
 from typing import Callable, Coroutine, Any
+
+import Constants
 from VehicleManagement.VehicleController import VehicleController, Turns, TurnTrigger
 from bleak import BleakClient
 from bleak.exc import BleakError
@@ -33,10 +35,6 @@ class AnkiController(VehicleController):
 
         super().__init__()
         self.task_in_progress: bool = False
-
-        self.__MAX_ANKI_SPEED = 1200  # mm/s
-        self.__MAX_ANKI_ACCELERATION = 2500  # mm/s^2
-        self.__LANE_OFFSET = 22.25
 
         self.__location_callback: Callable[[], None] | None = None
         self.__transition_callback: Callable[[], None] | None = None
@@ -282,7 +280,7 @@ class AnkiController(VehicleController):
             True
         """
         limit_int = int(respect_speed_limit)
-        speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
+        speed_int = int(Constants.MAX_ANKI_SPEED * velocity / 100)
         accel_int = acceleration
 
         command = struct.pack("<BHHH", 0x24, speed_int, accel_int, limit_int)
@@ -309,8 +307,8 @@ class AnkiController(VehicleController):
         bool
             True
         """
-        speed_int = int(self.__MAX_ANKI_SPEED * velocity / 100)
-        lane_direction = self.__LANE_OFFSET * change_direction
+        speed_int = int(Constants.MAX_ANKI_SPEED * velocity / 100)
+        lane_direction = Constants.TRACK_LANE_WIDTH * change_direction
         command = struct.pack("<BHHf", 0x25, speed_int, acceleration, lane_direction)
         logger.debug("Changed lane direction %i", lane_direction)
         self.__send_command(command)

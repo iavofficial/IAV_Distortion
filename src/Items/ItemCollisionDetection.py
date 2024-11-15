@@ -13,6 +13,8 @@ class ItemCollisionDetector:
 
     def notify_new_vehicle_position(self, vehicle: Vehicle, vehicle_position: Position, vehicle_rotation: Angle):
         for item in self._items:
+            if item.get_position() is None:
+                continue
             if item.get_position().distance_to(vehicle_position) < 40:
                 vehicle.notify_item_collected(item)
                 self.remove_item(item)
