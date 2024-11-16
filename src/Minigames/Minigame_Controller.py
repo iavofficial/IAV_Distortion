@@ -52,9 +52,21 @@ class Minigame_Controller:
         self._available_minigames : list[str] = []
         for minigame in Minigame_Controller.minigames.keys():
             self._minigame_objects[minigame] = Minigame_Controller.minigames[minigame](sio, minigame_ui_blueprint)
-            self._available_minigames.append(minigame)
+            try:
+                if self._config_handler.get_configuration()['minigame']['games'][minigame] != '0':
+                    self._available_minigames.append(minigame)
+            except KeyError:
+                logger.warning(f"No valid value for minigame: games: {minigame} in config_file. Using default value 0 ('not playable').")
 
         Minigame_Controller.instance = self
+
+    def set_available_minigames(self, available_minigames : list[str]):
+        self._available_minigames.clear()
+        for minigame in available_minigames:
+            if minigame in self._minigame_objects.keys():
+                self._available_minigames.append(minigame)
+            else:
+                logger.warning(f"The given minigame {minigame} could not be added to the available minigames list because no instance of it exists.")
 
     def set_minigame_start_callback(self, callback : Callable[Task, Minigame]) -> None:
         """
@@ -78,10 +90,11 @@ class Minigame_Controller:
         """
         self._minigame_start_callback(minigame_task, minigame_object)
 
-    def get_instance(sio: AsyncServer = None, minigame_ui_blueprint : Blueprint = None) -> "Minigame_Controller":
-        if Minigame_Controller.instance is None:
-            Minigame_Controller.instance = Minigame_Controller(sio = sio, minigame_ui_blueprint = minigame_ui_blueprint)
-        return Minigame_Controller.instance
+    @classmethod
+    def get_instance(cls, sio: AsyncServer = None, minigame_ui_blueprint : Blueprint = None) -> "Minigame_Controller":
+        if cls.instance is None:
+            cls.instance = cls(sio = sio, minigame_ui_blueprint = minigame_ui_blueprint)
+        return cls.instance
 
     def handle_player_removed(self, player_id : str) -> None:
         """
@@ -154,7 +167,13 @@ class Minigame_Controller:
         tuple[None, None]: if the minigame could not be started for some reason
         """
         if len(self._available_minigames) == 0:
-            raise Exception("No minigame is currently available.")
+            print(f"No minigame is currently available for the players {players}. First player will be set as winner.")
+
+            async def return_player(player):
+                return player
+
+            return asyncio.create_task(return_player(players[0])), None
+
         minigame = random.choice(self._available_minigames)
 
         return self._play_minigame(minigame, *players)
