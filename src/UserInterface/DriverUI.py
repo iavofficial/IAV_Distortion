@@ -222,7 +222,7 @@ class DriverUI:
             # Try to start Minigame
             minigame_task, minigame_object = Minigame_Controller.get_instance().play_random_available_minigame(player, target_player)
             
-            if minigame_task is None or minigame_object is None:
+            if minigame_task is None:
                 logger.warning(f"DriverUI: The minigame for player {player} and player {target_player} could not be started for some reason. Ignoring the request.")
                 return
             winner = await minigame_task
