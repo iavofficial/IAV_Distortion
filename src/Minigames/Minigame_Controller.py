@@ -53,7 +53,7 @@ class Minigame_Controller:
         for minigame in Minigame_Controller.minigames.keys():
             self._minigame_objects[minigame] = Minigame_Controller.minigames[minigame](sio, minigame_ui_blueprint)
             try:
-                if self._config_handler.get_configuration()['minigame']['games'][minigame] != '0':
+                if self._config_handler.get_configuration()['minigame']['games'][minigame]:
                     self._available_minigames.append(minigame)
             except KeyError:
                 logger.warning(f"No valid value for minigame: games: {minigame} in config_file. Using default value 0 ('not playable').")
@@ -67,6 +67,7 @@ class Minigame_Controller:
                 self._available_minigames.append(minigame)
             else:
                 logger.warning(f"The given minigame {minigame} could not be added to the available minigames list because no instance of it exists.")
+        print("New available minigame list:", self._available_minigames)
 
     def set_minigame_start_callback(self, callback : Callable[Task, Minigame]) -> None:
         """

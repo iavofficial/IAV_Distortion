@@ -1,0 +1,57 @@
+{% extends 'staff_config_base.html' %}
+
+{% block content %}
+
+<div class="flexbox-item config_content">
+    <form id="minigame_settings" action="{{ url_for('staffUI_bp.apply_minigame_settings') }}" method="post">
+        <div id="general">
+            <h2>General Minigame Settings</h2>
+            <div class="menu_item">
+                <label class="checkbox-container"> Make cars drive at constant speed while drivers are playing a minigame:
+                    <input type="checkbox" id="auto_drive_constantly" name="auto_drive_constantly">
+                    <span class="custom-checkbox"></span>    
+                </label>
+            </div>
+            <div class="menu_item">
+                <label for="driving_speed_while_playing">Speed % of drivers' cars while they are playing:</label>
+                <input type="number" id="driving_speed_while_playing" name="driving_speed_while_playing" min="0" max="100">
+            </div>
+        </div>
+
+        <div id="available_minigames">
+            <h2>Available Minigames</h2>
+            <div class="menu_item">
+                <label class="checkbox-container"> Minigame_Test:
+                    <input type="checkbox" id="Minigame_Test" name="Minigame_Test">
+                    <span class="custom-checkbox"></span>    
+                </label>
+            </div>
+        </div>
+        <button type="submit">Apply changes... </button>
+    </form>
+</div>
+
+<script>
+
+
+    function displayCurrentConfig(data) {
+        var settings = {{ settings | tojson }};
+
+        // Checkboxes
+        document.getElementById('auto_drive_constantly').checked = settings['minigame']['auto_drive_constantly']
+        let minigameCheckboxes = ['Minigame_Test'] 
+        minigameCheckboxes.forEach( (id) => {
+            document.getElementById(id).checked = settings['minigame']['games'][id]
+        })
+
+        // numbers
+        driving_speed_while_playing.value = settings.minigame.driving_speed_while_playing;
+    }
+
+
+    // Call the function after the DOM has fully loaded
+    document.addEventListener('DOMContentLoaded', displayCurrentConfig);
+</script>
+
+
+{% endblock %}

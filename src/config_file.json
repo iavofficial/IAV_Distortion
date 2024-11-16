@@ -101,8 +101,12 @@
 			"diameter": 184
 		}
 	],
-	"minigame" : {
-		"driving_speed_while_playing" : 30
+	"minigame": {
+		"auto_drive_constantly": true,
+		"driving_speed_while_playing": 30,
+		"games": {
+			"Minigame_Test": true
+		}
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
