@@ -410,6 +410,8 @@
         if (items[i].textContent === device + "Add") {
             list.removeChild(items[i]);
             break;
+        }
+      }
     }
     /**
       * Emits 'add_bot_to_vehicle' event.
@@ -446,7 +448,7 @@ $(document).ready(function() {
             $(this).parent().addClass('active'); // Adds 'active' class to the parent div
         }
     });
-
+});
 </script>
 
 </body>
