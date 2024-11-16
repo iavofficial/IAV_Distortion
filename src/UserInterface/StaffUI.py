@@ -285,6 +285,26 @@ class StaffUI:
             logger.debug("Vehicle deleted %s", vehicle_id)
             return
 
+        @self._sio.on('add_bot_to_vehicle')
+        async def handle_add_bot_to_vehicle(sid, vehicle_id: str) -> None:
+            """
+            Handles the 'add_bot_to_vehicle' websocket event.
+
+            This function checks if the client is authenticated. If not, it logs a warning and returns early. If the
+            client is authenticated, it logs a debug for the added bot and calls the EnvironmentManager to add
+            the bot to the vehicle
+
+            Parameters
+            ----------
+            vehicle_id: str
+                ID of the vehicle that gets the bot.
+            """
+            # TODO: authentication check for websocket events
+            environment_mng.add_bot_to_vehicle(vehicle_id)
+            await self._sio.emit('bot_added', {'vehicle_id': vehicle_id})
+            logger.debug("Bot added to %s", vehicle_id)
+            return
+
         @self._sio.on('get_update_hacking_scenarios')
         async def update_hacking_scenarios(sid) -> None:
             """
@@ -513,7 +533,7 @@ class StaffUI:
             scenario_descriptions.update({scenario['id']: scenario['description']})
         return scenario_names, scenario_descriptions
 
-    def publish_new_data(self, car_map, car_queue, player_queue) -> None:
+    def publish_new_data(self, car_map, car_queue, player_queue, vehicle_with_bots) -> None:
         """
         Publish relevant data via 'update_uuids' websocket event.
 
@@ -528,8 +548,10 @@ class StaffUI:
             Contains ID's of available and not by a player controlled vehicles.
         player_queue: list
             Contains ID's of players waiting in the queue.
+        vehicle_with_bots: list
+            Contains ID's of vehicles that are controlled by bots
         """
-        data = {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue}
+        data = {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue, "vehicle_with_bots": vehicle_with_bots}
         self.__run_async_task(self.__emit_new_data(data))
         return
 
