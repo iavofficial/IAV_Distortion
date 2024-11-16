@@ -315,6 +315,9 @@ class EnvironmentManager:
                         logger.debug('Playtime checker is not needed.')
                     self.update_staff_ui()
                     assigned_any_player = True
+                    for b in self._active_bots:
+                        b.set_is_player_active(True)
+
         return assigned_any_player
 
     def manage_removal_from_game_for(self,
@@ -339,13 +342,31 @@ class EnvironmentManager:
         """
         player_was_removed = (self.__remove_player_from_waitlist(player_id) or
                               self.__remove_player_from_vehicle(player_id))
-
         if player_was_removed:
             self._publish_removed_player(player_id=player_id, reason=reason)
             self.update_staff_ui()
+            self.manage_bot_safe_mode()
             return True
         else:
             return False
+
+    def manage_bot_safe_mode(self)-> None:
+        is_no_player_left = True
+        for v_id in self._active_physical_cars:
+            v = self.get_vehicle_by_vehicle_id(v_id)
+            if v.get_player_id() != None:
+                is_no_player_left = False
+        for v_id in self._active_virtual_cars:
+            v = self.get_vehicle_by_vehicle_id(v_id)
+            print(v.get_player_id)
+            if v.get_player_id() != None:
+                is_no_player_left = False
+        if is_no_player_left == True:
+            for b in self._active_bots:
+                b.set_is_player_active(False)
+        else:
+            for b in self._active_bots:
+                b.set_is_player_active(True)
 
     def __remove_player_from_waitlist(self, player_id: str) -> bool:
         """
@@ -641,6 +662,7 @@ class EnvironmentManager:
     def add_bot_to_vehicle(self, vehicle_id: str) -> None:
         new_bot = Bot(vehicle_id, self._behaviour_ctrl)
         self._active_bots.append(new_bot)
+        self.manage_bot_safe_mode()
 
     # TODO check if all 4 return functions are needed:
     #   - get_vehicle_list
