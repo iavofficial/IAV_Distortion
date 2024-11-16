@@ -391,6 +391,24 @@ class StaffUI:
             return await render_template(template_name_or_list='staff_config_advanced_settings.html',
                                          settings=settings)
 
+        @self.staffUI_blueprint.route('/configuration/config_minigame_settings')
+        async def config_minigame_settings() -> Any:
+            """
+            Renders the minigame settings page for the staff user interface.
+            
+            If client is not authenticated, client is redirected to the login page. Get current configuration and send
+            it to frontend.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the minigame settings page or a redirect to the login page, if not
+                authenticated.
+            """
+            settings = self.config_handler.get_configuration()
+            return await render_template(template_name_or_list='staff_config_minigame_settings.html',
+                                         settings=settings)
+
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:
             """
@@ -609,6 +627,37 @@ class StaffUI:
             return await config_advanced_settings()
         self.staffUI_blueprint.add_url_rule('/apply_advanced_settings', methods=['POST'],
                                             view_func=apply_advanced_settings)
+                                            
+        async def apply_minigame_settings() -> Any:
+            """
+            Function to receive settings from minigame settings tab in staff ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui advanced settings page.
+            """
+            new_settings = (await request.form)
+            # TODO: create function to automatically create json for new settings
+            print(new_settings)
+            new_settings = {
+                'minigame': {
+                    'auto_drive_constantly' : new_settings.get('auto_drive_constantly') == 'on',
+                    'driving_speed_while_playing': int(new_settings.get('driving_speed_while_playing')),
+                    'games' : {
+                        'Minigame_Test' : new_settings.get('Minigame_Test') == 'on'
+                    }
+                }
+            }
+
+            Minigame_Controller.get_instance().set_available_minigames([game for game, value in new_settings['minigame']['games'].items() if value])
+
+            self.config_handler.write_configuration(new_config=new_settings)
+
+            self.publish_reload_uis()
+            return await config_minigame_settings()
+        self.staffUI_blueprint.add_url_rule('/apply_minigame_settings', methods=['POST'],
+                                            view_func=apply_minigame_settings)
 
     def get_blueprint(self) -> Blueprint:
         """

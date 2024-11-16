@@ -41,7 +41,10 @@
 	},
 	"item": {
 		"item_spawn_interval": 30,
-		"item_max_count": 2
+		"item_max_count" : 2
+	},
+	"minigame" : {
+		"driving_speed_while_playing" : 30
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
@@ -70,8 +73,5 @@
 			"disp_cm_track_border_color": "#001a54",
 			"disp_cm_start_line_color": "#5500b4"
 		}
-	},
-	"minigame" : {
-		"driving_speed_while_playing" : 30
 	}
 }
