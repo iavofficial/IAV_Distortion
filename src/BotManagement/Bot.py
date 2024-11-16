@@ -20,6 +20,8 @@ class Bot:
         self.is_player_active = is_player_active
         if(self.is_player_active == False):
             self._behaviour_ctrl.request_speed_change_for(uuid = self.vehicle, value_perc = 30.0)
+        else:
+             self._behaviour_ctrl.request_speed_change_for(uuid = self.vehicle, value_perc = 50.0)
 
     async def _drive_automatically(self):
         self._behaviour_ctrl.request_speed_change_for(uuid = self.vehicle, value_perc = 30.0)
