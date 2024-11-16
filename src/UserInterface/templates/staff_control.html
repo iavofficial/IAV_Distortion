@@ -1,83 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
     <title>Staff_Control</title>
 
     <!-- general stylesheet -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='general.css')}}"
-    />
-    <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/general.css" />
-    <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
 
     <!-- custom header stylesheet -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='custom_header.css')}}"
-    />
-    <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/custom_header.css" />
-    <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
 
     <!-- specific stylesheet -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='staff_control.css')}}"
-    />
-    <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/staff_control.css" />
-    <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->
 
     <!-- Include socket.io library -->
-    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}"></script>
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
     <script src="{{ url_for('static', filename='external_resources/jquery-3.7.1.min.js')}}"></script>
-  </head>
-  <body>
+
+</head>
+<body>
     <div class="flexbox-container custom_header">
-      <div class="flexbox-container custom_header">
-        <p class="header">IAV Distortion</p>
-        <div class="header_menu-container">
-          <div class="header_menu-item">
-            <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
-          </div>
-          <div class="header_menu-item">
-            <a href="{{ url_for('staffUI_bp.config_home') }}">Configuration</a>
-          </div>
+        <div class="flexbox-container custom_header">
+            <p class="header">IAV Distortion</p>
+            <div class="header_menu-container">
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
+                </div>
+                <div class="header_menu-item">
+                    <a href="{{ url_for('staffUI_bp.config_home') }}">Configuration</a>
+                </div>
+            </div>
         </div>
-      </div>
-      <img
-        id="logo"
-        src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}"
-        onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'"
-      />
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
     <div class="flexbox-container">
-      <div class="flexbox-item flexbox-hacking_cars">
+        <div class="flexbox-item flexbox-hacking_cars">
         <h2>Choose Hacking-Scenarios:</h2>
-        <div class="choose_cars_container" id="choose_hacking_scenarios"></div>
-      </div>
+            <div class="choose_cars_container" id="choose_hacking_scenarios">  </div>
+        </div>
 
-      <div id="data" class="flexbox-item flexbox-manageCars">
-        <h2>List of Players/Cars:</h2>
-        <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
+        <div id="data" class="flexbox-item flexbox-manageCars">
+            <h2>List of Players/Cars:</h2>
+            <div class="flexbox-item flexbox-activeCars" id="table-container"></div>
 
-        <h3>Add physical cars...</h3>
-        <button id="search_cars">Search...</button>
-        <ul class="flexbox-item flexbox-activeCars" id="devices"></ul>
+            <h3>Add physical cars... </h3>
+            <button id="search_cars"> Search... </button>
+            <ul class="flexbox-item flexbox-activeCars" id="devices"></ul>
 
-        <h3>Add virtual car</h3>
-        <button id="add_virtual_car">Add</button>
-      </div>
+            <h3>Add virtual car</h3>
+            <button id="add_virtual_car"> Add</button>
+        </div>
+
     </div>
 
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
     var virtualCarsPics = {{ virtual_cars_pics | tojson | safe }};
 
+    /**
+    * Handle 'connect' event.
+    *
+    * Send 'get_uuids' event to gather information about queues and active cars and players.
+    */
+    socket.on('connect', function(){
+        socket.emit('get_uuids');
+    });
       /**
        * Handle 'connect' event.
        *
@@ -87,6 +78,22 @@
         socket.emit("get_uuids");
       });
 
+    /**
+    * Handle 'update_uuids' event.
+    *
+    * Create and update the table of active cars, players and queues.
+    *
+    * @param {Object.<string, Array.<Object.<string, string>|string>>} data - Dict contains list of dictionary of active
+    *     cars and assigned players, list of free cars, list of players in the queue
+    *
+    */
+    socket.on('update_uuids', function(data){
+        var map_data = data["car_map"];
+        var car_queue = data["car_queue"];
+        var player_queue=data["player_queue"];
+        var vehicle_with_bots = data["vehicle_with_bots"];
+        $('#table-container').empty();
+        var uuids_table = document.createElement('table');
       /**
        * Handle 'update_uuids' event.
        *
@@ -120,6 +127,8 @@
         header_uuid.innerText = "UUID";
         header_row.appendChild(header_uuid);
 
+        thead.appendChild(header_row);
+        uuids_table.appendChild(thead);
         thead.appendChild(header_row);
         uuids_table.appendChild(thead);
 
