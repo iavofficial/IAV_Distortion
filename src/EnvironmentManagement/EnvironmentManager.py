@@ -16,6 +16,7 @@ from typing import List, Dict, Callable
 from collections import deque
 from deprecated import deprecated
 
+from DataModel.Driver import Driver
 from Items.ItemCollisionDetection import ItemCollisionDetector
 from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
@@ -29,7 +30,6 @@ from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track
     full_track_to_list_of_dicts
 
 from VehicleManagement.AnkiController import AnkiController
-from VehicleManagement.EmptyController import EmptyController
 from VehicleManagement.FleetController import FleetController
 
 from LocationService.LocationService import LocationService
@@ -62,6 +62,7 @@ class EnvironmentManager:
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: List[Vehicle] = []
         self._active_bots: List[Bot] = []
+        self._player_list: List[Driver] = []
 
         # vehicle_ids for the switch of vehicles
         self._active_virtual_cars: List[str] = []
@@ -70,15 +71,17 @@ class EnvironmentManager:
         self.__update_staff_ui_callback: Callable[[List[Dict[str, str]], List[str], List[str], List[str]], None] | None = None
         self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
         self.__publish_player_active_callback: Callable[[str], None] | None = None
-
-        # number used for naming virtual vehicles
-        self._virtual_vehicle_num: int = 1
+        self.__publish_vehicle_added_callback = None
 
         self._remove_player_tasks: dict = {}
 
         self.__playing_time_checking_flag: bool = False
         self.config_handler: ConfigurationHandler = configuration_handler
-
+        
+        # list of configured virtual vehicles
+        self._virtual_vehicle_dict: dict = self.config_handler.get_configuration()["virtual_cars_pics"]
+        self._virtual_vehicle_list: list = [key for key in self._virtual_vehicle_dict.keys() if key.startswith("Virtual Vehicle")]
+        
         # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
@@ -89,6 +92,10 @@ class EnvironmentManager:
         self._item_generator = item_generator
 
     # set Callbacks
+    def set_vehicle_added_callback(self, function_name) -> None:
+        self.__publish_vehicle_added_callback = function_name
+        return
+
     def set_staff_ui_update_callback(self,
                                      function_name: Callable[[List[Dict[str, str]],
                                                               List[str],
@@ -182,7 +189,7 @@ class EnvironmentManager:
             logger.critical('Missing publish_removed_player_callback!')
             return False
         else:
-            self.__publish_removed_player_callback(player=player_id, reason=message)
+            self.__publish_removed_player_callback(player_id, message)
             return True
 
     def _publish_player_active(self, player: str) -> None:
@@ -255,6 +262,14 @@ class EnvironmentManager:
                 return False
 
         result = self._add_player_to_queue(player_id)
+
+        isNewPlayer = 1
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                isNewPlayer = 0
+        if isNewPlayer == 1:
+            newDriver = Driver(player_id=player_id)
+            self._player_list.append(newDriver)
         return result
 
     def put_player_on_next_free_spot(self, player_id: str) -> bool:
@@ -501,6 +516,8 @@ class EnvironmentManager:
                 time_difference: timedelta = datetime.now() - player.game_start
                 if time_difference >= timedelta(minutes=timeout_interval):
                     logger.debug(f'playtime of {time_difference} for player {player.player} is over')
+                    if player.player is None:
+                        return
                     self.manage_removal_from_game_for(player_id=player.player,
                                                       reason=RemovalReason.PLAYING_TIME_IS_UP)
 
@@ -657,29 +674,45 @@ class EnvironmentManager:
         self._add_to_active_vehicle_list(new_vehicle, True)
         return
 
-    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str) -> None:
+    def __remove_non_reachable_vehicle(self, vehicle_id: str, player_id: str | None) -> None:
         """
         Callback that should be executed when a vehicle isn't reachable anymore
         """
         # to be able to specify a removal reason the player needs to be removed manually before removing the vehicle
         # that would also automatically remove the player
-        self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
+        if player_id is not None:
+            self.manage_removal_from_game_for(player_id, RemovalReason.CAR_DISCONNECTED)
         self.remove_vehicle_by_id(vehicle_id)
 
     def add_virtual_vehicle(self) -> str:
-        # TODO: Add more better way of determining name numbers to allow reuse of already
-        # used numbers
-        name = f"Virtual Vehicle {self._virtual_vehicle_num}"
-        self._virtual_vehicle_num += 1
+        """
+        Adds a virtual vehicle to the game.
 
+        This function iterates through the list of virtual vehicles and checks if any of them are not currently in use.
+        If a vehicle is found that is not in use, it is selected and added to the game.
+        
+        Returns
+        -------
+        name: str
+            The name of the virtual vehicle added to the game or 'undefined' if no vehicle could be added.
+        """
+        name = None
+        for vehicle in self._virtual_vehicle_list:
+            if not any(vehicle == active_car.vehicle_id for active_car in self._active_anki_cars):
+                name = vehicle
+                break
+        
+        if name is None:
+            logger.warning("No virtual vehicle available to add to the game")
+            name = "undefined"
+            return name
+    
         logger.debug(f"Adding virtual vehicle with name {name}")
-
-        dummy_controller = EmptyController()
+    
         location_service = LocationService(self.get_track(), start_immediately=True)
-        new_vehicle = VirtualCar(name, dummy_controller, location_service)
-
-        def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos,
-                                                                                                   rot)
+        new_vehicle = VirtualCar(name, location_service)
+    
+        def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos, rot)
         location_service.add_on_update_callback(item_collision)
 
         self._add_to_active_vehicle_list(new_vehicle, False)
@@ -698,6 +731,8 @@ class EnvironmentManager:
         self._active_anki_cars.append(new_vehicle)
         self._assign_players_to_vehicles()
         self.update_staff_ui()
+        if callable(self.__publish_vehicle_added_callback):
+            self.__publish_vehicle_added_callback()
 
         return
 
@@ -811,14 +846,13 @@ class EnvironmentManager:
         return None
 
     def notify_new_track(self, new_track: FullTrack) -> None:
-        self.config_handler.get_configuration().update(
-            {
-                'track': full_track_to_list_of_dicts(new_track)
-            }
-        )
-        self.config_handler.write_configuration()
+        track_config = {'track': full_track_to_list_of_dicts(new_track)}
+        self.config_handler.write_configuration(new_config=track_config)
         for car in self.get_vehicle_list():
             car.notify_new_track(new_track)
+        if self._item_generator is None:
+            logger.critical("EnvironmentManager has no Item Generator!")
+            return
         self._item_generator.notify_new_track(new_track)
         return
 
@@ -833,6 +867,8 @@ class EnvironmentManager:
         if vehicle is None:
             logger.error("A client attempted to use a vehicle for track scanning that doesn't exist")
             return "Request didn't include a valid vehicle"
+        if not isinstance(vehicle, PhysicalCar):
+            return "This car isn't a real car. Please use a real car"
         controller = vehicle.extract_controller()
         if controller is None:
             return "The selected car can't be controlled currently. Please use another car"
@@ -845,3 +881,17 @@ class EnvironmentManager:
 
     def get_item_collision_detector(self) -> ItemCollisionDetector:
         return self._item_collision_detector
+
+    def get_driver_by_id(self, player_id: str) -> Driver:
+        """
+        Returns the Driver instance for a specific player_id.
+
+        Parameters
+        ----------
+        player_id:
+            ID of player to return Driver instance of
+        """
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                return p
+        return None

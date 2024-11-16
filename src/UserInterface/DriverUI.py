@@ -15,6 +15,7 @@ import time
 
 from socketio import AsyncServer
 
+from DataModel.Driver import Driver
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
@@ -201,19 +202,71 @@ class DriverUI:
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
+            vehicle = self.get_vehicle_by_player(player=player)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_driver_score(driver=driver))
+            if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
+                self.__run_async_task(self.__in_physical_vehicle(driver))
             return
 
         @self._sio.on('switch_cars')
-        def switch_cars(sid, data: dict) -> None:
+        async def switch_cars(sid, data: dict) -> None:
             player = data["player"]
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
-            target_vehicle = vehicle.vehicle_in_proximity
-            self.environment_mng.manage_car_switch_for(player, target_vehicle)
+            if vehicle is None:
+                logger.warn(f"Driver UI: No vehicle for player {player} could be found. Ignoring the switch request.")
+                return
+            target_vehicle_id = vehicle.vehicle_in_proximity
+            if target_vehicle_id is None:
+                logger.warn(f"Driver UI: No target vehicle id for player {player} driving {vehicle.get_vehicle_id()} could be found. Ignoring the switch request.")
+                return
+            target_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(target_vehicle_id)
+            if target_vehicle is None:
+                logger.warn(f"Driver UI: No target vehicle for player {player} driving {vehicle.get_vehicle_id()} with target_vehicle_id {target_vehicle_id} could be found. Ignoring the switch request.")
+                return
+            target_player = target_vehicle.get_player_id()
+
+            # Try to start Minigame
+            minigame_task, minigame_object = Minigame_Controller.get_instance().play_random_available_minigame(player, target_player)
+            
+            if minigame_task is None or minigame_object is None:
+                logger.warning(f"DriverUI: The minigame for player {player} and player {target_player} could not be started for some reason. Ignoring the request.")
+                return
+            winner = await minigame_task
+            logger.debug(f"DriverUI: The player {player} has won a minigame that was initiated by a hack of vehicle {target_vehicle_id}.")
+            if winner is None or winner == target_player:
+                return
+            
+            self.environment_mng.manage_car_switch_for(player, target_vehicle_id)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_driver_score(driver=driver))
+            if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
+                self.__run_async_task(self.__in_physical_vehicle(driver))
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
         self.__run_async_task(self.__emit_driving_data(driving_data))
         return
+
+    async def __emit_driving_data(self, driving_data: dict) -> None:
+        await self._sio.emit('update_driving_data', driving_data)
+        return
+
+    def update_item_activity(self, item_data: dict) -> None:
+        self.__run_async_task(self.__emit_item_data(item_data))
+        return
+
+    async def __emit_item_data(self, item_data: dict) -> None:
+        await self._sio.emit('item_update', item_data)
+        return
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        asyncio.create_task(task)
+        # TODO: Log error, if the coroutine doesn't end successfully
 
     def get_blueprint(self) -> Blueprint:
         return self.driverUI_blueprint
@@ -239,6 +292,19 @@ class DriverUI:
     async def __emit_driving_data(self, driving_data: dict) -> None:
         await self._sio.emit('update_driving_data', driving_data)
         return
+    
+    async def __emit_driver_score(self, driver: Driver) -> None:
+        await self._sio.emit('update_player_score', {'score': driver.get_score(), 'player': driver.get_player_id()})
+    
+    async def __in_physical_vehicle(self, driver: Driver) -> None:
+        driver.set_is_in_physical_vehicle(True)
+        while self.get_vehicle_by_player(player=driver.get_player_id()) is not None and "Virtual" not in self.get_vehicle_by_player(player=driver.get_player_id()).get_vehicle_id():
+            driver.increase_score(1)
+            await self._sio.emit('update_player_score', {'score': driver.get_score(), 'player': driver.get_player_id()})
+            await self._sio.sleep(1)
+        driver.set_is_in_physical_vehicle(False)
+        return
+    
 
     async def __check_driver_heartbeat_timeout(self):
         """
@@ -266,6 +332,8 @@ class DriverUI:
         if vehicle != None:
             while True:
                 vehicle = self.get_vehicle_by_player(player=player)
+                if vehicle is None:
+                    return
                 await asyncio.sleep(0.1)
                 if previous_vehicle_in_proximity != vehicle.vehicle_in_proximity:
                     uuid = vehicle.vehicle_id
@@ -367,6 +435,7 @@ class DriverUI:
             else:
                 picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
             vehicle.set_driving_data_callback(self.update_driving_data)
+            vehicle.set_item_data_callback(self.update_item_activity)
             vehicle_information = vehicle.get_driving_data()
             logger.debug(f'Callback set for {player}')
         return vehicle is not None, picture, vehicle_information
