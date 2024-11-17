@@ -101,7 +101,7 @@ class Minigame:
         list[str]: UUIDs of the players that have been accepted into the minigame
         """
 
-    def set_player_ready(self, player : str) -> bool:
+    def set_player_ready(self, player : str) -> None:
         """
         Appends the specified player to the ready players list.
 
@@ -109,10 +109,6 @@ class Minigame:
         -----------
         player: str
             UUID of the player
-
-        Returns:
-        --------
-        bool: True if the specified player was appended to the ready players list. False if it could not be done. 
         """
         if player not in self.get_players():
             print(f"Minigame: The player {player} is not associated with the minigame {self.get_name()}. Ignoring the request of accepting its rules.")
