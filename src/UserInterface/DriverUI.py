@@ -210,8 +210,37 @@ class DriverUI:
         def switch_cars(sid, data: dict) -> None:
             player = data["player"]
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
-            target_vehicle = vehicle.vehicle_in_proximity
-            self.environment_mng.manage_car_switch_for(player, target_vehicle)
+            if vehicle is None:
+                logger.warn(f"Driver UI: No vehicle for player {player} could be found. Ignoring the switch request.")
+                return
+            target_vehicle_id = vehicle.vehicle_in_proximity
+            if target_vehicle_id is None:
+                logger.warn(f"Driver UI: No target vehicle id for player {player} driving {vehicle.get_vehicle_id()} could be found. Ignoring the switch request.")
+                return
+            target_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(target_vehicle_id)
+            if target_vehicle is None:
+                logger.warn(f"Driver UI: No target vehicle for player {player} driving {vehicle.get_vehicle_id()} with target_vehicle_id {target_vehicle_id} could be found. Ignoring the switch request.")
+                return
+            if self.__has_hacking_protection(vehicle=target_vehicle):
+                return
+            target_player = target_vehicle.get_player_id()
+
+            # Try to start Minigame
+            minigame_task, minigame_object = Minigame_Controller.get_instance().play_random_available_minigame(player, target_player)
+            
+            if minigame_task is None or minigame_object is None:
+                logger.warning(f"DriverUI: The minigame for player {player} and player {target_player} could not be started for some reason. Ignoring the request.")
+                return
+            winner = await minigame_task
+            logger.debug(f"DriverUI: The player {player} has won a minigame that was initiated by a hack of vehicle {target_vehicle_id}.")
+            if winner is None or winner == target_player:
+                return
+            
+            self.environment_mng.manage_car_switch_for(player, target_vehicle_id)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_driver_score(driver=driver))
+            if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
+                self.__run_async_task(self.__in_physical_vehicle(driver))
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
@@ -283,7 +312,9 @@ class DriverUI:
                     proximity_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(vehicle.vehicle_in_proximity)
                     if proximity_vehicle is None:
                         driver_getting_hacked = None
-                    elif self.__has_hacking_protection(vehicle=proximity_vehicle):
+                    elif proximity_vehicle is not None and self.__has_hacking_protection(vehicle=proximity_vehicle):
+                        self.__run_async_task(self.__send_abort_hacking(vehicle.get_player_id(), proximity_vehicle.get_player_id()))
+                        vehicle.reset_proximity_timer()
                         continue
                     else:
                         driver_getting_hacked = proximity_vehicle.get_player_id()
@@ -291,6 +322,10 @@ class DriverUI:
 
                     # Emit message only to the hacking driver and the driver that is being hacked
                     for room in [player, driver_getting_hacked, previous_driver_getting_hacked]:
+                        if proximity_vehicle is not None and self.__has_hacking_protection(vehicle=proximity_vehicle):
+                            self.__run_async_task(self.__send_abort_hacking(vehicle.get_player_id(), proximity_vehicle.get_player_id()))
+                            vehicle.reset_proximity_timer()
+                            break
                         if room is None:
                             continue
                         self.__run_async_task(self._sio.emit('send_proximity_vehicle', {'hacker_vehicle_id': uuid, 'hacker_driver_id': player, 'getting_hacked_vehicle_id': vehicle.vehicle_in_proximity, 'getting_hacked_driver_id' : driver_getting_hacked, 'proximity_timer': self.__driver_proximity_timer}, to=room))
@@ -298,6 +333,10 @@ class DriverUI:
                     previous_vehicle_in_proximity= vehicle.vehicle_in_proximity
                     vehicle.reset_proximity_timer()
                 else:
+                    if vehicle.vehicle_in_proximity != None and self.__has_hacking_protection(vehicle=self.environment_mng.get_vehicle_by_vehicle_id(vehicle_id=vehicle.vehicle_in_proximity)):
+                            self.__run_async_task(self.__send_abort_hacking(vehicle.get_player_id(), proximity_vehicle.get_player_id()))
+                            vehicle.reset_proximity_timer()
+                            continue
                     if vehicle.vehicle_in_proximity != None:
                         self.__run_async_task(self.__check_driver_proximity_timer(player))
 
@@ -323,9 +362,16 @@ class DriverUI:
                     return
                 driver_getting_hacked = proximity_vehicle.get_player_id()
                 for room in [player, driver_getting_hacked]:
+                    if self.__has_hacking_protection(vehicle=proximity_vehicle):
+                        self.__run_async_task(self.__send_abort_hacking(player, driver_getting_hacked))
+                        vehicle.reset_proximity_timer()
+                        break
                     if room is None:
                         continue
                     await self._sio.emit('send_finished_proximity_timer', {'hacker_driver_id' : player, 'getting_hacked_driver_id' : driver_getting_hacked}, to=room)
+
+    async def __send_abort_hacking(self, hacker_player:str, hacked_player:str):
+        await self._sio.emit('send_abort_hacking', {'hacker_driver_id' : hacker_player, 'getting_hacked_driver_id' : hacked_player})
 
     def __remove_player(self, player: str) -> None:
         """

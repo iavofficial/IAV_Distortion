@@ -702,7 +702,7 @@ class EnvironmentManager:
             logger.warning("Tried to add a vehicle that already exists. Ignoring the request")
             return
        
-        if is_physical_car:
+        if "1" in new_vehicle.get_vehicle_id():
             self._active_physical_cars.append(new_vehicle.get_vehicle_id())
         else:
             self._active_virtual_cars.append(new_vehicle.get_vehicle_id())
