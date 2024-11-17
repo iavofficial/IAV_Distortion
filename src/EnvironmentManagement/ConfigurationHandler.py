@@ -116,7 +116,7 @@ class ConfigurationHandler(metaclass=Singleton):
                 if key not in target:
                     target[key] = {}
                 # Recursively merge the nested dictionaries
-                self._merge_dict(target[key], value)
+                self.__merge_dict(target[key], value)
             else:
                 target[key] = value
         return
