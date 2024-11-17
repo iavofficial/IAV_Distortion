@@ -60,7 +60,7 @@
 <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port);
     var virtualCarsPics = {{ virtual_cars_pics | tojson | safe }};
-
+    
     /**
     * Handle 'connect' event.
     *
@@ -83,6 +83,7 @@
         var map_data = data["car_map"];
         var car_queue = data["car_queue"];
         var player_queue=data["player_queue"];
+        var vehicle_with_bots = data["vehicle_with_bots"];
         $('#table-container').empty();
         var uuids_table = document.createElement('table');
 
@@ -93,7 +94,7 @@
         var header_carPic = document.createElement('th');
         header_carPic.innerText = 'Vehicle';
         header_row.appendChild(header_carPic);
-        
+
         var header_player = document.createElement('th');
         header_player.innerText = 'Player';
         header_row.appendChild(header_player);
@@ -212,7 +213,7 @@
             img.style.maxHeight = '50px';
             img.style.width = 'auto';
             cell_carPicture.appendChild(img);
-                
+
             cell_player.innerText = "None";
             cell_uuid.innerText = car_queue[car];
 
@@ -220,6 +221,16 @@
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
             row.appendChild(delVehicleButton);
+            if (!vehicle_with_bots.includes(car_queue[car])) {
+              let addBotButton = document.createElement("button");
+              addBotButton.textContent = "Add Bot";
+              addBotButton.className = "button_small button_pink";
+              addBotButton.onclick = function () {
+                addBotToVehicle(car_queue[car]);
+                addBotButton.style.display = "none";
+              };
+              row.appendChild(addBotButton);
+            }
             uuids_table.appendChild(row);
         }
         document.getElementById('table-container').appendChild(uuids_table);
@@ -353,7 +364,7 @@
      * 
      * @param {sting} name: Name of the added vehicle.
      */
-    socket.on('device_added', function(name){
+     socket.on('device_added', function(name){
       if (name === "undefined") {
             alert("Can not add more Virtual Vehicles!");
         }
@@ -385,7 +396,7 @@
     */
     function deleteVehicle(vehicle) {
         socket.emit('delete_vehicle',vehicle);
-    }
+      }
 
     /**
     * Removes device from table of found BLE devices.
@@ -400,7 +411,31 @@
             list.removeChild(items[i]);
             break;
         }
+      }
     }
+    /**
+      * Emits 'add_bot_to_vehicle' event.
+      *
+      * @param {string} vehicle - ID of vehicle to be removed from the game.
+      */
+    function addBotToVehicle(vehicle) {
+      socket.emit("add_bot_to_vehicle", vehicle);
+    }
+
+/**
+* Removes device from table of found BLE devices.
+*
+* @param {string} device - ID of BLE device to be removed from the table.
+*/
+function remove_from_found_devices(device) {
+  var list = document.getElementById("devices");
+  var items = list.getElementsByTagName('li');
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].textContent === device + "Add") {
+        list.removeChild(items[i]);
+        break;
+    }
+}
 }
 
 /**
@@ -414,8 +449,6 @@ $(document).ready(function() {
         }
     });
 });
-
-
 </script>
 
 </body>
