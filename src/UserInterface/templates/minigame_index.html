@@ -26,14 +26,20 @@
 
     
     <div class="overlay" id="infoBoxOverlay">
-        <div class="info-box">
+        <div class="info-box" id="description">
             <div class="info-title">
                 <h2>How to play</h2>
             </div>
             <p id="infoBoxContent"> A description of the Minigame should have appeared here...
             </p>
-            <!-- TODO: Send accept to backend -->
             <button class="close_tab_button" id="accept_button"> <span class="reload_symbol">&#10004;	</span> I understand the rules.</button>
+        </div>
+        <div class="info-box" id="waiting-for-players" style="display: none;">
+            <div class="info-title">
+                <h2>Waiting</h2>
+            </div>
+            <p id="waitingInfoBox"> Waiting for others players to accept the rules.
+            </p>
         </div>
     </div>
     
@@ -63,9 +69,9 @@
         window.onload = function() {
             accept_button = document.getElementById("accept_button");
             accept_button.onclick = function(){
-                document.getElementById("infoBoxOverlay").style.display = "none";
-                socket.emit('minigame_player_accept', {player: '{{player}}'});
-                
+                document.getElementById("description").style.display = "none";
+                socket.emit('minigame_player_accept', {player: '{{player}}', minigame: minigame});
+                document.getElementById('waiting-for-players').style.display = "block";
             };
         }
        
@@ -121,6 +127,17 @@
             }
             popup.style.display = 'block'
         })
+
+        socket.on('all_ready', (data) => {
+            if (data.minigame != minigame)
+                return;
+            console.log(data)
+            if (data.countdown == 0){
+                document.getElementById('infoBoxOverlay').style.display = 'none';
+            } else{
+                document.getElementById('waitingInfoBox').innerText = "Starting in " + data.countdown + " seconds.";
+            }
+        });
 
     </script>
 
