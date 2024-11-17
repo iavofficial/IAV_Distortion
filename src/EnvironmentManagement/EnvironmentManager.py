@@ -54,7 +54,6 @@ class EnvironmentManager:
     def __init__(self, fleet_ctrl: FleetController,
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()):
 
-        self.botTest : Bot | None = None
         self._behaviour_ctrl: BehaviourController | None= None
 
         self._fleet_ctrl: FleetController = fleet_ctrl
@@ -149,7 +148,7 @@ class EnvironmentManager:
             logger.critical('Missing update_staff_ui_callback!')
         else:
             self.__update_staff_ui_callback(self.get_mapped_cars(), self.get_free_car_list(),
-                                            self.get_waiting_players(), self.get_vehicle_with_bots())
+                                            self.get_waiting_players(), self.get_vehicles_with_bots())
         return
 
     def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
@@ -367,13 +366,14 @@ class EnvironmentManager:
         is_no_player_left = True
         for v_id in self._active_physical_cars:
             v = self.get_vehicle_by_vehicle_id(v_id)
-            if v.get_player_id() != None:
+            if v.get_player_id() is not None:
                 is_no_player_left = False
+                break 
         for v_id in self._active_virtual_cars:
             v = self.get_vehicle_by_vehicle_id(v_id)
-            print(v.get_player_id)
             if v.get_player_id() != None:
                 is_no_player_left = False
+                break
         if is_no_player_left == True:
             for b in self._active_bots:
                 b.set_is_player_active(False)
@@ -791,7 +791,7 @@ class EnvironmentManager:
                 vehicle_list.append(vehicle.get_vehicle_id())
         return vehicle_list
 
-    def get_vehicle_with_bots(self) -> list[str]:
+    def get_vehicles_with_bots(self) -> list[str]:
         """
         Returns a list of all cars that are controlled by a bot
         """
