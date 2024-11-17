@@ -16,6 +16,8 @@ import time
 from socketio import AsyncServer
 
 from DataModel.Driver import Driver
+from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
+from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
@@ -340,6 +342,8 @@ class DriverUI:
                     proximity_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(vehicle.vehicle_in_proximity)
                     if proximity_vehicle is None:
                         driver_getting_hacked = None
+                    elif self.__has_hacking_protection(vehicle=proximity_vehicle):
+                        continue
                     else:
                         driver_getting_hacked = proximity_vehicle.get_player_id()
                         previous_driver_getting_hacked = driver_getting_hacked
@@ -355,6 +359,12 @@ class DriverUI:
                 else:
                     if vehicle.vehicle_in_proximity != None:
                         self.__run_async_task(self.__check_driver_proximity_timer(player))
+
+    def __has_hacking_protection(self, vehicle: Vehicle) -> bool:
+        for effect in vehicle.get_active_effects():
+            if effect.identify() == VehicleEffectIdentification.HACKING_PROTECTION:
+                return True
+        return False
 
     async def __check_driver_proximity_timer(self, player: str):
         """
