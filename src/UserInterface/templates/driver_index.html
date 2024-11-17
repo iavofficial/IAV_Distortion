@@ -221,6 +221,14 @@
           clearInterval(timerInterval);
       });
 
+      socket.on('send_abort_hacking', function(data) {
+        if(data.hacker_driver_id == "{{ player }}" || data.getting_hacked_driver_id == "{{ player }}"){
+            buttonSwitchCars.style.display = "none";
+            resetLoadingBar();
+            }
+            clearInterval(timerInterval);
+      });
+
       function startLoadingBar(duration,vehicle_id, displayMessage) {
         const loadingBar = document.getElementById("loading-bar");
         const progress = document.getElementById("loading-progress");
