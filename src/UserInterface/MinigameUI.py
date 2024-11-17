@@ -97,6 +97,12 @@ class Minigame_UI:
                     minigame_object.cancel()
             return
 
+        @self._sio.on('minigame_player_accept')
+        def on_minigame_player_accept(sid, data):
+            player = data['player']
+            minigame_name = data['minigame']
+            self._minigame_controller.set_player_ready(player, minigame_name)
+
 
     def get_blueprint(self) -> Blueprint:
         return self.minigame_ui_blueprint
