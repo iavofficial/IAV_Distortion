@@ -25,6 +25,7 @@
 		"Virtual Vehicle 9": "D1FFAF51CB30_blue_top.webp"
 	},
 	"driver": {
+    "driver_proximity_timer_s": 5,
 		"driver_heartbeat_interval_ms": 5000,
 		"driver_heartbeat_timeout_s": 30,
 		"driver_reconnect_grace_period_s": 5,
@@ -42,7 +43,70 @@
 	},
 	"item": {
 		"item_spawn_interval": 30,
-		"item_max_count": 2
+		"item_max_count" : 2
+	},
+	"track": [
+		{
+			"type": "LocationService.TrackPieces.StartPieceAfterLine",
+			"rotation": 90,
+			"physical_id": 33,
+			"length": 210,
+			"diameter": 184,
+			"start_line_width": 21
+		},
+		{
+			"type": "LocationService.TrackPieces.CurvedPiece",
+			"rotation": 180,
+			"physical_id": 18,
+			"square_size": 559,
+			"diameter": 184,
+			"mirrored": true
+		},
+		{
+			"type": "LocationService.TrackPieces.CurvedPiece",
+			"rotation": 90,
+			"physical_id": 20,
+			"square_size": 559,
+			"diameter": 184,
+			"mirrored": true
+		},
+		{
+			"type": "LocationService.TrackPieces.StraightPiece",
+			"rotation": 270,
+			"physical_id": 36,
+			"length": 559,
+			"diameter": 184
+		},
+		{
+			"type": "LocationService.TrackPieces.CurvedPiece",
+			"rotation": 0,
+			"physical_id": 17,
+			"square_size": 559,
+			"diameter": 184,
+			"mirrored": true
+		},
+		{
+			"type": "LocationService.TrackPieces.CurvedPiece",
+			"rotation": 270,
+			"physical_id": 18,
+			"square_size": 559,
+			"diameter": 184,
+			"mirrored": true
+		},
+		{
+			"type": "LocationService.TrackPieces.StartPieceBeforeLine",
+			"rotation": 90,
+			"physical_id": 34,
+			"length": 349,
+			"diameter": 184
+		}
+	],
+	"minigame": {
+		"auto_drive_constantly": true,
+		"driving_speed_while_playing": 30,
+		"games": {
+			"Minigame_Test": true
+		}
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
