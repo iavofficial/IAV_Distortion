@@ -22,7 +22,8 @@ from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
 
-from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from .ConfigurationHandler import ConfigurationHandler
+
 from Items.ItemGenerator import ItemGenerator
 from LocationService.PhysicalLocationService import PhysicalLocationService
 from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException, \

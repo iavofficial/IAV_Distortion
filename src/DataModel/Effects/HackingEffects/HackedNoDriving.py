@@ -7,6 +7,10 @@ class HackedNoDriving(HackedEffect):
     def identify(self) -> VehicleEffectIdentification:
         return VehicleEffectIdentification.HACKED_NO_DRIVING
 
+    def can_be_applied(self, vehicle: Vehicle) -> bool:
+        _ = vehicle
+        return True
+
     def on_start(self, vehicle: 'Vehicle') -> None:
         super().on_start(vehicle)
         self.remove_other_hacking_effects(vehicle)

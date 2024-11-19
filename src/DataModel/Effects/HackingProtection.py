@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import List
 
 from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
 from DataModel.Effects.VehicleEffect import VehicleEffect
@@ -11,10 +12,21 @@ logger = logging.getLogger(__name__)
 
 
 class HackingProtection(VehicleEffect):
+
     def __init__(self):
         super().__init__()
         self._end_time = None
         self._config_handler = ConfigurationHandler()
+
+    def identify(self) -> VehicleEffectIdentification:
+        return VehicleEffectIdentification.HACKING_PROTECTION
+
+    def can_be_applied(self, vehicle: Vehicle) -> bool:
+        _= vehicle
+        return True
+
+    def conflicts_with(self) -> List[VehicleEffectIdentification]:
+        return []
 
     def on_start(self, vehicle: 'Vehicle') -> bool:
         super().on_start(vehicle)
@@ -27,13 +39,13 @@ class HackingProtection(VehicleEffect):
             duration = self._config_handler.get_configuration()['hacking_protection']['portection_duration_s']
         except KeyError:
             duration = 15
-            
+
         self._end_time = datetime.now() + timedelta(seconds=duration)
 
         return True
 
-    def identify(self) -> VehicleEffectIdentification:
-        return VehicleEffectIdentification.HACKING_PROTECTION
+    def on_end(self, vehicle: 'Vehicle') -> None:
+        return
 
     def effect_should_end(self, vehicle: 'Vehicle') -> bool:
         if self._end_time is None:
