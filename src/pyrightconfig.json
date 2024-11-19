@@ -1,0 +1,13 @@
+{
+  "exclude": ["**/__pycache__"],
+  "reportMissingImports": true,
+  "reportUnusedVariable": true,
+  "reportOptionalSubscript": true,
+  "reportOptionalMemberAccess": true,
+  "reportGeneralTypeIssues": true,
+  "reportUnboundVariable": true,
+  "reportPrivateUsage": true,
+  "typeCheckingMode": "strict",
+  "venvPath": "./.venv",
+  "pythonVersion": "3.11"
+}
