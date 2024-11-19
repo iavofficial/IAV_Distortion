@@ -2,7 +2,7 @@ import asyncio
 import time
 
 import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.VirtualCar import VirtualCar
@@ -11,6 +11,7 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.LocationService import LocationService
 from LocationService.Track import TrackPieceType, FullTrack
 from LocationService.TrackPieces import TrackBuilder
+from Minigames import Minigame_Controller
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
 from VehicleMovementManagement.BehaviourController import BehaviourController
@@ -64,10 +65,11 @@ def get_two_dummy_vehicles() -> list[Vehicle]:
 
 @pytest.fixture(scope="module")
 def get_four_dummy_vehicles() -> list[Vehicle]:
-    vehicle1: Vehicle = Vehicle("123", disable_item_removal=True)
-    vehicle2: Vehicle = Vehicle("456", disable_item_removal=True)
-    vehicle3: Vehicle = Vehicle("789", disable_item_removal=True)
-    vehicle4: Vehicle = Vehicle("012", disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle1: Vehicle = Vehicle("123", location_service_mock, disable_item_removal=True)
+    vehicle2: Vehicle = Vehicle("456", location_service_mock, disable_item_removal=True)
+    vehicle3: Vehicle = Vehicle("789", location_service_mock, disable_item_removal=True)
+    vehicle4: Vehicle = Vehicle("012", location_service_mock, disable_item_removal=True)
     output: list[Vehicle] = [vehicle1, vehicle2, vehicle3, vehicle4]
     return output
 
@@ -168,6 +170,7 @@ class TestAddNewPlayer:
         dummy_vehicle = Vehicle("vehicle1", location_service_mock, disable_item_removal=True)
         dummy_vehicle.set_player(self.dummy_player1)
         mut._add_to_active_vehicle_list(dummy_vehicle, is_physical_car=False)
+        mut._add_to_active_vehicle_list(dummy_vehicle, is_physical_car=False)
 
         # Act / Assert
         added = mut._add_new_player(self.dummy_player1)
@@ -182,6 +185,7 @@ class TestPutPlayerOnNextFreeSpot:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_one_minute_playing_time
 
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
@@ -209,6 +213,7 @@ class TestPutPlayerOnNextFreeSpot:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_endless_playing_time
 
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
@@ -245,6 +250,7 @@ class TestAssignPlayersToVehicles:
         for vehicle in dummy_vehicles:
             vehicle.remove_player()
             mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
+            mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
 
         for dummy_player in dummy_players:
             mut._add_new_player(dummy_player)
@@ -270,6 +276,7 @@ class TestAssignPlayersToVehicles:
         i: int = 3
         for vehicle in dummy_vehicles:
             vehicle.set_player("Player"+str(i))
+            mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
             mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
             i += 1
 
@@ -299,51 +306,63 @@ class TestManageRemovalFromGame:
     def test_for_valid_player_id_and_reason(self, get_mut_with_endless_playing_time,
                                             get_one_dummy_vehicle):
         # Arrange
-        vehicle1: Vehicle = get_one_dummy_vehicle
-        mut: EnvironmentManager = get_mut_with_endless_playing_time
+        with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+            minigame_controller_mock = MagicMock()
+            minigame_controller_mock._minigame_objects = {}
+            Minigame_Controller.instance = minigame_controller_mock
+            Minigame_Controller.get_instance = MagicMock(return_value=MagicMock())
+
+            vehicle1: Vehicle = get_one_dummy_vehicle
+            mut: EnvironmentManager = get_mut_with_endless_playing_time
 
         mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
-        mut.put_player_on_next_free_spot("dummyplayer1")
-        mut.put_player_on_next_free_spot("dummyplayer2")
-        if not sum(vehicle.get_player_id() == "dummyplayer1"
-                   for vehicle in mut.get_vehicle_list()) == 1:
-            pytest.fail("preconditions in vehicle list not correct.")
+            mut.put_player_on_next_free_spot("dummyplayer1")
+            mut.put_player_on_next_free_spot("dummyplayer2")
+            if not sum(vehicle.get_player_id() == "dummyplayer1"
+                       for vehicle in mut.get_vehicle_list()) == 1:
+                pytest.fail("preconditions in vehicle list not correct.")
 
-        if not any(player == "dummyplayer2"
-                   for player in mut.get_waiting_players()):
-            pytest.fail("preconditions in vehicle list not correct.")
+            if not any(player == "dummyplayer2"
+                       for player in mut.get_waiting_players()):
+                pytest.fail("preconditions in vehicle list not correct.")
 
-        # Act / Assert
-        assert len(mut.get_waiting_players()) == 1
-        result = mut.manage_removal_from_game_for("dummyplayer2", RemovalReason.NONE)
-        assert result
-        assert len(mut.get_waiting_players()) == 0
+            # Act / Assert
+            assert len(mut.get_waiting_players()) == 1
+            result = mut.manage_removal_from_game_for("dummyplayer2", RemovalReason.NONE)
+            assert result
+            assert len(mut.get_waiting_players()) == 0
 
-        result = mut.manage_removal_from_game_for("dummyplayer1", RemovalReason.NONE)
-        assert result
-        assert all(vehicle.get_player_id() is None
-                   for vehicle in mut.get_vehicle_list())
+            result = mut.manage_removal_from_game_for("dummyplayer1", RemovalReason.NONE)
+            assert result
+            assert all(vehicle.get_player_id() is None
+                       for vehicle in mut.get_vehicle_list())
 
     @pytest.mark.asyncio
     def test_for_invalid_player_id_and_reason(self, get_mut_with_endless_playing_time,
                                               get_one_dummy_vehicle):
         # Arrange
-        vehicle1: Vehicle = get_one_dummy_vehicle
-        mut: EnvironmentManager = get_mut_with_endless_playing_time
+        with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+            minigame_controller_mock = MagicMock()
+            minigame_controller_mock._minigame_objects = {}
+            Minigame_Controller.instance = minigame_controller_mock
+            Minigame_Controller.get_instance = MagicMock(return_value=MagicMock())
+
+            vehicle1: Vehicle = get_one_dummy_vehicle
+            mut: EnvironmentManager = get_mut_with_endless_playing_time
 
         mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
-        mut.put_player_on_next_free_spot("dummyplayer1")
-        mut.put_player_on_next_free_spot("dummyplayer2")
-        if not any(vehicle.get_player_id() == "dummyplayer1" for vehicle in mut.get_vehicle_list()):
-            pytest.fail("preconditions in vehicle list not correct.")
-        if not any(player == "dummyplayer2" for player in mut.get_waiting_players()):
-            pytest.fail("preconditions in vehicle list not correct.")
+            mut.put_player_on_next_free_spot("dummyplayer1")
+            mut.put_player_on_next_free_spot("dummyplayer2")
+            if not any(vehicle.get_player_id() == "dummyplayer1" for vehicle in mut.get_vehicle_list()):
+                pytest.fail("preconditions in vehicle list not correct.")
+            if not any(player == "dummyplayer2" for player in mut.get_waiting_players()):
+                pytest.fail("preconditions in vehicle list not correct.")
 
         # Act / Assert
         assert len(mut.get_waiting_players()) == 1
@@ -365,25 +384,32 @@ class TestPublishRemovedPlayer:
                                                                    "because you were no longer reachable.")])
     def test_with_valid_data(self, get_mut_with_endless_playing_time, reason_parameter, expected):
         # Arrange
-        remove_player_callback_mock = Mock()
-        mut: EnvironmentManager = get_mut_with_endless_playing_time
-        mut.set_publish_removed_player_callback(remove_player_callback_mock)
+        with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+            minigame_controller_mock = MagicMock()
+            minigame_controller_mock._minigame_objects = {}
+            Minigame_Controller.instance = minigame_controller_mock
+            Minigame_Controller.get_instance = MagicMock(return_value=MagicMock())
 
-        # Act
-        result = mut._publish_removed_player("dummyplayer1", reason_parameter)
+            remove_player_callback_mock = Mock()
+            mut: EnvironmentManager = get_mut_with_endless_playing_time
+            mut.set_publish_removed_player_callback(remove_player_callback_mock)
 
-        # Assert
-        assert result
-        remove_player_callback_mock.assert_called_with("dummyplayer1", expected)
+            # Act
+            result = mut._publish_removed_player("dummyplayer1", reason_parameter)
+
+            # Assert
+            assert result
+            remove_player_callback_mock.assert_called_with("dummyplayer1", expected)
 
     def test_with_invalid_string_reason(self, get_mut_with_endless_playing_time):
         # Arrange
-        remove_player_callback_mock = Mock()
-        mut: EnvironmentManager = get_mut_with_endless_playing_time
-        mut.set_publish_removed_player_callback(remove_player_callback_mock)
+        with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+            remove_player_callback_mock = Mock()
+            mut: EnvironmentManager = get_mut_with_endless_playing_time
+            mut.set_publish_removed_player_callback(remove_player_callback_mock)
 
-        # Act
-        result = mut._publish_removed_player("dummyplayer1", "invalid_reason")
+            # Act
+            result = mut._publish_removed_player("dummyplayer1", "invalid_reason")
 
         # Assert
         assert not result
@@ -504,6 +530,10 @@ def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
     new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id(), location_service_mock, disable_item_removal=True)
     new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id(), location_service_mock, disable_item_removal=True)
 
+    env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1, is_physical_car=False)
     env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
     env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
     env_manager._add_to_active_vehicle_list(new_vehicle_1, is_physical_car=False)
