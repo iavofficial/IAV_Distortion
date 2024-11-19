@@ -24,7 +24,7 @@ class PhysicalCar(Vehicle):
                  vehicle_id: str,
                  controller: AnkiController,
                  location_service: PhysicalLocationService,
-                 disable_item_removal=False) -> None:
+                 disable_item_removal: bool =False) -> None:
         super().__init__(vehicle_id, location_service, disable_item_removal)
         self._controller: AnkiController | None = controller
         self._location_service: PhysicalLocationService = location_service
@@ -54,7 +54,7 @@ class PhysicalCar(Vehicle):
         else:
             return False
 
-    def _receive_location(self, value_tuple) -> None:
+    def _receive_location(self, value_tuple: tuple[int,int,int,int,int]) -> None:
         location, piece, offset, speed, _ = value_tuple
         offset = clamp(offset, -66.5, 66.5)
         self._current_driving_speed = speed if self._requested_speed != 0 else 0
@@ -62,7 +62,7 @@ class PhysicalCar(Vehicle):
         self._location_service.notify_location_event(piece, location, offset, self._current_driving_speed)
         self._on_driving_data_change()
 
-    def _receive_transition(self, value_tuple) -> None:
+    def _receive_transition(self, value_tuple:tuple[int,int,int,int]) -> None:
         super()._receive_transition(value_tuple)
         _, _, offset, _ = value_tuple
         offset = clamp(offset, -66.5, 66.5)

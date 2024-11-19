@@ -82,16 +82,19 @@ class ScannedPiece:
             return None
         return self._locations[0] > self._locations[1]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Checks whether this scanned piece is equal to another scanned piece
         """
+        if not isinstance(other, self.__class__):
+            return False
+
         return type(self) == type(other) and \
             self.get_id() == other.get_id() and \
             (self.is_location_counting_downwards() == other.is_location_counting_downwards())  # noqa: E721
 
 
-class InitializationCar:
+class InitializationCar: 
     """
     Class that has the ability to drive in a track in order to scan it and return a list of track pieces with
     physical IDs.
@@ -151,7 +154,7 @@ class InitializationCar:
 
         return self._piece_ids.copy()
 
-    def _receive_location(self, value_tuple) -> None:
+    def _receive_location(self, value_tuple: tuple[int, int, int, int, int]) -> None:
         """
         Callback for when a location event is sent
         """
@@ -177,7 +180,7 @@ class InitializationCar:
 
         return
 
-    def _receive_transition(self, value_tuple) -> None:
+    def _receive_transition(self, value_tuple: tuple[int]) -> None:
         """
         Callback for when a transition event is sent
         """

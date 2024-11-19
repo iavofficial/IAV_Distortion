@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class VirtualCar(Vehicle):
     def __init__(self, vehicle_id: str,
                  location_service: LocationService,
-                 disable_item_removal=False) -> None:
+                 disable_item_removal: bool = False) -> None:
         super().__init__(vehicle_id, location_service, disable_item_removal=disable_item_removal)
         self._location_service.add_on_update_callback(self._location_service_update)
 
@@ -19,7 +19,7 @@ class VirtualCar(Vehicle):
         self._location_service.__del__()
         super().__del__()
 
-    def _location_service_update(self, pos: Position, rot: Angle, data: dict) -> None:
+    def _location_service_update(self, pos: Position, rot: Angle, data: dict[str, float]) -> None:
         speed: float | None = data.get('speed')
         if speed is None:
             logger.error("Location service callback didn't include speed!")

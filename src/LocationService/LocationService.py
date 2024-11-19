@@ -2,7 +2,7 @@ import asyncio
 from asyncio import Lock
 import math
 import logging
-from typing import Tuple, Callable, List
+from typing import Any, Tuple, Callable, List
 
 import Constants
 from LocationService.Trigo import Position, Angle
@@ -61,7 +61,7 @@ class LocationService:
         else:
             self._current_position = None
 
-        self._on_update_callback: List[Callable[[Position, Angle, dict], None]] = []
+        self._on_update_callback: List[Callable[[Position, Angle, dict[str, Any]], None]] = []
 
         self.__task = None
         if self.__start_immediately:
@@ -71,7 +71,7 @@ class LocationService:
         if self.__task is not None:
             self.stop()
 
-    def add_on_update_callback(self, callback_function: Callable[[Position, Angle, dict], None]) -> None:
+    def add_on_update_callback(self, callback_function: Callable[[Position, Angle, dict[str, Any]], None]) -> None:
         self._on_update_callback.append(callback_function)
 
         return
@@ -234,7 +234,7 @@ class LocationService:
         self._actual_offset = new_offset
         return
 
-    async def _run_simulation_step_threadsafe(self) -> tuple[Position, Angle]:
+    async def _run_simulation_step_threadsafe(self) -> tuple[Position|None, Angle]:
         """
         Runs a single simulation step by calling _run_simulation_step internally.
         Thread-safe
@@ -252,7 +252,7 @@ class LocationService:
                 trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
             return self._run_simulation_step(trav_distance * self._direction_mult)
 
-    def _run_simulation_step(self, distance: float) -> Tuple[Position, Angle]:
+    def _run_simulation_step(self, distance: float) -> Tuple[Position|None, Angle]:
         """
         Advance the simulation one step without threadsafety. Should only be called
         internally.
@@ -308,7 +308,7 @@ class LocationService:
         # while not self._stop_event.is_set():
         while True:
             pos, rot = await self._run_simulation_step_threadsafe()
-            data: dict = {
+            data: dict[str, Any] = {
                 'offset': self._actual_offset * self._direction_mult * -1,
                 'speed': self._actual_speed,
                 'going_clockwise': self._direction_mult == 1,
@@ -368,7 +368,7 @@ class UTurnOverride:
     do a complete U-Turn
     """
 
-    def __init__(self, location_service, drive_to_outside_of_tack: bool):
+    def __init__(self, location_service: LocationService, drive_to_outside_of_tack: bool):
         """
         Create a UTurn override object that can be set in the LocationService
         to perform a U-Turn. Based on direction_mult it will either be clockwise
@@ -430,7 +430,9 @@ class UTurnOverride:
                     return 0
                 # this isn't a problem since the abs and the inverted driving direction cancel out each other
                 return abs(self._do_curve_step())
-        raise RuntimeError(f"The U-Turn override got into phase {self._phase} which doesn't exist!")
+            case _:
+                raise RuntimeError(f"The U-Turn override got into phase {self._phase} which doesn't exist!")
+        
 
     def _do_curve_step(self) -> float:
         """

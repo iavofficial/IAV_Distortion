@@ -5,16 +5,16 @@ class Angle():
     """
     Generic class for angles where 0° means the Angle is pointing up/north
     """
-    def __init__(self, degree=0.0):
-        self._angle_degree = degree
+    def __init__(self, degree: float=0.0):
+        self.set_deg(degree)
 
-    def get_sin(self):
+    def get_sin(self)-> float:
         """
         Gets the sinus of the value
         """
         return math.sin(math.radians(self._angle_degree))
 
-    def get_cos(self):
+    def get_cos(self)-> float:
         """
         Gets the cosinus of the value
         """
@@ -32,13 +32,13 @@ class Angle():
         """
         return self.get_sin()
 
-    def set_deg(self, degree):
+    def set_deg(self, degree:float):
         """
         Sets the degree value
         """
         self._angle_degree = degree
 
-    def get_deg(self):
+    def get_deg(self) -> float:
         """
         Gets the set degree value
         """
@@ -50,7 +50,7 @@ class Angle():
         """
         return f"{round(self._angle_degree)}"
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Angle'):
         return type(self) == type(other) and self._angle_degree == other._angle_degree  # noqa: E721
 
 
@@ -58,35 +58,35 @@ class Position():
     """
     Generic Position in a 2 dimensional space
     """
-    def __init__(self, x=0.0, y=0.0):
+    def __init__(self, x: float = 0.0, y: float = 0.0):
         self._x = x
         self._y = y
 
-    def set_x(self, x):
+    def set_x(self, x: float ):
         """
         Sets the x value of the position
         """
         self._x = x
 
-    def set_y(self, y):
+    def set_y(self, y: float ):
         """
         Sets the y value of the position
         """
         self._y = y
 
-    def get_x(self):
+    def get_x(self) -> float:
         """
         Gets the x value
         """
         return self._x
 
-    def get_y(self):
+    def get_y(self) -> float:
         """
         Gets the y value
         """
         return self._y
 
-    def __add__(self, other):
+    def __add__(self, other: 'Position'):
         """
         Adds another Position as offset to itself
         """
@@ -94,7 +94,7 @@ class Position():
         comb_y = self._y + other._y
         return Position(comb_x, comb_y)
 
-    def __sub__(self, other):
+    def __sub__(self, other: 'Position'):
         """
         Subtracts another Position as negative offset to itself
         """
@@ -102,14 +102,14 @@ class Position():
         comb_y = other._y - self._y
         return Position(comb_x, comb_y)
 
-    def add_offset(self, x, y):
+    def add_offset(self, x: float, y: float):
         """
         Adds x and y as offset to itself
         """
         self._x += x
         self._y += y
 
-    def get_as_dict(self):
+    def get_as_dict(self)-> dict[str, float]:
         """
         Gets the data represented as dict with the fields
         'x' and 'y'
@@ -131,7 +131,7 @@ class Position():
         """
         return f"({round(self._x)}, {round(self._y)})"
 
-    def calculate_angle_to(self, other) -> Angle:
+    def calculate_angle_to(self, other: 'Position') -> Angle:
         """
         Calculate angle from this point to another point. 0 degrees means the other
         point is above this point. A degree of 90 means the other point is right of this point
@@ -145,7 +145,7 @@ class Position():
         deg = math.degrees(rad)
         return Angle(deg)
 
-    def distance_to(self, other) -> float:
+    def distance_to(self, other: 'Position') -> float:
         """
         Calculates the distance between this point and another point
         """
@@ -158,7 +158,7 @@ class Position():
         """
         return Position(self._x, self._y)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, float]:
         """
         Returns the data as dict with the fields 'x' and 'y'
         """

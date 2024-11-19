@@ -26,7 +26,7 @@ class Item:
     def get_effect(self) -> VehicleEffect:
         return self.effect
 
-    def to_html_dict(self):
+    def to_html_dict(self) -> dict[str, float]:
         if self.position is None:
             return {}
         return {

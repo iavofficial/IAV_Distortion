@@ -71,8 +71,8 @@ class CyberSecurityManager:
 
         return
 
-    def get_active_hacking_scenarios(self) -> dict:
-        scenario_map = {}
+    def get_active_hacking_scenarios(self) -> dict[str, str]:
+        scenario_map: dict[str, str] = {}
         for car in self._environment_manager.get_vehicle_list():
             scenario_map.update({car.vehicle_id: car.hacking_scenario})
         return scenario_map

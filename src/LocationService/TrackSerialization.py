@@ -71,4 +71,5 @@ def construct_piece_from_dict(piece_dict: Dict[str, Any]) -> TrackPiece:
             start_line_width = get_dict_attribute(piece_dict, 'start_line_width')
             return StartPieceAfterLine(length, diameter, rotation, start_line_width, physical_id)
 
-    raise PieceDecodingException('Piece had invalid type value')
+        case _:
+            raise PieceDecodingException('Piece had invalid type value')

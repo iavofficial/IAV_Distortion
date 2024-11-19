@@ -29,14 +29,13 @@ class HackingProtection(VehicleEffect):
         return []
 
     def on_start(self, vehicle: 'Vehicle') -> bool:
-        super().on_start(vehicle)
         clean_effect = CleanHackedEffect("0")
         vehicle.apply_effect(clean_effect)
         vehicle.remove_effect(clean_effect)
 
         try:
             # TODO: Implement general config objects and handle default values there!
-            duration = self._config_handler.get_configuration()['hacking_protection']['portection_duration_s']
+            duration = int(self._config_handler.get_configuration()['hacking_protection']['portection_duration_s'])
         except KeyError:
             duration = 15
 
