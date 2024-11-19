@@ -35,6 +35,8 @@ from VehicleManagement.FleetController import FleetController
 from LocationService.LocationService import LocationService
 from LocationService.TrackPieces import FullTrack
 
+from VehicleMovementManagement.BehaviourController import BehaviourController
+
 from Minigames.Minigame_Controller import Minigame_Controller
 
 from BotManagement.Bot import Bot
@@ -54,7 +56,7 @@ class EnvironmentManager:
     def __init__(self, fleet_ctrl: FleetController,
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()):
 
-        self._behaviour_ctrl: BehaviourController | None= None
+        self._behaviour_ctrl: BehaviourController | None = None
 
         self._fleet_ctrl: FleetController = fleet_ctrl
 
@@ -67,7 +69,8 @@ class EnvironmentManager:
         self._active_virtual_cars: List[str] = []
         self._active_physical_cars: List[str] = []
 
-        self.__update_staff_ui_callback: Callable[[List[Dict[str, str]], List[str], List[str], List[str]], None] | None = None
+        self.__update_staff_ui_callback: Callable[[List[Dict[str, str]], List[str], List[str], List[str]], None] \
+            | None = None
         self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
         self.__publish_player_active_callback: Callable[[str], None] | None = None
         self.__publish_vehicle_added_callback = None
@@ -76,11 +79,12 @@ class EnvironmentManager:
 
         self.__playing_time_checking_flag: bool = False
         self.config_handler: ConfigurationHandler = configuration_handler
-        
+
         # list of configured virtual vehicles
         self._virtual_vehicle_dict: dict = self.config_handler.get_configuration()["virtual_cars_pics"]
-        self._virtual_vehicle_list: list = [key for key in self._virtual_vehicle_dict.keys() if key.startswith("Virtual Vehicle")]
-        
+        self._virtual_vehicle_list: list = \
+            [key for key in self._virtual_vehicle_dict.keys() if key.startswith("Virtual Vehicle")]
+
         # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
@@ -153,7 +157,8 @@ class EnvironmentManager:
 
     def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
         """
-        Sends which player has been removed from the game to the staff ui using a callback function and to the Minigame_Controller instance.
+        Sends which player has been removed from the game to the staff ui using a
+        callback function and to the Minigame_Controller instance.
 
         Parameters
         ----------
@@ -266,7 +271,7 @@ class EnvironmentManager:
         for p in self._player_list:
             if p.get_player_id() == player_id:
                 isNewPlayer = False
-        if isNewPlayer == True:
+        if isNewPlayer is True:
             newDriver = Driver(player_id=player_id)
             self._player_list.append(newDriver)
         return result
@@ -314,7 +319,7 @@ class EnvironmentManager:
 
                     vehicle.set_player(next_player)
                     active_bot = self.get_bot_by_vehicle_id(vehicle.get_vehicle_id())
-                    if(active_bot != None):
+                    if (active_bot is not None):
                         active_bot.set_vehicle(None)
                         self._active_bots.remove(active_bot)
 
@@ -362,30 +367,30 @@ class EnvironmentManager:
         else:
             return False
 
-    def manage_bot_safe_mode(self)-> None:
+    def manage_bot_safe_mode(self) -> None:
         is_no_player_left = True
         for v_id in self._active_physical_cars:
             v = self.get_vehicle_by_vehicle_id(v_id)
             if v.get_player_id() is not None:
                 is_no_player_left = False
-                break 
+                break
         for v_id in self._active_virtual_cars:
             v = self.get_vehicle_by_vehicle_id(v_id)
-            if v.get_player_id() != None:
+            if v.get_player_id() is not None:
                 is_no_player_left = False
                 break
-        if is_no_player_left == True:
+        if is_no_player_left is True:
             for b in self._active_bots:
                 b.set_is_player_active(False)
         else:
             for b in self._active_bots:
                 b.set_is_player_active(True)
-        
-    def manage_car_switch_for(self,player_id: str, target_vehicle: str) -> bool:
-        
+
+    def manage_car_switch_for(self, player_id: str, target_vehicle: str) -> bool:
+
         """
         This function organizes the switch between cars for the player ID.
-        
+
         Parameters
         ----------
         player_id: str
@@ -409,7 +414,7 @@ class EnvironmentManager:
             return False
 
     def __switch_player_cars(self, player_id: str, target_vehicle_id: str) -> bool:
-        
+
         """
         Switch cars for player ID
 
@@ -429,18 +434,19 @@ class EnvironmentManager:
         """
         vehicle = self.get_vehicle_by_player_id(player_id)
         target_vehicle = self.get_vehicle_by_vehicle_id(target_vehicle_id)
-        if target_vehicle == None:
+        if target_vehicle is None:
             return False
-        
+
         vehicle.remove_player()
 
-        if target_vehicle.is_free() == False:
+        if target_vehicle.is_free() is False:
             new_driver = target_vehicle.get_player_id()
             logger.info(f"Switching cars from player with UUID {player_id} and player with UUID {new_driver}")
             target_vehicle.remove_player()
             self._publish_player_active(player=new_driver)
             vehicle.set_player(new_driver)
-        else: logger.info(f"Switching cars from player with UUID {player_id} to a free car")
+        else:
+            logger.info(f"Switching cars from player with UUID {player_id} to a free car")
         self._publish_player_active(player=player_id)
         target_vehicle.set_player(player_id)
         return True
@@ -650,7 +656,7 @@ class EnvironmentManager:
             found_vehicle.__del__()
 
             active_bot = self.get_bot_by_vehicle_id(found_vehicle.get_vehicle_id())
-            if(active_bot != None):
+            if (active_bot is not None):
                 active_bot.set_vehicle(None)
                 self._active_bots.remove(active_bot)
 
@@ -659,7 +665,7 @@ class EnvironmentManager:
             self.update_staff_ui()
             return True
 
-    def remove_vehicle_from_virtual_or_physical_list(self,vehicle_id: str) -> None:
+    def remove_vehicle_from_virtual_or_physical_list(self, vehicle_id: str) -> None:
         """
         Remove the vehicle from either the virtual or physical vehicle List
 
@@ -676,7 +682,6 @@ class EnvironmentManager:
             if v == vehicle_id:
                 self._active_virtual_cars.remove(v)
                 return
-
 
     async def connect_to_physical_car_by(self, uuid: str) -> None:
         logger.debug(f"Adding physical vehicle with UUID {uuid}")
@@ -711,7 +716,7 @@ class EnvironmentManager:
 
         This function iterates through the list of virtual vehicles and checks if any of them are not currently in use.
         If a vehicle is found that is not in use, it is selected and added to the game.
-        
+
         Returns
         -------
         name: str
@@ -722,18 +727,19 @@ class EnvironmentManager:
             if not any(vehicle == active_car.vehicle_id for active_car in self._active_anki_cars):
                 name = vehicle
                 break
-        
+
         if name is None:
             logger.warning("No virtual vehicle available to add to the game")
             name = "undefined"
             return name
-    
+
         logger.debug(f"Adding virtual vehicle with name {name}")
-    
+
         location_service = LocationService(self.get_track(), start_immediately=True)
         new_vehicle = VirtualCar(name, location_service)
-    
-        def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos, rot)
+
+        def item_collision(pos, rot, _):
+            self._item_collision_detector.notify_new_vehicle_position(new_vehicle, pos, rot)
         location_service.add_on_update_callback(item_collision)
 
         self._add_to_active_vehicle_list(new_vehicle, False)
@@ -744,7 +750,7 @@ class EnvironmentManager:
         if vehicle_already_exists:
             logger.warning("Tried to add a vehicle that already exists. Ignoring the request")
             return
-       
+
         if is_physical_car:
             self._active_physical_cars.append(new_vehicle.get_vehicle_id())
         else:
@@ -842,7 +848,7 @@ class EnvironmentManager:
                     num += 1
         return full_map
 
-    def get_bot_by_vehicle_id(self, vehicle_id:str) -> Bot | None:
+    def get_bot_by_vehicle_id(self, vehicle_id: str) -> Bot | None:
         """
         Get the bot based on the vehicle_id of its vehicle
         Returns None if the bot isn't found
