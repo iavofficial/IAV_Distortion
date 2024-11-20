@@ -11,7 +11,7 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.LocationService import LocationService
 from LocationService.Track import TrackPieceType, FullTrack
 from LocationService.TrackPieces import TrackBuilder
-from Minigames import Minigame_Controller
+from Minigames.Minigame_Controller import Minigame_Controller
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
 from VehicleMovementManagement.BehaviourController import BehaviourController
