@@ -502,20 +502,22 @@ async def test_vehicle_removal_on_non_reachable(car_uuid: str = 'DF:8B:DC:02:2C:
     manually turn it off so the BLE messages don't reach the car anymore and it disconnects. If the car connection
     loss isn't encountered within 10 seconds the test will fail.
     """
-    fleet_ctrl = FleetController()
-    config = ConfigurationHandler()
-    env_manager = EnvironmentManager(fleet_ctrl, configuration_handler=config)
-    behavior_controller = BehaviourController(env_manager.get_vehicle_list())
-    await env_manager.connect_to_physical_car_by(car_uuid)
-    for _ in range(0, 20):
-        car_list = env_manager.get_vehicle_list()
-        if len(car_list) == 0:
-            assert True
-            return
-        else:
-            behavior_controller.request_lane_change_for(car_uuid, 'right')
-        await asyncio.sleep(0.5)
-    assert False
+    with patch('EnvironmentManagement.ConfigurationHandler.ConfigurationHandler.get_configuration',
+               return_value={"virtual_cars_pics": {}}):
+        fleet_ctrl = FleetController()
+        config = ConfigurationHandler()
+        env_manager = EnvironmentManager(fleet_ctrl, configuration_handler=config)
+        behavior_controller = BehaviourController(env_manager.get_vehicle_list())
+        await env_manager.connect_to_physical_car_by(car_uuid)
+        for _ in range(0, 20):
+            car_list = env_manager.get_vehicle_list()
+            if len(car_list) == 0:
+                assert True
+                return
+            else:
+                behavior_controller.request_lane_change_for(car_uuid, 'right')
+            await asyncio.sleep(0.5)
+        assert False
 
 
 def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
@@ -551,8 +553,9 @@ class TestSwitchCars:
 
     def test_manage_car_switch(self, get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
         # Arrange
-        fleet_mock, config_mock = initialise_dependencies
-        env_manager = EnvironmentManager(fleet_mock, config_mock)
+        fleet_mock = MagicMock(spec=FleetController)
+        config_mock = MagicMock(spec=ConfigurationHandler)
+        env_manager = EnvironmentManager(fleet_mock, configuration_handler=config_mock)
 
         dummy_player1, dummy_player2 = get_two_dummy_player
         dummy_vehicle1, dummy_vehicle2 = get_two_dummy_vehicles
@@ -574,8 +577,9 @@ class TestSwitchCars:
 
     def test_car_switch_lower_300ms(self, get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
         # Arrange
-        fleet_mock, config_mock = initialise_dependencies
-        env_manager = EnvironmentManager(fleet_mock, config_mock)
+        fleet_mock = MagicMock(spec=FleetController)
+        config_mock = MagicMock(spec=ConfigurationHandler)
+        env_manager = EnvironmentManager(fleet_mock, configuration_handler=config_mock)
 
         dummy_player1, dummy_player2 = get_two_dummy_player
         dummy_vehicle1, dummy_vehicle2 = get_two_dummy_vehicles
@@ -598,8 +602,9 @@ class TestSwitchCars:
 
     def test_manage_multiple_car_switch(self, get_four_dummy_players, get_four_dummy_vehicles, initialise_dependencies):
         # Arrange
-        fleet_mock, config_mock = initialise_dependencies
-        env_manager = EnvironmentManager(fleet_mock, config_mock)
+        fleet_mock = MagicMock(spec=FleetController)
+        config_mock = MagicMock(spec=ConfigurationHandler)
+        env_manager = EnvironmentManager(fleet_mock, configuration_handler=config_mock)
 
         dummy_player1, dummy_player2, dummy_player3, dummy_player4 = get_four_dummy_players
         dummy_vehicle1, dummy_vehicle2, dummy_vehicle3, dummy_vehicle4 = get_four_dummy_vehicles
