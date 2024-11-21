@@ -14,15 +14,14 @@
 		"F3:70:D7:1C:B1:14": "F370D71CB114_top.webp",
 		"FE:9A:8F:15:50:8F": "FE9A8F15508F_top.webp",
 		"FE:58:E5:40:D6:6A": "FE58E540D66A_top.webp",
-		"Virtual Vehicle 1": "DF8BDC022C23_gold_top.webp",
-		"Virtual Vehicle 2": "E751D4F745EF_green_top.webp",
-		"Virtual Vehicle 3": "F4DBE7EA7B52_red_top.webp",
-		"Virtual Vehicle 4": "E4FD708CB27D_purple_top.webp",
-		"Virtual Vehicle 5": "D1FFAF51CB30_black_top.webp",
-		"Virtual Vehicle 6": "FA14670F39FE_orange_top.webp",
-		"Virtual Vehicle 7": "E87E9F34CF46_darkgreen_top.webp",
-		"Virtual Vehicle 8": "F1760808C100_pink_top.webp",
-		"Virtual Vehicle 9": "D1FFAF51CB30_blue_top.webp"
+		"Virtual Vehicle 1": "VirtualVehicle1.svg",
+		"Virtual Vehicle 2": "VirtualVehicle2.svg",
+		"Virtual Vehicle 3": "VirtualVehicle3.svg",
+		"Virtual Vehicle 4": "VirtualVehicle4.svg",
+		"Virtual Vehicle 5": "VirtualVehicle5.svg",
+		"Virtual Vehicle 6": "VirtualVehicle6.svg",
+		"Virtual Vehicle 7": "VirtualVehicle7.svg",
+		"Virtual Vehicle 8": "VirtualVehicle8.svg"
 	},
 	"driver": {
 		"driver_heartbeat_interval_ms": 5000,
