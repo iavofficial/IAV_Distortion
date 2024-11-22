@@ -15,8 +15,9 @@ jobs:
           echo "$(pipenv --venv)/bin" >> $GITHUB_PATH
 
       - uses: jakebailey/pyright-action@v2
-        with: workdir: "src"
-        args: "--project pyrightconfig.json"
+        with:
+          workdir: "src"
+          args: "--project pyrightconfig.json"
         
   flake8-lint:
     name: Check coding style via flake8
