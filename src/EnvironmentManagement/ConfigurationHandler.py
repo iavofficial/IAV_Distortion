@@ -35,10 +35,10 @@ class ConfigurationHandler(metaclass=Singleton):
 
     def __init__(self, config_file: str = "config_file.json") -> None:
         self.config_file: str = config_file
-        self.__config_tup: tuple[dict[str,Any]] = self.__read_configuration()
+        self.__config_tup: tuple[dict[str, Any]] = self.__read_configuration()
         return
 
-    def __read_configuration(self) -> tuple[dict[str,Any]]:
+    def __read_configuration(self) -> tuple[dict[str, Any]]:
         """
         Read the configuration file and return it as a tuple.
 
@@ -72,7 +72,7 @@ class ConfigurationHandler(metaclass=Singleton):
         except Exception as e:
             logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
         return {},
-    
+
     def write_configuration(self, new_config: dict[str, dict[str, Any]]) -> None:
         """
         Writes the current configuration into a configuration file
@@ -93,7 +93,7 @@ class ConfigurationHandler(metaclass=Singleton):
                     current_config[key] = value
             else:
                 current_config[key] = value
-        
+
         # Write the merged configuration back to the file
         try:
             with open(self.config_file, 'w') as file:
@@ -102,7 +102,7 @@ class ConfigurationHandler(metaclass=Singleton):
             logger.critical("No permission to write to configuration file.")
         except Exception as e:
             logger.critical(f"An unexpected error occured trying to write to the configuration file: {e}")
-            
+
         self.__config_tup = self.__read_configuration()
         return
 
@@ -135,7 +135,7 @@ class ConfigurationHandler(metaclass=Singleton):
         TypeError
             If the configuration is not of type dict.
         """
-        if not isinstance(self.__config_tup[0], dict[str,Any]):
+        if not isinstance(self.__config_tup[0], dict[str, Any]):
             logger.critical("Expected the configuration to be of type dict")
             raise TypeError("Expected the configuration to be of type dict")
         else:

@@ -94,7 +94,7 @@ class ScannedPiece:
             (self.is_location_counting_downwards() == other.is_location_counting_downwards())  # noqa: E721
 
 
-class InitializationCar: 
+class InitializationCar:
     """
     Class that has the ability to drive in a track in order to scan it and return a list of track pieces with
     physical IDs.

@@ -22,7 +22,7 @@ class HackingProtection(VehicleEffect):
         return VehicleEffectIdentification.HACKING_PROTECTION
 
     def can_be_applied(self, vehicle: Vehicle) -> bool:
-        _= vehicle
+        _ = vehicle
         return True
 
     def conflicts_with(self) -> List[VehicleEffectIdentification]:

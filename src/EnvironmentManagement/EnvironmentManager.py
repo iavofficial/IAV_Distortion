@@ -64,11 +64,11 @@ class EnvironmentManager:
 
         self.__playing_time_checking_flag: bool = False
         self.config_handler: ConfigurationHandler = configuration_handler
-        
+
         # list of configured virtual vehicles
         self._virtual_vehicle_dict: dict[str, str] = self.config_handler.get_configuration()["virtual_cars_pics"]
         self._virtual_vehicle_list: list[str] = [key for key in self._virtual_vehicle_dict.keys() if key.startswith("Virtual Vehicle")]
-        
+
         # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)
 
@@ -576,7 +576,7 @@ class EnvironmentManager:
 
         This function iterates through the list of virtual vehicles and checks if any of them are not currently in use.
         If a vehicle is found that is not in use, it is selected and added to the game.
-        
+
         Returns
         -------
         name: str
@@ -587,22 +587,22 @@ class EnvironmentManager:
             if not any(vehicle == active_car.vehicle_id for active_car in self._active_anki_cars):
                 name = vehicle
                 break
-        
+
         if name is None:
             logger.warning("No virtual vehicle available to add to the game")
             name = "undefined"
             return name
-    
+
         logger.debug(f"Adding virtual vehicle with name {name}")
-    
+
         location_service = LocationService(self.get_track(), start_immediately=True)
         new_vehicle = VirtualCar(name, location_service)
-    
+
         def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle,
                                                                                                    pos,
                                                                                                    rot)
         location_service.add_on_update_callback(item_collision)
-    
+
         self._add_to_active_vehicle_list(new_vehicle)
         return name
 
@@ -648,8 +648,8 @@ class EnvironmentManager:
                 vehicle_list.append(vehicle.get_vehicle_id())
         return vehicle_list
 
-    def get_mapped_cars(self) -> list[dict[str, str|None]]:
-        tmp: list[dict[str, str|None]] = []
+    def get_mapped_cars(self) -> list[dict[str, str | None]]:
+        tmp: list[dict[str, str | None]] = []
         for v in self._active_anki_cars:
             if v.get_player_id() is not None:
                 tmp.append({
@@ -675,7 +675,7 @@ class EnvironmentManager:
         """
         if vehicle_id is None:
             return None
-        
+
         for v in self._active_anki_cars:
             if v.vehicle_id == vehicle_id:
                 return v

@@ -5,16 +5,16 @@ class Angle():
     """
     Generic class for angles where 0° means the Angle is pointing up/north
     """
-    def __init__(self, degree: float=0.0):
+    def __init__(self, degree: float = 0.0):
         self.set_deg(degree)
 
-    def get_sin(self)-> float:
+    def get_sin(self) -> float:
         """
         Gets the sinus of the value
         """
         return math.sin(math.radians(self._angle_degree))
 
-    def get_cos(self)-> float:
+    def get_cos(self) -> float:
         """
         Gets the cosinus of the value
         """
@@ -32,7 +32,7 @@ class Angle():
         """
         return self.get_sin()
 
-    def set_deg(self, degree:float):
+    def set_deg(self, degree: float):
         """
         Sets the degree value
         """
@@ -62,13 +62,13 @@ class Position():
         self._x = x
         self._y = y
 
-    def set_x(self, x: float ):
+    def set_x(self, x: float):
         """
         Sets the x value of the position
         """
         self._x = x
 
-    def set_y(self, y: float ):
+    def set_y(self, y: float):
         """
         Sets the y value of the position
         """
@@ -109,7 +109,7 @@ class Position():
         self._x += x
         self._y += y
 
-    def get_as_dict(self)-> dict[str, float]:
+    def get_as_dict(self) -> dict[str, float]:
         """
         Gets the data represented as dict with the fields
         'x' and 'y'

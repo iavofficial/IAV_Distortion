@@ -91,7 +91,7 @@ class StraightPiece(TrackPiece):
     def get_progress_based_on_location(self, location: int, offset: float) -> float:
         return self.get_length(offset) * 0.25 * (3 - location % 3)
 
-    def to_html_dict(self) -> dict[str, str | dict[str,float]]:
+    def to_html_dict(self) -> dict[str, str | dict[str, float]]:
         line_1_start = Position(-self._diameter / 2, -self._length / 2)
         line_1_end = Position(-self._diameter / 2, self._length / 2)
         line_1_start.rotate_around_0_0(self._rotation)
@@ -133,7 +133,7 @@ class StraightPiece(TrackPiece):
 
 
 class CurvedPiece(TrackPiece):
-    def __init__(self, square_size: float, diameter: int, rot: int, mirror: bool, physical_id: int | None =None):
+    def __init__(self, square_size: float, diameter: int, rot: int, mirror: bool, physical_id: int | None = None):
         super().__init__(rot, physical_id=physical_id)
         self._size = square_size
         self._radius = square_size / 2
@@ -259,7 +259,7 @@ class CurvedPiece(TrackPiece):
             return 0.33 * (2 - location % 2) * self.get_length(offset)
         return 0.25 * (3 - (location - 20) % 3) * self.get_length(offset)
 
-    def to_html_dict(self) -> dict[str, str | int | float | dict[str,float]]:
+    def to_html_dict(self) -> dict[str, str | int | float | dict[str, float]]:
         start_angle: int = int(self._rotation.get_deg())
         if self._is_mirrored:
             start_angle = (start_angle + 180) % 360
@@ -305,7 +305,12 @@ class StartPieceAfterLine(StraightPiece):
     """
     Class that represents the part of a start piece after the line (including the line itself)
     """
-    def __init__(self, length: float, diameter: float, rotation: int, start_line_width: int, physical_id: int | None =None):
+    def __init__(self,
+                 length: float,
+                 diameter: float,
+                 rotation: int,
+                 start_line_width: int,
+                 physical_id: int | None = None):
         super().__init__(length, diameter, rotation, physical_id)
         self._start_line_width = start_line_width
 
@@ -357,7 +362,7 @@ class TrackBuilder():
         self.START_PIECE_AFTER_LINE_LENGTH = 210
         self.START_LINE_WIDTH = 21
 
-    def append(self, track_piece: TrackPieceType, physical_id: int | None =None):
+    def append(self, track_piece: TrackPieceType, physical_id: int | None = None):
         """
         Append a piece to the track. Whether the direction are right
         *aren't* checked!

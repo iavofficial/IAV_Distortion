@@ -12,7 +12,7 @@ class VirtualCar(Vehicle):
                  disable_item_removal: bool = False) -> None:
         super().__init__(vehicle_id,
                          location_service,
-                         disable_item_removal = disable_item_removal)
+                         disable_item_removal=disable_item_removal)
         self._location_service.add_on_update_callback(self._location_service_update)
 
         return

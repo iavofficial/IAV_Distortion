@@ -36,7 +36,7 @@ class BehaviourController:
 
     def request_lane_change_for(self, uuid: str, value: str) -> None:
         vehicle = self.get_vehicle_by_uuid(uuid)
-        
+
         if vehicle is not None:
             if value == "right":
                 vehicle.request_lanechange(1)

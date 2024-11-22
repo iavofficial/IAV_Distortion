@@ -67,8 +67,8 @@ class AnkiController(VehicleController):
         """
         Process the most recent command.
 
-        As long as new commands are received while another command is processed the most recent command will be
-        precessed next.
+        As long as new commands are received while another command is
+        processed the most recent command will be precessed next.
         """
         while self.__latest_command is not None:
             current_command = self.__latest_command
@@ -498,4 +498,3 @@ class AnkiController(VehicleController):
             _ = data.hex(" ", 1)
 
         return
-    

@@ -278,7 +278,8 @@ class Vehicle:
     # -----------------------------
     # Location Service related code
     # -----------------------------
-    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict[str, float], float], None]) -> None:
+    def set_virtual_location_update_callback(self,
+                                             function_name: Callable[[str, dict[str, float], float], None]) -> None:
         self._virtual_location_update_callback = function_name
         return
 

@@ -223,12 +223,12 @@ class FullTrack():
         """
         return len(self.track_entries)
 
-    def get_as_list(self) -> List[dict[str,dict[str,Any]]]:
+    def get_as_list(self) -> List[dict[str, dict[str, Any]]]:
         """
         Get's the offsets and pieces as list of dicts. Try preferring other
         functions if possible for type safety!
         """
-        l: list[dict[str,dict[str,Any]]] = []
+        l: list[dict[str, dict[str, Any]]] = []
         for entry in self.track_entries:
             piece = entry.get_piece()
             offset = entry.get_global_offset()

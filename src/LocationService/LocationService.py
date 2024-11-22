@@ -234,7 +234,7 @@ class LocationService:
         self._actual_offset = new_offset
         return
 
-    async def _run_simulation_step_threadsafe(self) -> tuple[Position|None, Angle]:
+    async def _run_simulation_step_threadsafe(self) -> tuple[Position | None, Angle]:
         """
         Runs a single simulation step by calling _run_simulation_step internally.
         Thread-safe
@@ -252,7 +252,7 @@ class LocationService:
                 trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
             return self._run_simulation_step(trav_distance * self._direction_mult)
 
-    def _run_simulation_step(self, distance: float) -> Tuple[Position|None, Angle]:
+    def _run_simulation_step(self, distance: float) -> Tuple[Position | None, Angle]:
         """
         Advance the simulation one step without threadsafety. Should only be called
         internally.
@@ -432,7 +432,6 @@ class UTurnOverride:
                 return abs(self._do_curve_step())
             case _:
                 raise RuntimeError(f"The U-Turn override got into phase {self._phase} which doesn't exist!")
-        
 
     def _do_curve_step(self) -> float:
         """
