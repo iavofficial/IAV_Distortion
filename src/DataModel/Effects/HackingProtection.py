@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from typing import List
 
 from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
 from DataModel.Effects.VehicleEffect import VehicleEffect
@@ -25,7 +24,7 @@ class HackingProtection(VehicleEffect):
         _ = vehicle
         return True
 
-    def conflicts_with(self) -> List[VehicleEffectIdentification]:
+    def conflicts_with(self) -> list[VehicleEffectIdentification]:
         return []
 
     def on_start(self, vehicle: 'Vehicle') -> bool:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Dict, Any
+from typing import Tuple, Any
 
 from LocationService.Trigo import Position, Angle, Distance
 
@@ -143,7 +143,7 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         """
         Returns the piece as a dict that for serialization that can later be de-serialized
         """
@@ -223,7 +223,7 @@ class FullTrack():
         """
         return len(self.track_entries)
 
-    def get_as_list(self) -> List[dict[str, dict[str, Any]]]:
+    def get_as_list(self) -> list[dict[str, dict[str, Any]]]:
         """
         Get's the offsets and pieces as list of dicts. Try preferring other
         functions if possible for type safety!
@@ -249,7 +249,7 @@ class FullTrack():
                 return True
         return False
 
-    def get_used_space_as_dict(self) -> Dict[str, int]:
+    def get_used_space_as_dict(self) -> dict[str, int]:
         """
         Returns a dict with the used horizontal and vertical space. The keys are
         `used_space_vertically` and `used_space_horizontally`

@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Any
+from typing import Tuple, Any
 import math
 
 from LocationService.Track import Direction, FullTrack, TrackPiece, TrackPieceType
@@ -123,7 +123,7 @@ class StraightPiece(TrackPiece):
             }
         }
 
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
             'length': self._length,
@@ -283,7 +283,7 @@ class CurvedPiece(TrackPiece):
     def __eq__(self, other: 'TrackPiece'):
         return super().__eq__(other) and self._is_mirrored == other._is_mirrored
 
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
             'square_size': self._size,
@@ -337,7 +337,7 @@ class StartPieceAfterLine(StraightPiece):
         })
         return orig
 
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
             'start_line_width': self._start_line_width
@@ -351,7 +351,7 @@ class TrackBuilder():
     and finally build()
     """
     def __init__(self):
-        self.piece_list: List[TrackPiece] = []
+        self.piece_list: list[TrackPiece] = []
         # Constants
         self.STRAIGHT_PIECE_LENGTH = 559
         self.PIECE_DIAMETER = 184

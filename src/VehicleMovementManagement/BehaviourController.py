@@ -7,13 +7,12 @@
 # file that should have been included as part of this package.
 #
 
-from typing import List
 from DataModel.Vehicle import Vehicle
 
 
 class BehaviourController:
 
-    def __init__(self, vehicles: List[Vehicle]):
+    def __init__(self, vehicles: list[Vehicle]):
         if all(isinstance(v_item, Vehicle) for v_item in vehicles):
             self._vehicles = vehicles
 

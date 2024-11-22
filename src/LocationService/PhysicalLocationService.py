@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple
+from typing import Tuple
 
 from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
@@ -25,7 +25,7 @@ class PhysicalLocationService(LocationService):
 
         # list that tracks the history of pieces so we can figure out the position even when there are duplicate IDs
         # It always has a int or None for indices that are also in the track
-        self._piece_history: List[int | None] = list()
+        self._piece_history: list[int | None] = list()
         self._piece_history_index: int = 0
         self._reset_piece_history()
 
@@ -220,7 +220,7 @@ class PhysicalLocationService(LocationService):
         on the track
         """
         # the bool stands for whether it was found while seraching in the opposite direction
-        possible_start_indices: List[Tuple[int, bool]] = list()
+        possible_start_indices: list[Tuple[int, bool]] = list()
         track_len = self._track.get_len()
 
         for starting_offset in range(0, track_len):

@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import List
 
 from DataModel.Effects.VehicleEffect import VehicleEffect
 from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
@@ -18,7 +17,7 @@ class HackedEffect(VehicleEffect, ABC):
     def effect_should_end(self, vehicle: Vehicle) -> bool:
         return False
 
-    def conflicts_with(self) -> List[VehicleEffectIdentification]:
+    def conflicts_with(self) -> list[VehicleEffectIdentification]:
         return [VehicleEffectIdentification.HACKING_PROTECTION]
 
     def remove_other_hacking_effects(self, vehicle: Vehicle):

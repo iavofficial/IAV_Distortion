@@ -1,6 +1,5 @@
 import asyncio
 from asyncio import Event
-from typing import List
 
 from LocationService.Track import TrackPiece
 from LocationService.TrackPieces import StartPieceAfterLine, TrackBuilder, StartPieceBeforeLine, StraightPiece, \
@@ -10,8 +9,8 @@ from VehicleManagement.AnkiController import AnkiController
 _START_PIECE_ID_AFTER_LINE: int = 33
 _START_PIECE_ID_BEFORE_LINE: int = 34
 
-_STRAIGHT_PIECE_IDS: List[int] = [36, 39, 40]
-_CURVE_PIECE_IDS: List[int] = [17, 18, 20, 23]
+_STRAIGHT_PIECE_IDS: list[int] = [36, 39, 40]
+_CURVE_PIECE_IDS: list[int] = [17, 18, 20, 23]
 
 
 def _raw_location_to_normalized_location(piece: int, location: int) -> int:
@@ -40,7 +39,7 @@ class ScannedPiece:
     """
     def __init__(self, piece_id: int, location: int):
         self._piece_id: int = piece_id
-        self._locations: List[int] = list()
+        self._locations: list[int] = list()
         self._locations.append(_raw_location_to_normalized_location(piece_id, location))
 
     def get_id(self) -> int | None:
@@ -108,11 +107,11 @@ class InitializationCar:
     """
     def __init__(self, controller: AnkiController):
         self._controller: AnkiController = controller
-        self._piece_ids: List[ScannedPiece] = list()
+        self._piece_ids: list[ScannedPiece] = list()
         self._finished_scanning_event: Event = Event()
         self._new_piece: bool = True
 
-    async def run(self) -> List[TrackPiece] | None:
+    async def run(self) -> list[TrackPiece] | None:
         """
         Start the scanning
         """
@@ -130,8 +129,8 @@ class InitializationCar:
         await asyncio.sleep(1)
         self._controller.change_speed_to(40)
 
-        old_scan: List[ScannedPiece] = []
-        new_scan: List[ScannedPiece] = await self._scan_for_track_ids()
+        old_scan: list[ScannedPiece] = []
+        new_scan: list[ScannedPiece] = await self._scan_for_track_ids()
 
         while old_scan != new_scan:
             old_scan = new_scan
@@ -143,7 +142,7 @@ class InitializationCar:
         self._controller.change_speed_to(0)
         return self._convert_collected_data_to_pieces(new_scan)
 
-    async def _scan_for_track_ids(self) -> List[ScannedPiece]:
+    async def _scan_for_track_ids(self) -> list[ScannedPiece]:
         """
         Drives a scanning round and returns the IDs after that
         """
@@ -209,7 +208,7 @@ class InitializationCar:
         # get piece constants from the track builder
         constants = TrackBuilder()
 
-        converted_list: List[TrackPiece] = list()
+        converted_list: list[TrackPiece] = list()
         for piece in scanned_pieces:
             if piece.get_id() == _START_PIECE_ID_AFTER_LINE:
                 converted_list.append(StartPieceAfterLine(constants.START_PIECE_AFTER_LINE_LENGTH,

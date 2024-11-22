@@ -1,5 +1,3 @@
-from typing import List
-
 from DataModel.Effects.VehicleEffect import VehicleEffect
 from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
 from DataModel.Vehicle import Vehicle
@@ -18,7 +16,7 @@ class CleanHackedEffect(VehicleEffect):
         _ = vehicle
         return True
 
-    def conflicts_with(self) -> List[VehicleEffectIdentification]:
+    def conflicts_with(self) -> list[VehicleEffectIdentification]:
         return []
 
     def effect_should_end(self, vehicle: Vehicle) -> bool:
