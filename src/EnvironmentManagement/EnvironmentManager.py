@@ -67,7 +67,8 @@ class EnvironmentManager:
 
         # list of configured virtual vehicles
         self._virtual_vehicle_dict: dict[str, str] = self.config_handler.get_configuration()["virtual_cars_pics"]
-        self._virtual_vehicle_list: list[str] = [key for key in self._virtual_vehicle_dict.keys() if key.startswith("Virtual Vehicle")]
+        self._virtual_vehicle_list: list[str] = [key for key in self._virtual_vehicle_dict.keys()
+                                                 if key.startswith("Virtual Vehicle")]
 
         # TODO change async call of connect_to_physical_car_by
         self._fleet_ctrl.set_add_anki_car_callback(self.connect_to_physical_car_by)

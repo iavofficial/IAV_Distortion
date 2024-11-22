@@ -109,14 +109,14 @@ class DriverUI:
             return
 
         @self._sio.on('disconnected')
-        def handle_disconnected(sid, data)-> None:
+        def handle_disconnected(sid, data) -> None:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
             return
 
         @self._sio.on('disconnect')
-        def handle_clienet_disconnect(sid)-> None:
+        def handle_clienet_disconnect(sid) -> None:
             logger.debug(f"Client {sid} disconnected.")
             return
 
