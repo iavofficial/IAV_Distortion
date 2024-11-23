@@ -227,3 +227,22 @@ class Minigame_Controller:
             if player_id in minigame_object.get_players():
                 return minigame_object.get_name()
         return None
+
+    def set_player_ready(self, player : str, minigame : str) -> None:
+        """
+        The specified player has accepted the rules of the specified minigame.
+
+        Parameters:
+        -----------
+        player : str
+            UUID of the player
+        minigame : str
+            name of the minigame
+        """
+
+        minigame_object = self.get_minigame_object(minigame)
+        if minigame_object is None:
+            logger.warning(f"MinigameController: The minigame {minigame} could not be found. Ignoring the request of accepting its rules for player {player}.")
+            return
+        minigame_object.set_player_ready(player)
+        print(f"PLAYER {player} is ready for minigame {minigame}")

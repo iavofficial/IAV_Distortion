@@ -1,79 +1,77 @@
-from quart import Blueprint
 import time
-import asyncio
-from socketio import AsyncServer
-from Minigames.Minigame import Minigame
-
-class Tapping_Contest(Minigame):
-    def __init__(self, sio: AsyncServer, blueprint : Blueprint, name=__name__):
-        super().__init__(sio, blueprint, name)
-        self._players : dict = {}
-        self._clicks : dict = {}
-        self._start_time : time = None
-
-        @self._sio.on('join_game')
-        async def on_join_game(sid: str, data):
-            player_id = data['player_id']
-            await self._sio.enter_room(sid, "Tapping_Contest")
-            await self._sio.emit('joined', {'player_id': player_id}, room=player_id)
-
-        @self._sio.on('start_game')
-        async def start_game(sid: str, data):
-            player1 = data['player1']
-            player2 = data['player2']
-            winner = await self._play(player1, player2)
-            print(f'Winner: {winner}')
-
-        @self._sio.on('click')
-        async def handle_click(sid: str, data):
-            player_id = data['player_id']
-            await self._record_click(player_id)
-
-    async def _play(self, player1: str, player2: str) -> str:
-        self._players = {player1: 0, player2: 0}
-        self._clicks = {player1: 0, player2: 0}
-        self._start_time = time.time() + 3  # 3-second countdown
-
-        await asyncio.sleep(2)
-        # Notify players of the countdown
-        await self._broadcast_countdown()
-
-        # Start the 10-second game timer after countdown
-        await self._start_game()
-
-        await asyncio.sleep(10)  # Game duration
-
-        player1, player2 = self._players.keys()
-        clicks1, clicks2 = self._clicks[player1], self._clicks[player2]
-
-        winner = None
-        if clicks1 > clicks2:
-            winner = player1
-        elif clicks2 > clicks1:
-            winner = player2
-
-        self._players.clear()
-        self._clicks.clear()
-        return winner
-
-    async def _broadcast_countdown(self):
-        for sec in range(3, -1, -1):
-            await self._sio.emit('countdown', {'count': sec}, room = "Tapping_Contest")
-            await asyncio.sleep(1)
-
-    async def _start_game(self):
-        await self._sio.emit('start_game', {'message': 'Game started!'}, room = "Tapping_Contest")
-
-    async def _record_click(self, player_id: str):
-        if player_id in self._clicks:
-            self._clicks[player_id] += 1
-            clicks = self._clicks[player_id]
-            elapsed = max(time.time() - self._start_time, 0)
-            cps = clicks / elapsed if elapsed > 0 else 0
-            await self._sio.emit(
-                'update_clicks',
-                {'player_id': player_id, 'clicks': clicks, 'cps': cps},
-                room="Tapping_Contest"
-            )
 
 
+class Tapping_Contest():
+    def __init__(self, game_length: int):
+        """
+        Parameters:
+        -----------
+        game_length: int
+            Time duration after which the game ends automatically in seconds.
+        """
+        self._game_length = game_length
+
+    def start(self) -> None:
+        """
+        Starts the game and timer.
+        """
+        self._players_clicks: list[int] = [0, 0]
+        self._start_time = time.time()
+
+    def increase_clicks_for_player(self, player: int, clicks: int) -> None:
+        """
+        Increase the clicks for the specified player for the specified amount.
+
+        Parameters:
+        -----------
+        player: int
+            Number of the player [0-1]
+        clicks: int
+            Amount of clicks to increase by
+        """
+
+        if self._time_ran_out():
+            print(f"Tapping_Contest: An Input was made for player {player}, but the game has already ended. \
+                Ignoring the request.")
+            return
+
+        self._players_clicks[player] += clicks
+
+    def get_winner(self) -> int:
+        """
+        Get the winner of the game.
+
+        Returns:
+        --------
+        int: Number/Index of the winner [0-1]. -1 while the game is still running. -2 in case of tie.
+        """
+
+        if self._time_ran_out():
+            print("Tapping_Contest: Winner was requested, but the game is not over yet. Returning -1.")
+            return -1
+
+        if self._players_clicks[0] > self._players_clicks[1]:
+            return 0
+        elif self._players_clicks[1] > self._players_clicks[0]:
+            return 1
+        else:
+            return -2
+
+    def get_clicks(self) -> list[int]:
+        """
+        Get a copy of the taps list.
+
+        Returns:
+        --------
+        list[int]: amount of recorded taps for both players at their corresponding indices.
+        """
+        return self._players_clicks.copy()
+
+    def _time_ran_out(self) -> bool:
+        """
+        Check if the time has run out.
+        """
+        return time.time() - self._start_time > self._game_length
+
+    def get_elapsed_time(self) -> float:
+        return time.time() - self._start_time
