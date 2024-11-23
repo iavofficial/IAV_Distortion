@@ -112,18 +112,18 @@
             document.getElementById("current-Minigame").style.display = 'none'
             if (data.winner == '{{ player }}'){
                 if (data.owner_of_physical_vehicle_at_start == '{{ player }}'){
-                    popup.innerText = "Du hast das Minispiel gewonnen. Du behälst dein echtes Auto."
+                    popup.innerText = "You won the minigame. You get to keep your physical car."
                 }else{
-                    popup.innerText = "Du hast das Minispiel gewonnen. Du übernimmst nun das Auto deines Gegners."
+                    popup.innerText = "You won the minigame. You'll now take over your opponent's car."
                 }      
             }else if(data.winner) {
                 if (data.owner_of_physical_vehicle_at_start == '{{ player }}'){
-                    popup.innerText = "Du hast das Minispiel verloren. Dein Gegner übernimmt jetzt dein Auto und du seins."
+                    popup.innerText = "You lost the minigame. Your oppononent will now take over your car and you theirs."
                 }else{
-                    popup.innerText = "Du hast das Minispiel verloren. Du behälst dein virtuelles Auto."
+                    popup.innerText = "You lost the minigame. You'll keep your virtual car."
                 }
             }else{
-                popup.innerText = "Das Minigspiel wurde abgebrochen. Es gibt keinen Gewinner."
+                popup.innerText = "The minigame was cancelled or there was a tie. There is no winner."
             }
             popup.style.display = 'block'
         })
