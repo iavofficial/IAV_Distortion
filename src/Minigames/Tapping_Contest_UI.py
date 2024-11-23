@@ -1,11 +1,10 @@
 from quart import Blueprint
-import time
 import asyncio
 from socketio import AsyncServer
 from Minigames.Minigame import Minigame
 from Minigames.Tapping_Contest import Tapping_Contest
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
-
+import random
 
 class Tapping_Contest_UI(Minigame):
     def __init__(self, sio: AsyncServer, blueprint: Blueprint, name=__name__):
@@ -33,13 +32,13 @@ class Tapping_Contest_UI(Minigame):
 
     def set_players(self, *players: str) -> list[str]:
         super().set_players()
-        if players is None or len(players) < 2:
+        if players is None or len(players) < 1:
             print("Tapping_Contest_UI: The given player list is None or not long enough.")
             return []
 
         # Create game instance with current config
         try:
-            self._game_length = int(self._config_handler.config_file['minigame']['tapping-contest']['game_length'])
+            self._game_length = int(self._config_handler.get_configuration()['minigame']['tapping-contest']['game-length'])
         except Exception:
             self._game_length = 10
             print("Tapping_Contest_UI: No (proper) Configuration found for \
@@ -48,23 +47,33 @@ class Tapping_Contest_UI(Minigame):
 
         self._players.clear()
         self._players.append(players[0])
-        self._players.append(players[1])
+        if len(self._players) > 1:
+            self._players.append(players[1])
         return self.get_players()
 
     async def _play(self) -> str:
         # Start the 10-second game timer after countdown
         await self._start_game()
 
+        # Bot player
+        if len(self._players) < 2:
+            asyncio.create_task(self._play_as_bot())
+
         await asyncio.sleep(self._game_length)  # Game duration
 
+        winner_index = self._game.get_winner()
         while self._game.get_winner() == -1:
+            winner_index = self._game.get_winner()
             await asyncio.sleep(1)
 
-        if self._game.get_winner() == -2:
+        if winner_index == -2:
             # Tie
             winner = ""
         else:
-            winner = self._players[self._game.get_winner()]
+            if winner_index == 1 and len(self._players) < 2:
+                winner = "bot"
+            else:
+                winner = self._players[winner_index]
         self._players.clear()
         return winner
 
@@ -91,3 +100,13 @@ class Tapping_Contest_UI(Minigame):
 
     def description(self) -> str:
         return f"Whoever clicks more times in {self._game_length} seconds, wins."
+
+    async def _play_as_bot(self):
+        """
+        Simulates a second player.
+        """
+        await asyncio.sleep(self._game_length / 2)
+        current_clicks_player1 = self._game.get_clicks()[0]
+        self._game.increase_clicks_for_player(1,
+                                              current_clicks_player1 +
+                                              int(random.random() * current_clicks_player1))
