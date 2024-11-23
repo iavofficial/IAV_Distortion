@@ -37,7 +37,7 @@
       font-family: Arial, sans-serif;
     }
 
-    #countdown, #status, #result {
+    #status, #result {
       margin-bottom: 20px;
       font-size: 1.5rem;
       text-align: center;
@@ -52,7 +52,6 @@
 </head>
 <body>
   <h1>Click Game</h1>
-  <div id="countdown"></div>
   <div id="status">Waiting for players...</div>
   <div id="game-timer"></div>
   <div>
@@ -70,26 +69,13 @@
     // Join game and send player ID to server
     socket.emit('join_game', { player_id: playerId });
 
-    socket.on('joined', (data) => {
-      document.getElementById('status').textContent = 'Waiting for game to start...';
-    });
-
-    socket.on('countdown', (data) => {
-      document.getElementById('countdown').textContent = `Game starting in ${data.count}...`;
-
-      if (data.count <= 0) {
-        document.getElementById('countdown').style.display = 'none'
-      }
-    });
-
-    socket.on('start_game', () => {
+    socket.on('start_game', (data) => {
       clicks = 0;
-      document.getElementById('click-btn').disabled = false;
       document.getElementById('status').textContent = 'Game started! Click as fast as you can!';
-      document.getElementById('countdown').style.display = 'none';
+      document.getElementById('click-btn').disabled = false;
 
       // Start the 10-second timer
-      let remainingTime = 10;
+      let remainingTime = data['game-length'];
       document.getElementById('game-timer').textContent = `Time Remaining: ${remainingTime}s`;
       gameInterval = setInterval(() => {
         remainingTime -= 1;
@@ -119,6 +105,13 @@
       const winner = data.winner;
       const resultText = winner === playerId ? 'You won!' : `You lost! Winner: ${winner}`;
       document.getElementById('result').textContent = resultText;
+    });
+
+    socket.on('tie', () => {
+      document.getElementById('status').innerText = 'There was a tie. You and your opponent will play another round!'
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
     });
   </script>
 </body>

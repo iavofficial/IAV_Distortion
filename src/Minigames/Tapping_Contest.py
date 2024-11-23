@@ -46,7 +46,7 @@ class Tapping_Contest():
         int: Number/Index of the winner [0-1]. -1 while the game is still running. -2 in case of tie.
         """
 
-        if self._time_ran_out():
+        if not self._time_ran_out():
             print("Tapping_Contest: Winner was requested, but the game is not over yet. Returning -1.")
             return -1
 
