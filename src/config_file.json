@@ -44,7 +44,10 @@
 		"item_max_count" : 2
 	},
 	"minigame" : {
-		"driving_speed_while_playing" : 30
+		"driving_speed_while_playing" : 30,
+		"tapping-contest" : {
+			"game-length" : 10
+		}
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,

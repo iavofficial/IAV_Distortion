@@ -13,7 +13,7 @@ class Tapping_Contest_UI(Minigame):
         self._players: list[str] = []
         self._config_handler = ConfigurationHandler()
         try:
-            self._game_length = int(self._config_handler.config_file['minigame']['tapping-contest']['game_length'])
+            self._game_length = int(self._config_handler.get_configuration()['minigame']['tapping-contest']['game-length'])
         except Exception:
             self._game_length = 10
             print("Tapping_Contest_UI: No (proper) Configuration found for \
