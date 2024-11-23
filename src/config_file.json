@@ -96,6 +96,9 @@
 		}
 	],
 	"minigame" : {
-		"driving_speed_while_playing" : 30
+		"driving_speed_while_playing" : 30,
+		"tapping-contest" : {
+			"game-length" : 10
+		}
 	}
 }
