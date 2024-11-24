@@ -47,7 +47,7 @@ class Tapping_Contest_UI(Minigame):
 
         self._players.clear()
         self._players.append(players[0])
-        if len(self._players) > 1:
+        if len(players) > 1:
             self._players.append(players[1])
         return self.get_players()
 
