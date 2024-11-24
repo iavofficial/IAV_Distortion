@@ -43,9 +43,13 @@
 		"item_spawn_interval": 30,
 		"item_max_count" : 2
 	},
-	"minigame" : {
-		"driving_speed_while_playing" : 30,
-		"tapping-contest" : {
+	"minigame": {
+		"auto_drive_constantly": true,
+		"driving_speed_while_playing": 30,
+		"games": {
+			"Minigame_Test": true
+		},
+    "tapping-contest" : {
 			"game-length" : 10
 		}
 	},

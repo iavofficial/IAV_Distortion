@@ -15,6 +15,8 @@ class Minigame:
         self._name = name
         if "." in name:
             self._name = name.split(".")[-1]
+        if "_UI" in name:
+            self._name = self._name.removesuffix("_UI")
         self._players : list[str] = []
         self._ready_players : list[str] = []
         self._task = None
@@ -34,7 +36,7 @@ class Minigame:
                 player = str(uuid.uuid4())
 
             return await render_template(template_name_or_list=self._name + '.html', player = player)
-            
+
         self.minigame_ui_blueprint.add_url_rule(f'/{self._name}', self._name, view_func=home_minigame)
 
     async def play(self, *players : str) -> str:

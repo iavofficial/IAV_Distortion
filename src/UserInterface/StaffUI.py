@@ -645,8 +645,12 @@ class StaffUI:
                     'auto_drive_constantly' : new_settings.get('auto_drive_constantly') == 'on',
                     'driving_speed_while_playing': int(new_settings.get('driving_speed_while_playing')),
                     'games' : {
-                        'Minigame_Test' : new_settings.get('Minigame_Test') == 'on'
-                    }
+                        'Minigame_Test' : new_settings.get('Minigame_Test') == 'on',
+                        'Tapping_Contest': new_settings.get('Tapping_Contest') == 'on'
+                    },
+                    'tapping-contest': {
+                        'game-length': int(new_settings.get('Tapping_Contest_Game_length'))
+                    },
                 }
             }
 
