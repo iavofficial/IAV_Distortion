@@ -11,13 +11,14 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 from Minigames.Minigame import Minigame
 from Minigames.Minigame_Test import Minigame_Test
+from Minigames.Tapping_Contest_UI import Tapping_Contest_UI
 
 logger = logging.getLogger(__name__)
 
 class Minigame_Controller:
 
     instance : "Minigame_Controller" = None
-    minigames : dict = {"Minigame_Test" : Minigame_Test}
+    minigames : dict = {"Tapping_Contest" : Tapping_Contest_UI, "Minigame_Test": Minigame_Test}
 
     def __init__(self, sio: AsyncServer = None, minigame_ui_blueprint : Blueprint = None):
         """

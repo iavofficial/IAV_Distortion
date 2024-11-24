@@ -238,7 +238,7 @@ class DriverUI:
                 return
             winner = await minigame_task
             logger.debug(f"DriverUI: The player {player} has won a minigame that was initiated by a hack of vehicle {target_vehicle_id}.")
-            if winner is None or winner == target_player:
+            if winner is None or winner == target_player or winner == "":
                 return
             
             self.environment_mng.manage_car_switch_for(player, target_vehicle_id)

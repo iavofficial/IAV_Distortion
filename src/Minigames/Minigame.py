@@ -15,6 +15,8 @@ class Minigame:
         self._name = name
         if "." in name:
             self._name = name.split(".")[-1]
+        if "_UI" in name:
+            self._name = self._name.removesuffix("_UI")
         self._players : list[str] = []
         self._ready_players : list[str] = []
         self._task = None
@@ -34,7 +36,7 @@ class Minigame:
                 player = str(uuid.uuid4())
 
             return await render_template(template_name_or_list=self._name + '.html', player = player)
-            
+
         self.minigame_ui_blueprint.add_url_rule(f'/{self._name}', self._name, view_func=home_minigame)
 
     async def play(self, *players : str) -> str:
@@ -61,7 +63,8 @@ class Minigame:
             if all_ready:
                 for i in range(3, -1, -1):
                     await self._sio.emit('all_ready', {"minigame" : self.get_name(), "countdown" : i})
-                    await asyncio.sleep(1)
+                    if i > 0:
+                        await asyncio.sleep(1)
                 break
             else:
                 await asyncio.sleep(1) 
@@ -100,6 +103,8 @@ class Minigame:
         --------
         list[str]: UUIDs of the players that have been accepted into the minigame
         """
+        self._ready_players.clear()
+        self._players.clear()
 
     def set_player_ready(self, player : str) -> None:
         """
