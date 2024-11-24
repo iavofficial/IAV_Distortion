@@ -57,7 +57,7 @@ def test_get_driving_data() -> None:
     location_service_mock = MagicMock()
     mut = PhysicalCar("FA:14:67:0F:39:FE", vehicle_controller_mock, location_service_mock, disable_item_removal=True)
     mut.player = "Player 1"
-    mut._speed_actual = 333
+    mut._current_driving_speed = 333
     mut.hacking_scenario = "test_scenario"
 
     # Act
@@ -74,7 +74,7 @@ def test_on_driving_data_change() -> None:
     location_service_mock = MagicMock()
     mut = PhysicalCar("FA:14:67:0F:39:FE", vehicle_controller_mock, location_service_mock, disable_item_removal=True)
     mut.player = "Player 1"
-    mut._speed_actual = 333
+    mut._current_driving_speed = 333
 
     receive_callback_mock = MagicMock()
     mut.set_driving_data_callback(receive_callback_mock)

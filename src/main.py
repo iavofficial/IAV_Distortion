@@ -39,6 +39,7 @@ def create_app(admin_password: str):
     environment_mng = EnvironmentManager(fleet_ctrl)
     vehicles = environment_mng.get_vehicle_list()
     behaviour_ctrl = BehaviourController(vehicles)
+    environment_mng._behaviour_ctrl = behaviour_ctrl
     cybersecurity_mng = CyberSecurityManager(environment_mng)
     item_generator = ItemGenerator(environment_mng.get_item_collision_detector(), environment_mng.get_track())
     environment_mng.add_item_generator(item_generator)
@@ -51,7 +52,7 @@ def create_app(admin_password: str):
         """
         if config_handler.get_configuration()["environment"]["env_auto_discover_anki_cars"]:
             quart_app.add_background_task(fleet_ctrl.start_auto_discover_anki_cars)
-        quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
+        # quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
         quart_app.add_background_task(item_generator.start_item_generation)
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=socket)

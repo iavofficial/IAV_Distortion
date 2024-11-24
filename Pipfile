@@ -6,13 +6,13 @@ name = "pypi"
 [packages]
 bleak = "*"
 quart = "*"
+python-socketio = "*"
 hypercorn = "*"
 deprecated = "*"
 
 [dev-packages]
 sphinx = "*"
 pytest = "*"
-python-socketio = "*"
 pytest-asyncio = "*"
 pluggy = "==1.5.0"
 
