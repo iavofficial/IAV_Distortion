@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Any
+from typing import Tuple, Any
 import math
 
 from LocationService.Track import Direction, FullTrack, TrackPiece, TrackPieceType
@@ -6,11 +6,11 @@ from LocationService.Trigo import Position, Angle, Distance
 
 
 class StraightPiece(TrackPiece):
-    def __init__(self, length, diameter, rotation, physical_id=None):
+    def __init__(self, length: float, diameter: float, rotation: int, physical_id: int | None = None):
         super().__init__(rotation, physical_id=physical_id)
         if rotation == 0 or rotation == 180:
-            self._horiz_length = diameter
-            self._vert_length = length
+            self._horiz_length: float = diameter
+            self._vert_length: float = length
         else:
             self._horiz_length = length
             self._vert_length = diameter
@@ -18,53 +18,53 @@ class StraightPiece(TrackPiece):
         self._length = length
         self._diameter = diameter
 
-    def get_used_space_vert(self):
+    def get_used_space_vert(self) -> float:
         return self._vert_length
 
-    def get_used_space_horiz(self):
+    def get_used_space_horiz(self) -> float:
         return self._horiz_length
 
     def get_outgoing_offset(self) -> Distance:
         match self._rotation.get_deg():
-            case 0:
+            case 0.0:
                 return Distance(0, -self._vert_length / 2)
-        match self._rotation.get_deg():
-            case 90:
+            case 90.0:
                 return Distance(self._horiz_length / 2, 0)
-        match self._rotation.get_deg():
-            case 180:
+            case 180.0:
                 return Distance(0, self._vert_length / 2)
-        match self._rotation.get_deg():
-            case 270:
+            case 270.0:
                 return Distance(-self._horiz_length / 2, 0)
-        raise NotImplementedError
+            case _:
+                raise NotImplementedError
 
     def get_incoming_offset(self) -> Distance:
         return self.get_outgoing_offset()
 
     def get_outgoing_direction(self) -> Direction:
         match self._rotation.get_deg():
-            case 0:
+            case 0.0:
                 return Direction.NORTH
-            case 90:
+            case 90.0:
                 return Direction.EAST
-            case 180:
+            case 180.0:
                 return Direction.SOUTH
-            case 270:
+            case 270.0:
                 return Direction.WEST
-        raise NotImplementedError
+            case _:
+                raise NotImplementedError
 
     def get_incoming_direction(self) -> Direction:
         match self._rotation.get_deg():
-            case 0:
+            case 0.0:
                 return Direction.SOUTH
-            case 90:
+            case 90.0:
                 return Direction.WEST
-            case 180:
+            case 180.0:
                 return Direction.NORTH
-            case 270:
+            case 270.0:
                 return Direction.EAST
-        raise NotImplementedError
+            case _:
+                raise NotImplementedError
 
     def process_update(self, start_progress: float, distance: float, offset: float) -> Tuple[float, Position]:
         end = start_progress + distance
@@ -91,7 +91,7 @@ class StraightPiece(TrackPiece):
     def get_progress_based_on_location(self, location: int, offset: float) -> float:
         return self.get_length(offset) * 0.25 * (3 - location % 3)
 
-    def to_html_dict(self) -> dict:
+    def to_html_dict(self) -> dict[str, str | dict[str, float]]:
         line_1_start = Position(-self._diameter / 2, -self._length / 2)
         line_1_end = Position(-self._diameter / 2, self._length / 2)
         line_1_start.rotate_around_0_0(self._rotation)
@@ -103,7 +103,6 @@ class StraightPiece(TrackPiece):
         line_2_end.rotate_around_0_0(self._rotation)
 
         return {
-
             'type': 'straight_piece',
             'rotation': str(self._rotation),
             'line_1_start': {
@@ -124,7 +123,7 @@ class StraightPiece(TrackPiece):
             }
         }
 
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
             'length': self._length,
@@ -134,17 +133,17 @@ class StraightPiece(TrackPiece):
 
 
 class CurvedPiece(TrackPiece):
-    def __init__(self, square_size, diameter: int, rot: int, mirror: bool, physical_id=None):
+    def __init__(self, square_size: float, diameter: int, rot: int, mirror: bool, physical_id: int | None = None):
         super().__init__(rot, physical_id=physical_id)
         self._size = square_size
         self._radius = square_size / 2
         self._diameter = diameter
         self._is_mirrored = mirror
 
-    def get_used_space_horiz(self):
+    def get_used_space_horiz(self) -> float:
         return self._size
 
-    def get_used_space_vert(self):
+    def get_used_space_vert(self) -> float:
         return self._size
 
     def get_outgoing_offset(self) -> Distance:
@@ -182,6 +181,8 @@ class CurvedPiece(TrackPiece):
                     return Direction.EAST
                 case 270:
                     return Direction.SOUTH
+                case _:
+                    raise NotImplementedError
         else:
             match self._rotation.get_deg():
                 case 0:
@@ -192,7 +193,8 @@ class CurvedPiece(TrackPiece):
                     return Direction.NORTH
                 case 270:
                     return Direction.EAST
-        raise NotImplementedError
+                case _:
+                    raise NotImplementedError
 
     def get_incoming_direction(self) -> Direction:
         if not self._is_mirrored:
@@ -205,6 +207,8 @@ class CurvedPiece(TrackPiece):
                     return Direction.SOUTH
                 case 270:
                     return Direction.WEST
+                case _:
+                    raise NotImplementedError
         else:
             match self._rotation.get_deg():
                 case 0:
@@ -215,7 +219,8 @@ class CurvedPiece(TrackPiece):
                     return Direction.WEST
                 case 270:
                     return Direction.NORTH
-        raise NotImplementedError
+                case _:
+                    raise NotImplementedError
 
     def process_update(self, start_progress: float, distance: float, offset: float):
         end = start_progress + distance
@@ -254,7 +259,7 @@ class CurvedPiece(TrackPiece):
             return 0.33 * (2 - location % 2) * self.get_length(offset)
         return 0.25 * (3 - (location - 20) % 3) * self.get_length(offset)
 
-    def to_html_dict(self) -> dict:
+    def to_html_dict(self) -> dict[str, str | int | float | dict[str, float]]:
         start_angle: int = int(self._rotation.get_deg())
         if self._is_mirrored:
             start_angle = (start_angle + 180) % 360
@@ -275,10 +280,10 @@ class CurvedPiece(TrackPiece):
             }
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'TrackPiece'):
         return super().__eq__(other) and self._is_mirrored == other._is_mirrored
 
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
             'square_size': self._size,
@@ -300,7 +305,12 @@ class StartPieceAfterLine(StraightPiece):
     """
     Class that represents the part of a start piece after the line (including the line itself)
     """
-    def __init__(self, length, diameter, rotation, start_line_width: int, physical_id=None):
+    def __init__(self,
+                 length: float,
+                 diameter: float,
+                 rotation: int,
+                 start_line_width: int,
+                 physical_id: int | None = None):
         super().__init__(length, diameter, rotation, physical_id)
         self._start_line_width = start_line_width
 
@@ -309,7 +319,7 @@ class StartPieceAfterLine(StraightPiece):
         _ = offset
         return 0.5 * self.get_length(offset)
 
-    def to_html_dict(self) -> dict:
+    def to_html_dict(self) -> dict[str, str | dict[str, float]]:
         startline_start = Position(self._diameter / 2, self._length / 2 - self._start_line_width / 2)
         startline_end = Position(-self._diameter / 2, self._length / 2 - self._start_line_width / 2)
         startline_start.rotate_around_0_0(self._rotation)
@@ -327,7 +337,7 @@ class StartPieceAfterLine(StraightPiece):
         })
         return orig
 
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
             'start_line_width': self._start_line_width
@@ -341,7 +351,7 @@ class TrackBuilder():
     and finally build()
     """
     def __init__(self):
-        self.piece_list: List[TrackPiece] = []
+        self.piece_list: list[TrackPiece] = []
         # Constants
         self.STRAIGHT_PIECE_LENGTH = 559
         self.PIECE_DIAMETER = 184
@@ -352,7 +362,7 @@ class TrackBuilder():
         self.START_PIECE_AFTER_LINE_LENGTH = 210
         self.START_LINE_WIDTH = 21
 
-    def append(self, track_piece: TrackPieceType, physical_id=None):
+    def append(self, track_piece: TrackPieceType, physical_id: int | None = None):
         """
         Append a piece to the track. Whether the direction are right
         *aren't* checked!

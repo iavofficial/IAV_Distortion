@@ -8,7 +8,7 @@
 #
 import asyncio
 from datetime import datetime
-from typing import Callable, List, Any
+from typing import Callable, Any
 
 import Constants
 from DataModel.Effects.VehicleEffect import VehicleEffect
@@ -22,16 +22,16 @@ logger = logging.getLogger(__name__)
 
 
 class Vehicle:
-    def __init__(self, vehicle_id: str, location_service: LocationService, disable_item_removal=False) -> None:
+    def __init__(self, vehicle_id: str, location_service: LocationService, disable_item_removal: bool = False) -> None:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None
 
         self._active_hacking_scenario: str = "0"
-        self._driving_data_callback: Callable[[dict], None] | None = None
+        self._driving_data_callback: Callable[[dict[str, Any]], None] | None = None
 
         self._effects: list[VehicleEffect] = []
-        self._item_data_callback: Callable[[dict], None] | None = None
+        self._item_data_callback: Callable[[dict[str, str]], None] | None = None
 
         self._location_service: LocationService = location_service
 
@@ -49,7 +49,7 @@ class Vehicle:
 
         self._is_safemode_on: bool = True
 
-        self._virtual_location_update_callback: Callable[[str, dict, float], None] | None = None
+        self._virtual_location_update_callback: Callable[[str, dict[str, float], float], None] | None = None
 
     def __del__(self):
         pass
@@ -101,7 +101,7 @@ class Vehicle:
         self._on_driving_data_change()
         return 0
 
-    def set_driving_data_callback(self, function_name: Callable[[dict], None]) -> None:
+    def set_driving_data_callback(self, function_name: Callable[[dict[str, Any]], None]) -> None:
         self._driving_data_callback = function_name
         return
 
@@ -252,7 +252,7 @@ class Vehicle:
         }
         return driving_info_dic
 
-    def _receive_transition(self, value_tuple) -> None:
+    def _receive_transition(self, value_tuple: tuple[int, int, float, int]) -> None:
         piece, piece_prev, offset, direction = value_tuple
         self._road_piece = piece
         self._prev_road_piece = piece_prev
@@ -260,16 +260,16 @@ class Vehicle:
         self._direction = direction
         return
 
-    def _receive_offset_update(self, value_tuple) -> None:
+    def _receive_offset_update(self, value_tuple: tuple[float, Any]) -> None:
         offset = value_tuple[0]
         self._offset_from_center = offset
         return
 
-    def _receive_version(self, value_tuple) -> None:
+    def _receive_version(self, value_tuple: tuple[Any]) -> None:
         self._version = str(value_tuple)
         return
 
-    def _receive_battery(self, value_tuple) -> None:
+    def _receive_battery(self, value_tuple: tuple[Any]) -> None:
         self._battery = str(value_tuple)
 
         self._on_driving_data_change()
@@ -278,16 +278,17 @@ class Vehicle:
     # -----------------------------
     # Location Service related code
     # -----------------------------
-    def set_virtual_location_update_callback(self, function_name: Callable[[str, dict, float], None]) -> None:
+    def set_virtual_location_update_callback(self,
+                                             function_name: Callable[[str, dict[str, float], float], None]) -> None:
         self._virtual_location_update_callback = function_name
         return
 
-    def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict) -> None:
+    def _on_virtual_location_update(self, pos: Position, angle: Angle, _: dict[str, float]) -> None:
         if self._virtual_location_update_callback is not None and callable(self._virtual_location_update_callback):
             self._virtual_location_update_callback(self.vehicle_id, pos.to_dict(), angle.get_deg())
         return
 
-    def _location_service_update(self, pos: Position, rot: Angle, data: dict) -> None:
+    def _location_service_update(self, pos: Position, rot: Angle, data: dict[Any, Any]) -> None:
         """
         Default callback to be called when the location service has a new calculated vehicle position.
         It invokes the virtual location update which publishes the driving data via socketio
@@ -331,7 +332,7 @@ class Vehicle:
                     logger.info("Car %s doesn't have the effect %s anymore", self.vehicle_id, str(effect.identify()))
             await asyncio.sleep(1)
 
-    def set_item_data_callback(self, function_name: Callable[[dict], None]) -> None:
+    def set_item_data_callback(self, function_name: Callable[[dict[str, str]], None]) -> None:
         self._item_data_callback = function_name
         return
 

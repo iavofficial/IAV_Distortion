@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Dict, Any
+from typing import Tuple, Any
 
 from LocationService.Trigo import Position, Angle, Distance
 
@@ -41,7 +41,7 @@ class TrackPiece(ABC):
     """
     Single TrackPiece class that allows calculating progress on itself and holds some metadata like it's size.
     """
-    def __init__(self, rotation_deg: int, physical_id):
+    def __init__(self, rotation_deg: int, physical_id: int | None):
         self._rotation = Angle(rotation_deg)
         self._physical_id: int | None = physical_id
 
@@ -51,12 +51,12 @@ class TrackPiece(ABC):
     def get_physical_id(self) -> int | None:
         return self._physical_id
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'TrackPiece'):
         return type(self) == type(other) \
             and self._rotation == other._rotation \
             and self._physical_id == other._physical_id  # noqa: E721
 
-    def __ne__(self, other):
+    def __ne__(self, other: 'TrackPiece'):
         return not self.__eq__(other)
 
     @abstractmethod
@@ -71,14 +71,14 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_used_space_horiz(self):
+    def get_used_space_horiz(self) -> float:
         """
         Used space horizontally when looked at from above
         """
         raise NotImplementedError
 
     @abstractmethod
-    def get_used_space_vert(self):
+    def get_used_space_vert(self) -> float:
         """
         Used space vertically when looked at from above
         """
@@ -136,14 +136,14 @@ class TrackPiece(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_html_dict(self) -> dict:
+    def to_html_dict(self) -> dict[str, Any]:
         """
         Get the piece in a representation that can be used in JS to draw the track
         """
         raise NotImplementedError
 
     @abstractmethod
-    def to_json_dict(self) -> Dict[str, Any]:
+    def to_json_dict(self) -> dict[str, Any]:
         """
         Returns the piece as a dict that for serialization that can later be de-serialized
         """
@@ -159,7 +159,7 @@ class TrackEntry():
     Entry in a FullTrach that includes the piece itself and where
     it's relativ to the whole Track
     """
-    def __init__(self, track_piece, offset):
+    def __init__(self, track_piece: TrackPiece, offset: Position):
         self.track_piece: TrackPiece = track_piece
         self.offset: Position = offset
 
@@ -217,18 +217,18 @@ class FullTrack():
         entry = self.track_entries[num]
         return (entry.get_piece(), entry.get_global_offset())
 
-    def get_len(self):
+    def get_len(self) -> int:
         """
         Gets the number of track pieces in the whole track
         """
         return len(self.track_entries)
 
-    def get_as_list(self) -> List[dict]:
+    def get_as_list(self) -> list[dict[str, dict[str, Any]]]:
         """
         Get's the offsets and pieces as list of dicts. Try preferring other
         functions if possible for type safety!
         """
-        l: list[dict] = []
+        l: list[dict[str, dict[str, Any]]] = []
         for entry in self.track_entries:
             piece = entry.get_piece()
             offset = entry.get_global_offset()
@@ -249,7 +249,7 @@ class FullTrack():
                 return True
         return False
 
-    def get_used_space_as_dict(self) -> Dict[str, int]:
+    def get_used_space_as_dict(self) -> dict[str, int]:
         """
         Returns a dict with the used horizontal and vertical space. The keys are
         `used_space_vertically` and `used_space_horizontally`
@@ -269,7 +269,7 @@ class FullTrack():
             'used_space_horizontally': max_horiz
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'FullTrack'):
         if type(self) != type(other):  # noqa: E721
             return False
 

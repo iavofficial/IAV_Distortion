@@ -23,8 +23,8 @@ class FleetController:
         self._connected_cars = {}  # BleakClients
         self.config_handler: ConfigurationHandler = config_handler if config_handler else ConfigurationHandler()
         self.__add_anki_car_callback: Callable[[str], Coroutine[Any, Any, None]] | None = None
-        self.__auto_connect_anki_cars_task: Task | None = None
-        self.__ble_number_of_device_logging: Task | None = None
+        self.__auto_connect_anki_cars_task: Task[Any] | None = None
+        self.__ble_number_of_device_logging: Task[Any] | None = None
 
     async def scan_for_anki_cars(self, only_ready: bool = False) -> list[str]:
         """
@@ -48,7 +48,7 @@ class FleetController:
             for device in _all_devices:
                 local_name = device[1].local_name
                 if local_name is None:
-                    return
+                    return []
                 state = list(local_name.encode('utf-8'))[0]
                 if state == 16:
                     _active_devices.append(device[0].address)
@@ -69,7 +69,7 @@ class FleetController:
                         logger.warning('Missing callback to add vehicles. Auto discovery service will be deactivated.')
                         self.stop_auto_discover_anki_cars()
                     else:
-                        await self.__add_anki_car_callback(uuid)
+                        self.__add_anki_car_callback(uuid)
 
                 await asyncio.sleep(5)
             except Exception as e:

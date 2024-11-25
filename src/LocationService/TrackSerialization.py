@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import Any
 
 from LocationService.Track import FullTrack, TrackPiece
 from LocationService.TrackPieces import StraightPiece, CurvedPiece, StartPieceBeforeLine, StartPieceAfterLine
@@ -8,22 +8,22 @@ class PieceDecodingException(BaseException):
     pass
 
 
-def full_track_to_list_of_dicts(track: FullTrack) -> List[Dict[str, Any]]:
+def full_track_to_list_of_dicts(track: FullTrack) -> list[dict[str, Any]]:
     """
     Converts a track to a list that consists of dictionaries that each represent a track piece
     """
-    ret: List[Dict[str, Any]] = list()
+    ret: list[dict[str, Any]] = list()
     for entry in track.track_entries:
         piece = entry.get_piece()
         ret.append(piece.to_json_dict())
     return ret
 
 
-def parse_list_of_dicts_to_full_track(input_list: List[Dict[str, Any]]) -> FullTrack | None:
+def parse_list_of_dicts_to_full_track(input_list: list[dict[str, Any]]) -> FullTrack | None:
     """
     Tries to parse a list of dictionaries to a FullTrack. This can raise a PieceDecodingException
     """
-    parsed_list: List[TrackPiece] = list()
+    parsed_list: list[TrackPiece] = list()
     if len(input_list) == 0:
         return None
     for piece_dict in input_list:
@@ -32,7 +32,7 @@ def parse_list_of_dicts_to_full_track(input_list: List[Dict[str, Any]]) -> FullT
     return FullTrack(parsed_list)
 
 
-def get_dict_attribute(search_dict: Dict[str, Any], searched_property: str) -> Any:
+def get_dict_attribute(search_dict: dict[str, Any], searched_property: str) -> Any:
     """
     Gets an attribute of a dict. If the attribute isn't in the dict a PieceDecodingException is raised
     """
@@ -42,7 +42,7 @@ def get_dict_attribute(search_dict: Dict[str, Any], searched_property: str) -> A
     return val
 
 
-def construct_piece_from_dict(piece_dict: Dict[str, Any]) -> TrackPiece:
+def construct_piece_from_dict(piece_dict: dict[str, Any]) -> TrackPiece:
     """
     Constructs a piece from a dict. If a needed value is missing or has another problem a PieceDecodingException
     is raised
@@ -71,4 +71,5 @@ def construct_piece_from_dict(piece_dict: Dict[str, Any]) -> TrackPiece:
             start_line_width = get_dict_attribute(piece_dict, 'start_line_width')
             return StartPieceAfterLine(length, diameter, rotation, start_line_width, physical_id)
 
-    raise PieceDecodingException('Piece had invalid type value')
+        case _:
+            raise PieceDecodingException('Piece had invalid type value')

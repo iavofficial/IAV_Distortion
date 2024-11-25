@@ -1,5 +1,6 @@
 import asyncio
 from asyncio import Task
+from typing import Any
 
 from DataModel.Effects.HackingProtection import HackingProtection
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -12,7 +13,7 @@ class ItemGenerator:
     def __init__(self, item_collision_detection: ItemCollisionDetector, track: FullTrack | None):
         self._item_collision_detection: ItemCollisionDetector = item_collision_detection
         self._track: FullTrack | None = track
-        self._item_generation_task: Task | None = None
+        self._item_generation_task: Task[Any] | None = None
         self._config = ConfigurationHandler().get_configuration()
 
         max_item_length = self._config['item']['item_max_count'] - 1

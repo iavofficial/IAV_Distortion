@@ -1,5 +1,3 @@
-from typing import List
-
 import pytest
 from bleak import BleakClient
 
@@ -31,6 +29,6 @@ async def test_track_scanning(expected_track: FullTrack = _expected_track, uuid:
     anki_car_controller = AnkiController()
     await anki_car_controller.connect_to_vehicle(BleakClient(uuid))
     init_car = InitializationCar(anki_car_controller)
-    raw_scanned_track: List[TrackPiece] = await init_car.run()
+    raw_scanned_track: list[TrackPiece] = await init_car.run()
     scanned_track = FullTrack(raw_scanned_track)
     assert expected_track == scanned_track
