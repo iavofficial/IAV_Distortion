@@ -135,8 +135,12 @@ class ConfigurationHandler(metaclass=Singleton):
         TypeError
             If the configuration is not of type dict.
         """
-        if not isinstance(self.__config_tup[0], dict[str, Any]):
+        if not isinstance(self.__config_tup[0], dict):
             logger.critical("Expected the configuration to be of type dict")
             raise TypeError("Expected the configuration to be of type dict")
+        for key, value in self.__config_tup[0].items():
+            if not isinstance(key, str) or not isinstance(value, (int, float, str, list, dict)):  # Add more types as needed
+                logger.critical("Expected configuration keys to be strings and values to be of certain types")
+                raise TypeError("Expected configuration keys to be strings and values to be of certain types")
         else:
             return self.__config_tup[0]
