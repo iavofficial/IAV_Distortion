@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 from DataModel.Vehicle import Vehicle
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from Items.Item import Item
 from Items.ItemCollisionDetection import ItemCollisionDetector
 from LocationService.Trigo import Position, Angle
