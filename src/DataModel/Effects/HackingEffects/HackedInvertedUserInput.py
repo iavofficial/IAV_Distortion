@@ -15,7 +15,6 @@ class HackedInvertedUserInput(HackedEffect):
         vehicle.lange_change_inverted = True
         vehicle.turn_blocked = True
 
-
     def on_end(self, vehicle: 'Vehicle') -> None:
         vehicle.speed_factor = 1
         vehicle.speed_offset = 0

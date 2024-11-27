@@ -46,7 +46,6 @@ class Vehicle:
         self.__lane_change: int = 0
         self.__lange_change_blocked: bool = False
         self.__lane_change_inverted: bool = False
-        
 
         self.__turn_blocked: bool = False
 

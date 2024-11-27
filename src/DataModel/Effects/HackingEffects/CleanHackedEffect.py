@@ -27,12 +27,11 @@ class CleanHackedEffect(VehicleEffect):
         # remove all hacked effects
         for effect in vehicle.get_active_effects():
             effect_type = effect.identify()
-            #todo : adding more hacked effect types here is arkward. change the logic 
             if effect_type == VehicleEffectIdentification.HACKED_NO_SAFETY_MODULE or \
                     effect_type == VehicleEffectIdentification.HACKED_NO_DRIVING or \
                     effect_type == VehicleEffectIdentification.HACKED_REDUCED_SPEED or \
                     effect_type == VehicleEffectIdentification.HACKED_SPORADIC_O_TURNS or \
-                    effect_type == VehicleEffectIdentification.HACKED_INVERTED_USER_INPUT :
+                    effect_type == VehicleEffectIdentification.HACKED_INVERTED_USER_INPUT:
                 vehicle.remove_effect(effect)
                 vehicle.hacking_scenario = self._scenario
         return True

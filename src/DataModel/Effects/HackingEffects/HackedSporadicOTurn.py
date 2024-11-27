@@ -2,9 +2,8 @@ from DataModel.Effects.HackingEffects.HackedEffect import HackedEffect
 from DataModel.Effects.VehicleEffectList import VehicleEffectIdentification
 from DataModel.Vehicle import Vehicle
 import asyncio
-import threading
 import random
-import time
+
 
 class HackedSporadicOTurn(HackedEffect):
     def identify(self) -> VehicleEffectIdentification:
@@ -15,7 +14,6 @@ class HackedSporadicOTurn(HackedEffect):
         self.remove_other_hacking_effects(vehicle)
         self.task = asyncio.create_task(self.perform_uturns(vehicle))  # create an async task
 
-
     async def perform_uturns(self, vehicle: 'Vehicle') -> None:
         while True:
             vehicle.request_uturn()  # first u-turn of the pair
@@ -25,4 +23,3 @@ class HackedSporadicOTurn(HackedEffect):
 
     def on_end(self, vehicle: 'Vehicle') -> None:
         self.task.cancel()  # cancel the task
-
