@@ -1,0 +1,15 @@
+{
+  "include": ["src", "src/**"],
+  "exclude": ["**/__pycache__", "test", "test/**"],
+  "reportMissingImports": true,
+  "reportUnusedVariable": true,
+  "reportOptionalSubscript": true,
+  "reportOptionalMemberAccess": true,
+  "reportGeneralTypeIssues": true,
+  "reportUnboundVariable": true,
+  "reportPrivateUsage": true,
+  "typeCheckingMode": "basic",
+  "venvPath": "C:/Users/dbierkar/.virtualenvs/",
+  "venv": "IAVDistortion-WH4ls6rj",
+  "pythonVersion": "3.11",
+}

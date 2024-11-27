@@ -7,6 +7,7 @@
 # file that should have been included as part of this package.
 #
 
+from typing import Any
 from quart import Blueprint, render_template, request
 import uuid
 import logging
@@ -15,23 +16,28 @@ import time
 
 from socketio import AsyncServer
 
+from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from VehicleMovementManagement import BehaviourController
 
 logger = logging.getLogger(__name__)
 
 
 class DriverUI:
 
-    def __init__(self, behaviour_ctrl, environment_mng, sio: AsyncServer, name=__name__) -> None:
+    def __init__(self,
+                 behaviour_ctrl: BehaviourController,
+                 environment_mng: EnvironmentManager,
+                 sio: AsyncServer) -> None:
         self.driverUI_blueprint: Blueprint = Blueprint(name='driverUI_bp', import_name='driverUI_bp')
-        self.vehicles: list = environment_mng.get_vehicle_list()
+        self.vehicles: list[Vehicle] = environment_mng.get_vehicle_list()
         self.behaviour_ctrl = behaviour_ctrl
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
-        self.__latest_driver_heartbeats: dict = {}
+        self.__latest_driver_heartbeats: dict[str, float] = {}
         self.__checking_heartbeats_flag: bool = False
 
         try:
@@ -83,7 +89,7 @@ class DriverUI:
         self.driverUI_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_driver)
 
         @self._sio.on('handle_connect')
-        def handle_connected(sid: str, data: dict) -> None:
+        def handle_connected(sid: str, data: dict[Any, Any]) -> None:
             """
             Calls environment manager function to update queues and vehicles.
 
@@ -103,14 +109,14 @@ class DriverUI:
             return
 
         @self._sio.on('disconnected')
-        def handle_disconnected(sid, data):
+        def handle_disconnected(sid, data) -> None:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
             return
 
         @self._sio.on('disconnect')
-        def handle_clienet_disconnect(sid):
+        def handle_clienet_disconnect(sid) -> None:
             logger.debug(f"Client {sid} disconnected.")
             return
 
