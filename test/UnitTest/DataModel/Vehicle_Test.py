@@ -21,7 +21,7 @@ def init_vehicle():
     return Vehicle('123', location_service_mock, disable_item_removal=True)
 
 
-@pytest.mark.skip_ci
+@pytest.mark.one_anki_car_needed
 def test_get_location():
     vctrl = VehicleController()
     fleet_ctrl = FleetController()
