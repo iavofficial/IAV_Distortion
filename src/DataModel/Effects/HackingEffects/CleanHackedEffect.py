@@ -29,7 +29,9 @@ class CleanHackedEffect(VehicleEffect):
             effect_type = effect.identify()
             if effect_type == VehicleEffectIdentification.HACKED_NO_SAFETY_MODULE or \
                     effect_type == VehicleEffectIdentification.HACKED_NO_DRIVING or \
-                    effect_type == VehicleEffectIdentification.HACKED_REDUCED_SPEED:
+                    effect_type == VehicleEffectIdentification.HACKED_REDUCED_SPEED or \
+                    effect_type == VehicleEffectIdentification.HACKED_SPORADIC_O_TURNS or \
+                    effect_type == VehicleEffectIdentification.HACKED_INVERTED_USER_INPUT:
                 vehicle.remove_effect(effect)
                 vehicle.hacking_scenario = self._scenario
         return True

@@ -40,10 +40,12 @@ class Vehicle:
 
         self._requested_speed: float = 0
         self._speed_factor: float = 1.0
+        self._speed_offset: float = 0
         self._current_driving_speed: int = 0
 
         self.__lane_change: int = 0
         self.__lange_change_blocked: bool = False
+        self.__lane_change_inverted: bool = False
 
         self.__turn_blocked: bool = False
 
@@ -93,7 +95,7 @@ class Vehicle:
         """
         Calculates the speed after applying the speed factor and other effects
         """
-        speed_calculated = requested_speed * self._speed_factor
+        speed_calculated = requested_speed * self._speed_factor + self._speed_offset
         if speed_calculated > Constants.MINIMUM_SPEED_PERCENT:
             return int(speed_calculated)
 
@@ -177,12 +179,30 @@ class Vehicle:
         return
 
     @property
+    def speed_offset(self) -> float:
+        return self._speed_offset
+
+    @speed_offset.setter
+    def speed_offset(self, value: float) -> None:
+        if not value == self._speed_offset:
+            self._speed_offset = value
+            self._new_speed_calculated(self.get_speed_with_effects_applied(self._requested_speed))
+
+    @property
     def lange_change_blocked(self) -> bool:
         return self.__lange_change_blocked
 
     @lange_change_blocked.setter
     def lange_change_blocked(self, value: bool) -> None:
         self.__lange_change_blocked = value
+
+    @property
+    def lange_change_inverted(self) -> bool:
+        return self.__lane_change_inverted
+
+    @lange_change_inverted.setter
+    def lange_change_inverted(self, value: bool) -> None:
+        self.__lane_change_inverted = value
 
     @property
     def lane_change(self) -> int:
@@ -222,6 +242,8 @@ class Vehicle:
     def __calculate_lane_change(self, change_request: int) -> None:
         if self.__lange_change_blocked:
             return
+        if self.__lane_change_inverted:
+            change_request *= -1
 
         self.__update_own_lane_change()
         self.__lane_change += change_request
@@ -246,6 +268,7 @@ class Vehicle:
             'player': self.player,
             'speed_request': self._requested_speed,
             'lane_change_blocked': self.__lange_change_blocked,
+            'lane_change_inverted': self.__lane_change_inverted,
             'is_safemode_on': self._is_safemode_on,
             'active_hacking_scenario': self._active_hacking_scenario,
             'speed_actual': self._current_driving_speed

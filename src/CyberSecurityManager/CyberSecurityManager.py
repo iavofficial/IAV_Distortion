@@ -13,6 +13,8 @@ from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
 from DataModel.Effects.HackingEffects.HackedNoDriving import HackedNoDriving
 from DataModel.Effects.HackingEffects.HackedNoSafetyModule import HackedNoSafetyModule
 from DataModel.Effects.HackingEffects.HackedReducedSpeed import HackedReducedSpeed
+from DataModel.Effects.HackingEffects.HackedSporadicOTurn import HackedSporadicOTurn
+from DataModel.Effects.HackingEffects.HackedInvertedUserInput import HackedInvertedUserInput
 
 
 # fix circular import that only occurs because of type hinting
@@ -43,7 +45,17 @@ def _set_scenarios() -> list[dict[str, Any]]:
                  "description": "the safemode module is deactivated",
                  "effect": HackedNoSafetyModule}
 
-    return [scenario0, scenario1, scenario3, scenario4]
+    scenario5 = {"id": "5",
+                 "name": "U-turn",
+                 "description": "the car perfoms a U-turn",
+                 "effect": HackedSporadicOTurn}
+
+    scenario6 = {"id": "6",
+                 "name": "InputInversion",
+                 "description": "the input from User is inverted",
+                 "effect": HackedInvertedUserInput}
+
+    return [scenario0, scenario1, scenario3, scenario4, scenario5, scenario6]
 
 
 class CyberSecurityManager:
