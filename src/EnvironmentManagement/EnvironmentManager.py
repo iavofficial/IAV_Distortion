@@ -38,6 +38,7 @@ from LocationService.TrackPieces import FullTrack
 from Minigames.Minigame_Controller import Minigame_Controller
 
 from BotManagement.Bot import Bot
+from VehicleMovementManagement import BehaviourController
 
 logger = logging.getLogger(__name__)
 
