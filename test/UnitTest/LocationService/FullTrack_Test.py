@@ -58,8 +58,8 @@ def test_track_size_calculation(standard_track, big_track):
     size_small = small_track.get_used_space_as_dict()
     size_big = big_track.get_used_space_as_dict()
 
-    assert pytest.approx(track_square_size * 2) == size_small['used_space_vertically']
-    assert pytest.approx(track_square_size * 3) == size_small['used_space_horizontally']
+    assert pytest.approx(track_square_size * 2) == size_small['used_space_horizontally']
+    assert pytest.approx(track_square_size * 3) == size_small['used_space_vertically']
 
-    assert pytest.approx(track_square_size * 4) == size_big['used_space_vertically']
-    assert pytest.approx(track_square_size * 7) == size_big['used_space_horizontally']
+    assert pytest.approx(track_square_size * 4) == size_big['used_space_horizontally']
+    assert pytest.approx(track_square_size * 7) == size_big['used_space_vertically']

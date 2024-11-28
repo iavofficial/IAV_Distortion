@@ -1,6 +1,7 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from DataModel.Vehicle import Vehicle
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from Items.Item import Item
 from Items.ItemCollisionDetection import ItemCollisionDetector
 from LocationService.Trigo import Position, Angle
@@ -37,9 +38,12 @@ def test_callbacks_are_executed():
     item = MagicMock(spec=Item)
     item_changed_callback = MagicMock()
     item_collision_detector = ItemCollisionDetector()
-    item_collision_detector.set_on_item_change_callback(item_changed_callback)
 
-    item_collision_detector.add_item(item)
+    with patch.object(ConfigurationHandler, 'get_configuration', return_value={'item':{'item_max_count': 10}}):
+
+        item_collision_detector.set_on_item_change_callback(item_changed_callback)
+        item_collision_detector.add_item(item)
+
     item_changed_callback.assert_called()
 
     item_changed_callback.reset_mock()
