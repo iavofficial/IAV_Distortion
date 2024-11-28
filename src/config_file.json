@@ -105,7 +105,11 @@
 		"auto_drive_constantly": true,
 		"driving_speed_while_playing": 30,
 		"games": {
-			"Minigame_Test": true
+			"Minigame_Test": false,
+			"Tapping_Contest": true
+		},
+		"tapping-contest" : {
+			"game-length" : 10
 		}
 	},
 	"display_settings": {

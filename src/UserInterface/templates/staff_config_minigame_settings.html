@@ -26,6 +26,22 @@
                     <span class="custom-checkbox"></span>    
                 </label>
             </div>
+            <div class="menu_item">
+                <label class="checkbox-container"> Tapping_Contest:
+                    <input type="checkbox" id="Tapping_Contest" name="Tapping_Contest">
+                    <span class="custom-checkbox"></span>    
+                </label>
+            </div>
+        </div>
+        <div id="specific_settings">
+            <h2>Specific Settings</h2>
+            <div id="Tapping_Contest_Settings">
+                <h3>Tapping Contest Settings:</h3>
+                <div class="menu_item">
+                    <label for="Tapping_Contest_Game_length">Length of Tapping Contest games in seconds (default 10):</label>
+                    <input type="number" id="Tapping_Contest_Game_length" name="Tapping_Contest_Game_length" min="5" max="100">
+                </div>
+            </div>
         </div>
         <button type="submit">Apply changes... </button>
     </form>
@@ -39,13 +55,14 @@
 
         // Checkboxes
         document.getElementById('auto_drive_constantly').checked = settings['minigame']['auto_drive_constantly']
-        let minigameCheckboxes = ['Minigame_Test'] 
+        let minigameCheckboxes = ['Minigame_Test', 'Tapping_Contest'] 
         minigameCheckboxes.forEach( (id) => {
             document.getElementById(id).checked = settings['minigame']['games'][id]
         })
 
         // numbers
         driving_speed_while_playing.value = settings.minigame.driving_speed_while_playing;
+        Tapping_Contest_Game_length.value = settings.minigame['tapping-contest']['game-length'];
     }
 
 

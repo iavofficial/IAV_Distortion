@@ -98,10 +98,11 @@ class Minigame_UI:
         def handle_disconnected(sid, data):
             player = data["player"]
             logger.debug(f"Driver {player} disconnected from the minigame lobby!")
-            self.__remove_player(player)
-            for minigame_object in self.minigame_objects.values():
-                if player in minigame_object.get_players():
-                    minigame_object.cancel()
+            minigame_name = self._minigame_controller.get_minigame_name_by_player_id(player)
+            if minigame_name is None or minigame_name not in self._minigame_controller.get_minigame_name_list():
+                return
+
+            self._minigame_controller.get_minigame_object(minigame_name).cancel()
             return
 
         @self._sio.on('minigame_player_accept')
@@ -170,6 +171,10 @@ class Minigame_UI:
             if minigame_task.cancelled():
                 winner = None
             else:
+                winner = await minigame_task 
+            
+            await self._sio.emit('minigame_winner', {'minigame' : minigame_object.get_name(), 'winner' : winner, 'owner_of_physical_vehicle_at_start' : owner_of_physical_vehicle_at_start})
+            print(f"Winner of minigame {minigame_object.get_name()} is player {winner}.")
                 winner = await minigame_task
 
             await self._sio.emit('minigame_winner',
