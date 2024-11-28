@@ -173,11 +173,6 @@ class Minigame_UI:
             else:
                 winner = await minigame_task
 
-            await self._sio.emit('minigame_winner',
-                                 {'minigame': minigame_object.get_name(),
-                                  'winner': winner,
-                                  'owner_of_physical_vehicle_at_start': owner_of_physical_vehicle_at_start})
-            print(f"Winner of minigame {minigame_object.get_name()} is player {winner}.")
             winner = await minigame_task
 
             await self._sio.emit('minigame_winner',
