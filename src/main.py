@@ -72,7 +72,7 @@ def create_app(admin_password: str):
     quart_app.register_blueprint(driver_ui_blueprint, url_prefix='/driver')
     quart_app.register_blueprint(staff_ui_blueprint, url_prefix='/staff')
 
-    quart_app.register_blueprint(minigame_ui_blueprint, url_prefix = "/minigame")
+    quart_app.register_blueprint(minigame_ui_blueprint, url_prefix="/minigame")
 
     return quart_app, socket
 

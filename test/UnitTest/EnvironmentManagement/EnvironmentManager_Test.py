@@ -57,6 +57,7 @@ def get_two_dummy_vehicles() -> list[Vehicle]:
     output: list[Vehicle] = [vehicle1, vehicle2]
     return output
 
+
 @pytest.fixture(scope="module")
 def get_four_dummy_vehicles() -> list[Vehicle]:
     location_service_mock = MagicMock(spec=LocationService)
@@ -67,6 +68,7 @@ def get_four_dummy_vehicles() -> list[Vehicle]:
     output: list[Vehicle] = [vehicle1, vehicle2, vehicle3, vehicle4]
     return output
 
+
 @pytest.fixture(scope="module")
 def get_two_dummy_player() -> list[str]:
     dummy1: str = "DummyPlayer1"
@@ -74,6 +76,7 @@ def get_two_dummy_player() -> list[str]:
     output: list[str] = [dummy1, dummy2]
 
     return output
+
 
 @pytest.fixture(scope="module")
 def get_four_dummy_players() -> list[str]:
@@ -84,6 +87,7 @@ def get_four_dummy_players() -> list[str]:
     output: list[str] = [dummy1, dummy2, dummy3, dummy4]
 
     return output
+
 
 @pytest.fixture
 def get_one_dummy_vehicle() -> Vehicle:
@@ -621,4 +625,3 @@ class TestSwitchCars:
 class TestProximityBasedTimer:
     def test_(self):
         pass
-

@@ -6,13 +6,16 @@ from Minigames.Tapping_Contest import Tapping_Contest
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 import random
 
+
 class Tapping_Contest_UI(Minigame):
     def __init__(self, sio: AsyncServer, blueprint: Blueprint, name=__name__):
         super().__init__(sio, blueprint, name)
         self._players: list[str] = []
         self._config_handler = ConfigurationHandler()
         try:
-            self._game_length = int(self._config_handler.get_configuration()['minigame']['tapping-contest']['game-length'])
+            self._game_length = int(
+                self._config_handler.get_configuration()
+                ['minigame']['tapping-contest']['game-length'])
         except Exception:
             self._game_length = 10
             print("Tapping_Contest_UI: No (proper) Configuration found for \
@@ -38,7 +41,9 @@ class Tapping_Contest_UI(Minigame):
 
         # Create game instance with current config
         try:
-            self._game_length = int(self._config_handler.get_configuration()['minigame']['tapping-contest']['game-length'])
+            self._game_length = int(
+                self._config_handler.get_configuration()
+                ['minigame']['tapping-contest']['game-length'])
         except Exception:
             self._game_length = 10
             print("Tapping_Contest_UI: No (proper) Configuration found for \

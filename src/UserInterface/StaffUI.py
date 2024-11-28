@@ -62,7 +62,7 @@ class StaffUI:
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
         self.environment_mng.set_vehicle_added_callback(self.publish_vehicle_added)
 
-        self._minigame_players : list[str] = []
+        self._minigame_players: list[str] = []
 
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
@@ -392,20 +392,20 @@ class StaffUI:
             disp_settings = self.config_handler.get_configuration()["display_settings"]
             return await render_template(template_name_or_list='staff_config_display_settings.html',
                                          disp_settings=disp_settings)
-        
+
         @self.staffUI_blueprint.route('/configuration/config_advanced_settings')
         async def config_advanced_settings() -> Any:
             """
             Renders the advanced settings page for the staff user interface.
-            
+
             If client is not authenticated, client is redirected to the login page. Get current configuration and send
             it to frontend.
 
             Returns
             -------
             Response
-                Returns a Response object representing the advanced settings page or a redirect to the login page, if not
-                authenticated.
+                Returns a Response object representing the advanced settings page or a redirect to the login page,
+                if not authenticated.
             """
             settings = self.config_handler.get_configuration()
             return await render_template(template_name_or_list='staff_config_advanced_settings.html',
@@ -415,15 +415,15 @@ class StaffUI:
         async def config_minigame_settings() -> Any:
             """
             Renders the minigame settings page for the staff user interface.
-            
+
             If client is not authenticated, client is redirected to the login page. Get current configuration and send
             it to frontend.
 
             Returns
             -------
             Response
-                Returns a Response object representing the minigame settings page or a redirect to the login page, if not
-                authenticated.
+                Returns a Response object representing the minigame settings page or a redirect to the login page,
+                if not authenticated.
             """
             settings = self.config_handler.get_configuration()
             return await render_template(template_name_or_list='staff_config_minigame_settings.html',
@@ -553,17 +553,17 @@ class StaffUI:
                 logger.warning("System shutdown button pressed, but not running on Linux system")
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
-        
+
         @self._sio.on('queue_up_for_minigame')
-        async def start_minigame(sid, player : str):
+        async def start_minigame(sid, player: str):
             self._minigame_players.append(player)
             if len(self._minigame_players) < 2:
                 return
-            
+
             Minigame_Controller.get_instance().play_random_available_minigame(*self._minigame_players[0:2])
             self._minigame_players.clear()
 
-        async def apply_display_settings(restore_default:bool=False) -> Any:
+        async def apply_display_settings(restore_default: bool = False) -> Any:
             """
             Function to receive settings from display settings tab in driver ui.
             Writes received settings into the config file.
@@ -573,10 +573,12 @@ class StaffUI:
                 Returns a Response object representing a redirect to the staff ui display settings page.
             """
             if restore_default:
-                new_display_settings = self.config_handler.get_configuration()["display_settings"]["disp_cm_default_settings"]
+                new_display_settings =\
+                    self.config_handler.get_configuration()["display_settings"]["disp_cm_default_settings"]
             else:
                 new_display_settings = (await request.form)
-                new_display_settings = {key: value[0] if len(value) == 1 else value for key, value in new_display_settings.items()}
+                new_display_settings =\
+                    {key: value[0] if len(value) == 1 else value for key, value in new_display_settings.items()}
                 conversion_table = {
                     'on': True,
                     'off': False,
@@ -589,15 +591,14 @@ class StaffUI:
                     elif value is None:
                         new_display_settings[key] = False
 
-            self.config_handler.write_configuration(new_config={'display_settings':new_display_settings})
+            self.config_handler.write_configuration(new_config={'display_settings': new_display_settings})
 
             self.publish_reload_uis()
 
-            
             return redirect('/staff/configuration/config_display_settings')
         self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
                                             view_func=apply_display_settings)
-        
+
         async def restore_default_display_settings() -> Any:
             """
             Function to receive settings from display settings tab in driver ui.
@@ -608,7 +609,7 @@ class StaffUI:
                 Returns a Response object representing a redirect to the staff ui display settings page.
             """
             await apply_display_settings(restore_default=True)
-            
+
             return redirect('/staff/configuration/config_display_settings')
         self.staffUI_blueprint.add_url_rule('/restore_default_display_settings', methods=['POST'],
                                             view_func=restore_default_display_settings)
@@ -627,15 +628,15 @@ class StaffUI:
             print(new_settings)
             new_settings = {
                 'driver': {
-                'driver_heartbeat_interval_ms': int(new_settings.get('driver_heartbeat_interval_ms')),
-                'driver_heartbeat_timeout_s': int(new_settings.get('driver_heartbeat_timeout_s')),
-                'driver_reconnect_grace_period_s': int(new_settings.get('driver_reconnect_grace_period_s')),
-                'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))
+                 'driver_heartbeat_interval_ms': int(new_settings.get('driver_heartbeat_interval_ms')),
+                 'driver_heartbeat_timeout_s': int(new_settings.get('driver_heartbeat_timeout_s')),
+                 'driver_reconnect_grace_period_s': int(new_settings.get('driver_reconnect_grace_period_s')),
+                 'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))
                 },
-                'game_config':{
+                'game_config': {
                     'game_cfg_playing_time_limit_min': int(new_settings.get('game_cfg_playing_time_limit_min'))
                 },
-                "environment":{
+                "environment": {
                     'env_auto_discover_anki_cars': new_settings.get('env_auto_discover_anki_cars') == 'on',
                     'env_vehicle_scale': int(new_settings.get('env_vehicle_scale'))
                 },
@@ -654,7 +655,7 @@ class StaffUI:
             return await config_advanced_settings()
         self.staffUI_blueprint.add_url_rule('/apply_advanced_settings', methods=['POST'],
                                             view_func=apply_advanced_settings)
-                                            
+
         async def apply_minigame_settings() -> Any:
             """
             Function to receive settings from minigame settings tab in staff ui.
@@ -669,10 +670,10 @@ class StaffUI:
             print(new_settings)
             new_settings = {
                 'minigame': {
-                    'auto_drive_constantly' : new_settings.get('auto_drive_constantly') == 'on',
+                    'auto_drive_constantly': new_settings.get('auto_drive_constantly') == 'on',
                     'driving_speed_while_playing': int(new_settings.get('driving_speed_while_playing')),
-                    'games' : {
-                        'Minigame_Test' : new_settings.get('Minigame_Test') == 'on',
+                    'games': {
+                        'Minigame_Test': new_settings.get('Minigame_Test') == 'on',
                         'Tapping_Contest': new_settings.get('Tapping_Contest') == 'on'
                     },
                     'tapping-contest': {
@@ -681,7 +682,8 @@ class StaffUI:
                 }
             }
 
-            Minigame_Controller.get_instance().set_available_minigames([game for game, value in new_settings['minigame']['games'].items() if value])
+            Minigame_Controller.get_instance().set_available_minigames(
+                [game for game, value in new_settings['minigame']['games'].items() if value])
 
             self.config_handler.write_configuration(new_config=new_settings)
 
@@ -738,7 +740,10 @@ class StaffUI:
         vehicle_with_bots: list
             Contains ID's of vehicles that are controlled by bots
         """
-        data = {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue, "vehicle_with_bots": vehicle_with_bots}
+        data = {"car_map": car_map,
+                "car_queue": car_queue,
+                "player_queue": player_queue,
+                "vehicle_with_bots": vehicle_with_bots}
         self.__run_async_task(self.__emit_new_data(data))
         return
 
@@ -841,7 +846,7 @@ class StaffUI:
     def publish_vehicle_added(self) -> None:
         self.__run_async_task(self.__emit_vehicle_connected())
         return
+
     async def __emit_vehicle_connected(self) -> None:
         await self._sio.emit('vehicle_added')
         return
-

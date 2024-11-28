@@ -1,5 +1,3 @@
-from DataModel.Vehicle import Vehicle
-
 class Driver:
     """
     A class to store driver specific information.
@@ -15,10 +13,10 @@ class Driver:
         self.__score: int = 0
         self.__in_physical_vehicle: bool = False
         return
-    
+
     def get_score(self) -> int:
         return self.__score
-    
+
     def increase_score(self, amount: int) -> None:
         self.__score += amount
 
@@ -27,6 +25,6 @@ class Driver:
 
     def get_is_in_physical_vehicle(self) -> bool:
         return self.__in_physical_vehicle
-    
+
     def get_player_id(self) -> str:
         return self.__player
