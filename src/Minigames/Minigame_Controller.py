@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 class Minigame_Controller:
 
-    instance : "Minigame_Controller" = None
-    minigames : dict = {"Tapping_Contest" : Tapping_Contest_UI, "Minigame_Test": Minigame_Test}
+    instance: "Minigame_Controller" = None
+    minigames: dict = {"Tapping_Contest": Tapping_Contest_UI, "Minigame_Test": Minigame_Test}
 
     def __init__(self, sio: AsyncServer = None, minigame_ui_blueprint: Blueprint = None):
         """

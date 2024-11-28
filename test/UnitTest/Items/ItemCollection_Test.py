@@ -39,7 +39,7 @@ def test_callbacks_are_executed():
     item_changed_callback = MagicMock()
     item_collision_detector = ItemCollisionDetector()
 
-    with patch.object(ConfigurationHandler, 'get_configuration', return_value={'item':{'item_max_count': 10}}):
+    with patch.object(ConfigurationHandler, 'get_configuration', return_value={'item': {'item_max_count': 10}}):
 
         item_collision_detector.set_on_item_change_callback(item_changed_callback)
         item_collision_detector.add_item(item)
