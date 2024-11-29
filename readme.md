@@ -48,6 +48,10 @@ sudo chmod +x <path/to/>installer.sh
 >   - make the desktop item executable
 >   - add to autostart as a cronjob (recommended: optionally: you will be asked if you want to)
 
+> [!IMPORTANT]
+> If you are using your own Anki cars, they are not configured in the system yet.
+> You can add and configure your own car as described in the istruction [*How to configure vehicle images*](doc/Configuration/How%20to%20configure%20vehicle%20images.md)
+
 
 ## Usage
 After setting up the project successfully, you can control the system and the cars using any device wich can access a webbrowser and is connected to the same network or hotspot of the system.
