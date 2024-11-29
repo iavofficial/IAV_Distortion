@@ -1,15 +1,15 @@
-# IAV-Distortion
+# IAV Distortion
 ## About the project
-The IAV-Distortion project is an interactive and educational showcase designed to demonstrate the need of automotive cybersecurity in a playful, engaging manner.
+The IAV Distortion project is an interactive and educational showcase designed to demonstrate the need of automotive cybersecurity in a playful, engaging manner.
 This project leverages the fun experience of the Anki Overdrive race track, but with an added twist - your car can be hacked.
 Our primary objective is to highlight the potential impacts of hacking attacks on vehicles, an increasingly relevant issue as technology becomes more integrated into the automotive industry.
 
 
-The IAV-Distortion project is an ideal exhibit for trade fairs or other similar events, attracting attendees with its unique blend of technology and entertainment. 
+The IAV Distortion project is an ideal exhibit for trade fairs or other similar events, attracting attendees with its unique blend of technology and entertainment. 
 It thereby acts as a crowd-puller due to its exciting premise and the opportunity it offers for audience interaction.
 Through this initiative, we aspire to make the sometimes daunting world of cybersecurity accessible to a wider audience, fostering understanding and engagement.
 
-<img src="./images/IAV_Distortion_concept_illustration.jpg" alt="IAV-Distortion concept illustration" style="width:100%;max-width:500px">
+<img src="./images/IAV_Distortion_concept_illustration.jpg" alt="IAV Distortion concept illustration" style="width:100%;max-width:500px">
 
 ## Getting Started
 ### Prerequisites
@@ -64,7 +64,7 @@ The list shows which player controls which vehicle. If one of the fields is none
 Aside from that the different hacking scenarios can be activated for the cars assigned to a player.
 Therefore chose the scenario for the car you want to apply the effect to, as soon as scenario is preselected the 'Set Scenario' button becomes active and can be used to apply the effect to the vehicle.
 
-<img src="./images/staffUI_activateScenario.png" alt="IAV-Distortion staff ui" style="width:100%;max-width:400px">
+<img src="./images/staffUI_activateScenario.png" alt="IAV Distortion staff ui" style="width:100%;max-width:400px">
 
 Additional to the controls for the game itself, some system configurations and functions can be accessed by switching to the 'Configuration' tab.
 Here the system can be updated to the latest version available in the repository (of the installed branch) or functions like restarting IAV Distortion, the whole system (Raspberry Pi) or shutting down the system can be accessed.
@@ -75,7 +75,7 @@ Additionally, it is now also possible to start an initialization drive with a re
 > - These functions (Update, Restart IAV Distortion, Restart System and Shutdown System) are only available on Unix like systems.
 > - Running an update requires internet connection.
 
-<img src="./images/staffUI_configuration_systemControl.png" alt="IAV-Distortion staff ui - configuration - system control" style="width:100%;max-width:400px">
+<img src="./images/staffUI_configuration_systemControl.png" alt="IAV Distortion staff ui - configuration - system control" style="width:100%;max-width:400px">
 
 ### Driver UI
 The driver ui can be accessed via [&lt;system_iP&gt;:5000/driver]().
@@ -85,7 +85,7 @@ The slider on the left controls the speed.
 With the buttons on the right the lanes can be changed or a u-turn can be performed.
 Player controlling a virtual car will get a top down view of the controlled vehicle (as displayed on the [virtual track](#Virtual-Racetrack)).
 
-<img src="./images/driverUI_noHacking.png" alt="IAV-Distortion driver ui" style="width:100%;max-width:600px">
+<img src="./images/driverUI_noHacking.png" alt="IAV Distortion driver ui" style="width:100%;max-width:600px">
 
 > [!NOTE]
 > To performe a lane change or a u-turn the slider as to be released.
@@ -104,7 +104,7 @@ The virtual and real cars are shown on a virtual racetrack.
 The virtual racetrack can be accessed via [&lt;system_iP&gt;:5000/car_map]().
 The virtual track must be defined before the start of the game. Currently, this is done through an initialization drive on the real track with a real vehicle.
 
-<img src="./images/virtual_racetrack.png" alt="IAV-Distortion virtual racetrack" style="width:100%;max-width:600px">
+<img src="./images/virtual_racetrack.png" alt="IAV Distortion virtual racetrack" style="width:100%;max-width:600px">
 
 <!--## Roadmap
 
@@ -113,7 +113,7 @@ The virtual track must be defined before the start of the game. Currently, this 
 
 ## License
 ### Third party dependencies
-IAV-Distortion uses some third party dependencies.
+IAV Distortion uses some third party dependencies.
 - Bleak (MIT License)
 - Quart (MIT License)
 - python-socketio (MIT License)

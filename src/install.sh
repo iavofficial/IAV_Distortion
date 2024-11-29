@@ -87,31 +87,31 @@ check_existence=$(crontab -l | grep -F "$cronjob")
 
 if [ ! -z "$check_cronjobs" ]; then
     if [ "$check_cronjobs" != "$check_existence" ]; then
-        echo -e "\033[0;33mCronjobs for IAV-Distortion found, that don't match this installation. Please check if these are from different instances of IAV-Distortion. Only one instance of IAV-Distortion should run.\033[0m"
+        echo -e "\033[0;33mCronjobs for IAV Distortion found, that don't match this installation. Please check if these are from different instances of IAV Distortion. Only one instance of IAV Distortion should run.\033[0m"
         echo "$check_cronjobs"
     fi
 fi
 
 
 if [ -z "$check_existence" ]; then
-    read -p "Do you want to add IAV-Distortion to the autostart? (y/n) " -n 1 -r
+    read -p "Do you want to add IAV Distortion to the autostart? (y/n) " -n 1 -r
     echo    # move to a new line
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
         (crontab -l 2>/dev/null; echo "$cronjob") | crontab -
         echo -e "\033[0;32mA cronjob has been created.\033[0m"
     else
-        echo -e "\033[0;33mIAV-Distortion has not been added to the autostart.\033[0m"
+        echo -e "\033[0;33mIAV Distortion has not been added to the autostart.\033[0m"
     fi
 else
-    read -p "IAV-Distortion already in autostart. Do you want to keep it? (y/n) " -n 1 -r
+    read -p "IAV Distortion already in autostart. Do you want to keep it? (y/n) " -n 1 -r
     echo    # move to a new line    
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
-        echo -e "\033[0;32mCronjob kept. IAV-Distortion in autostart.\033[0m"
+        echo -e "\033[0;32mCronjob kept. IAV Distortion in autostart.\033[0m"
     else
         (crontab -l | grep -v -F "$cronjob") | crontab -
-        echo -e "\033[0;33mIAV-Distortion removed from autostart.\033[0m"
+        echo -e "\033[0;33mIAV Distortion removed from autostart.\033[0m"
     fi
 fi
 

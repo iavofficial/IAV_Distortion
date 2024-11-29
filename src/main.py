@@ -1,6 +1,6 @@
 # Copyright 2024 IAV GmbH
 #
-# This file is part of the IAV-Distortion project an interactive
+# This file is part of the IAV Distortion project an interactive
 # and educational showcase designed to demonstrate the need
 # of automotive cybersecurity in a playful, engaging manner.
 # and is released under the "Apache 2.0". Please see the LICENSE
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     logging.basicConfig(encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s',
                         handlers=[rotating_file_handler, stdout_handler])
     logging.info("-------------------------")
-    logging.info(" STARTING IAV-Distortion ")
+    logging.info(" STARTING IAV Distortion ")
     logging.info("-------------------------")
 
     # TODO: work with hashed password, passwords should not be stored in clear text

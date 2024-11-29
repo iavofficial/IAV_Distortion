@@ -1,6 +1,6 @@
 # Copyright 2024 IAV GmbH
 #
-# This file is part of the IAV-Distortion project an interactive
+# This file is part of the IAV Distortion project an interactive
 # and educational showcase designed to demonstrate the need
 # of automotive cybersecurity in a playful, engaging manner.
 # and is released under the "Apache 2.0". Please see the LICENSE
@@ -436,7 +436,7 @@ class StaffUI:
 
             else:
                 logger.warning("Program restart button pressed, but not running on Linux system")
-                message = 'Error restarting IAV-Distortion. Function only available on linux systems.'
+                message = 'Error restarting IAV Distortion. Function only available on linux systems.'
                 return message, 200
 
         @self.staffUI_blueprint.route('/restart_system', methods=['POST'])
