@@ -589,3 +589,9 @@ class TestSwitchCars:
         assert not vehicle1 == dummy_vehicle1
         vehicle3 = env_manager.get_vehicle_by_vehicle_id(dummy_player3)
         assert not vehicle3 == dummy_vehicle3
+
+
+class TestProximityBasedTimer:
+    def test_(self):
+        pass
+

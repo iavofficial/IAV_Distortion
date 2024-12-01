@@ -1,4 +1,5 @@
 import asyncio
+import time
 from time import sleep
 from unittest.mock import MagicMock
 
@@ -18,6 +19,16 @@ dummy_uuid = "FA:14:67:0F:39:FE"
 def init_vehicle():
     location_service_mock = MagicMock(spec=LocationService)
     return Vehicle('123', location_service_mock, disable_item_removal=True)
+
+
+def init_vehicle_with_id(car_id: int):
+    location_service_mock = MagicMock(spec=LocationService)
+    return Vehicle(car_id, location_service_mock, disable_item_removal=True)
+
+
+def init_vehicle_with_id(car_id: int):
+    location_service_mock = MagicMock(spec=LocationService)
+    return Vehicle(car_id, location_service_mock, disable_item_removal=True)
 
 
 @pytest.mark.one_anki_car_needed
@@ -70,3 +81,16 @@ async def test_vehicle_removes_effect():
     vehicle._effects.append(mock_effect)
     await asyncio.sleep(5)
     assert len(vehicle._effects) == 0
+
+
+def test_vehicle_reset_proximity():
+    """
+    This tests if the proximity timer is reset
+    """
+    car = init_vehicle_with_id(123)
+    car.reset_proximity_timer()
+    assert car.proximity_timer == time.time()
+
+
+def test_vehicle():
+    pass
