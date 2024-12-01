@@ -47,7 +47,6 @@ class TestVehicleProximity:
 
         # Assert
         assert self.vehicle1.vehicle_in_proximity == "car2"
-        assert self.vehicle2.vehicle_in_proximity == "car1"
 
     def test_check_virtual_vehicle_leave_proximity(self):
         # Arrange

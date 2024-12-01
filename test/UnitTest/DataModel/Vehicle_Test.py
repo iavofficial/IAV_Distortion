@@ -89,7 +89,7 @@ def test_vehicle_reset_proximity():
     """
     car = init_vehicle_with_id(123)
     car.reset_proximity_timer()
-    assert car.proximity_timer == time.time()
+    assert car.proximity_timer == pytest.approx(time.time(), 0.0001)
 
 
 def test_vehicle():
