@@ -600,5 +600,5 @@ class TestSwitchCars:
 
 
 class TestProximityBasedTimer:
-    def test_(self):
+    def test_proximity_timer_starts(self):
         pass
