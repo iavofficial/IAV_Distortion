@@ -108,7 +108,6 @@
                     const item_image_cache = new Map();
 
                     const item_size = 30;
-                    const item_color = disp_settings.disp_cm_item_color;
 
                     addEventListener("resize", (event) => {
                         resizeCanvas();
@@ -276,15 +275,6 @@
                         x *= scale;
                         y *= scale;
                         ctx.save();
-                        /** 
-                        * ctx.beginPath();
-                        * ctx.fillStyle = item_color;
-                        * ctx.strokeStyle = item_color;
-                        * ctx.arc(x, y, item_size * scale, 0, 2 * Math.PI);
-                        * ctx.fill();
-                        * ctx.stroke();
-                        * ctx.restore();
-                        */
 
                         let img = getItemImage("item_blue.svg");
                         ctx.drawImage(img, x - item_size * scale / 2, y - item_size * scale / 2, item_size * scale, item_size * scale);
