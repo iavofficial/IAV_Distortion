@@ -6,9 +6,10 @@
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 import logging
 
+from DataModel.Effects.VehicleEffect import VehicleEffect
 from DataModel.Effects.HackingEffects.CleanHackedEffect import CleanHackedEffect
 from DataModel.Effects.HackingEffects.HackedNoDriving import HackedNoDriving
 from DataModel.Effects.HackingEffects.HackedNoSafetyModule import HackedNoSafetyModule
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _set_scenarios() -> list[dict[str, str|Any]]:
+def _set_scenarios() -> list[dict[str, str | VehicleEffect]]:
     scenario0 = {"id": "0",
                  "name": "normal",
                  "description": "no hacking",
@@ -66,22 +67,24 @@ class CyberSecurityManager:
 
         return
 
-    def get_all_hacking_scenarios(self) -> list[dict[str, Any]]:
+    def get_all_hacking_scenarios(self) -> list[dict[str, str | VehicleEffect]]:
         return self._hacking_scenarios
 
-    def activate_hacking_scenario_for_vehicle(self, uuid: str, scenario_id: str) -> None:
-        scenario = next((sce for sce in self._hacking_scenarios if sce["id"] == scenario_id), None)
+    def activate_hacking_scenario_for_vehicle(self, uuid: str, scenario_id: str) -> bool:
+        scenario: dict[str, str | VehicleEffect] | None = next((sce for sce in self._hacking_scenarios
+                                                                if sce["id"] == scenario_id), None)
         if scenario is None:
-            return
+            return False
 
         vehicle = self._environment_manager.get_vehicle_by_vehicle_id(uuid)
         if vehicle is None:
             logger.warning("Tried to activate scenario for the non existent vehicle %s. Ignoring the request", uuid)
-            return
+            return False
 
-        vehicle.apply_effect(scenario["effect"](scenario["id"]))
+        if isinstance(scenario["effect"], VehicleEffect):
+            vehicle.apply_effect(scenario["effect"])
 
-        return
+        return True
 
     def get_active_hacking_scenarios(self) -> dict[str, str]:
         scenario_map: dict[str, str] = {}

@@ -10,7 +10,7 @@ class HackedReducedSpeed(HackedEffect):
     def can_be_applied(self, vehicle: Vehicle) -> bool:
         _ = vehicle
         return True
-    
+
     def conflicts_with(self) -> list[VehicleEffectIdentification]:
         conflict_list: list[VehicleEffectIdentification] = super().conflicts_with()
         conflict_list.append(VehicleEffectIdentification.HACKED_NO_DRIVING)
