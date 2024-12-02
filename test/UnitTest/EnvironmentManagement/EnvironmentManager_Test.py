@@ -27,7 +27,7 @@ def get_mut_with_one_minute_playing_time(initialise_dependencies) -> Environment
     fleet_ctrl_mock, configuration_handler_mock = initialise_dependencies
     configuration_handler_mock.get_configuration.return_value = {
                         "virtual_cars_pics": {"AB:CD:EF:12:34:56": "ABCDEF123456.svg",
-                                                "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
+                                              "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
                         "driver": {"key1": "value1", "key2": "value2"},
                         "game_config": {"game_cfg_playing_time_limit_min": 1}}
 
@@ -42,7 +42,7 @@ def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentMan
 
     configuration_handler_mock.get_configuration.return_value = {
                         "virtual_cars_pics": {"AB:CD:EF:12:34:56": "ABCDEF123456.svg",
-                                                "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
+                                              "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
                         "driver": {"key1": "value1", "key2": "value2"},
                         "game_config": {"game_cfg_playing_time_limit_min": 0}}
 

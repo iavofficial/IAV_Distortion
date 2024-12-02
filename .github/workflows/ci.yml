@@ -40,7 +40,7 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Run fast tests itself with pytest
         run: |
-          pipenv run pytest -m 'not skip_ci and not slow' test
+          pipenv run pytest -m 'not skip_ci and not slow and not one_anki_car_needed' test
 
   pytest-testing-slow:
     name: Run slow tests with pytest
