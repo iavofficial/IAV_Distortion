@@ -25,8 +25,11 @@ def initialise_dependencies():
 @pytest.fixture(scope="module")
 def get_mut_with_one_minute_playing_time(initialise_dependencies) -> EnvironmentManager:
     fleet_ctrl_mock, configuration_handler_mock = initialise_dependencies
-    configuration_handler_mock.get_configuration.return_value = \
-        {"game_config": {"game_cfg_playing_time_limit_min": 1}}
+    configuration_handler_mock.get_configuration.return_value = {
+                        "virtual_cars_pics": {"AB:CD:EF:12:34:56": "ABCDEF123456.svg",
+                                                "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
+                        "driver": {"key1": "value1", "key2": "value2"},
+                        "game_config": {"game_cfg_playing_time_limit_min": 1}}
 
     mut: EnvironmentManager = EnvironmentManager(fleet_ctrl_mock,
                                                  configuration_handler_mock)
@@ -36,8 +39,12 @@ def get_mut_with_one_minute_playing_time(initialise_dependencies) -> Environment
 @pytest.fixture
 def get_mut_with_endless_playing_time(initialise_dependencies) -> EnvironmentManager:
     fleet_ctrl_mock, configuration_handler_mock = initialise_dependencies
-    configuration_handler_mock.get_configuration.return_value = \
-        {"game_config": {"game_cfg_playing_time_limit_min": 0}}
+
+    configuration_handler_mock.get_configuration.return_value = {
+                        "virtual_cars_pics": {"AB:CD:EF:12:34:56": "ABCDEF123456.svg",
+                                                "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
+                        "driver": {"key1": "value1", "key2": "value2"},
+                        "game_config": {"game_cfg_playing_time_limit_min": 0}}
 
     mut: EnvironmentManager = EnvironmentManager(fleet_ctrl_mock,
                                                  configuration_handler_mock)
@@ -73,15 +80,15 @@ def get_one_dummy_vehicle() -> Vehicle:
 @pytest.fixture
 def create_inputs_with_expected_false(request):
     input_values = request.instance.invalid_player_ids
-    testparameter: list[(str, bool)] = [(input_value, False) for input_value in input_values]
+    testparameter: list[tuple[str, bool]] = [(input_value, False) for input_value in input_values]
 
     return testparameter
 
 
-def create_inputs(input_values: list[str] = None) -> list[(str, bool)]:
+def create_inputs(input_values: list[str | int | float] | None = None) -> list[tuple[str | int | float, bool]]:
     if input_values is None:
         input_values = ["", "   ", "@#$%^&*()", 2, 3.5]
-    testparameter: list[(str, bool)] = [(input_value, False) for input_value in input_values]
+    testparameter: list[tuple[str | int | float, bool]] = [(input_value, False) for input_value in input_values]
 
     return testparameter
 
