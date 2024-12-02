@@ -36,5 +36,6 @@ class CleanHackedEffect(VehicleEffect):
                 vehicle.hacking_scenario = self._scenario
         return True
 
-    def on_end(self, vehicle: 'Vehicle') -> None:
-        return
+    def on_end(self, vehicle: 'Vehicle') -> bool:
+        vehicle.hacking_scenario = "0"
+        return True
