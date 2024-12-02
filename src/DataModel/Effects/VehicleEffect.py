@@ -38,7 +38,7 @@ class VehicleEffect(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def on_end(self, vehicle: 'Vehicle') -> None:
+    def on_end(self, vehicle: 'Vehicle') -> bool:
         """
         Runs when removed from a vehicle. Should be used for cleaning up
         """
