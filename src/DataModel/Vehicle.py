@@ -167,6 +167,9 @@ class Vehicle:
         self._active_hacking_scenario = value
         self._on_driving_data_change()
 
+    def remove_hacking_scenario(self) -> None:
+        self._active_hacking_scenario = "0"
+
     @property
     def speed_factor(self) -> float:
         return self._speed_factor
@@ -332,19 +335,19 @@ class Vehicle:
             if effect.identify() == new_effect.identify() or effect.identify() in new_effect.conflicts_with():
                 return
 
-        if not new_effect.can_be_applied(self):
-            return
-
-        logger.info("Car %s now has the effect %s", self.vehicle_id, str(new_effect.identify()))
-        self._effects.append(new_effect)
-        if new_effect.on_start(self) is True:
-            self._on_item_data_change('hacking_protection')
+        if new_effect.can_be_applied(self):
+            self.hacking_scenario = str(new_effect.identify())
+            self._effects.append(new_effect)
+            logger.info("Car %s now has the effect %s", self.vehicle_id, str(new_effect.identify()))
+            if new_effect.on_start(self) is True:
+                self._on_item_data_change('hacking_protection')
 
         return
 
     def remove_effect(self, effect: VehicleEffect):
-        effect.on_end(self)
-        self._effects.remove(effect)
+        if effect.on_end(self) is True:
+            self.hacking_scenario = "0"
+            self._effects.remove(effect)
 
     async def _check_effect_removal(self):
         while True:

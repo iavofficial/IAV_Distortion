@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _set_scenarios() -> list[dict[str, Any]]:
+def _set_scenarios() -> list[dict[str, str|Any]]:
     scenario0 = {"id": "0",
                  "name": "normal",
                  "description": "no hacking",
@@ -46,8 +46,8 @@ def _set_scenarios() -> list[dict[str, Any]]:
                  "effect": HackedNoSafetyModule}
 
     scenario5 = {"id": "5",
-                 "name": "U-turn",
-                 "description": "the car perfoms a U-turn",
+                 "name": "O-turn",
+                 "description": "the car perfoms a O-turn",
                  "effect": HackedSporadicOTurn}
 
     scenario6 = {"id": "6",
