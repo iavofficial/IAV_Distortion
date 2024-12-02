@@ -105,8 +105,9 @@
                     const colorCrossmap = {{ color_map | tojson }};
 
                     const car_image_cache = new Map();
+                    const item_image_cache = new Map();
 
-                    const item_size = 20;
+                    const item_size = 30;
                     const item_color = disp_settings.disp_cm_item_color;
 
                     addEventListener("resize", (event) => {
@@ -253,6 +254,21 @@
                         ctx.restore();
                     }
 
+                    
+                    /**
+                     * Get cached item image or cache it
+                     */
+                    function getItemImage(name) {
+                        if (item_image_cache.has(name)) {
+                            return item_image_cache.get(name);
+                        } else {
+                            let img = new Image();
+                            img.src = "/static/images/Items/" + name;
+                            item_image_cache.set(name, img);
+                            return img;
+                        }
+                    }   
+
                     /**
                      * Draws an item on a specified spot
                      */
@@ -260,12 +276,20 @@
                         x *= scale;
                         y *= scale;
                         ctx.save();
-                        ctx.beginPath();
-                        ctx.fillStyle = item_color;
-                        ctx.strokeStyle = item_color;
-                        ctx.arc(x, y, item_size * scale, 0, 2 * Math.PI);
-                        ctx.fill();
-                        ctx.stroke();
+                        /** 
+                        * ctx.beginPath();
+                        * ctx.fillStyle = item_color;
+                        * ctx.strokeStyle = item_color;
+                        * ctx.arc(x, y, item_size * scale, 0, 2 * Math.PI);
+                        * ctx.fill();
+                        * ctx.stroke();
+                        * ctx.restore();
+                        */
+
+                        let img = getItemImage("item_blue.svg");
+                        ctx.drawImage(img, x - item_size * scale / 2, y - item_size * scale / 2, item_size * scale, item_size * scale);
+                        
+                        img.src = '/static/images/Items/' + 'item_blue.svg';
                         ctx.restore();
                     }
 
