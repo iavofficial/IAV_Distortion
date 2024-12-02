@@ -1,6 +1,6 @@
 # Configuration File
 There are a bunch of parameters that can be configured in the [config_file.json](../../src/config_file.json).
-The config_file.json is a json file that includes all configurable parameters for IAV-Distortion.
+The config_file.json is a json file that includes all configurable parameters for IAV Distortion.
 The json is structured according to different main topics which include the corresponding parameters.
 These parameters will be described in the following.
 

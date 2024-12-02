@@ -12,7 +12,7 @@ exec > $logfile_path$logfile_name 2>&1
 echo "This logfile documents only the latest restart event from $(date '+%m-%d-%Y %H:%M:%S'):" > $logfile 2>&1
 echo >> $logfile 2>&1
 
-# terminate running instances of IAV-Distortion
+# terminate running instances of IAV Distortion
 $working_directory/quit.sh >> $logfile 2>&1
 
 # restart systems bluetooth interface
@@ -40,6 +40,6 @@ done
 
 sleep 5
 
-# start IAV-Distortion using the run_IAV-Distortion.sh
-echo "Restarting IAV-Distortion..." >> $logfile
+# start IAV Distortion using the run_IAV-Distortion.sh
+echo "Restarting IAV Distortion..." >> $logfile
 $working_directory/run_IAV-Distortion.sh > /dev/null 2>&1

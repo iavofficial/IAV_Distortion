@@ -7,7 +7,7 @@ working_directory=$(pwd)
 pids=$(pgrep -f "main.py")
 
 # kill each
-echo "Terminating running instances of IAV-Distortion"
+echo "Terminating running instances of IAV Distortion"
 for pid in $pids
 do
   if [[ ! -z $pid ]]
