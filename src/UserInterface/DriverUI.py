@@ -286,8 +286,7 @@ class DriverUI:
         picture = ''  # default picture can be added here
         vehicle_information = {
             'active_hacking_scenario': '0',
-            'speed_request': '0'
-        }
+            'speed_request': '0'}
         self.environment_mng.put_player_on_next_free_spot(player)
         vehicle = self.environment_mng.get_vehicle_by_player_id(player)
 

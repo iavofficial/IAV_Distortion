@@ -277,8 +277,7 @@ class Vehicle:
             'lane_change_inverted': self.__lane_change_inverted,
             'is_safemode_on': self._is_safemode_on,
             'active_hacking_scenario': self._active_hacking_scenario,
-            'speed_actual': self._current_driving_speed
-        }
+            'speed_actual': self._current_driving_speed}
         return driving_info_dic
 
     def _receive_transition(self, value_tuple: tuple[int, int, float, int]) -> None:

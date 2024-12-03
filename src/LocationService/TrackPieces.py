@@ -107,28 +107,22 @@ class StraightPiece(TrackPiece):
             'rotation': str(self._rotation),
             'line_1_start': {
                 'x': line_1_start.get_x(),
-                'y': line_1_start.get_y()
-            },
+                'y': line_1_start.get_y()},
             'line_1_end': {
                 'x': line_1_end.get_x(),
-                'y': line_1_end.get_y()
-            },
+                'y': line_1_end.get_y()},
             'line_2_start': {
                 'x': line_2_start.get_x(),
-                'y': line_2_start.get_y()
-            },
+                'y': line_2_start.get_y()},
             'line_2_end': {
                 'x': line_2_end.get_x(),
-                'y': line_2_end.get_y()
-            }
-        }
+                'y': line_2_end.get_y()}}
 
     def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
             'length': self._length,
-            'diameter': self._diameter
-        })
+            'diameter': self._diameter})
         return orig
 
 
@@ -276,9 +270,7 @@ class CurvedPiece(TrackPiece):
             'radius_2': radius_2,
             'point': {
                 'x': point.get_x(),
-                'y': point.get_y()
-            }
-        }
+                'y': point.get_y()}}
 
     def __eq__(self, other: 'TrackPiece'):
         return super().__eq__(other) and self._is_mirrored == other._is_mirrored
@@ -288,8 +280,7 @@ class CurvedPiece(TrackPiece):
         orig.update({
             'square_size': self._size,
             'diameter': self._diameter,
-            'mirrored': self._is_mirrored
-        })
+            'mirrored': self._is_mirrored})
         return orig
 
 
@@ -328,20 +319,16 @@ class StartPieceAfterLine(StraightPiece):
         orig.update({
             'start_line_start': {
                 'x': startline_start.get_x(),
-                'y': startline_start.get_y()
-            },
+                'y': startline_start.get_y()},
             'start_line_end': {
                 'x': startline_end.get_x(),
-                'y': startline_end.get_y()
-            }
-        })
+                'y': startline_end.get_y()}})
         return orig
 
     def to_json_dict(self) -> dict[str, Any]:
         orig = super().to_json_dict()
         orig.update({
-            'start_line_width': self._start_line_width
-        })
+            'start_line_width': self._start_line_width})
         return orig
 
 

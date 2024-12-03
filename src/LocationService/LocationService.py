@@ -312,8 +312,8 @@ class LocationService:
                 'offset': self._actual_offset * self._direction_mult * -1,
                 'speed': self._actual_speed,
                 'going_clockwise': self._direction_mult == 1,
-                'uturn_in_progress': self._uturn_override is not None
-            }
+                'uturn_in_progress': self._uturn_override is not None}
+
             for callback in self._on_update_callback:
                 callback(pos, rot, data)
 
