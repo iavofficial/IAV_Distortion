@@ -1,2 +1,15 @@
 [flake8]
-max-line-length = 120
+max-line-length = 120  # max len gth of line
+max-complexity = 10 # max complexity of function blocks
+hang_closing = True
+
+format = pylint # output format
+statistics = True # show statistics
+exclude = # exclude directories
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    .tox
