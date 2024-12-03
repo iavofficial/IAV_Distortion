@@ -7,9 +7,13 @@ from LocationService.Trigo import Position, Angle
 
 
 class ItemCollisionDetector:
-    def __init__(self):
+    def __init__(self,
+                 configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
+
+        self.config_handler: ConfigurationHandler = configuration_handler
         self._items: list[Item] = []
         self._on_item_change: Callable[[list[Item]], None] | None = None
+        return
 
     def notify_new_vehicle_position(self, vehicle: Vehicle, vehicle_position: Position, vehicle_rotation: Angle):
         for item in self._items:
@@ -23,7 +27,7 @@ class ItemCollisionDetector:
         self._on_item_change = callback
 
     def add_item(self, item: Item):
-        config = ConfigurationHandler().get_configuration()
+        config = self.config_handler.get_configuration()
         max_item_length = config['item']['item_max_count'] - 1
         if len(self._items) <= max_item_length:
             self._items.append(item)

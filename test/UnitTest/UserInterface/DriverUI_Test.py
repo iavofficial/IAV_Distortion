@@ -20,8 +20,11 @@ def initialise_dependencies():
     Prepare a DriverUI, Environment Vehicle and Vehicle
     """
     configuration_handler_mock = MagicMock(spec=ConfigurationHandler)
-    configuration_handler_mock.get_configuration.return_value = \
-        {"game_config": {"game_cfg_playing_time_limit_min": 0}}
+    configuration_handler_mock.get_configuration.return_value = {
+                        "virtual_cars_pics": {"AB:CD:EF:12:34:56": "ABCDEF123456.svg",
+                                              "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
+                        "driver": {"key1": "value1", "key2": "value2"},
+                        "game_config": {"game_cfg_playing_time_limit_min": 0}}
 
     socket = AsyncServer(async_mode='asgi')
     fleet_ctrl = FleetController()

@@ -47,7 +47,8 @@ class RemovalReason(Enum):
 
 class EnvironmentManager:
 
-    def __init__(self, fleet_ctrl: FleetController,
+    def __init__(self,
+                 fleet_ctrl: FleetController,
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()):
 
         self._fleet_ctrl: FleetController = fleet_ctrl

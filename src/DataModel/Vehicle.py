@@ -22,7 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 class Vehicle:
-    def __init__(self, vehicle_id: str, location_service: LocationService, disable_item_removal: bool = False) -> None:
+    def __init__(self, vehicle_id: str,
+                 location_service: LocationService,
+                 disable_item_removal: bool = False) -> None:
+
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None

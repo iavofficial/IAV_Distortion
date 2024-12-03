@@ -19,7 +19,7 @@ from socketio import AsyncServer
 from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
-from VehicleMovementManagement import BehaviourController
+from VehicleMovementManagement.BehaviourController import BehaviourController
 
 logger = logging.getLogger(__name__)
 
