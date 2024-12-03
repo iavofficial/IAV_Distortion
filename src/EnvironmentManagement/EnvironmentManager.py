@@ -656,8 +656,7 @@ class EnvironmentManager:
             if v.get_player_id() is not None:
                 tmp.append({
                     'player': v.get_player_id(),
-                    'car': v.get_vehicle_id()
-                })
+                    'car': v.get_vehicle_id()})
         return tmp
 
     def get_vehicle_by_player_id(self, player: str) -> Vehicle | None:

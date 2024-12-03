@@ -150,8 +150,7 @@ class TrackPiece(ABC):
         return {
             'type': self.__module__ + '.' + self.__class__.__qualname__,
             'rotation': self._rotation.get_deg(),
-            'physical_id': self._physical_id
-        }
+            'physical_id': self._physical_id}
 
 
 class TrackEntry():
@@ -234,8 +233,7 @@ class FullTrack():
             offset = entry.get_global_offset()
             l.append({
                 'offset': offset.to_dict(),
-                'piece': piece.to_html_dict()
-            })
+                'piece': piece.to_html_dict()})
 
         return l
 
@@ -266,8 +264,7 @@ class FullTrack():
 
         return {
             'used_space_vertically': max_vert,
-            'used_space_horizontally': max_horiz
-        }
+            'used_space_horizontally': max_horiz}
 
     def __eq__(self, other: 'FullTrack'):
         if type(self) != type(other):  # noqa: E721

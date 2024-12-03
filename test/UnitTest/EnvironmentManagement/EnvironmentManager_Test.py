@@ -395,10 +395,7 @@ def test_get_track_returns_from_config(initialise_dependencies):
                 "physical_id": 33,
                 "length": 210,
                 "diameter": 184,
-                "start_line_width": 21
-            }
-        ]
-    }
+                "start_line_width": 21}]}
     assert env.get_track() is None
 
     configuration_handler_mock.get_configuration.return_value = {
@@ -409,10 +406,7 @@ def test_get_track_returns_from_config(initialise_dependencies):
                 "physical_id": 33,
                 "length": 210,
                 "diameter": 184,
-                "start_line_width": 21
-            }
-        ]
-    }
+                "start_line_width": 21}]}
     assert env.get_track() is not None
 
 

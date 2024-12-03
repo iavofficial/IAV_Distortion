@@ -31,5 +31,4 @@ class Item:
             return {}
         return {
             'x': self.position.get_x(),
-            'y': self.position.get_y()
-        }
+            'y': self.position.get_y()}

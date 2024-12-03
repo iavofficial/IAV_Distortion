@@ -483,8 +483,7 @@ class StaffUI:
             # TODO: Filter that only cars that can scan tracks are returned
             for car in environment_mng.get_vehicle_list():
                 entry = {
-                    'vehicle_id': car.get_vehicle_id()
-                }
+                    'vehicle_id': car.get_vehicle_id()}
                 cars.append(entry)
             return cars
 
@@ -531,8 +530,7 @@ class StaffUI:
                 conversion_table = {
                     'on': True,
                     'off': False,
-                    'null': False
-                }
+                    'null': False}
 
                 for key, value in new_display_settings.items():
                     if value in conversion_table:
@@ -580,23 +578,17 @@ class StaffUI:
                     'driver_heartbeat_interval_ms': int(new_settings.get('driver_heartbeat_interval_ms')),
                     'driver_heartbeat_timeout_s': int(new_settings.get('driver_heartbeat_timeout_s')),
                     'driver_reconnect_grace_period_s': int(new_settings.get('driver_reconnect_grace_period_s')),
-                    'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))
-                },
+                    'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))},
                 'game_config': {
-                    'game_cfg_playing_time_limit_min': int(new_settings.get('game_cfg_playing_time_limit_min'))
-                },
+                    'game_cfg_playing_time_limit_min': int(new_settings.get('game_cfg_playing_time_limit_min'))},
                 "environment": {
                     'env_auto_discover_anki_cars': new_settings.get('env_auto_discover_anki_cars') == 'on',
-                    'env_vehicle_scale': int(new_settings.get('env_vehicle_scale'))
-                },
+                    'env_vehicle_scale': int(new_settings.get('env_vehicle_scale'))},
                 "hacking_protection": {
-                    'protection_duration_s': int(new_settings.get('protection_duration_s'))
-                },
+                    'protection_duration_s': int(new_settings.get('protection_duration_s'))},
                 "item": {
                     'item_spawn_interval': int(new_settings.get('item_spawn_interval')),
-                    'item_max_count': int(new_settings.get('item_max_count'))
-                }
-            }
+                    'item_max_count': int(new_settings.get('item_max_count'))}}
 
             self.config_handler.write_configuration(new_config=new_settings)
 
@@ -727,8 +719,7 @@ class StaffUI:
         """
         data = {
             "player_id": player,
-            "message": reason
-        }
+            "message": reason}
         await self._sio.emit('player_removed', data)
         return
 
