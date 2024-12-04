@@ -656,8 +656,8 @@ class EnvironmentManager:
                 vehicle_list.append(vehicle.get_vehicle_id())
         return vehicle_list
 
-    def get_mapped_cars(self) -> list[dict[str, str | None]]:
-        tmp: list[dict[str, str | None]] = []
+    def get_mapped_cars(self) -> list[dict[str, str]]:
+        tmp: list[dict[str, str]] = []
         for v in self._active_anki_cars:
             if v.get_player_id() is not None:
                 tmp.append({

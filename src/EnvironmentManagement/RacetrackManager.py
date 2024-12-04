@@ -39,5 +39,6 @@ class RacetrackManager:
         """
         init_car = InitializationCar(controller)
         track_list = await init_car.run()
-        new_track = FullTrack(track_list)
+        if track_list is not None:
+            new_track = FullTrack(track_list)
         return new_track

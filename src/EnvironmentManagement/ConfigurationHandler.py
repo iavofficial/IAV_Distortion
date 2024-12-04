@@ -73,7 +73,7 @@ class ConfigurationHandler(metaclass=Singleton):
             logger.critical(f"An unexpected error occurred trying to read the configuration file: {e}")
         return {},
 
-    def write_configuration(self, new_config: dict[str, dict[str, Any]]) -> None:
+    def write_configuration(self, new_config: dict[str, list[dict[str, Any]]]) -> None:
         """
         Writes the current configuration into a configuration file
 

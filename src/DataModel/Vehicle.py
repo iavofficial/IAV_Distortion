@@ -27,7 +27,7 @@ class Vehicle:
                  disable_item_removal: bool = False) -> None:
 
         self.vehicle_id: str = vehicle_id
-        self.player: str | None = None
+        self.player: str = ""
         self.game_start: datetime | None = None
 
         self._active_hacking_scenario: str = "0"
@@ -66,29 +66,32 @@ class Vehicle:
         """
         Sets the owner of the vehicle
         """
-        self.player = key
-        self.game_start = datetime.now()
+        if key != "":
+            self.player = key
+            self.game_start = datetime.now()
+        return
 
     def remove_player(self) -> None:
         """
         Removes the player occupation and marks the vehicle as free
         """
-        self.player = None
+        self.player = ""
         self.game_start = None
+        return
 
     def is_free(self) -> bool:
         """
         Returns whether the vehicle is free (has no active driver)
         """
-        return self.player is None
+        return self.player == ""
 
-    def get_player_id(self) -> str | None:
+    def get_player_id(self) -> str:
         """
         Returns the player that is controlling they vehicle or None
         """
         return self.player
 
-    def get_vehicle_id(self) -> str | None:
+    def get_vehicle_id(self) -> str:
         """
         Returns the name (for real vehicles UUID) of the vehicle
         """

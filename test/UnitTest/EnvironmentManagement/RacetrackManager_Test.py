@@ -4,11 +4,6 @@ from unittest.mock import Mock
 from EnvironmentManagement.RacetrackManager import RacetrackManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
-from DataModel.PhysicalCar import PhysicalCar
-from DataModel.VirtualCar import VirtualCar
-
-from LocationService.Track import TrackPieceType, FullTrack
-from LocationService.TrackPieces import TrackBuilder
 
 @pytest.fixture(scope="module")
 def initialise_dependencies():
@@ -58,7 +53,6 @@ def get_mut_with_valid_config(initialise_dependencies):
 
 
 class TestGetFulltrack:
-    @pytest.mark.fast
     def test_with_empty_or_invalid_config(self, get_mut_with_empty_or_invalid_config):
         """
         This tests that the EnvironmentManager returns the track it gets from the config or None, if it's not parsable
@@ -67,7 +61,6 @@ class TestGetFulltrack:
         assert mut.get_fulltrack() is None
         assert mut.get_fulltrack() is None
 
-    @pytest.mark.fast
     def test_with_valid_config(self, get_mut_with_valid_config):
         """
         This tests that the EnvironmentManager returns the track it gets from the config or None, if it's not parsable
@@ -77,6 +70,9 @@ class TestGetFulltrack:
 
 
 class TestScanTrack:
-    @pytest.mark.fast
+    @pytest.mark.skip_ci
+    @pytest.mark.one_anki_car_needed
+    @pytest.mark.slow
+    @pytest.mark.manual
     def test_succsesful_Scan(self, get_mut_with_valid_config):
         pass
