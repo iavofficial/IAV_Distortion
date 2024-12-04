@@ -16,24 +16,24 @@ from typing import Callable, Any
 from collections import deque
 from deprecated import deprecated
 
+from .RacetrackManager import RacetrackManager
+from .ConfigurationHandler import ConfigurationHandler
+
 from Items.ItemCollisionDetection import ItemCollisionDetector
-from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
 from DataModel.VirtualCar import VirtualCar
 
-from .ConfigurationHandler import ConfigurationHandler
-
 from Items.ItemGenerator import ItemGenerator
 from LocationService.PhysicalLocationService import PhysicalLocationService
-from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track, PieceDecodingException, \
-    full_track_to_list_of_dicts
 
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 
 from LocationService.LocationService import LocationService
 from LocationService.TrackPieces import FullTrack
+from LocationService.TrackSerialization import full_track_to_list_of_dicts
+
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +49,10 @@ class EnvironmentManager:
 
     def __init__(self,
                  fleet_ctrl: FleetController,
-                 configuration_handler: ConfigurationHandler = ConfigurationHandler()):
+                 configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
 
         self._fleet_ctrl: FleetController = fleet_ctrl
+        self._track_mng: RacetrackManager = RacetrackManager()
 
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: list[Vehicle] = []
@@ -76,9 +77,14 @@ class EnvironmentManager:
 
         self._item_collision_detector: ItemCollisionDetector = ItemCollisionDetector()
         self._item_generator: ItemGenerator | None = None
+        return
 
-    def add_item_generator(self, item_generator: ItemGenerator):
+    def add_item_generator(self, item_generator: ItemGenerator) -> None:
         self._item_generator = item_generator
+        return
+
+    def get_item_collision_detector(self) -> ItemCollisionDetector:
+        return self._item_collision_detector
 
     # set Callbacks
     def set_vehicle_added_callback(self, function_name: Callable[[], None]) -> None:
@@ -548,7 +554,7 @@ class EnvironmentManager:
         logger.debug(f"Adding physical vehicle with UUID {uuid}")
 
         anki_car_controller = AnkiController()
-        location_service = PhysicalLocationService(self.get_track(), start_immediately=True)
+        location_service = PhysicalLocationService(self._track_mng.get_fulltrack(), start_immediately=True)
         new_vehicle = PhysicalCar(uuid, anki_car_controller, location_service)
         await new_vehicle.initiate_connection(uuid)
         # TODO: add a check if connection was successful
@@ -597,7 +603,7 @@ class EnvironmentManager:
 
         logger.debug(f"Adding virtual vehicle with name {name}")
 
-        location_service = LocationService(self.get_track(), start_immediately=True)
+        location_service = LocationService(self._track_mng.get_fulltrack(), start_immediately=True)
         new_vehicle = VirtualCar(name, location_service)
 
         def item_collision(pos, rot, _): self._item_collision_detector.notify_new_vehicle_position(new_vehicle,
@@ -695,20 +701,6 @@ class EnvironmentManager:
         return full_map
 
     # racetrack management
-    def get_track(self) -> FullTrack | None:
-        """
-        Get the used track in the simulation
-        """
-        track = self.config_handler.get_configuration().get('track')
-        if track is None:
-            return None
-        try:
-            full_track = parse_list_of_dicts_to_full_track(track)
-            return full_track
-        except PieceDecodingException as e:
-            logger.error("Couldn't parse track from config: %s", e)
-        return None
-
     def notify_new_track(self, new_track: FullTrack) -> None:
         track_config = {'track': full_track_to_list_of_dicts(new_track)}
         self.config_handler.write_configuration(new_config=track_config)
@@ -720,7 +712,7 @@ class EnvironmentManager:
         self._item_generator.notify_new_track(new_track)
         return
 
-    async def rescan_track(self, car: str) -> str | None:
+    async def rescan_track_with(self, car: str) -> str | None:
         """
         Scans a track and notifies when the scanning finished.
         Returns
@@ -733,15 +725,14 @@ class EnvironmentManager:
             return "Request didn't include a valid vehicle"
         if not isinstance(vehicle, PhysicalCar):
             return "This car isn't a real car. Please use a real car"
-        controller = vehicle.extract_controller()
-        if controller is None:
+        extracted_controller: AnkiController | None = vehicle.extract_controller()
+        if extracted_controller is None:
             return "The selected car can't be controlled currently. Please use another car"
-        init_car = InitializationCar(controller)
-        track_list = await init_car.run()
-        vehicle.insert_controller(controller)
-        new_track = FullTrack(track_list)
-        self.notify_new_track(new_track)
-        return None
 
-    def get_item_collision_detector(self) -> ItemCollisionDetector:
-        return self._item_collision_detector
+        new_track: FullTrack | None = await self._track_mng.scan_track(extracted_controller)
+        if new_track is not None:
+            self.notify_new_track(new_track)
+
+        vehicle.insert_controller(extracted_controller)
+
+        return None
