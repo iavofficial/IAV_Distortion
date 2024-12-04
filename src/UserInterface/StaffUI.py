@@ -471,7 +471,7 @@ class StaffUI:
             if car is None:
                 logger.warning("A client attempted to start a track rescan but ")
                 return "Request didn't include a car", 400
-            error = await environment_mng.rescan_track(car)
+            error = await environment_mng.rescan_track_with(car)
             if error is not None:
                 return error, 400
             await self._sio.emit('reload_car_map')
