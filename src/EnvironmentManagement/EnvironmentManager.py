@@ -64,7 +64,7 @@ class EnvironmentManager:
         self._active_anki_cars: List[Vehicle] = []
         self._active_bots: List[Bot] = []
 
-        self.__update_staff_ui_callback: Callable[[List[Dict[str, str]], List[str], List[str]], None] | None = None
+        self.__update_staff_ui_callback: Callable[[list[Dict[str, str]], list[str], list[str]], None] | None = None
         self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
         self.__publish_player_active_callback: Callable[[str], None] | None = None
         self.__publish_vehicle_added_callback: Callable[[], None] | None = None
