@@ -353,13 +353,10 @@ class EnvironmentManager:
 
     def manage_bot_safe_mode(self)-> None:
         is_no_player_left = True
-        for v_id in self._active_physical_cars:
+        for v_id in self._active_anki_cars:
             v = self.get_vehicle_by_vehicle_id(v_id)
-            if v.get_player_id() != None:
-                is_no_player_left = False
-        for v_id in self._active_virtual_cars:
-            v = self.get_vehicle_by_vehicle_id(v_id)
-            print(v.get_player_id)
+            if v is None:
+                continue
             if v.get_player_id() != None:
                 is_no_player_left = False
         if is_no_player_left == True:
