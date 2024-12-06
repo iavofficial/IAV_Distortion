@@ -247,13 +247,13 @@ class FullTrack():
                 return True
         return False
 
-    def get_used_space_as_dict(self) -> dict[str, int]:
+    def get_used_space_as_dict(self) -> dict[str, float]:
         """
         Returns a dict with the used horizontal and vertical space. The keys are
         `used_space_vertically` and `used_space_horizontally`
         """
-        max_vert: int = 0
-        max_horiz: int = 0
+        max_vert: float = 0.0
+        max_horiz: float = 0.0
         for entry in self.track_entries:
             piece = entry.get_piece()
             offset = entry.get_global_offset()

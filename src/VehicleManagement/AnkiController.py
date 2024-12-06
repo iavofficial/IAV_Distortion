@@ -36,12 +36,12 @@ class AnkiController(VehicleController):
         super().__init__()
         self.task_in_progress: bool = False
 
-        self.__location_callback: Callable[[tuple[Any]], None]
-        self.__transition_callback: Callable[[tuple[Any]], None]
-        self.__offset_callback: Callable[[tuple[Any]], None]
-        self.__version_callback: Callable[[tuple[Any]], None]
-        self.__battery_callback: Callable[[tuple[Any]], None]
-        self.__ble_not_reachable_callback: Callable[[], None]
+        self.__location_callback: Callable[[tuple[int, int, float, int, int]], None] | None = None
+        self.__transition_callback: Callable[[tuple[int, int, float, int]], None] | None = None
+        self.__offset_callback: Callable[[tuple[float]], None] | None = None
+        self.__version_callback: Callable[[tuple[int, int]], None] | None = None
+        self.__battery_callback: Callable[[tuple[int]], None] | None = None
+        self.__ble_not_reachable_callback: Callable[[], None] | None = None
 
         self.__latest_command: bytes | None = None
         self.__command_in_progress: bool = False
@@ -79,11 +79,11 @@ class AnkiController(VehicleController):
         return
 
     def set_callbacks(self,
-                      location_callback: Callable[[tuple[Any]], None],
-                      transition_callback: Callable[[tuple[Any]], None],
-                      offset_callback: Callable[[tuple[Any]], None],
-                      version_callback: Callable[[tuple[Any]], None],
-                      battery_callback: Callable[[tuple[Any]], None]) -> None:
+                      location_callback: Callable[[tuple[int, int, float, int, int]], None] | None = None,
+                      transition_callback: Callable[[tuple[int, int, float, int]], None] | None = None,
+                      offset_callback: Callable[[tuple[float]], None] | None = None,
+                      version_callback: Callable[[tuple[int, int]], None] | None = None,
+                      battery_callback: Callable[[tuple[int]], None] | None = None) -> None:
         """
         Sets callback functions.
 
@@ -113,7 +113,7 @@ class AnkiController(VehicleController):
         """
         Sets a callback that should be executed when the car is not reachable
         """
-        self.__ble_not_reachable_callback: Callable[[], None] = ble_not_reachable_callback
+        self.__ble_not_reachable_callback = ble_not_reachable_callback
 
     async def connect_to_vehicle(self, ble_client: BleakClient, start_notification: bool = True) -> bool:
         """
@@ -333,7 +333,7 @@ class AnkiController(VehicleController):
         bool
             True
         """
-        command = struct.pack("<BHH", 0x32, direction.value[0], turntrigger.value[0])
+        command = struct.pack("<BHH", 0x32, direction, turntrigger)
         self.__send_command(command)
         return True
 
@@ -473,26 +473,31 @@ class AnkiController(VehicleController):
             version_tuple = struct.unpack_from("<BB", data, 2)
             # new_data = data.hex(" ", 1)
             # version_tuple = tuple(new_data[6:11])
-            self.__version_callback(version_tuple)
+            if self.__version_callback is not None:
+                self.__version_callback(version_tuple)
 
         # Battery
         elif command_id == "0x1b":
             battery_tuple = struct.unpack_from("<H", data, 2)
             # new_data = data.hex(" ", 1)
             # battery_tuple = tuple(new_data[6:12])
-            self.__battery_callback(battery_tuple)
+            if self.__battery_callback is not None:
+                self.__battery_callback(battery_tuple)
 
         elif command_id == "0x27":
             location_tuple = struct.unpack_from("<BBfHB", data, 2)
-            self.__location_callback(location_tuple)
+            if self.__location_callback is not None:
+                self.__location_callback(location_tuple)
 
         elif command_id == "0x29":
             transition_tuple = struct.unpack_from("<BBfB", data, 2)
-            self.__transition_callback(transition_tuple)
+            if self.__transition_callback is not None:
+                self.__transition_callback(transition_tuple)
 
         elif command_id == "0x2d":
             offset_tuple = struct.unpack_from("<f", data, 2)
-            self.__offset_callback(offset_tuple)
+            if self.__offset_callback is not None:
+                self.__offset_callback(offset_tuple)
 
         else:
             _ = data.hex(" ", 1)

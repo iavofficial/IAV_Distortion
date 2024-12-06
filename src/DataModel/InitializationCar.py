@@ -118,10 +118,7 @@ class InitializationCar:
         controller: AnkiController = self._controller
 
         controller.set_callbacks(self._receive_location,
-                                 self._receive_transition,
-                                 self._nop,
-                                 self._nop,
-                                 self._nop)
+                                 self._receive_transition)
         controller.set_ble_not_reachable_callback(self._nop)
 
         # send the request 2 times since the car sometimes ignores the request otherwise
@@ -153,7 +150,7 @@ class InitializationCar:
 
         return self._piece_ids.copy()
 
-    def _receive_location(self, value_tuple: tuple[int, int, int, int, int]) -> None:
+    def _receive_location(self, value_tuple: tuple[int, int, float, int, int]) -> None:
         """
         Callback for when a location event is sent
         """
@@ -179,7 +176,7 @@ class InitializationCar:
 
         return
 
-    def _receive_transition(self, value_tuple: tuple[int]) -> None:
+    def _receive_transition(self, value_tuple: tuple[int, int, float, int]) -> None:
         """
         Callback for when a transition event is sent
         """

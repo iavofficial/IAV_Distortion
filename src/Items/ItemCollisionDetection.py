@@ -15,13 +15,20 @@ class ItemCollisionDetector:
         self._on_item_change: Callable[[list[Item]], None] | None = None
         return
 
-    def notify_new_vehicle_position(self, vehicle: Vehicle, vehicle_position: Position, vehicle_rotation: Angle):
+    def notify_new_vehicle_position(self,
+                                    vehicle: Vehicle,
+                                    vehicle_position: Position,
+                                    vehicle_rotation: Angle) -> None:
         for item in self._items:
             if item.get_position() is None:
                 continue
-            if item.get_position().distance_to(vehicle_position) < 40:
+            item_pos: Position | None = item.get_position()
+            if item_pos is None:
+                return
+            if item_pos.distance_to(vehicle_position) < 40:
                 vehicle.notify_item_collected(item)
                 self.remove_item(item)
+            return
 
     def set_on_item_change_callback(self, callback: Callable[[list[Item]], None]):
         self._on_item_change = callback
@@ -42,7 +49,8 @@ class ItemCollisionDetector:
 
     def clear_items(self):
         self._items.clear()
-        self._on_item_change(self._items)
+        if self._on_item_change is not None:
+            self._on_item_change(self._items)
 
     def get_current_items(self):
         return self._items

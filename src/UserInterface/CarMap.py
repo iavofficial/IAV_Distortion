@@ -10,6 +10,7 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 from DataModel.Vehicle import Vehicle
 from Items.Item import Item
+from LocationService.Track import FullTrack
 
 
 class CarMap:
@@ -25,7 +26,7 @@ class CarMap:
     def __init__(self, environment_manager: EnvironmentManager, sio: AsyncServer):
         self.carMap_blueprint: Blueprint = Blueprint(name='carMap_bp', import_name='carMap_bp')
         self._environment_manager = environment_manager
-        self._vehicles: list[Vehicle] | None = self._environment_manager.get_vehicle_list()
+        self._vehicles: list[Vehicle] | None = self._environment_manager.get_all_vehicles()
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
         environment_manager.get_item_collision_detector().set_on_item_change_callback(self.update_item_positions)
 
@@ -43,7 +44,7 @@ class CarMap:
             Response
                 Returns a Response object representing the car map page.
             """
-            track = environment_manager.get_track()
+            track = environment_manager.get_current_track()
             disp_settings = self.config_handler.get_configuration()["display_settings"]
 
             if track is None:
@@ -57,13 +58,16 @@ class CarMap:
             items_as_dict = []
             for item in environment_manager.get_item_collision_detector().get_current_items():
                 items_as_dict.append(item.to_html_dict())
-            return await render_template(template_name_or_list="car_map.html",
-                                         track=serialized_track,
-                                         car_pictures=car_pictures,
-                                         color_map=environment_manager.get_car_color_map(),
-                                         used_space=environment_manager.get_track().get_used_space_as_dict(),
-                                         items=items_as_dict,
-                                         disp_settings=disp_settings)
+
+            current_Track: FullTrack | None = environment_manager.get_current_track()
+            if current_Track is not None:
+                return await render_template(template_name_or_list="car_map.html",
+                                             track=serialized_track,
+                                             car_pictures=car_pictures,
+                                             color_map=environment_manager.get_car_color_map(),
+                                             used_space=current_Track.get_used_space_as_dict(),
+                                             items=items_as_dict,
+                                             disp_settings=disp_settings)
 
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
 

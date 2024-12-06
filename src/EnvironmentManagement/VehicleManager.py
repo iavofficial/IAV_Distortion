@@ -109,12 +109,12 @@ class VehicleManager:
                 return v
         return None
 
-    def get_vehicle_by_vehicle_id(self, vehicle_id: str | None) -> Vehicle | None:
+    def get_vehicle_by_vehicle_id(self, vehicle_id: str) -> Vehicle | None:
         """
         Get the car based on it's name (e.g. a Bluetooth MAC address).
         Returns None if the vehicle isn't found
         """
-        if vehicle_id is None:
+        if vehicle_id == "":
             return None
 
         for v in self._active_anki_cars:

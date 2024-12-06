@@ -291,12 +291,12 @@ class Vehicle:
         self._direction = direction
         return
 
-    def _receive_offset_update(self, value_tuple: tuple[float, Any]) -> None:
+    def _receive_offset_update(self, value_tuple: tuple[float]) -> None:
         offset = value_tuple[0]
         self._offset_from_center = offset
         return
 
-    def _receive_version(self, value_tuple: tuple[Any]) -> None:
+    def _receive_version(self, value_tuple: tuple[int, int]) -> None:
         self._version = str(value_tuple)
         return
 

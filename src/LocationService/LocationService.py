@@ -6,7 +6,7 @@ from typing import Any, Tuple, Callable, List
 
 import Constants
 from LocationService.Trigo import Position, Angle
-from LocationService.Track import FullTrack
+from LocationService.Track import FullTrack, TrackPiece
 
 logger = logging.getLogger(__name__)
 
@@ -51,13 +51,18 @@ class LocationService:
 
         self._uturn_override: UTurnOverride | None = None
 
-        self._track: FullTrack | None = track
         self._current_piece_index: int = 0
         self._progress_on_current_piece: float = 0
         self._current_position: Position | None
+
         if track is not None:
-            first_piece, _ = self._track.get_entry_tupel(0)
-            _, self._current_position = first_piece.process_update(0, 0, starting_offset)
+
+            self._track: FullTrack = track
+            first_entry_tuple: tuple[TrackPiece, Position] = self._track.get_entry_tupel(0)
+            if first_entry_tuple is not None:
+                first_piece, _ = first_entry_tuple
+                _, self._current_position = first_piece.process_update(0, 0, starting_offset)
+
         else:
             self._current_position = None
 
@@ -228,9 +233,11 @@ class LocationService:
         new_offset: float
             # TODO: parameter description
         """
-        piece, _ = self._track.get_entry_tupel(self._current_piece_index)
-        self._progress_on_current_piece = piece.get_equivalent_progress_for_offset(old_offset, new_offset,
-                                                                                   self._progress_on_current_piece)
+        entry_tuple: tuple[TrackPiece, Position] = self._track.get_entry_tupel(self._current_piece_index)
+        if entry_tuple is not None:
+            piece, _ = self._track.get_entry_tupel(self._current_piece_index)
+            self._progress_on_current_piece = piece.get_equivalent_progress_for_offset(old_offset, new_offset,
+                                                                                       self._progress_on_current_piece)
         self._actual_offset = new_offset
         return
 
@@ -279,7 +286,9 @@ class LocationService:
                 "This would create a infinite recursion. Breaking the loop to prevent this!")
             return self._current_position, self._stop_direction
 
-        old_pos = self._current_position
+        if self._current_position is not None:
+            old_pos: Position = self._current_position
+
         piece, global_track_offset = self._track.get_entry_tupel(self._current_piece_index)
         leftover_distance, new_pos = piece.process_update(self._progress_on_current_piece, distance,
                                                           self._actual_offset)

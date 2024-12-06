@@ -129,10 +129,10 @@ class StraightPiece(TrackPiece):
 class CurvedPiece(TrackPiece):
     def __init__(self, square_size: float, diameter: int, rot: int, mirror: bool, physical_id: int | None = None):
         super().__init__(rot, physical_id=physical_id)
-        self._size = square_size
-        self._radius = square_size / 2
-        self._diameter = diameter
-        self._is_mirrored = mirror
+        self._size: float = square_size
+        self._radius: float = square_size / 2
+        self._diameter: int = diameter
+        self._is_mirrored: bool = mirror
 
     def get_used_space_horiz(self) -> float:
         return self._size
@@ -272,7 +272,7 @@ class CurvedPiece(TrackPiece):
                 'x': point.get_x(),
                 'y': point.get_y()}}
 
-    def __eq__(self, other: 'TrackPiece'):
+    def __eq__(self, other: 'CurvedPiece'):
         return super().__eq__(other) and self._is_mirrored == other._is_mirrored
 
     def to_json_dict(self) -> dict[str, Any]:
