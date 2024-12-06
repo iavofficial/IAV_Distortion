@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 class FleetController:
 
-    def __init__(self, config_handler: ConfigurationHandler | None = None) -> None:
+    def __init__(self, configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
         self._connected_cars = {}  # BleakClients
-        self.config_handler: ConfigurationHandler = config_handler if config_handler else ConfigurationHandler()
+        self.config_handler: ConfigurationHandler = configuration_handler
         self.__add_anki_car_callback: Callable[[str], Coroutine[Any, Any, Any]] | None = None
         self.__auto_connect_anki_cars_task: Task[Any] | None = None
         self.__ble_number_of_device_logging: Task[Any] | None = None

@@ -88,6 +88,6 @@ class CyberSecurityManager:
 
     def get_active_hacking_scenarios(self) -> dict[str, str]:
         scenario_map: dict[str, str] = {}
-        for car in self._environment_manager.get_vehicle_list():
+        for car in self._environment_manager.get_all_vehicles():
             scenario_map.update({car.vehicle_id: car.hacking_scenario})
         return scenario_map

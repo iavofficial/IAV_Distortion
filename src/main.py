@@ -34,12 +34,13 @@ def create_app(admin_password: str):
     quart_app = Quart('IAV_Distortion', template_folder='UserInterface/templates', static_folder='UserInterface/static')
 
     config_handler = ConfigurationHandler()
-    fleet_ctrl = FleetController()
-    environment_mng = EnvironmentManager(fleet_ctrl)
-    vehicles = environment_mng.get_vehicle_list()
-    behaviour_ctrl = BehaviourController(vehicles)
+    fleet_ctrl: FleetController = FleetController(config_handler)
+    environment_mng = EnvironmentManager(configuration_handler=config_handler)
+    behaviour_ctrl = BehaviourController(environment_mng)
     cybersecurity_mng = CyberSecurityManager(environment_mng)
-    item_generator = ItemGenerator(environment_mng.get_item_collision_detector(), environment_mng.get_track())
+    item_generator = ItemGenerator(environment_mng.get_item_collision_detector(),
+                                   environment_mng.get_current_track(),
+                                   config_handler)
     environment_mng.add_item_generator(item_generator)
 
     @quart_app.before_serving

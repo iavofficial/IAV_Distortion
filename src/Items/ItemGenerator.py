@@ -10,15 +10,21 @@ from LocationService.Track import FullTrack
 
 
 class ItemGenerator:
-    def __init__(self, item_collision_detection: ItemCollisionDetector, track: FullTrack | None):
+    def __init__(self,
+                 item_collision_detection: ItemCollisionDetector,
+                 track: FullTrack | None,
+                 configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
+
         self._item_collision_detection: ItemCollisionDetector = item_collision_detection
         self._track: FullTrack | None = track
         self._item_generation_task: Task[Any] | None = None
-        self._config = ConfigurationHandler().get_configuration()
+        self._config_handler:  ConfigurationHandler = configuration_handler
 
-        max_item_length = self._config['item']['item_max_count'] - 1
+        max_item_length = self._config_handler.get_configuration()['item']['item_max_count'] - 1
         for _ in range(0, max_item_length):
             self._item_collision_detection.add_item(self.generate_item())
+
+        return
 
     def notify_new_track(self, track: FullTrack):
         self._track = track
@@ -37,7 +43,7 @@ class ItemGenerator:
         interval_time: int
         try:
             # TODO: Realise default values via a config object!
-            interval_time = self._config['item']['item_spawn_interval']
+            interval_time = self._config_handler.get_configuration()['item']['item_spawn_interval']
         except KeyError:
             interval_time = 30
         while True:

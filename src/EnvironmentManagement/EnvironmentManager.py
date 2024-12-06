@@ -43,14 +43,15 @@ class RemovalReason(Enum):
 class EnvironmentManager:
 
     def __init__(self,
-                 fleet_ctrl: FleetController,
+                 fleet_controller: FleetController = FleetController(),
+                 racetrack_manager: RacetrackManager = RacetrackManager(),
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
 
         self._item_collision_detector: ItemCollisionDetector = ItemCollisionDetector()
         self._item_generator: ItemGenerator | None = None
 
-        self._fleet_ctrl: FleetController = fleet_ctrl
-        self._track_mng: RacetrackManager = RacetrackManager()
+        self._fleet_ctrl: FleetController = fleet_controller
+        self._track_mng: RacetrackManager = racetrack_manager
         self._vehicle_mng: VehicleManager = VehicleManager(self._fleet_ctrl,
                                                            self._track_mng,
                                                            self._item_collision_detector)
@@ -82,7 +83,7 @@ class EnvironmentManager:
     def get_item_collision_detector(self) -> ItemCollisionDetector:
         return self._item_collision_detector
 
-    # set Callbacks
+    # set callbacks
     def set_vehicle_added_callback(self, function_name: Callable[[], None]) -> None:
         self.__publish_vehicle_added_callback = function_name
         return
@@ -131,7 +132,7 @@ class EnvironmentManager:
         self.__publish_player_active_callback = function_name
         return
 
-    # Publish interface
+    # publish interface
     def update_staff_ui(self) -> None:
         """
         Sends an update of controlled cars, free cars and waiting players to the staff ui using a callback function.
@@ -197,7 +198,7 @@ class EnvironmentManager:
             self.__publish_player_active_callback(player)
         return
 
-    # Player management
+    # player interface
     def put_player_on_next_free_vehicle(self, player_id: str) -> bool:
         """
         Updates the player queue and
@@ -256,7 +257,7 @@ class EnvironmentManager:
         self._player_mng.schedule_remove_player_task(player, grace_period)
         return
 
-    # Vehicle Management
+    # vehicle interface
     def remove_vehicle(self, uuid_to_remove: str) -> bool:
         """
         Remove both vehicle and the controlling player for a given vehicle.
@@ -296,9 +297,15 @@ class EnvironmentManager:
     async def get_unpaired_cars(self) -> list[str]:
         return await self._vehicle_mng.find_unpaired_anki_cars()
 
+    def get_all_vehicles(self) -> list[Vehicle]:
+        """
+        Returns a all active vehicle objects
+        """
+        return self._vehicle_mng.get_active_vehicles()
+
     def get_all_vehicles_list(self) -> list[str]:
         """
-        Returns a list of all vehicles that are active
+        Returns a list of all ids from active vehicles
         """
         all_vehicles: list[Vehicle] = self._vehicle_mng.get_active_vehicles()
         if len(all_vehicles) == 0:
@@ -327,12 +334,19 @@ class EnvironmentManager:
             free_vehicle_ids: list[str] = [vehicle.vehicle_id for vehicle in free_vehicles]
             return free_vehicle_ids
 
-    def get_vehicle_by_player_id(self, player: str) -> Vehicle | None:
+    def get_vehicle_by_player_id(self, player_id: str) -> Vehicle | None:
         """
-        Get the car that's controlled by a player or None, if the
+        Get the vehicle object that's controlled by a player or get None, if the
         player doesn't control any car
         """
-        return self._vehicle_mng.get_vehicle_by_vehicle_id(player)
+        return self._vehicle_mng.get_vehicle_by_vehicle_id(player_id)
+
+    def get_vehicle_by_vehicle_id(self, vehicle_id: str) -> Vehicle | None:
+        """
+        Get the specific vehicle object or get None, if the
+        vehicle id is unknown
+        """
+        return self._vehicle_mng.get_vehicle_by_vehicle_id(vehicle_id)
 
     def get_car_color_map(self) -> dict[str, list[str]]:
         colors = ["#F93822", "#DAA03D", "#E69A8D", "#42EADD", "#00203F", "#D6ED17", "#2C5F2D", "#101820"]
@@ -346,7 +360,10 @@ class EnvironmentManager:
                     num += 1
         return full_map
 
-    # racetrack management
+    # racetrack interface
+    def get_current_track(self) -> FullTrack | None:
+        return self._track_mng.get_fulltrack()
+
     def notify_new_track(self, new_track: FullTrack) -> None:
         track_config = {'track': full_track_to_list_of_dicts(new_track)}
         self.config_handler.write_configuration(new_config=track_config)
