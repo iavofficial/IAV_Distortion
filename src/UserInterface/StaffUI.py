@@ -171,7 +171,7 @@ class StaffUI:
         # We can't directly redirect via SocketIO so we just drop the requests
         # TODO: Log dropped events!
 
-        @self._sio.on('get_uuids')
+        @self._sio.on('get_uuids')  # type: ignore
         async def update_uuids_staff_ui(sid) -> None:
             """
             Handles the 'get_uuids' websocket event.
@@ -183,7 +183,7 @@ class StaffUI:
             self.environment_mng.update_staff_ui()
             return
 
-        @self._sio.on('connect')
+        @self._sio.on('connect')  # type: ignore
         async def initiate_uuids(sid, environ, auth) -> None:
             """
             Handles the 'connect' websocket event.
@@ -196,7 +196,7 @@ class StaffUI:
             self.environment_mng.update_staff_ui()
             return
 
-        @self._sio.on('search_cars')
+        @self._sio.on('search_cars')  # type: ignore
         async def search_cars(sid) -> None:
             """
             Handles the 'search_cars' websocket event.
@@ -207,12 +207,12 @@ class StaffUI:
             """
             # TODO: authentication check for websocket events
             logger.info("Searching devices...")
-            new_devices = await environment_mng.find_unpaired_anki_cars()
+            new_devices = await environment_mng.get_unpaired_cars()
             logger.info(f'Found devices: {new_devices}')
             await self._sio.emit('new_devices', new_devices)
             return
 
-        @self._sio.on('add_device')
+        @self._sio.on('add_device')  # type: ignore
         async def handle_add_device(sid, device: str) -> None:
             """
             Handles the 'add_device' websocket event.
@@ -228,13 +228,13 @@ class StaffUI:
                 Id of the device to be added.
             """
             # TODO: authentication check for websocket events
-            await environment_mng.connect_to_physical_car_by(device)
+            await environment_mng.request_vehicle_connaction_to(device)
             await self._sio.emit('device_added', device)
             logger.debug("Device added %s", device)
             # TODO: exception if device is no longer available
             return
 
-        @self._sio.on('add_virtual_vehicle')
+        @self._sio.on('add_virtual_vehicle')  # type: ignore
         async def handle_add_virtual_vehicle(sid) -> None:
             """
             Handles the 'add_virtual_vehicle' websocket event.
@@ -244,11 +244,11 @@ class StaffUI:
             initiate its hacking scenario and send the 'added_device' event.
             """
             # TODO: authentication check for websocket events
-            name = environment_mng.add_virtual_vehicle()
+            name = environment_mng.request_virtual_vehicle()
             await self._sio.emit('device_added', name)
             return
 
-        @self._sio.on('delete_player')
+        @self._sio.on('delete_player')  # type: ignore
         async def handle_delete_player(sid, player: str) -> None:
             """
             Handles the 'delete_player' websocket event.
@@ -263,11 +263,11 @@ class StaffUI:
                 ID of the player to be removed.
             """
             # TODO: authentication check for websocket events
-            environment_mng.manage_removal_from_game_for(player, )
+            environment_mng.remove_player_from_game_for(player, )
             logger.debug("Player deleted %s", player)
             return
 
-        @self._sio.on('delete_vehicle')
+        @self._sio.on('delete_vehicle')  # type: ignore
         async def handle_delete_vehicle(sid, vehicle_id: str) -> None:
             """
             Handles the 'delete_vehicle' websocket event.
@@ -282,12 +282,12 @@ class StaffUI:
                 ID of the vehicle to be removed.
             """
             # TODO: authentication check for websocket events
-            environment_mng.remove_vehicle_by_id(vehicle_id)
+            environment_mng.remove_vehicle(vehicle_id)
             await self._sio.emit('vehicle_removed', vehicle_id)
             logger.debug("Vehicle deleted %s", vehicle_id)
             return
 
-        @self._sio.on('get_update_hacking_scenarios')
+        @self._sio.on('get_update_hacking_scenarios')  # type: ignore
         async def update_hacking_scenarios(sid) -> None:
             """
             Handles the 'get_update_hacking_scenarios' websocket event.
@@ -467,10 +467,12 @@ class StaffUI:
         @self.staffUI_blueprint.route('/rescan_track', methods=['POST'])
         async def trigger_track_rescan() -> Tuple[str, int]:
             data = await request.form
-            car: str = data.get('car')
-            if car is None:
+            if data.get('car') is None:
                 logger.warning("A client attempted to start a track rescan but ")
                 return "Request didn't include a car", 400
+            else:
+                car: str = str(data.get('car'))
+
             error = await environment_mng.rescan_track_with(car)
             if error is not None:
                 return error, 400
@@ -481,9 +483,9 @@ class StaffUI:
         async def get_all_cars() -> List[Dict[str, str]]:
             cars: List[Dict[str, str]] = []
             # TODO: Filter that only cars that can scan tracks are returned
-            for car in environment_mng.get_vehicle_list():
+            for car_id in environment_mng.get_all_vehicles_list():
                 entry = {
-                    'vehicle_id': car.get_vehicle_id()}
+                    'vehicle_id': car_id}
                 cars.append(entry)
             return cars
 

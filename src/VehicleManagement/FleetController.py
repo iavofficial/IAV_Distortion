@@ -22,7 +22,7 @@ class FleetController:
     def __init__(self, config_handler: ConfigurationHandler | None = None) -> None:
         self._connected_cars = {}  # BleakClients
         self.config_handler: ConfigurationHandler = config_handler if config_handler else ConfigurationHandler()
-        self.__add_anki_car_callback: Callable[[str], Coroutine[Any, Any, None]] | None = None
+        self.__add_anki_car_callback: Callable[[str], Coroutine[Any, Any, Any]] | None = None
         self.__auto_connect_anki_cars_task: Task[Any] | None = None
         self.__ble_number_of_device_logging: Task[Any] | None = None
 
@@ -96,7 +96,7 @@ class FleetController:
             return
         self.__ble_number_of_device_logging = asyncio.create_task(self.log_number_of_ble_devices())
 
-    def set_add_anki_car_callback(self, function_name: Callable[[str], Coroutine[Any, Any, None]]) -> None:
+    def set_add_anki_car_callback(self, function_name: Callable[[str], Coroutine[Any, Any, Any]]) -> None:
         """
         Sets callback function to add Anki cars.
 

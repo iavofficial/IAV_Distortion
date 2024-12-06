@@ -105,7 +105,7 @@ class DriverUI:
                 Data received with websocket event.
             """
             player = data["player"]
-            self.environment_mng.put_player_on_next_free_spot(player)
+            self.environment_mng.put_player_on_next_free_vehicle(player)
             return
 
         @self._sio.on('disconnected')
@@ -183,7 +183,7 @@ class DriverUI:
             grace_period = self.config_handler.get_configuration()["driver"]["driver_background_grace_period_s"]
             logger.debug(f"Player {player} send the application to the background and will be removed in "
                          f"{grace_period} seconds.")
-            self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
+            self.environment_mng.request_removal_of_player(player=player, grace_period=grace_period)
             return
 
         @self._sio.on('driver_active')
@@ -191,7 +191,7 @@ class DriverUI:
             player = data["player"]
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                          f"added to the queue again.")
-            self.environment_mng.put_player_on_next_free_spot(player)
+            self.environment_mng.put_player_on_next_free_vehicle(player)
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
@@ -255,7 +255,7 @@ class DriverUI:
         if player in self.__latest_driver_heartbeats:
             del self.__latest_driver_heartbeats[player]
         grace_period = self.config_handler.get_configuration()["driver"]["driver_reconnect_grace_period_s"]
-        self.environment_mng.schedule_remove_player_task(player=player, grace_period=grace_period)
+        self.environment_mng.request_removal_of_player(player=player, grace_period=grace_period)
         return
 
     def _prepare_html_data(self, player: str) -> tuple[bool, str, dict[str, str]]:
@@ -287,7 +287,7 @@ class DriverUI:
         vehicle_information = {
             'active_hacking_scenario': '0',
             'speed_request': '0'}
-        self.environment_mng.put_player_on_next_free_spot(player)
+        self.environment_mng.put_player_on_next_free_vehicle(player)
         vehicle = self.environment_mng.get_vehicle_by_player_id(player)
 
         if vehicle is not None:
