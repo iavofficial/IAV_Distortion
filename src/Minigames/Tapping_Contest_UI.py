@@ -18,14 +18,14 @@ class Tapping_Contest_UI(Minigame):
             print("Tapping_Contest_UI: No (proper) Configuration found for \
                 ['minigame']['tapping-contest']['game-length]. Using default value of 10 seconds.")
 
-        @self._sio.on('join_game')
+        @self._sio.on('Tapping_Contest_join')
         async def on_join_game(sid: str, data):
             player_id = data['player_id']
             if player_id in self._players:
                 await self._sio.enter_room(sid, "Tapping_Contest")
                 await self._sio.emit('joined', {'player_id': player_id}, room=player_id)
 
-        @self._sio.on('click')
+        @self._sio.on('Tapping_Contest_click')
         async def handle_click(sid: str, data):
             player_id = data['player_id']
             await self._record_click(player_id)
@@ -62,7 +62,7 @@ class Tapping_Contest_UI(Minigame):
         await asyncio.sleep(self._game_length)  # Game duration
 
         winner_index = self._game.get_winner()
-        while self._game.get_winner() == -1:
+        while winner_index == -1:
             winner_index = self._game.get_winner()
             await asyncio.sleep(1)
 

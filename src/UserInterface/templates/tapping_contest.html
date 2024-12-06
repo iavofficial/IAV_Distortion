@@ -67,7 +67,7 @@
     let clicks = 0;
 
     // Join game and send player ID to server
-    socket.emit('join_game', { player_id: playerId });
+    socket.emit('Tapping_Contest_join', { player_id: playerId });
 
     socket.on('start_game', (data) => {
       clicks = 0;
@@ -89,7 +89,7 @@
 
     document.getElementById('click-btn').addEventListener('click', () => {
       clicks += 1;
-      socket.emit('click', { player_id: playerId });
+      socket.emit('Tapping_Contest_click', { player_id: playerId });
     });
 
     socket.on('update_clicks', (data) => {
