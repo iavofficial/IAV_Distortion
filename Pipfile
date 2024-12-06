@@ -14,6 +14,7 @@ sphinx = "*"
 pytest = "*"
 pytest-asyncio = "*"
 pluggy = "==1.5.0"
+pyright = "*"
 
 [requires]
 python_version = "3.11"
