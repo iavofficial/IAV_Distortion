@@ -1,13 +1,16 @@
+import logging
+
 from DataModel.InitializationCar import InitializationCar
 
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
-from EnvironmentManagement.EnvironmentManager import logger
 
 from LocationService.TrackPieces import FullTrack
 from LocationService.TrackSerialization \
     import PieceDecodingException, parse_list_of_dicts_to_full_track
 
 from VehicleManagement.AnkiController import AnkiController
+
+logger = logging.getLogger(__name__)
 
 
 class RacetrackManager:
