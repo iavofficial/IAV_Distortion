@@ -594,6 +594,7 @@ class EnvironmentManager:
             ID of vehicle to be removed.
         """
         logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
+
         found_vehicle = next((o for o in self._active_anki_cars if o.vehicle_id == uuid_to_remove), None)
         if found_vehicle is None:
             return False
