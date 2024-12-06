@@ -133,6 +133,13 @@
           socket.emit('make_uturn', {player: '{{player}}'});
         };
 
+        <!-- buttons to switch cars -->
+        var buttonSwitchCars = document.getElementById("switch_cars");
+
+        buttonSwitchCars.onclick = function() {
+          socket.emit('switch_cars', {player: '{{player}}'});
+        };
+
         <!-- loading window -->
         window.onload = function() {
             socket.emit('driver_active', {player: '{{player}}'});
