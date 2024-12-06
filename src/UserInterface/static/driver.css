@@ -274,9 +274,9 @@ body{
 }
 
 .info-box-buttons{
-  flex-direction: row;
-  display: flex;
-  justify-content: space-evenly;
+    flex-direction: row;
+    display: flex;
+    justify-content: space-evenly;
 }
 
 .refresh-button{

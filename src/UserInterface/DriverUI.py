@@ -287,7 +287,6 @@ class DriverUI:
             if time.time() - vehicle.proximity_timer > self.__driver_proximity_timer:
                 await self._sio.emit('send_finished_proximity_timer', vehicle.vehicle_in_proximity)
 
-                       
     def __remove_player(self, player: str) -> None:
         """
         Remove player from the game.
@@ -326,6 +325,7 @@ class DriverUI:
         if not self.__checking_heartbeats_flag:
             self.__run_async_task(self.__check_driver_heartbeat_timeout())
             self.__checking_heartbeats_flag = True
+
         config = self.config_handler.get_configuration()
 
         picture = ''  # default picture can be added here

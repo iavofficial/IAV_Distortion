@@ -41,7 +41,7 @@
 	},
 	"item": {
 		"item_spawn_interval": 30,
-		"item_max_count" : 2
+		"item_max_count": 2
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
