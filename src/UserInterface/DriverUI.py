@@ -17,7 +17,6 @@ import time
 from socketio import AsyncServer
 
 from DataModel.Vehicle import Vehicle
-from DataModel.Effects.SwitchCars import SwitchCars
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from VehicleMovementManagement.BehaviourController import BehaviourController
