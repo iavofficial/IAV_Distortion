@@ -3,18 +3,16 @@ import time
 import asyncio
 import time
 import uuid
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from socketio import AsyncServer
 
-from DataModel.Driver import Driver
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.LocationService import LocationService
 from Minigames.Minigame_Controller import Minigame_Controller
-from UserInterface.CarMap import CarMap
 from UserInterface.DriverUI import DriverUI
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
@@ -86,6 +84,7 @@ async def test_driver_ui_template_data_player_exists(initialise_dependencies):
         assert not has_vehicle
         has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
         assert has_vehicle
+
 
 @pytest.mark.asyncio
 async def test_proximity_timer_increment(initialise_dependencies):
