@@ -207,7 +207,7 @@ class DriverUI:
             return
 
         @self._sio.on('switch_cars')
-        def switch_cars(sid, data: dict) -> None:
+        async def switch_cars(sid, data: dict) -> None:
             player = data["player"]
             vehicle = self.environment_mng.get_vehicle_by_player_id(player)
             if vehicle is None:
@@ -223,19 +223,7 @@ class DriverUI:
                 return
             if self.__has_hacking_protection(vehicle=target_vehicle):
                 return
-            target_player = target_vehicle.get_player_id()
 
-            # Try to start Minigame
-            minigame_task, minigame_object = Minigame_Controller.get_instance().play_random_available_minigame(player, target_player)
-            
-            if minigame_task is None or minigame_object is None:
-                logger.warning(f"DriverUI: The minigame for player {player} and player {target_player} could not be started for some reason. Ignoring the request.")
-                return
-            winner = await minigame_task
-            logger.debug(f"DriverUI: The player {player} has won a minigame that was initiated by a hack of vehicle {target_vehicle_id}.")
-            if winner is None or winner == target_player:
-                return
-            
             self.environment_mng.manage_car_switch_for(player, target_vehicle_id)
             driver = self.environment_mng.get_driver_by_id(player_id=player)
             self.__run_async_task(self.__emit_driver_score(driver=driver))
