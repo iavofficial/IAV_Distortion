@@ -31,7 +31,7 @@ class DriverUI:
                  environment_mng: EnvironmentManager,
                  sio: AsyncServer) -> None:
         self.driverUI_blueprint: Blueprint = Blueprint(name='driverUI_bp', import_name='driverUI_bp')
-        self.vehicles: list[Vehicle] = environment_mng.get_vehicle_list()
+        self.vehicles: list[Vehicle] = environment_mng.get_all_vehicles()
         self.behaviour_ctrl = behaviour_ctrl
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
@@ -88,7 +88,7 @@ class DriverUI:
 
         self.driverUI_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_driver)
 
-        @self._sio.on('handle_connect')
+        @self._sio.on('handle_connect')  # type: ignore
         def handle_connected(sid: str, data: dict[Any, Any]) -> None:
             """
             Calls environment manager function to update queues and vehicles.
@@ -108,19 +108,19 @@ class DriverUI:
             self.environment_mng.put_player_on_next_free_vehicle(player)
             return
 
-        @self._sio.on('disconnected')
+        @self._sio.on('disconnected')  # type: ignore
         def handle_disconnected(sid, data) -> None:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
             return
 
-        @self._sio.on('disconnect')
+        @self._sio.on('disconnect')  # type: ignore
         def handle_clienet_disconnect(sid) -> None:
             logger.debug(f"Client {sid} disconnected.")
             return
 
-        @self._sio.on('slider_changed')
+        @self._sio.on('slider_changed')  # type: ignore
         def handle_slider_change(sid, data) -> None:
             player = data['player']
             value = float(data['value'])
@@ -133,7 +133,7 @@ class DriverUI:
             self.behaviour_ctrl.request_speed_change_for(uuid=car_id, value_perc=value)
             return
 
-        @self._sio.on('lane_change')
+        @self._sio.on('lane_change')  # type: ignore
         def change_lane(sid, data: dict) -> None:
             player = data['player']
             direction = data['direction']
@@ -146,7 +146,7 @@ class DriverUI:
             self.behaviour_ctrl.request_lane_change_for(uuid=car_id, value=direction)
             return
 
-        @self._sio.on('make_uturn')
+        @self._sio.on('make_uturn')  # type: ignore
         def make_uturn(sid, data: dict) -> None:
             player = data['player']
             car = self.environment_mng.get_vehicle_by_player_id(player)
@@ -158,14 +158,15 @@ class DriverUI:
             self.behaviour_ctrl.request_uturn_for(uuid=car_id)
             return
 
-        @self._sio.on('get_driving_data')
+        @self._sio.on('get_driving_data')  # type: ignore
         def get_driving_data(sid, player: str) -> None:
             vehicle = self.get_vehicle_by_player(player=player)
-            driving_data = vehicle.get_driving_data()
-            self.update_driving_data(driving_data)
+            if vehicle is not None:
+                driving_data = vehicle.get_driving_data()
+                self.update_driving_data(driving_data)
             return
 
-        @self._sio.on('driver_heartbeat')
+        @self._sio.on('driver_heartbeat')  # type: ignore
         def update_last_heartbeat(sid, data: dict) -> None:
             """
             Updates timestamp of latest received heartbeat for the players.
@@ -174,7 +175,7 @@ class DriverUI:
             self.__latest_driver_heartbeats[player] = time.time()
             return
 
-        @self._sio.on('driver_inactive')
+        @self._sio.on('driver_inactive')  # type: ignore
         def client_inactive(sid, data: dict) -> None:
             player = data.get("player")
             if player is None or not isinstance(player, str):
@@ -186,7 +187,7 @@ class DriverUI:
             self.environment_mng.request_removal_of_player(player=player, grace_period=grace_period)
             return
 
-        @self._sio.on('driver_active')
+        @self._sio.on('driver_active')  # type: ignore
         def client_active(sid, data: dict) -> None:
             player = data["player"]
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "

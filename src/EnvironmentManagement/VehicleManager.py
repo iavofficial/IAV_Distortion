@@ -49,8 +49,11 @@ class VehicleManager:
         return
 
     def subscribe_on_added_vehicle(self, callbackfunction: Callable[[str], Any]) -> bool:
-        self.__on_added_vehicle_callbacks.append(callbackfunction)
-        return True
+        if isinstance(callbackfunction, Callable):
+            self.__on_added_vehicle_callbacks.append(callbackfunction)
+            return True
+        else:
+            return False
 
     def __on_removed_vehicle(self, vehicle_id: str, player_id: str | None, reason: RemovalReason) -> None:
         for callback in self.__on_removed_vehicle_callback:
@@ -58,9 +61,13 @@ class VehicleManager:
         return
 
     def subscribe_on_removed_vehicle(self, callbackfunction: Callable[[str, str | None, RemovalReason], Any]) -> bool:
-        self.__on_removed_vehicle_callback.append(callbackfunction)
-        return True
+        if isinstance(callbackfunction, Callable):
+            self.__on_removed_vehicle_callback.append(callbackfunction)
+            return True
+        else:
+            return False
 
+    # vehicle getter
     # TODO check if all 4 return functions are needed:
     #   - get_active_vehicles
     #   - get_controlled_cars_list
@@ -129,6 +136,7 @@ class VehicleManager:
 
         return None
 
+    # vehicle management
     def add_to_active_vehicle_list(self, new_vehicle: Vehicle) -> None:
         vehicle_already_exists = self.get_vehicle_by_vehicle_id(new_vehicle.get_vehicle_id()) is not None
         if vehicle_already_exists:
@@ -136,12 +144,6 @@ class VehicleManager:
             return
         self._active_anki_cars.append(new_vehicle)
         self.__on_added_vehicle(new_vehicle.vehicle_id)
-
-        # self._assign_players_to_vehicles()
-        # self.update_staff_ui()
-        # if callable(self.__publish_vehicle_added_callback):
-        #     self.__publish_vehicle_added_callback()
-
         return
 
     def __remove_vehicle_by_id(self,
@@ -180,7 +182,24 @@ class VehicleManager:
         """
         Removes the specific vehicle, if this vehicle isn't needed anymore
         """
-        return self.__remove_vehicle_by_id(vehicle_id, RemovalReason.CAR_MANUAL_REMOVED)
+        return self.__remove_vehicle_by_id(vehicle_id, RemovalReason.CAR_MANUALLY_REMOVED)
+
+    def remove_player_from_vehicle(self, player_id: str) -> bool:
+        """
+        removes a player from the vehicle they are controlling
+
+        Returns
+        -------
+        bool
+            is True, if player was removed from vehicle
+            is False, if player could not be removed
+        """
+        for vehicle in self._active_anki_cars:
+            if vehicle.get_player_id() == player_id:
+                logger.info(f"Removing player with UUID {player_id} from vehicle")
+                vehicle.remove_player()
+                return True
+        return False
 
     async def find_unpaired_anki_cars(self) -> list[str]:
         logger.info("Searching for unpaired Anki cars")
@@ -253,20 +272,3 @@ class VehicleManager:
 
         self.add_to_active_vehicle_list(new_vehicle)
         return name
-
-    def remove_player_from_vehicle(self, player_id: str) -> bool:
-        """
-        removes a player from the vehicle they are controlling
-
-        Returns
-        -------
-        bool
-            is True, if player was removed from vehicle
-            is False, if player could not be removed
-        """
-        for vehicle in self._active_anki_cars:
-            if vehicle.get_player_id() == player_id:
-                logger.info(f"Removing player with UUID {player_id} from vehicle")
-                vehicle.remove_player()
-                return True
-        return False

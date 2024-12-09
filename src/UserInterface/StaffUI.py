@@ -109,7 +109,7 @@ class StaffUI:
             # TODO: Show selection of choose hacking scenarios always sorted by player number
             virtual_cars_pics = self.config_handler.get_configuration()["virtual_cars_pics"]
             return await render_template('staff_control.html', activeScenarios=active_scenarios,
-                                         uuids=environment_mng.get_controlled_cars_list(), names=names,
+                                         uuids=environment_mng.get_controlled_vehicle_ids(), names=names,
                                          descriptions=descriptions, virtual_cars_pics=virtual_cars_pics)
 
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
@@ -300,7 +300,7 @@ class StaffUI:
             # TODO: authentication check for websocket events
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()
-            data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_cars_list(),
+            data = {'activeScenarios': active_scenarios, 'uuids': self.environment_mng.get_controlled_vehicle_ids(),
                     'names': names, 'descriptions': descriptions}
             logger.debug("Updated hacking scenarios")
             await self._sio.emit('update_hacking_scenarios', data)
@@ -483,7 +483,7 @@ class StaffUI:
         async def get_all_cars() -> List[Dict[str, str]]:
             cars: List[Dict[str, str]] = []
             # TODO: Filter that only cars that can scan tracks are returned
-            for car_id in environment_mng.get_all_vehicles_list():
+            for car_id in environment_mng.get_all_vehicle_ids():
                 entry = {
                     'vehicle_id': car_id}
                 cars.append(entry)

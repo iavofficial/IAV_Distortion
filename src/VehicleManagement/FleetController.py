@@ -20,11 +20,38 @@ logger = logging.getLogger(__name__)
 class FleetController:
 
     def __init__(self, configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
-        self._connected_cars = {}  # BleakClients
         self.config_handler: ConfigurationHandler = configuration_handler
-        self.__add_anki_car_callback: Callable[[str], Coroutine[Any, Any, Any]] | None = None
+
+        self._connected_cars = {}  # BleakClients
+
+        self.__discovered_anki_car_callbacks: list[Callable[[str], Coroutine[Any, Any, Any]]] = []
+
         self.__auto_connect_anki_cars_task: Task[Any] | None = None
         self.__ble_number_of_device_logging: Task[Any] | None = None
+
+    # callbacks
+    async def __on_discovered_anki_car(self, uuid: str) -> None:
+        for callback in self.__discovered_anki_car_callbacks:
+            await callback(uuid)
+        return
+
+    def subscribe_on_discovered_anki_car_callbacks(self,
+                                                   callbackfunction: Callable[[str],
+                                                                              Coroutine[Any, Any, Any]]) -> bool:
+        """
+        Sets callback function to add Anki cars.
+
+        Parameters
+        ----------
+        function_name: Callable
+            Callback function.
+        """
+        if not callable(callbackfunction):
+            logger.warning("Tried to set non callable function as callback function.")
+            return False
+        else:
+            self.__discovered_anki_car_callbacks.append(callbackfunction)
+            return True
 
     async def scan_for_anki_cars(self, only_ready: bool = False) -> list[str]:
         """
@@ -65,11 +92,11 @@ class FleetController:
             try:
                 anki_cars = await self.scan_for_anki_cars(only_ready=True)
                 for uuid in anki_cars:
-                    if not callable(self.__add_anki_car_callback):
+                    if len(self.__discovered_anki_car_callbacks) == 0:
                         logger.warning('Missing callback to add vehicles. Auto discovery service will be deactivated.')
                         self.stop_auto_discover_anki_cars()
                     else:
-                        self.__add_anki_car_callback(uuid)
+                        await self.__on_discovered_anki_car(uuid)
 
                 await asyncio.sleep(5)
             except Exception as e:
@@ -95,21 +122,6 @@ class FleetController:
             logger.warning("Tried to start Background logging for the number of BLE devices. Ignoring the request")
             return
         self.__ble_number_of_device_logging = asyncio.create_task(self.log_number_of_ble_devices())
-
-    def set_add_anki_car_callback(self, function_name: Callable[[str], Coroutine[Any, Any, Any]]) -> None:
-        """
-        Sets callback function to add Anki cars.
-
-        Parameters
-        ----------
-        function_name: Callable
-            Callback function.
-        """
-        if not callable(function_name):
-            logger.warning("Tried to set non callable function as callback function.")
-        else:
-            self.__add_anki_car_callback = function_name
-        return
 
     async def start_auto_discover_anki_cars(self) -> None:
         """

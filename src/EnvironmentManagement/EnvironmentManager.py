@@ -37,7 +37,7 @@ class RemovalReason(Enum):
     PLAYING_TIME_IS_UP = 1
     PLAYER_NOT_REACHABLE = 2
     CAR_DISCONNECTED = 3
-    CAR_MANUAL_REMOVED = 4
+    CAR_MANUALLY_REMOVED = 4
 
 
 class EnvironmentManager:
@@ -46,6 +46,8 @@ class EnvironmentManager:
                  fleet_controller: FleetController = FleetController(),
                  racetrack_manager: RacetrackManager = RacetrackManager(),
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
+
+        self.config_handler: ConfigurationHandler = configuration_handler
 
         self._item_collision_detector: ItemCollisionDetector = ItemCollisionDetector()
         self._item_generator: ItemGenerator | None = None
@@ -57,31 +59,20 @@ class EnvironmentManager:
                                                            self._item_collision_detector)
         self._player_mng: PlayerManager = PlayerManager(self._vehicle_mng)
 
-        # self._player_queue_list: deque[str] = deque()
-        self._active_anki_cars: list[Vehicle] = []
-
         self.__update_staff_ui_callback: Callable[[list[dict[str, str]], list[str], list[str]], None] | None = None
-        self.__publish_removed_player_callback: Callable[[str, str], Any] | None = None
-        self.__publish_player_active_callback: Callable[[str], Any] | None = None
-        self.__publish_vehicle_added_callback: Callable[[], Any] | None = None
-
-        self.config_handler: ConfigurationHandler = configuration_handler
+        self.__publish_removed_player_from_game_callback: Callable[[str, str], Any] | None = None
+        self.__publish_player_changed_to_vehicle_callback: Callable[[str], Any] | None = None
 
         # list of configured virtual vehicles
         self._virtual_vehicle_dict: dict[str, str] = self.config_handler.get_configuration()["virtual_cars_pics"]
         self._virtual_vehicle_list: list[str] = [key for key in self._virtual_vehicle_dict.keys()
                                                  if key.startswith("Virtual Vehicle")]
 
-        self._fleet_ctrl.set_add_anki_car_callback(self._vehicle_mng.connect_to_physical_car)
+        self._fleet_ctrl.subscribe_on_discovered_anki_car_callbacks(self.__handle_discovered_anki_car)
+        self._player_mng.subscribe_on_player_changed_to_vehicle(self.__handle_player_changed_to_vehicle)
+        self._player_mng.subscribe_on_player_removed_from_game(self.__handle_removed_player_from_game)
 
         return
-
-    def add_item_generator(self, item_generator: ItemGenerator) -> None:
-        self._item_generator = item_generator
-        return
-
-    def get_item_collision_detector(self) -> ItemCollisionDetector:
-        return self._item_collision_detector
 
     # set callbacks
     def set_vehicle_added_callback(self, function_name: Callable[[], None]) -> None:
@@ -117,7 +108,7 @@ class EnvironmentManager:
         function_name: Callable[[str], None]
             Callback function that takes a string parameter.
         """
-        self.__publish_removed_player_callback = function_name
+        self.__publish_removed_player_from_game_callback = function_name
         return
 
     def set_publish_player_active_callback(self, function_name: Callable[[str], None]) -> None:
@@ -129,7 +120,7 @@ class EnvironmentManager:
         function_name: Callable[[str], None]
             Callback function that takes a string parameter.
         """
-        self.__publish_player_active_callback = function_name
+        self.__publish_player_changed_to_vehicle_callback = function_name
         return
 
     # publish interface
@@ -141,11 +132,15 @@ class EnvironmentManager:
             logger.critical('Missing update_staff_ui_callback!')
         else:
             self.__update_staff_ui_callback(self._vehicle_mng.get_mapped_cars(),
-                                            self.get_free_cars_list(),
+                                            self.get_free_vehicle_ids(),
                                             self._player_mng.get_all_waiting_players())
         return
 
-    def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
+    async def __handle_discovered_anki_car(self, uuid: str) -> None:
+        await self._vehicle_mng.connect_to_physical_car(uuid)
+        return
+
+    def __handle_removed_player_from_game(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
         """
         Sends which player has been removed from the game to the staff ui using a callback function.
 
@@ -175,15 +170,17 @@ class EnvironmentManager:
             message = "Your player was removed from the game, because your playing time is over."
         elif reason is RemovalReason.CAR_DISCONNECTED:
             message = "You were removed since your car wasn't reachable anymore"
+        elif reason is RemovalReason.CAR_MANUALLY_REMOVED:
+            message = "You were removed because your car was manually removed."
 
-        if not callable(self.__publish_removed_player_callback):
+        if not callable(self.__publish_removed_player_from_game_callback):
             logger.critical('Missing publish_removed_player_callback!')
             return False
         else:
-            self.__publish_removed_player_callback(player_id, message)
+            self.__publish_removed_player_from_game_callback(player_id, message)
             return True
 
-    def _publish_player_active(self, player: str) -> None:
+    def __handle_player_changed_to_vehicle(self, player: str) -> None:
         """
         Sends which player changed from waiting in the queue to be an active player in the game.
 
@@ -192,11 +189,19 @@ class EnvironmentManager:
         player: str
             ID of player who became active.
         """
-        if not callable(self.__publish_player_active_callback):
+        if not callable(self.__publish_player_changed_to_vehicle_callback):
             logger.critical('Missing publish_player_active_callback!')
         else:
-            self.__publish_player_active_callback(player)
+            self.__publish_player_changed_to_vehicle_callback(player)
         return
+
+    # item interface
+    def add_item_generator(self, item_generator: ItemGenerator) -> None:
+        self._item_generator = item_generator
+        return
+
+    def get_item_collision_detector(self) -> ItemCollisionDetector:
+        return self._item_collision_detector
 
     # player interface
     def put_player_on_next_free_vehicle(self, player_id: str) -> bool:
@@ -270,7 +275,7 @@ class EnvironmentManager:
         logger.info(f"Removing vehicle with UUID {uuid_to_remove}")
         if self._vehicle_mng.remove_unused_vehicle(uuid_to_remove):
             self._player_mng.assign_players_to_vehicles()
-            logger.debug("Updated list of active vehicles: %s", self._active_anki_cars)
+            logger.debug("Updated list of active vehicles: %s", self.get_all_vehicle_ids)
             self.update_staff_ui()
             return True
         else:
@@ -295,7 +300,11 @@ class EnvironmentManager:
         return self._vehicle_mng.add_virtual_vehicle()
 
     async def get_unpaired_cars(self) -> list[str]:
-        return await self._vehicle_mng.find_unpaired_anki_cars()
+        logger.info("Searching for unpaired Anki cars")
+        found_devices = await self._fleet_ctrl.scan_for_anki_cars()
+
+        new_devices = [device for device in found_devices if device not in self.get_all_vehicle_ids()]
+        return new_devices
 
     def get_all_vehicles(self) -> list[Vehicle]:
         """
@@ -303,7 +312,7 @@ class EnvironmentManager:
         """
         return self._vehicle_mng.get_active_vehicles()
 
-    def get_all_vehicles_list(self) -> list[str]:
+    def get_all_vehicle_ids(self) -> list[str]:
         """
         Returns a list of all ids from active vehicles
         """
@@ -314,7 +323,7 @@ class EnvironmentManager:
             all_vehicle_ids: list[str] = [vehicle.vehicle_id for vehicle in all_vehicles]
             return all_vehicle_ids
 
-    def get_controlled_cars_list(self) -> list[str]:
+    def get_controlled_vehicle_ids(self) -> list[str]:
         """
         Returns a list of all vehicle names from vehicles that are
         controlled by a player
@@ -326,7 +335,7 @@ class EnvironmentManager:
             controlled_vehicle_ids: list[str] = [vehicle.vehicle_id for vehicle in controlled_vehicles]
             return controlled_vehicle_ids
 
-    def get_free_cars_list(self) -> list[str]:
+    def get_free_vehicle_ids(self) -> list[str]:
         free_vehicles: list[Vehicle] = self._vehicle_mng.get_free_vehicles()
         if len(free_vehicles) == 0:
             return []

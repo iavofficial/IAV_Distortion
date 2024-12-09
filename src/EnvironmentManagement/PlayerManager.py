@@ -5,7 +5,7 @@ import asyncio
 from datetime import datetime, timedelta
 
 from collections import deque
-from typing import Any
+from typing import Any, Callable
 
 from .ConfigurationHandler import ConfigurationHandler
 from .VehicleManager import VehicleManager
@@ -30,12 +30,40 @@ class PlayerManager:
         self.__playing_time_checking_flag: bool = False
         self._remove_player_tasks: dict[str, asyncio.Task[Any]] = {}
 
+        self.__on_player_changed_to_vehicle_callbacks: list[Callable[[str], Any]] = []
+        self.__on_player_removed_callbacks: list[Callable[[str, RemovalReason], Any]] = []
         return
 
+    # callbacks
+    def __on_player_changed_to_vehicle(self, player_id: str) -> None:
+        for callback in self.__on_player_changed_to_vehicle_callbacks:
+            callback(player_id)
+        return
+
+    def subscribe_on_player_changed_to_vehicle(self, callbackfunction: Callable[[str], Any]) -> bool:
+        if isinstance(callbackfunction, Callable):
+            self.__on_player_changed_to_vehicle_callbacks.append(callbackfunction)
+            return True
+        else:
+            return False
+
+    def __on_player_removed_from_game(self, player_id: str, reason: RemovalReason) -> None:
+        for callback in self.__on_player_removed_callbacks:
+            callback(player_id, reason)
+        return
+
+    def subscribe_on_player_removed_from_game(self, callbackfunction: Callable[[str, RemovalReason], Any]) -> bool:
+        if isinstance(callbackfunction, Callable):
+            self.__on_player_removed_callbacks.append(callbackfunction)
+            return True
+        else:
+            return False
+
+    # player management
     def get_player_count(self) -> int:
         return len(self.__player_queue_list)
 
-    def get_next_player(self) -> str:
+    def get_next_player_from_queue(self) -> str:
         return self.__player_queue_list.popleft()
 
     def get_all_waiting_players(self) -> list[str]:
@@ -123,8 +151,7 @@ class PlayerManager:
         if free_vehicle is None:
             return False
         else:
-            next_player = self.get_next_player()
-            # self._publish_player_active(next_player)
+            next_player = self.get_next_player_from_queue()
             free_vehicle.set_player(next_player)
             assigned_any_player = True
 
@@ -136,6 +163,7 @@ class PlayerManager:
             else:
                 logger.debug('Playtime checker is not needed.')
 
+            self.__on_player_changed_to_vehicle(next_player)
             return assigned_any_player
 
     def start_playing_time_checker(self) -> bool:
@@ -222,8 +250,7 @@ class PlayerManager:
                               self._vehicle_mng.remove_player_from_vehicle(player_id))
 
         if player_was_removed:
-            # self._publish_removed_player(player_id, reason)
-            # self.update_staff_ui()
+            self.__on_player_removed_from_game(player_id, reason)
             self.assign_players_to_vehicles()
             return True
         else:
