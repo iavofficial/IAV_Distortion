@@ -9,7 +9,6 @@ quart = "*"
 python-socketio = "*"
 hypercorn = "*"
 deprecated = "*"
-python-socketio = "*"
 
 [dev-packages]
 sphinx = "*"
