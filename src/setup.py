@@ -10,5 +10,5 @@
 from setuptools import setup, find_packages
 
 setup(name='IAV Distortion',
-      version='3.1.0_dev',
+      version='3.1.0',
       packages=find_packages())
