@@ -9,7 +9,7 @@ from typing import Any, Callable
 
 from .ConfigurationHandler import ConfigurationHandler
 from .VehicleManager import VehicleManager
-from .EnvironmentManager import RemovalReason
+from .RemovalReason import RemovalReason
 
 from DataModel.Vehicle import Vehicle
 

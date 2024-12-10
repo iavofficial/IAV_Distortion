@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 from .RacetrackManager import RacetrackManager
 from .ConfigurationHandler import ConfigurationHandler
-from .EnvironmentManager import RemovalReason
+from .RemovalReason import RemovalReason
 
 from DataModel.Vehicle import Vehicle
 from DataModel.PhysicalCar import PhysicalCar

@@ -8,13 +8,13 @@
 #
 import logging
 
-from enum import Enum
 from typing import Any, Callable
 
 from .PlayerManager import PlayerManager
 from .VehicleManager import VehicleManager
 from .RacetrackManager import RacetrackManager
 from .ConfigurationHandler import ConfigurationHandler
+from .RemovalReason import RemovalReason
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.Vehicle import Vehicle
@@ -30,14 +30,6 @@ from LocationService.TrackSerialization import full_track_to_list_of_dicts
 
 
 logger = logging.getLogger(__name__)
-
-
-class RemovalReason(Enum):
-    NONE = 0
-    PLAYING_TIME_IS_UP = 1
-    PLAYER_NOT_REACHABLE = 2
-    CAR_DISCONNECTED = 3
-    CAR_MANUALLY_REMOVED = 4
 
 
 class EnvironmentManager:
