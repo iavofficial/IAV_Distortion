@@ -54,7 +54,7 @@
                 "sha256:a2ae3054d6843ae0cfd3b94c83293a1dfd5804393977dd69bde91cb5099fc47c",
                 "sha256:dd740047a08925bde54bec357391fcee595d7b8ca0c74c87170a5cbc3f97aa0a"
             ],
-            "markers": "platform_system == 'Windows' and python_version < '3.12'",
+            "markers": "python_version < '3.12' and platform_system == 'Windows'",
             "version": "==1.2.0"
         },
         "blinker": {
