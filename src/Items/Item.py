@@ -20,14 +20,15 @@ class Item:
         _, piece_position = random_entry.get_piece().process_update(0, progress, offset)
         self.position = piece_offset + piece_position
 
-    def get_position(self) -> Position:
+    def get_position(self) -> Position | None:
         return self.position
 
     def get_effect(self) -> VehicleEffect:
         return self.effect
 
-    def to_html_dict(self):
+    def to_html_dict(self) -> dict[str, float]:
+        if self.position is None:
+            return {}
         return {
             'x': self.position.get_x(),
-            'y': self.position.get_y()
-        }
+            'y': self.position.get_y()}

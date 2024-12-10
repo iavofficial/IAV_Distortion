@@ -5,3 +5,5 @@ src/UserInterface/static/images/IAV-Logo-White.png
 *.bkp
 *.dtmp
 *.log
+.vscode/
+pyrightconfig.json

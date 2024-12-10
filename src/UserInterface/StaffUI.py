@@ -1,6 +1,6 @@
 # Copyright 2024 IAV GmbH
 #
-# This file is part of the IAV-Distortion project an interactive
+# This file is part of the IAV Distortion project an interactive
 # and educational showcase designed to demonstrate the need
 # of automotive cybersecurity in a playful, engaging manner.
 # and is released under the "Apache 2.0". Please see the LICENSE
@@ -20,6 +20,7 @@ from socketio import AsyncServer
 
 from CyberSecurityManager.CyberSecurityManager import CyberSecurityManager
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +52,14 @@ class StaffUI:
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
+
+        self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
         self.environment_mng.set_publish_player_active_callback(self.publish_player_active)
+        self.environment_mng.set_vehicle_added_callback(self.publish_vehicle_added)
 
         @self.staffUI_blueprint.before_request
         def is_authenticated() -> Response | None:
@@ -102,9 +107,10 @@ class StaffUI:
             names, descriptions = self.sort_scenarios()
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
             # TODO: Show selection of choose hacking scenarios always sorted by player number
+            virtual_cars_pics = self.config_handler.get_configuration()["virtual_cars_pics"]
             return await render_template('staff_control.html', activeScenarios=active_scenarios,
                                          uuids=environment_mng.get_controlled_cars_list(), names=names,
-                                         descriptions=descriptions)
+                                         descriptions=descriptions, virtual_cars_pics=virtual_cars_pics)
 
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
@@ -345,6 +351,42 @@ class StaffUI:
             """
             return await render_template('staff_config_system_control.html')
 
+        @self.staffUI_blueprint.route('/configuration/config_display_settings')
+        async def config_display_settings() -> Any:
+            """
+            Load display settings page for system control.
+
+            If client is not authenticated, client is redirected to the login page. Get current configuration and send
+            it to frontend.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the display settings page or a redirect to the login page, if not
+                authenticated.
+            """
+            disp_settings = self.config_handler.get_configuration()["display_settings"]
+            return await render_template(template_name_or_list='staff_config_display_settings.html',
+                                         disp_settings=disp_settings)
+
+        @self.staffUI_blueprint.route('/configuration/config_advanced_settings')
+        async def config_advanced_settings() -> Any:
+            """
+            Renders the advanced settings page for the staff user interface.
+
+            If client is not authenticated, client is redirected to the login page. Get current configuration and send
+            it to frontend.
+
+            Returns
+            -------
+            Response
+                Returns a Response object representing the advanced settings page or
+                a redirect to the login page, if not authenticated.
+            """
+            settings = self.config_handler.get_configuration()
+            return await render_template(template_name_or_list='staff_config_advanced_settings.html',
+                                         settings=settings)
+
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:
             """
@@ -394,7 +436,7 @@ class StaffUI:
 
             else:
                 logger.warning("Program restart button pressed, but not running on Linux system")
-                message = 'Error restarting IAV-Distortion. Function only available on linux systems.'
+                message = 'Error restarting IAV Distortion. Function only available on linux systems.'
                 return message, 200
 
         @self.staffUI_blueprint.route('/restart_system', methods=['POST'])
@@ -441,8 +483,7 @@ class StaffUI:
             # TODO: Filter that only cars that can scan tracks are returned
             for car in environment_mng.get_vehicle_list():
                 entry = {
-                    'vehicle_id': car.get_vehicle_id()
-                }
+                    'vehicle_id': car.get_vehicle_id()}
                 cars.append(entry)
             return cars
 
@@ -469,6 +510,92 @@ class StaffUI:
                 logger.warning("System shutdown button pressed, but not running on Linux system")
                 message = 'Error shutting down the system. Function only available on linux systems.'
                 return message, 200
+
+        async def apply_display_settings(restore_default: bool = False) -> Any:
+            """
+            Function to receive settings from display settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui display settings page.
+            """
+            if restore_default:
+                new_display_settings = \
+                    self.config_handler.get_configuration()["display_settings"]["disp_cm_default_settings"]
+            else:
+                new_display_settings = await request.form
+                new_display_settings = {key: value[0] if len(value) == 1 else value for key,
+                                        value in new_display_settings.items()}
+                conversion_table = {
+                    'on': True,
+                    'off': False,
+                    'null': False}
+
+                for key, value in new_display_settings.items():
+                    if value in conversion_table:
+                        new_display_settings[key] = conversion_table[value]
+                    elif value is None:
+                        new_display_settings[key] = False
+
+            self.config_handler.write_configuration(new_config={'display_settings': new_display_settings})
+
+            self.publish_reload_uis()
+            return redirect('/staff/configuration/config_display_settings')
+
+        self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
+                                            view_func=apply_display_settings)
+
+        async def restore_default_display_settings() -> Any:
+            """
+            Function to receive settings from display settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui display settings page.
+            """
+            await apply_display_settings(restore_default=True)
+
+            return redirect('/staff/configuration/config_display_settings')
+        self.staffUI_blueprint.add_url_rule('/restore_default_display_settings', methods=['POST'],
+                                            view_func=restore_default_display_settings)
+
+        async def apply_advanced_settings() -> Any:
+            """
+            Function to receive settings from advanced settings tab in driver ui.
+            Writes received settings into the config file.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the staff ui advanced settings page.
+            """
+            new_settings = (await request.form)
+            # TODO: create function to automatically create json for new settings
+            print(new_settings)
+            new_settings = {
+                'driver': {
+                    'driver_heartbeat_interval_ms': int(new_settings.get('driver_heartbeat_interval_ms')),
+                    'driver_heartbeat_timeout_s': int(new_settings.get('driver_heartbeat_timeout_s')),
+                    'driver_reconnect_grace_period_s': int(new_settings.get('driver_reconnect_grace_period_s')),
+                    'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))},
+                'game_config': {
+                    'game_cfg_playing_time_limit_min': int(new_settings.get('game_cfg_playing_time_limit_min'))},
+                "environment": {
+                    'env_auto_discover_anki_cars': new_settings.get('env_auto_discover_anki_cars') == 'on',
+                    'env_vehicle_scale': int(new_settings.get('env_vehicle_scale'))},
+                "hacking_protection": {
+                    'protection_duration_s': int(new_settings.get('protection_duration_s'))},
+                "item": {
+                    'item_spawn_interval': int(new_settings.get('item_spawn_interval')),
+                    'item_max_count': int(new_settings.get('item_max_count'))}}
+
+            self.config_handler.write_configuration(new_config=new_settings)
+
+            self.publish_reload_uis()
+            return await config_advanced_settings()
+        self.staffUI_blueprint.add_url_rule('/apply_advanced_settings', methods=['POST'],
+                                            view_func=apply_advanced_settings)
 
     def get_blueprint(self) -> Blueprint:
         """
@@ -546,6 +673,13 @@ class StaffUI:
         self.__run_async_task(self.__emit_player_active(player))
         return
 
+    def publish_reload_uis(self) -> None:
+        """
+        Schedules 'reload_uis' event.
+        """
+        self.__run_async_task(self.__emit_reload_uis())
+        return
+
     def __run_async_task(self, task: Coroutine[Any, Any, None]) -> None:
         """
         Run an asyncio awaitable task.
@@ -585,8 +719,7 @@ class StaffUI:
         """
         data = {
             "player_id": player,
-            "message": reason
-        }
+            "message": reason}
         await self._sio.emit('player_removed', data)
         return
 
@@ -600,4 +733,19 @@ class StaffUI:
             Dictionary including the active player/cars mapping, player and vehicle queue.
         """
         await self._sio.emit('update_uuids', data)
+        return
+
+    async def __emit_reload_uis(self) -> None:
+        """
+        Emits the 'reload_uis' websocket event.
+        """
+        await self._sio.emit('reload_uis')
+        return
+
+    def publish_vehicle_added(self) -> None:
+        self.__run_async_task(self.__emit_vehicle_connected())
+        return
+
+    async def __emit_vehicle_connected(self) -> None:
+        await self._sio.emit('vehicle_added')
         return

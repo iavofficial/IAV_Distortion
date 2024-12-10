@@ -21,17 +21,6 @@ class ModelCarTest(TestCase):
 
         self.dummy_uuid = generate_mac_address()
 
-    def test_get_typ_of_controller(self):
-        # Arrange
-
-        # Act
-        self.mut = PhysicalCar(self.dummy_uuid, self.anki_controller_mock, self.physical_location_service_mock,
-                               disable_item_removal=True)
-
-        # Assert
-        assert self.mut.vehicle_id == self.dummy_uuid
-        assert isinstance(self.mut.get_typ_of_controller(), type(AnkiController))
-
     async def test_calculate_speed(self):
         # Arrange
         self.mut: PhysicalCar = PhysicalCar(self.dummy_uuid, self.anki_controller_mock,

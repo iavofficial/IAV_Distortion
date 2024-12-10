@@ -1,6 +1,6 @@
 # Copyright 2024 IAV GmbH
 #
-# This file is part of the IAV-Distortion project an interactive
+# This file is part of the IAV Distortion project an interactive
 # and educational showcase designed to demonstrate the need
 # of automotive cybersecurity in a playful, engaging manner.
 # and is released under the "Apache 2.0". Please see the LICENSE
@@ -50,7 +50,7 @@ def create_app(admin_password: str):
         """
         if config_handler.get_configuration()["environment"]["env_auto_discover_anki_cars"]:
             quart_app.add_background_task(fleet_ctrl.start_auto_discover_anki_cars)
-        quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
+        # quart_app.add_background_task(fleet_ctrl.start_background_logging_for_ble_devices)
         quart_app.add_background_task(item_generator.start_item_generation)
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_mng, sio=socket)
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     logging.basicConfig(encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s',
                         handlers=[rotating_file_handler, stdout_handler])
     logging.info("-------------------------")
-    logging.info(" STARTING IAV-Distortion ")
+    logging.info(" STARTING IAV Distortion ")
     logging.info("-------------------------")
 
     # TODO: work with hashed password, passwords should not be stored in clear text

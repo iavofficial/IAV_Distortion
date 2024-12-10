@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple
+from typing import Tuple
 
 from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class PhysicalLocationService(LocationService):
     def __init__(self,
-                 track: FullTrack,
+                 track: FullTrack | None,
                  starting_offset: float = 0,
                  simulation_ticks_per_second: int = 24,
                  start_immediately: bool = False) -> None:
@@ -25,7 +25,7 @@ class PhysicalLocationService(LocationService):
 
         # list that tracks the history of pieces so we can figure out the position even when there are duplicate IDs
         # It always has a int or None for indices that are also in the track
-        self._piece_history: List[int | None] = list()
+        self._piece_history: list[int | None] = list()
         self._piece_history_index: int = 0
         self._reset_piece_history()
 
@@ -93,13 +93,13 @@ class PhysicalLocationService(LocationService):
         self._target_speed = speed
 
         if not self._track.contains_physical_piece(piece):
-            logger.warn(
+            logger.warning(
                 "Couldn't find a piece matching the physical ID %d we got from the location event. Ignoring it", piece)
             return
 
         old_piece: int | None = self._piece_history[self._piece_history_index]
         if old_piece is not None and old_piece != piece:
-            logger.warn("The piece history had another piece in this position. Clearing the list!")
+            logger.warning("The piece history had another piece in this position. Clearing the list!")
             self._reset_piece_history()
 
         self._piece_history[self._piece_history_index] = piece
@@ -220,7 +220,7 @@ class PhysicalLocationService(LocationService):
         on the track
         """
         # the bool stands for whether it was found while seraching in the opposite direction
-        possible_start_indices: List[Tuple[int, bool]] = list()
+        possible_start_indices: list[Tuple[int, bool]] = list()
         track_len = self._track.get_len()
 
         for starting_offset in range(0, track_len):
@@ -240,7 +240,7 @@ class PhysicalLocationService(LocationService):
             return
 
         if len(possible_start_indices) == 0:
-            logger.warn("The piece history doesn't match the track with any offset. Resetting the piece history")
+            logger.warning("The piece history doesn't match the track with any offset. Resetting the piece history")
             self._reset_piece_history()
             return
 

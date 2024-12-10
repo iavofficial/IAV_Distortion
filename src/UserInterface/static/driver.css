@@ -34,31 +34,54 @@ body{
     justify-content: center;
     align-items: center;
     height: 55%;
+    width: 80%;
+    position: relative;
+}
+
+.avatar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(150, 231, 255, 0.5);
+    border-style: solid;
+    border-color: #96E7FF;
+    border-radius: 100px;
+    border-width: 5px;
+    box-sizing: border-box;
+    animation: protectionFadeEffect 3s infinite;
+    display: none;
+}
+
+.avatar.protection-active::after {
+    display: block; /* Show the pseudo-element when the class is active */
 }
 
 .flexbox-container_middle img {
     display: flex;
     object-fit: cover;
     max-height: 100%;
-    max-width: 80%;
+    width: 80%;
     justify-content: center;
     /* background-color: #d2f5ff; */
     border-radius: 20px;
 }
 
 .flexbox-hackedInfo {
-    border: 8px solid #F80000;
+    border: 8px solid #DC46F3;
     border-radius: 35px;
     width: auto;
     height: auto;
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.6);
-    animation: hackingInfoFading 1.5s linear;
+    background-color: rgba(26, 26, 26, 0.8);
+    animation: hackingInfoFading 3.5s linear;
     animation-iteration-count: infinite;
 }
 
 .hackedInfo_text{
-    color: #F80000;
+    color: #DC46F3;
     font-size: 4vh;
     text-align: center;
     margin-left: 2vw;
@@ -242,6 +265,10 @@ body{
     align-items: center;
 }
 
+.info-text {
+    font-size: 23px;
+}
+
 .info-box-buttons{
     flex-direction: row;
     display: flex;
@@ -258,10 +285,11 @@ body{
     color: #FFFFFF;
     background: #0091FF;
     border: 0px solid #0091FF;
+    font-size: 23px;
 }
 
 .reload_symbol{
-    font-size: 20px;
+    font-size: 28px;
     color: #FFFFFF;
 }
 
@@ -275,3 +303,8 @@ body{
     50% { opacity: 0.6 }
 }
 
+@keyframes protectionFadeEffect {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+    100% { opacity: 1; }
+}

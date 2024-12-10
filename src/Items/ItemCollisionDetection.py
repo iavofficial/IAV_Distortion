@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import Callable
 
 from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -7,21 +7,27 @@ from LocationService.Trigo import Position, Angle
 
 
 class ItemCollisionDetector:
-    def __init__(self):
-        self._items: List[Item] = []
-        self._on_item_change: Callable[[List[Item]], None] | None = None
+    def __init__(self,
+                 configuration_handler: ConfigurationHandler = ConfigurationHandler()) -> None:
+
+        self.config_handler: ConfigurationHandler = configuration_handler
+        self._items: list[Item] = []
+        self._on_item_change: Callable[[list[Item]], None] | None = None
+        return
 
     def notify_new_vehicle_position(self, vehicle: Vehicle, vehicle_position: Position, vehicle_rotation: Angle):
         for item in self._items:
+            if item.get_position() is None:
+                continue
             if item.get_position().distance_to(vehicle_position) < 40:
                 vehicle.notify_item_collected(item)
                 self.remove_item(item)
 
-    def set_on_item_change_callback(self, callback: Callable[[List[Item]], None]):
+    def set_on_item_change_callback(self, callback: Callable[[list[Item]], None]):
         self._on_item_change = callback
 
     def add_item(self, item: Item):
-        config = ConfigurationHandler().get_configuration()
+        config = self.config_handler.get_configuration()
         max_item_length = config['item']['item_max_count'] - 1
         if len(self._items) <= max_item_length:
             self._items.append(item)

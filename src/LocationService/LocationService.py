@@ -2,8 +2,9 @@ import asyncio
 from asyncio import Lock
 import math
 import logging
-from typing import Tuple, Callable, List
+from typing import Any, Tuple, Callable, List
 
+import Constants
 from LocationService.Trigo import Position, Angle
 from LocationService.Track import FullTrack
 
@@ -34,11 +35,6 @@ class LocationService:
         self._simulation_ticks_per_second = simulation_ticks_per_second
         self.__start_immediately = start_immediately
 
-        # Taken from AnkiController
-        # TODO: Put this in a more central place where both the controller and the LocationService can get it
-        self.__MAX_ANKI_SPEED = 1200
-        self.__LANE_OFFSET = 22.25
-
         self._value_mutex: Lock = Lock()
         self._actual_speed: float = 0
         self._target_speed: float = 0
@@ -55,7 +51,7 @@ class LocationService:
 
         self._uturn_override: UTurnOverride | None = None
 
-        self._track: FullTrack = track
+        self._track: FullTrack | None = track
         self._current_piece_index: int = 0
         self._progress_on_current_piece: float = 0
         self._current_position: Position | None
@@ -65,7 +61,7 @@ class LocationService:
         else:
             self._current_position = None
 
-        self._on_update_callback: List[Callable[[Position, Angle, dict], None]] = []
+        self._on_update_callback: List[Callable[[Position, Angle, dict[str, Any]], None]] = []
 
         self.__task = None
         if self.__start_immediately:
@@ -75,7 +71,7 @@ class LocationService:
         if self.__task is not None:
             self.stop()
 
-    def add_on_update_callback(self, callback_function: Callable[[Position, Angle, dict], None]) -> None:
+    def add_on_update_callback(self, callback_function: Callable[[Position, Angle, dict[str, Any]], None]) -> None:
         self._on_update_callback.append(callback_function)
 
         return
@@ -104,7 +100,7 @@ class LocationService:
             Used acceleration in mm/s^2.
         """
         async with self._value_mutex:
-            self._set_speed_mm(self.__MAX_ANKI_SPEED * speed / 100, acceleration)
+            self._set_speed_mm(Constants.MAX_ANKI_SPEED * speed / 100, acceleration)
         return
 
     def _set_speed_mm(self, speed_mm: float, acceleration: int = 1000) -> None:
@@ -137,7 +133,7 @@ class LocationService:
         """
         async with self._value_mutex:
             # TODO: This doesn't check for out of bounds driving
-            self._set_offset_mm(self.__LANE_OFFSET * offset)
+            self._set_offset_mm(Constants.TRACK_LANE_WIDTH * offset)
         return
 
     def _set_offset_mm(self, offset: float) -> None:
@@ -238,7 +234,7 @@ class LocationService:
         self._actual_offset = new_offset
         return
 
-    async def _run_simulation_step_threadsafe(self) -> tuple[Position, Angle]:
+    async def _run_simulation_step_threadsafe(self) -> tuple[Position | None, Angle]:
         """
         Runs a single simulation step by calling _run_simulation_step internally.
         Thread-safe
@@ -256,7 +252,7 @@ class LocationService:
                 trav_distance = self._adjust_offset(self._actual_speed / self._simulation_ticks_per_second)
             return self._run_simulation_step(trav_distance * self._direction_mult)
 
-    def _run_simulation_step(self, distance: float) -> Tuple[Position, Angle]:
+    def _run_simulation_step(self, distance: float) -> Tuple[Position | None, Angle]:
         """
         Advance the simulation one step without threadsafety. Should only be called
         internally.
@@ -312,12 +308,12 @@ class LocationService:
         # while not self._stop_event.is_set():
         while True:
             pos, rot = await self._run_simulation_step_threadsafe()
-            data: dict = {
+            data: dict[str, Any] = {
                 'offset': self._actual_offset * self._direction_mult * -1,
                 'speed': self._actual_speed,
                 'going_clockwise': self._direction_mult == 1,
-                'uturn_in_progress': self._uturn_override is not None
-            }
+                'uturn_in_progress': self._uturn_override is not None}
+
             for callback in self._on_update_callback:
                 callback(pos, rot, data)
 
@@ -372,7 +368,7 @@ class UTurnOverride:
     do a complete U-Turn
     """
 
-    def __init__(self, location_service, drive_to_outside_of_tack: bool):
+    def __init__(self, location_service: LocationService, drive_to_outside_of_tack: bool):
         """
         Create a UTurn override object that can be set in the LocationService
         to perform a U-Turn. Based on direction_mult it will either be clockwise
@@ -434,7 +430,8 @@ class UTurnOverride:
                     return 0
                 # this isn't a problem since the abs and the inverted driving direction cancel out each other
                 return abs(self._do_curve_step())
-        raise RuntimeError(f"The U-Turn override got into phase {self._phase} which doesn't exist!")
+            case _:
+                raise RuntimeError(f"The U-Turn override got into phase {self._phase} which doesn't exist!")
 
     def _do_curve_step(self) -> float:
         """

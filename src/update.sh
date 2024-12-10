@@ -12,7 +12,7 @@ echo
 # get workind directory
 working_directory=$(pwd)
 
-# terminate running instances of IAV-Distortion
+# terminate running instances of IAV Distortion
 $working_directory/quit.sh
 
 # reset the working directory to the latest commit from the repository (additional files like .env or logfiles will not be affected)

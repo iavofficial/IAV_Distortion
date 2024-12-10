@@ -8,7 +8,7 @@ from DataModel.Effects.HackingProtection import HackingProtection
 from DataModel.Effects.VehicleEffect import VehicleEffect
 from DataModel.Vehicle import Vehicle
 from Items.Item import Item
-from VehicleManagement.VehicleController import VehicleController
+from LocationService.LocationService import LocationService
 from VehicleManagement.FleetController import FleetController
 
 dummy_uuid = "FA:14:67:0F:39:FE"
@@ -16,22 +16,24 @@ dummy_uuid = "FA:14:67:0F:39:FE"
 
 @pytest.fixture
 def init_vehicle():
-    return Vehicle('123', disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    return Vehicle('123', location_service_mock, disable_item_removal=True)
 
 
-@pytest.mark.skip_ci
-def test_get_location():
-    vctrl = VehicleController()
+@pytest.mark.one_anki_car_needed
+@pytest.mark.asyncio
+async def test_get_location():
+    loc_Service = LocationService(None)
     fleet_ctrl = FleetController()
 
-    found_vehicles = fleet_ctrl.scan_for_anki_cars()
-    mut = Vehicle(found_vehicles[0], vctrl)
+    found_vehicles = await fleet_ctrl.scan_for_anki_cars()
+    mut = Vehicle(found_vehicles[0], loc_Service)
 
-    mut.speed_request = 80.0
+    mut.request_speed_percent(80.0)
 
     sleep(5)
 
-    mut.speed_request = 0.0
+    mut.request_speed_percent(0.0)
 
     assert mut
 
@@ -61,7 +63,8 @@ async def test_vehicle_removes_effect():
     """
     mock_effect = MagicMock(spec=VehicleEffect)
     mock_effect.effect_should_end.return_value = True
-    vehicle = Vehicle('123')
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle = Vehicle('123', location_service_mock)
 
     assert len(vehicle._effects) == 0
     vehicle._effects.append(mock_effect)

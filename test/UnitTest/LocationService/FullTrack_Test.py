@@ -5,7 +5,7 @@ from LocationService.TrackPieces import TrackBuilder
 
 
 @pytest.fixture
-def standard_track() -> FullTrack:
+def small_track() -> FullTrack:
     track: FullTrack = TrackBuilder() \
         .append(TrackPieceType.STRAIGHT_WE) \
         .append(TrackPieceType.CURVE_WS) \
@@ -52,14 +52,13 @@ def big_track() -> FullTrack:
     return track
 
 
-def test_track_size_calculation(standard_track, big_track):
+def test_track_size_calculation(small_track: FullTrack, big_track: FullTrack):
     track_square_size = 559
-    small_track, big_track = standard_track, big_track
     size_small = small_track.get_used_space_as_dict()
     size_big = big_track.get_used_space_as_dict()
 
-    assert pytest.approx(track_square_size * 2) == size_small['used_space_vertically']
-    assert pytest.approx(track_square_size * 3) == size_small['used_space_horizontally']
+    assert pytest.approx(track_square_size * 3) == size_small['used_space_vertically']
+    assert pytest.approx(track_square_size * 2) == size_small['used_space_horizontally']
 
-    assert pytest.approx(track_square_size * 4) == size_big['used_space_vertically']
-    assert pytest.approx(track_square_size * 7) == size_big['used_space_horizontally']
+    assert pytest.approx(track_square_size * 7) == size_big['used_space_vertically']
+    assert pytest.approx(track_square_size * 4) == size_big['used_space_horizontally']

@@ -66,13 +66,13 @@ then
         # dir=$(dirname "$dir")
         echo "$repo_name will be cloned to: $dir"
     else
-        echo -e "\033[0;33m Please make sure that you have no duplicates of IAV-Distortion running in parallel.\033[0m"
+        echo -e "\033[0;33m Please make sure that you have no duplicates of IAV Distortion running in parallel.\033[0m"
         request_directory
     fi
 
 elif [[ $copy_exists -gt 1 ]]
 then
-    echo -e "\033[0;33mMultiple directories named IAV_Distortion have been found. Please make sure that you have no duplicates of IAV-Distortion running in parallel.\033[0m"
+    echo -e "\033[0;33mMultiple directories named IAV_Distortion have been found. Please make sure that you have no duplicates of IAV Distortion running in parallel.\033[0m"
     for copy in $existing_copies
     do
         echo $copy

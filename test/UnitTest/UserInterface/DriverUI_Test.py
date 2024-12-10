@@ -7,6 +7,7 @@ from socketio import AsyncServer
 
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from LocationService.LocationService import LocationService
 from UserInterface.DriverUI import DriverUI
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
@@ -19,8 +20,11 @@ def initialise_dependencies():
     Prepare a DriverUI, Environment Vehicle and Vehicle
     """
     configuration_handler_mock = MagicMock(spec=ConfigurationHandler)
-    configuration_handler_mock.get_configuration.return_value = \
-        {"game_config": {"game_cfg_playing_time_limit_min": 0}}
+    configuration_handler_mock.get_configuration.return_value = {
+                        "virtual_cars_pics": {"AB:CD:EF:12:34:56": "ABCDEF123456.svg",
+                                              "GH:IJ:KL:78:90:21": "GHIJKL789021.svg"},
+                        "driver": {"key1": "value1", "key2": "value2"},
+                        "game_config": {"game_cfg_playing_time_limit_min": 0}}
 
     socket = AsyncServer(async_mode='asgi')
     fleet_ctrl = FleetController()
@@ -31,7 +35,8 @@ def initialise_dependencies():
 
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_manager, sio=socket)
 
-    vehicle: Vehicle = Vehicle('1234', disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle: Vehicle = Vehicle('1234', location_service_mock, disable_item_removal=True)
 
     return driver_ui, environment_manager, vehicle
 

@@ -15,6 +15,9 @@ jobs:
           echo "$(pipenv --venv)/bin" >> $GITHUB_PATH
 
       - uses: jakebailey/pyright-action@v2
+        with:
+          workdir: "src"
+          args: "--project pyrightconfig.json"
         
   flake8-lint:
     name: Check coding style via flake8
@@ -37,7 +40,7 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Run fast tests itself with pytest
         run: |
-          pipenv run pytest -m 'not skip_ci and not slow' test
+          pipenv run pytest -m 'not skip_ci and not slow and not one_anki_car_needed' test
 
   pytest-testing-slow:
     name: Run slow tests with pytest

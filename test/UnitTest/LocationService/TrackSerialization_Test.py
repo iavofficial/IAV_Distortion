@@ -14,8 +14,7 @@ def example_testdata_straight():
         'rotation': 90,
         'physical_id': 3,
         'length': 40,
-        'diameter': 3
-    }
+        'diameter': 3}
     straight_real = StraightPiece(40, 3, 90, physical_id=3)
     return straight_dict, straight_real
 
@@ -28,8 +27,7 @@ def example_testdata_curve():
         'physical_id': 12,
         'square_size': 500,
         'diameter': 30,
-        'mirrored': False
-    }
+        'mirrored': False}
     curved_real = CurvedPiece(500, 30, 90, False, physical_id=12)
     return curved_dict, curved_real
 
@@ -41,8 +39,7 @@ def example_testdata_before_line():
         'rotation': 90,
         'physical_id': None,
         'length': 100,
-        'diameter': 10
-    }
+        'diameter': 10}
     straight_before_line_real = StartPieceBeforeLine(100, 10, 90)
     return straight_before_line_dict, straight_before_line_real
 
@@ -55,8 +52,7 @@ def example_testdata_after_line():
         'physical_id': None,
         'length': 100,
         'diameter': 10,
-        'start_line_width': 21
-    }
+        'start_line_width': 21}
     straight_after_line_real = StartPieceAfterLine(100, 10, 90, 21)
     return straight_after_line_dict, straight_after_line_real
 

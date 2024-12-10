@@ -1,12 +1,13 @@
 # Copyright 2024 IAV GmbH
 #
-# This file is part of the IAV-Distortion project an interactive
+# This file is part of the IAV Distortion project an interactive
 # and educational showcase designed to demonstrate the need
 # of automotive cybersecurity in a playful, engaging manner.
 # and is released under the "Apache 2.0". Please see the LICENSE
 # file that should have been included as part of this package.
 #
 
+from typing import Any
 from quart import Blueprint, render_template, request
 import uuid
 import logging
@@ -15,23 +16,28 @@ import time
 
 from socketio import AsyncServer
 
+from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+from VehicleMovementManagement.BehaviourController import BehaviourController
 
 logger = logging.getLogger(__name__)
 
 
 class DriverUI:
 
-    def __init__(self, behaviour_ctrl, environment_mng, sio: AsyncServer, name=__name__) -> None:
+    def __init__(self,
+                 behaviour_ctrl: BehaviourController,
+                 environment_mng: EnvironmentManager,
+                 sio: AsyncServer) -> None:
         self.driverUI_blueprint: Blueprint = Blueprint(name='driverUI_bp', import_name='driverUI_bp')
-        self.vehicles: list = environment_mng.get_vehicle_list()
+        self.vehicles: list[Vehicle] = environment_mng.get_vehicle_list()
         self.behaviour_ctrl = behaviour_ctrl
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
 
-        self.__latest_driver_heartbeats: dict = {}
+        self.__latest_driver_heartbeats: dict[str, float] = {}
         self.__checking_heartbeats_flag: bool = False
 
         try:
@@ -83,7 +89,7 @@ class DriverUI:
         self.driverUI_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_driver)
 
         @self._sio.on('handle_connect')
-        def handle_connected(sid: str, data: dict) -> None:
+        def handle_connected(sid: str, data: dict[Any, Any]) -> None:
             """
             Calls environment manager function to update queues and vehicles.
 
@@ -103,14 +109,14 @@ class DriverUI:
             return
 
         @self._sio.on('disconnected')
-        def handle_disconnected(sid, data):
+        def handle_disconnected(sid, data) -> None:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
             return
 
         @self._sio.on('disconnect')
-        def handle_clienet_disconnect(sid):
+        def handle_clienet_disconnect(sid) -> None:
             logger.debug(f"Client {sid} disconnected.")
             return
 
@@ -192,6 +198,26 @@ class DriverUI:
         self.__run_async_task(self.__emit_driving_data(driving_data))
         return
 
+    async def __emit_driving_data(self, driving_data: dict) -> None:
+        await self._sio.emit('update_driving_data', driving_data)
+        return
+
+    def update_item_activity(self, item_data: dict) -> None:
+        self.__run_async_task(self.__emit_item_data(item_data))
+        return
+
+    async def __emit_item_data(self, item_data: dict) -> None:
+        await self._sio.emit('item_update', item_data)
+        return
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        asyncio.create_task(task)
+        # TODO: Log error, if the coroutine doesn't end successfully
+
     def get_blueprint(self) -> Blueprint:
         return self.driverUI_blueprint
 
@@ -204,18 +230,6 @@ class DriverUI:
         else:
             # Todo: define error reaction if same player is assigned to different vehicles
             return None
-
-    def __run_async_task(self, task):
-        """
-        Run a asyncio awaitable task
-        task: awaitable task
-        """
-        asyncio.create_task(task)
-        # TODO: Log error, if the coroutine doesn't end successfully
-
-    async def __emit_driving_data(self, driving_data: dict) -> None:
-        await self._sio.emit('update_driving_data', driving_data)
-        return
 
     async def __check_driver_heartbeat_timeout(self):
         """
@@ -272,8 +286,7 @@ class DriverUI:
         picture = ''  # default picture can be added here
         vehicle_information = {
             'active_hacking_scenario': '0',
-            'speed_request': '0'
-        }
+            'speed_request': '0'}
         self.environment_mng.put_player_on_next_free_spot(player)
         vehicle = self.environment_mng.get_vehicle_by_player_id(player)
 
@@ -287,6 +300,7 @@ class DriverUI:
             else:
                 picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
             vehicle.set_driving_data_callback(self.update_driving_data)
+            vehicle.set_item_data_callback(self.update_item_activity)
             vehicle_information = vehicle.get_driving_data()
             logger.debug(f'Callback set for {player}')
         return vehicle is not None, picture, vehicle_information

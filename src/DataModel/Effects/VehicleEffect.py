@@ -23,24 +23,26 @@ class VehicleEffect(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def can_be_applied(self, vehicle: 'Vehicle') -> bool:
         """
         Returns whether the effect can be applied to a Vehicle
         """
-        _ = vehicle
-        return True
+        raise NotImplementedError
 
-    def on_start(self, vehicle: 'Vehicle') -> None:
+    @abstractmethod
+    def on_start(self, vehicle: 'Vehicle') -> bool:
         """
         Runs when added to a vehicle. Can also be used to start a background task
         """
-        pass
+        raise NotImplementedError
 
-    def on_end(self, vehicle: 'Vehicle') -> None:
+    @abstractmethod
+    def on_end(self, vehicle: 'Vehicle') -> bool:
         """
         Runs when removed from a vehicle. Should be used for cleaning up
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def effect_should_end(self, vehicle: 'Vehicle') -> bool:
@@ -49,8 +51,9 @@ class VehicleEffect(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def conflicts_with(self) -> List[VehicleEffectIdentification]:
         """
         Returns a list of other effects that prevent this effect from being applied
         """
-        return []
+        raise NotImplementedError
