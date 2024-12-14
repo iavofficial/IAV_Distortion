@@ -26,11 +26,6 @@ def init_vehicle_with_id(car_id: int):
     return Vehicle(car_id, location_service_mock, disable_item_removal=True)
 
 
-def init_vehicle_with_id(car_id: int):
-    location_service_mock = MagicMock(spec=LocationService)
-    return Vehicle(car_id, location_service_mock, disable_item_removal=True)
-
-
 @pytest.mark.one_anki_car_needed
 @pytest.mark.asyncio
 async def test_get_location():

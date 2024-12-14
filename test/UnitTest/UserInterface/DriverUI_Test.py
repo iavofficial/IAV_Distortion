@@ -1,7 +1,7 @@
 import asyncio
 import time
 import uuid
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -10,7 +10,6 @@ from socketio import AsyncServer
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.LocationService import LocationService
-from UserInterface.CarMap import CarMap
 from UserInterface.DriverUI import DriverUI
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle

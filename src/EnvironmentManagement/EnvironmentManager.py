@@ -338,12 +338,12 @@ class EnvironmentManager:
             return True
         else:
             return False
-        
-    def manage_car_switch_for(self,player_id: str, target_vehicle: str) -> bool:
-        
+
+    def manage_car_switch_for(self, player_id: str, target_vehicle: str) -> bool:
+
         """
         This function organizes the switch between cars for the player ID.
-        
+
         Parameters
         ----------
         player_id: str
@@ -367,7 +367,7 @@ class EnvironmentManager:
             return False
 
     def __switch_player_cars(self, player_id: str, target_vehicle_id: str) -> bool:
-        
+
         """
         Switch cars for player ID
 
@@ -387,18 +387,19 @@ class EnvironmentManager:
         """
         vehicle = self.get_vehicle_by_player_id(player_id)
         target_vehicle = self.get_vehicle_by_vehicle_id(target_vehicle_id)
-        if target_vehicle == None:
+        if target_vehicle is None:
             return False
-        
+
         vehicle.remove_player()
 
-        if target_vehicle.is_free() == False:
+        if not target_vehicle.is_free():
             new_driver = target_vehicle.get_player_id()
             logger.info(f"Switching cars from player with UUID {player_id} and player with UUID {new_driver}")
             target_vehicle.remove_player()
             self._publish_player_active(player=new_driver)
             vehicle.set_player(new_driver)
-        else: logger.info(f"Switching cars from player with UUID {player_id} to a free car")
+        else:
+            logger.info(f"Switching cars from player with UUID {player_id} to a free car")
         self._publish_player_active(player=player_id)
         target_vehicle.set_player(player_id)
         return True
@@ -613,7 +614,7 @@ class EnvironmentManager:
             self.update_staff_ui()
             return True
 
-    def remove_vehicle_from_virtual_or_physical_list(self,vehicle_id: str) -> None:
+    def remove_vehicle_from_virtual_or_physical_list(self, vehicle_id: str) -> None:
         """
         Remove the vehicle from either the virtual or physical vehicle List
 
@@ -630,7 +631,6 @@ class EnvironmentManager:
             if v == vehicle_id:
                 self._active_virtual_cars.remove(v)
                 return
-
 
     async def connect_to_physical_car_by(self, uuid: str) -> None:
         logger.debug(f"Adding physical vehicle with UUID {uuid}")
@@ -701,7 +701,7 @@ class EnvironmentManager:
         if vehicle_already_exists:
             logger.warning("Tried to add a vehicle that already exists. Ignoring the request")
             return
-       
+
         if is_physical_car:
             self._active_physical_cars.append(new_vehicle.get_vehicle_id())
         else:
