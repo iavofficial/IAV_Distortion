@@ -17,6 +17,7 @@ from LocationService.LocationService import LocationService
 from LocationService.Track import FullTrack
 from LocationService.Trigo import Position, Angle
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,8 @@ class Vehicle:
         self.vehicle_id: str = vehicle_id
         self.player: str | None = None
         self.game_start: datetime | None = None
+        self.vehicle_in_proximity: str | None = None
+        self.proximity_timer: time = 0
 
         self._active_hacking_scenario: str = "0"
         self._driving_data_callback: Callable[[dict[str, Any]], None] | None = None
@@ -37,6 +40,7 @@ class Vehicle:
         self._item_data_callback: Callable[[dict[str, str]], None] | None = None
 
         self._location_service: LocationService = location_service
+        self._vehicle_in_proximity: str | None = None
 
         if not disable_item_removal:
             self._effect_removal_task = asyncio.create_task(self._check_effect_removal())
@@ -93,6 +97,12 @@ class Vehicle:
         Returns the name (for real vehicles UUID) of the vehicle
         """
         return self.vehicle_id
+
+    def reset_proximity_timer(self) -> None:
+        """
+        Reset this vehicle's proximity timer
+        """
+        self.proximity_timer = time.time()
 
     def get_speed_with_effects_applied(self, requested_speed: float) -> int:
         """
