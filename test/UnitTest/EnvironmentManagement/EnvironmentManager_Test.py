@@ -278,6 +278,11 @@ class TestManageRemovalFromGame:
                                             get_one_dummy_vehicle):
         with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
             # Arrange
+            minigame_controller_mock = MagicMock()
+            minigame_controller_mock._minigame_objects = {}
+            Minigame_Controller.instance = minigame_controller_mock
+            Minigame_Controller.get_instance = MagicMock(return_value=MagicMock())
+
             vehicle1: Vehicle = get_one_dummy_vehicle
             mut: EnvironmentManager = get_mut_with_endless_playing_time
 
