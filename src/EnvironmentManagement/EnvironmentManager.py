@@ -145,7 +145,8 @@ class EnvironmentManager:
 
     def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
         """
-        Sends which player has been removed from the game to the staff ui using a callback function and to the Minigame_Controller instance.
+        Sends which player has been removed from the game to the staff ui using a callback function
+        and to the Minigame_Controller instance.
 
         Parameters
         ----------

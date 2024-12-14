@@ -1,20 +1,16 @@
 from Minigames.Minigame import Minigame
 
-from quart import Blueprint, render_template, request
-import uuid
-import logging
+from quart import Blueprint
 import asyncio
-import time
 
 from socketio import AsyncServer
-from abc import abstractmethod
+
 
 class Minigame_Test(Minigame):
 
-
-    def __init__(self, sio: AsyncServer, blueprint : Blueprint, name=__name__):
+    def __init__(self, sio: AsyncServer, blueprint: Blueprint, name=__name__):
         super().__init__(sio, blueprint, name)
-        self.values : dict = {}
+        self.values: dict = {}
 
         @self._sio.on('minigame_test_value_submit')
         def on_value_submit(sid: str, data: dict) -> None:
@@ -25,16 +21,15 @@ class Minigame_Test(Minigame):
             self.values[player] = data["value"]
             print("VALUES", self.values)
             print("PLAYER", player, "HAS SUBMITTED", data["value"])
-        
 
-    async def _play(self) -> str:   
+    async def _play(self) -> str:
         self.values.clear()
         player1 = self._players[0]
         player2 = self._players[1]
         while player1 not in self.values.keys() or player2 not in self.values.keys():
             await asyncio.sleep(1.0)
-        player1_value : str = self.values[player1]
-        player2_value : str = self.values[player2]
+        player1_value: str = self.values[player1]
+        player2_value: str = self.values[player2]
         print("PLAYER1 VALUE", player1_value, "PLAYER2 VALUE", player2_value)
 
         self._players.clear()
@@ -45,12 +40,12 @@ class Minigame_Test(Minigame):
         else:
             return player2
 
-    def set_players(self, *players : str) -> list[str]:
+    def set_players(self, *players: str) -> list[str]:
         """
         Sets the specified players as players associated with this game
         """
         if players is None or len(players) < 2:
-            raise Exception(f"Not enough players were given for minigame {self.get_name()}.")  
+            raise Exception(f"Not enough players were given for minigame {self.get_name()}.")
         self._players.clear()
         self._players.append(players[0])
         self._players.append(players[1])
