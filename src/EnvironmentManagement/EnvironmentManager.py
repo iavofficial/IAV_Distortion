@@ -32,6 +32,8 @@ from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 
+from VehicleMovementManagement.BehaviourController import BehaviourController
+
 from LocationService.LocationService import LocationService
 from LocationService.TrackPieces import FullTrack
 
@@ -53,18 +55,18 @@ class EnvironmentManager:
                  fleet_ctrl: FleetController,
                  configuration_handler: ConfigurationHandler = ConfigurationHandler()):
 
-        self.botTest : Bot | None = None
-        self._behaviour_ctrl: BehaviourController | None= None
+        self.botTest: Bot | None = None
+        self._behaviour_ctrl: BehaviourController | None = None
 
         self._fleet_ctrl: FleetController = fleet_ctrl
 
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: list[Vehicle] = []
 
-        self._active_anki_cars: List[Vehicle] = []
-        self._active_bots: List[Bot] = []
+        self._active_anki_cars: list[Vehicle] = []
+        self._active_bots: list[Bot] = []
 
-        self.__update_staff_ui_callback: Callable[[list[Dict[str, str]], list[str], list[str]], None] | None = None
+        self.__update_staff_ui_callback: Callable[[list[dict[str, str]], list[str], list[str]], None] | None = None
         self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
         self.__publish_player_active_callback: Callable[[str], None] | None = None
         self.__publish_vehicle_added_callback: Callable[[], None] | None = None
@@ -302,7 +304,7 @@ class EnvironmentManager:
 
                     vehicle.set_player(next_player)
                     active_bot = self.get_bot_by_vehicle_id(vehicle.get_vehicle_id())
-                    if(active_bot != None):
+                    if active_bot is not None:
                         active_bot.set_vehicle(None)
                         self._active_bots.remove(active_bot)
 
@@ -351,15 +353,15 @@ class EnvironmentManager:
         else:
             return False
 
-    def manage_bot_safe_mode(self)-> None:
+    def manage_bot_safe_mode(self) -> None:
         is_no_player_left = True
         for v_id in self._active_anki_cars:
             v = self.get_vehicle_by_vehicle_id(v_id)
             if v is None:
                 continue
-            if v.get_player_id() != None:
+            if v.get_player_id() is not None:
                 is_no_player_left = False
-        if is_no_player_left == True:
+        if is_no_player_left:
             for b in self._active_bots:
                 b.set_is_player_active(False)
         else:
@@ -571,7 +573,7 @@ class EnvironmentManager:
             found_vehicle.__del__()
 
             active_bot = self.get_bot_by_vehicle_id(found_vehicle.get_vehicle_id())
-            if(active_bot != None):
+            if active_bot is not None:
                 active_bot.set_vehicle(None)
                 self._active_bots.remove(active_bot)
 
@@ -744,7 +746,7 @@ class EnvironmentManager:
                     num += 1
         return full_map
 
-    def get_bot_by_vehicle_id(self, vehicle_id:str) -> Bot | None:
+    def get_bot_by_vehicle_id(self, vehicle_id: str) -> Bot | None:
         """
         Get the bot based on the vehicle_id of its vehicle
         Returns None if the bot isn't found
