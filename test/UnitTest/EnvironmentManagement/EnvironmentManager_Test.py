@@ -167,7 +167,7 @@ class TestAddNewPlayer:
         location_service_mock = MagicMock(spec=LocationService)
         dummy_vehicle = Vehicle("vehicle1", location_service_mock, disable_item_removal=True)
         dummy_vehicle.set_player(self.dummy_player1)
-        mut._add_to_active_vehicle_list(dummy_vehicle)
+        mut._add_to_active_vehicle_list(dummy_vehicle, is_physical_car=False)
 
         # Act / Assert
         added = mut._add_new_player(self.dummy_player1)
@@ -182,7 +182,7 @@ class TestPutPlayerOnNextFreeSpot:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_one_minute_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -209,7 +209,7 @@ class TestPutPlayerOnNextFreeSpot:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_endless_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -244,7 +244,7 @@ class TestAssignPlayersToVehicles:
 
         for vehicle in dummy_vehicles:
             vehicle.remove_player()
-            mut._add_to_active_vehicle_list(vehicle)
+            mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
 
         for dummy_player in dummy_players:
             mut._add_new_player(dummy_player)
@@ -270,7 +270,7 @@ class TestAssignPlayersToVehicles:
         i: int = 3
         for vehicle in dummy_vehicles:
             vehicle.set_player("Player"+str(i))
-            mut._add_to_active_vehicle_list(vehicle)
+            mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
             i += 1
 
         for dummy_player in dummy_players:
@@ -302,7 +302,7 @@ class TestManageRemovalFromGame:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_endless_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -334,7 +334,7 @@ class TestManageRemovalFromGame:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_endless_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -504,16 +504,16 @@ def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
     new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id(), location_service_mock, disable_item_removal=True)
     new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id(), location_service_mock, disable_item_removal=True)
 
-    env_manager._add_to_active_vehicle_list(vehicle1)
-    env_manager._add_to_active_vehicle_list(vehicle1)
-    env_manager._add_to_active_vehicle_list(new_vehicle_1)
-    env_manager._add_to_active_vehicle_list(new_vehicle_1)
+    env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1, is_physical_car=False)
     assert len(env_manager._active_anki_cars) == 1
 
-    env_manager._add_to_active_vehicle_list(vehicle2)
-    env_manager._add_to_active_vehicle_list(vehicle2)
-    env_manager._add_to_active_vehicle_list(new_vehicle_2)
-    env_manager._add_to_active_vehicle_list(new_vehicle_2)
+    env_manager._add_to_active_vehicle_list(vehicle2, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(vehicle2, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_2, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_2, is_physical_car=False)
     assert len(env_manager._active_anki_cars) == 2
 
 
