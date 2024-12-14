@@ -53,7 +53,7 @@ async def test_driver_ui_template_data_player_exists(initialise_dependencies):
     player_2 = str(uuid.uuid4())
 
     driver_ui, environment_manager, vehicle = initialise_dependencies
-    environment_manager._add_to_active_vehicle_list(vehicle)
+    environment_manager._add_to_active_vehicle_list(vehicle, is_physical_car=False)
 
     # player 1 has vehicle
     has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)

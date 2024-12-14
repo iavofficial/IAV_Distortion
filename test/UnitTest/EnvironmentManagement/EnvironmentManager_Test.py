@@ -64,10 +64,11 @@ def get_two_dummy_vehicles() -> list[Vehicle]:
 
 @pytest.fixture(scope="module")
 def get_four_dummy_vehicles() -> list[Vehicle]:
-    vehicle1: Vehicle = Vehicle("123", disable_item_removal=True)
-    vehicle2: Vehicle = Vehicle("456", disable_item_removal=True)
-    vehicle3: Vehicle = Vehicle("789", disable_item_removal=True)
-    vehicle4: Vehicle = Vehicle("012", disable_item_removal=True)
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle1: Vehicle = Vehicle("123", location_service_mock, disable_item_removal=True)
+    vehicle2: Vehicle = Vehicle("456", location_service_mock, disable_item_removal=True)
+    vehicle3: Vehicle = Vehicle("789", location_service_mock, disable_item_removal=True)
+    vehicle4: Vehicle = Vehicle("012", location_service_mock, disable_item_removal=True)
     output: list[Vehicle] = [vehicle1, vehicle2, vehicle3, vehicle4]
     return output
 
@@ -522,6 +523,7 @@ class TestSwitchCars:
     def test_manage_car_switch(self, get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
         # Arrange
         fleet_mock, config_mock = initialise_dependencies
+        config_mock = MagicMock(spec=ConfigurationHandler)
         env_manager = EnvironmentManager(fleet_mock, config_mock)
 
         dummy_player1, dummy_player2 = get_two_dummy_player
@@ -545,6 +547,7 @@ class TestSwitchCars:
     def test_car_switch_lower_300ms(self, get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
         # Arrange
         fleet_mock, config_mock = initialise_dependencies
+        config_mock = MagicMock(spec=ConfigurationHandler)
         env_manager = EnvironmentManager(fleet_mock, config_mock)
 
         dummy_player1, dummy_player2 = get_two_dummy_player
@@ -569,6 +572,7 @@ class TestSwitchCars:
     def test_manage_multiple_car_switch(self, get_four_dummy_players, get_four_dummy_vehicles, initialise_dependencies):
         # Arrange
         fleet_mock, config_mock = initialise_dependencies
+        config_mock = MagicMock(spec=ConfigurationHandler)
         env_manager = EnvironmentManager(fleet_mock, config_mock)
 
         dummy_player1, dummy_player2, dummy_player3, dummy_player4 = get_four_dummy_players
