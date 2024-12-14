@@ -665,7 +665,10 @@ class StaffUI:
         vehicle_with_bots: list
             Contains ID's of vehicles that are controlled by bots
         """
-        data = {"car_map": car_map, "car_queue": car_queue, "player_queue": player_queue, "vehicle_with_bots": vehicle_with_bots}
+        data = {"car_map": car_map,
+                "car_queue": car_queue,
+                "player_queue": player_queue,
+                "vehicle_with_bots": vehicle_with_bots}
         self.__run_async_task(self.__emit_new_data(data))
         return
 
