@@ -72,11 +72,9 @@
     socket.emit('Tapping_Contest_join', { player_id: playerId });
 
     socket.on('Tapping_Contest_joined', (data) => {
-      console.log(data)
       if(data.player_id == playerId)
         namespace = data.namespace;
         lobbySocket = io.connect('http://' + document.domain + ':' + location.port + '/' + namespace);
-        console.log(namespace)
     });
 
     socket.on('start_game', (data) => {

@@ -41,14 +41,12 @@ class Reaction_Contest_UI(Minigame):
             player_id = data['player_id']
             if player_id in self._players:
                 await self._sio.enter_room(sid, self._room)
-                print(player_id, "entered room", self._room)
                 await self._sio.emit('Reaction_Contest_joined', {'player_id': player_id,
                                                                  'namespace': namespace}, room=self._room)
 
         @self._sio.on('Reaction_Contest_click', namespace='/' + namespace)
         async def handle_click(sid: str, data):
             player_id = data['player_id']
-            print(self._players, player_id, "clicked")
             if player_id not in self._players:
                 return
 
