@@ -42,12 +42,14 @@
 
   <script>
     var socket = io.connect('http://' + document.domain + ':' + location.port); 
+    var lobbySocket;
     var playerId = '{{ player }}';
+    var namespace;
 
     // Join game and send player ID to server
-    socket.emit('Reaction_Contess_join', { player_id: playerId });
+    socket.emit('Reaction_Contest_join', { player_id: playerId });
 
-    socket.on('start_game', (data) => {
+    socket.on('Reaction_Contest_start_game', (data) => {
       document.getElementById('status').textContent = 'Get ready...';
       setTimeout(() => {
         document.getElementById('reaction-box').style.display = 'block';
@@ -57,7 +59,8 @@
     });
 
     document.getElementById('reaction-box').addEventListener('click', () => {
-      socket.emit('Reaction_Contess_click', { player_id: playerId });
+      console.log(namespace)
+      lobbySocket.emit('Reaction_Contest_click', { player_id: playerId });
       document.getElementById('reaction-box').style.display = 'none';
     });
 
@@ -66,6 +69,13 @@
       const resultText = winner === playerId ? 'You won!' : `You lost! Winner: ${winner}`;
       document.getElementById('result').textContent = resultText;
       document.getElementById('status').textContent = 'Game over!';
+    });
+
+    socket.on('Reaction_Contest_joined', (data) => {
+      console.log(data)
+      if(data.player_id == playerId)
+        namespace = data.namespace;
+        lobbySocket = io.connect('http://' + document.domain + ':' + location.port + '/' + namespace);
     });
   </script>
 </body>

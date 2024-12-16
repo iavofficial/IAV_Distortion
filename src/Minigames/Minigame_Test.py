@@ -8,7 +8,7 @@ from socketio import AsyncServer
 
 class Minigame_Test(Minigame):
 
-    def __init__(self, sio: AsyncServer, blueprint: Blueprint, name=__name__):
+    def __init__(self, sio: AsyncServer, namespace: str, blueprint: Blueprint | None = None, name=__name__):
         super().__init__(sio, blueprint, name)
         self.values: dict = {}
 

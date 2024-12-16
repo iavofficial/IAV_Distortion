@@ -8,7 +8,7 @@ import random
 
 
 class Tapping_Contest_UI(Minigame):
-    def __init__(self, sio: AsyncServer, blueprint: Blueprint, name=__name__):
+    def __init__(self, sio: AsyncServer, namespace: str, blueprint: Blueprint | None = None, name=__name__):
         super().__init__(sio, blueprint, name)
         self._players: list[str] = []
         self._config_handler = ConfigurationHandler()

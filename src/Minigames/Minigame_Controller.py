@@ -3,6 +3,7 @@ import asyncio
 from asyncio import Task
 import random
 import logging
+import uuid
 
 from socketio import AsyncServer
 from typing import Callable
@@ -40,7 +41,7 @@ class Minigame_Controller:
             raise Exception("The minigame ui blueprint was not provided. Cancelling the Minigame_Controller.__init__.")
         if sio is None:
             raise Exception("No AsyncServer was provided. Cancelling the Minigame_Controller.__init__.")
-
+        self._sio = sio
         self._config_handler: ConfigurationHandler = ConfigurationHandler()
         try:
             self._driving_speed_while_playing = \
@@ -58,10 +59,13 @@ class Minigame_Controller:
                            "value of 30 seconds")
             self.__driver_heartbeat_timeout = 30
 
-        self._minigame_objects: dict = {}
+        self._minigame_uis: dict = {}
         self._available_minigames: list[str] = []
+        self._minigame_instances: list[Minigame] = []
         for minigame in Minigame_Controller.minigames.keys():
-            self._minigame_objects[minigame] = Minigame_Controller.minigames[minigame](sio, minigame_ui_blueprint)
+            self._minigame_uis[minigame] = Minigame_Controller.minigames[minigame](sio=sio,
+                                                                                   namespace=str(uuid.uuid4()),
+                                                                                   blueprint=minigame_ui_blueprint)
             try:
                 if self._config_handler.get_configuration()['minigame']['games'][minigame]:
                     self._available_minigames.append(minigame)
@@ -74,7 +78,7 @@ class Minigame_Controller:
     def set_available_minigames(self, available_minigames: list[str]):
         self._available_minigames.clear()
         for minigame in available_minigames:
-            if minigame in self._minigame_objects.keys():
+            if minigame in self._minigame_uis.keys():
                 self._available_minigames.append(minigame)
             else:
                 logger.warning(f"The given minigame {minigame} could not be added to the available minigames list \
@@ -119,20 +123,12 @@ class Minigame_Controller:
         player_id: str
             UUID of the player to be removed
         """
-        for minigame_object in self._minigame_objects.values():
-            if player_id in minigame_object.get_players():
-                minigame_object.cancel()
+        minigame_instance: Minigame | None = self.get_minigame_instance_by_player_id(player_id)
 
-    def get_minigame_object(self, minigame: str) -> Minigame:
-        """
-        Get the object/instance of the specified minigame
+        if minigame_instance is None:
+            return
 
-        Parameters:
-        -----------
-        minigame: str
-            Name of the minigame (class name)
-        """
-        return self._minigame_objects.get(minigame)
+        minigame_instance.cancel()
 
     def get_minigame_name_list(self) -> list[str]:
         """
@@ -143,7 +139,7 @@ class Minigame_Controller:
         list[str]
             list of names of minigames
         """
-        return self._minigame_objects.keys()
+        return self._minigame_uis.keys()
 
     def get_description(self, minigame: str) -> str | None:
         """
@@ -159,7 +155,7 @@ class Minigame_Controller:
         str: Description of the minigame as a String
         None: If the minigame could not be found None will be returned
         """
-        minigame_object: Minigame = self.get_minigame_object(minigame)
+        minigame_object: Minigame = self._minigame_uis[minigame]
         if minigame_object is None:
             return None
         else:
@@ -180,14 +176,6 @@ class Minigame_Controller:
             Will return the winner's uuid once finished or None if cancelled
         tuple[None, None]: if the minigame could not be started for some reason
         """
-        if len(self._available_minigames) == 0:
-            print(f"No minigame is currently available for the players {players}. First player will be set as winner.")
-
-            async def return_player(player):
-                return player
-
-            return asyncio.create_task(return_player(players[0])), None
-
         minigame = random.choice(self._available_minigames)
 
         return self._play_minigame(minigame, *players)
@@ -209,9 +197,17 @@ class Minigame_Controller:
             Will return the winner's uuid once finished or None if cancelled
         tuple[None, None]: if the minigame could not be started for some reason
         """
-        minigame_object: Minigame = self._minigame_objects.get(minigame)
+        for player in players:
+            if self.get_minigame_instance_by_player_id(player) is not None:
+                logger.warning(f"The player {player} is already participating in another minigame.\
+                    A new minigame cannot be started with them.")
 
-        if minigame_object is None:
+                return None, None
+
+        minigame_instance: Minigame = Minigame_Controller.minigames[minigame](self._sio, str(uuid.uuid4()))
+        self._minigame_instances.append(minigame_instance)
+
+        if minigame_instance is None:
             logger.warning("The selected minigame does not exist.")
             return None, None
 
@@ -219,10 +215,7 @@ class Minigame_Controller:
             logger.warning("The selected minigame is not currently available.")
             return None, None
 
-        self._available_minigames.remove(minigame)
-        logger.info(f"The minigame {minigame_object.get_name()} is not available anymore.")
-
-        running_game_task: asyncio.Task = minigame_object.play(*players)
+        running_game_task: asyncio.Task = minigame_instance.play(*players)
 
         def minigame_done_callback(task) -> None:
             """
@@ -233,14 +226,13 @@ class Minigame_Controller:
             minigame_object : Minigame
                 The minigame object/instance that is done
             """
-            self._available_minigames.append(minigame_object.get_name())
-            logger.info(f"The minigame {minigame_object.get_name()} is available again.")
+            self._minigame_instances.remove(minigame_instance)
 
         running_game_task.add_done_callback(minigame_done_callback)
 
-        self._minigame_start_callback(running_game_task, minigame_object)
+        self._minigame_start_callback(running_game_task, minigame_instance)
 
-        return running_game_task, minigame_object
+        return running_game_task, minigame_instance
 
     def get_minigame_name_by_player_id(self, player_id: str) -> str | None:
         """
@@ -256,15 +248,36 @@ class Minigame_Controller:
         str: Name of the minigame the player is participating in
         None: If the player is not currently participating in any minigames
         """
+        minigame_instance = self.get_minigame_instance_by_player_id(player_id)
+
+        if minigame_instance is None:
+            return None
+
+        return minigame_instance.get_name()
+
+    def get_minigame_instance_by_player_id(self, player_id: str) -> Minigame | None:
+        """
+        Returns the instance of the minigame the specified player is currently assigned to.
+
+        Parameters:
+        -----------
+        player_id: str
+            UUID of the player
+
+        Returns:
+        --------
+        Minigame: Instance of the Minigame the player is participating in
+        None: If the player is not currently participating in any minigame
+        """
         if player_id is None:
             return None
 
-        for minigame_object in self._minigame_objects.values():
-            if player_id in minigame_object.get_players():
-                return minigame_object.get_name()
+        for minigame_instance in self._minigame_instances:
+            if player_id in minigame_instance.get_players():
+                return minigame_instance
         return None
 
-    def set_player_ready(self, player: str, minigame: str) -> None:
+    def set_player_ready(self, player_id: str) -> None:
         """
         The specified player has accepted the rules of the specified minigame.
 
@@ -276,10 +289,10 @@ class Minigame_Controller:
             name of the minigame
         """
 
-        minigame_object = self.get_minigame_object(minigame)
-        if minigame_object is None:
-            logger.warning(f"MinigameController: The minigame {minigame} could not be found. \
-                Ignoring the request of accepting its rules for player {player}.")
+        minigame_instance = self.get_minigame_instance_by_player_id(player_id)
+        if minigame_instance is None:
+            logger.warning(f"MinigameController: The player {player_id} is not currently assigned to any minigame. \
+                Ignoring the request of accepting minigame rules for this player.")
             return
-        minigame_object.set_player_ready(player)
-        print(f"PLAYER {player} is ready for minigame {minigame}")
+        minigame_instance.set_player_ready(player_id)
+        logger.info(f"PLAYER {player_id} is ready for minigame {minigame_instance.get_name()}")

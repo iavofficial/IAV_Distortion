@@ -8,7 +8,7 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 
 class Reaction_Contest_UI(Minigame):
-    def __init__(self, sio: AsyncServer, blueprint: Blueprint, name=__name__):
+    def __init__(self, sio: AsyncServer, namespace: str, blueprint: Blueprint | None = None, name=__name__):
         super().__init__(sio, blueprint, name)
         self._config_handler = ConfigurationHandler()
         try:
@@ -36,16 +36,22 @@ class Reaction_Contest_UI(Minigame):
             print("Reaction_Contest_UI: No (proper) Configuration found for \
                 ['minigame']['reaction-contest']['game-ends']. Using default value of 10 seconds.")
 
-        @self._sio.on('Reaction_Contess_join')
+        @self._sio.on('Reaction_Contest_join')
         async def on_join_game(sid: str, data):
             player_id = data['player_id']
             if player_id in self._players:
-                await self._sio.enter_room(sid, "Reaction_Contest")
-                await self._sio.emit('joined', {'player_id': player_id}, room=player_id)
+                await self._sio.enter_room(sid, self._room)
+                print(player_id, "entered room", self._room)
+                await self._sio.emit('Reaction_Contest_joined', {'player_id': player_id,
+                                                                 'namespace': namespace}, room=self._room)
 
-        @self._sio.on('Reaction_Contess_click')
+        @self._sio.on('Reaction_Contest_click', namespace='/' + namespace)
         async def handle_click(sid: str, data):
             player_id = data['player_id']
+            print(self._players, player_id, "clicked")
+            if player_id not in self._players:
+                return
+
             player_index = self._players.index(player_id)
             self._game.press_button(player_index)
 
@@ -58,8 +64,10 @@ class Reaction_Contest_UI(Minigame):
         self._game = Reaction_Contest(self._game_length)
 
         self._players.append(players[0])
+        self._room = players[0]
         if len(players) > 1:
             self._players.append(players[1])
+            self._room += players[1]
         return self.get_players()
 
     async def _play(self) -> str:
@@ -90,13 +98,13 @@ class Reaction_Contest_UI(Minigame):
 
     async def _start_game(self):
         self._game.start()
-        await self._sio.emit('start_game', {'game-length': self._game_length}, room="Reaction_Contest")
+        await self._sio.emit('Reaction_Contest_start_game', {'game-length': self._game_length}, room=self._room)
         await asyncio.sleep(self._game_length)
-        await self._sio.emit('box_green', room="Reaction_Contest")
+        await self._sio.emit('Reaction_Contest_box_green', room=self._room)
         await asyncio.sleep(self._game_length)
 
     async def _send_tie(self):
-        await self._sio.emit('tie', to="Reaction_Contest")
+        await self._sio.emit('tie', to=self._room)
 
     def description(self) -> str:
         return "First player to click the green box wins!"

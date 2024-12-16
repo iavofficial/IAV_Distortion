@@ -8,8 +8,7 @@ from abc import abstractmethod
 
 class Minigame:
 
-    def __init__(self, sio: AsyncServer, blueprint: Blueprint, name=__name__):
-        self.minigame_ui_blueprint: Blueprint = blueprint
+    def __init__(self, sio: AsyncServer, blueprint: Blueprint | None = None, name=__name__):
         self._sio: AsyncServer = sio
         self._name = name
         if "." in name:
@@ -19,6 +18,11 @@ class Minigame:
         self._players: list[str] = []
         self._ready_players: list[str] = []
         self._task = None
+
+        if blueprint is None:
+            return
+
+        self.minigame_lobby_ui_blueprint: Blueprint = blueprint
 
         async def home_minigame() -> str:
             """
@@ -36,7 +40,7 @@ class Minigame:
 
             return await render_template(template_name_or_list=self._name + '.html', player=player)
 
-        self.minigame_ui_blueprint.add_url_rule(f'/{self._name}', self._name, view_func=home_minigame)
+        self.minigame_lobby_ui_blueprint.add_url_rule(f'/{self._name}', self._name, view_func=home_minigame)
 
     def play(self, *players: str) -> asyncio.Task:
         """
@@ -61,13 +65,19 @@ class Minigame:
                     if player not in self._ready_players:
                         all_ready = False
                 if all_ready:
+                    player_data = {}
+                    for i, player in enumerate(actually_playing):
+                        player_data['player' + str(i)] = player
                     for i in range(3, -1, -1):
-                        await self._sio.emit('all_ready', {"minigame": self.get_name(), "countdown": i})
+                        data = player_data.copy()
+                        data['countdown'] = i
+                        data['minigame'] = self._name
+                        await self._sio.emit('all_ready', data)
                         if i > 0:
                             await asyncio.sleep(1)
                     break
                 else:
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(.1)
             return await self._play()
 
         self._task = asyncio.create_task(play_after_all_players_ready())
