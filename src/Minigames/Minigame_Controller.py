@@ -220,24 +220,27 @@ class Minigame_Controller:
             return None, None
 
         self._available_minigames.remove(minigame)
+        logger.info(f"The minigame {minigame_object.get_name()} is not available anymore.")
 
         running_game_task: asyncio.Task = minigame_object.play(*players)
-        running_game_task.add_done_callback(self._minigame_done_callback(minigame_object))
+
+        def minigame_done_callback(task) -> None:
+            """
+            Callback function to be executed once a minigame is done (completed or cancelled)
+
+            Parameters:
+            -----------
+            minigame_object : Minigame
+                The minigame object/instance that is done
+            """
+            self._available_minigames.append(minigame_object.get_name())
+            logger.info(f"The minigame {minigame_object.get_name()} is available again.")
+
+        running_game_task.add_done_callback(minigame_done_callback)
 
         self._minigame_start_callback(running_game_task, minigame_object)
 
         return running_game_task, minigame_object
-
-    def _minigame_done_callback(self, minigame_object: Minigame) -> None:
-        """
-        Callback function to be executed once a minigame is done (completed or cancelled)
-
-        Parameters:
-        -----------
-        minigame_object : Minigame
-            The minigame object/instance that is done
-        """
-        self._available_minigames.append(minigame_object.get_name())
 
     def get_minigame_name_by_player_id(self, player_id: str) -> str | None:
         """
