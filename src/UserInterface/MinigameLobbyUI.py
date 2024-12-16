@@ -62,7 +62,7 @@ class MinigameLobbyUI:
             if player is None or self._minigame_controller.get_minigame_instance_by_player_id(player) is None:
                 return redirect(url_for("driverUI_bp.home_driver"))
 
-            return await render_template(template_name_or_list='minigame_index.html',
+            return await render_template(template_name_or_list='minigame_lobby.html',
                                          player=player,
                                          minigame=self._minigame_controller.get_minigame_name_by_player_id(player),
                                          heartbeat_interval=self.__driver_heartbeat_interval)
