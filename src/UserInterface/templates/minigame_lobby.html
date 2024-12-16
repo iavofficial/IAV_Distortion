@@ -58,9 +58,9 @@
         const minigame = "{{ minigame }}";
 
         //Include the current Minigame's htm       
-        jQuery("#current-Minigame").load("{{ url_for('minigameUI_bp.' + minigame)}}", function(response, status){
+        jQuery("#current-Minigame").load("{{ url_for('minigame_lobby_ui_blueprint_bp.' + minigame)}}", function(response, status){
             if(status === 'error'){
-                alert("Failed to load minigameUI_bp.Minigame_Test");
+                alert("Failed to load minigame_lobby_ui_blueprint_bp.Minigame_Test");
             }
         });
 
@@ -124,7 +124,7 @@
         }); 
 
         socket.on('minigame_winner', (data) => {
-            if (data.minigame != minigame)
+            if (data.minigame != minigame || !Object.values(data).includes("{{ player }}"))
                 return;
 
             document.getElementById("infoBoxOverlay").style.display = 'none';
@@ -149,9 +149,9 @@
         })
 
         socket.on('all_ready', (data) => {
-            if (data.minigame != minigame)
+            if (data.minigame != minigame || !Object.values(data).includes("{{ player }}"))
                 return;
-            console.log(data)
+            
             if (data.countdown == 0){
                 document.getElementById('infoBoxOverlay').style.display = 'none';
             } else{
