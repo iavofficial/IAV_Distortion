@@ -46,6 +46,7 @@
 	"minigame": {
 		"auto_drive_constantly": true,
 		"driving_speed_while_playing": 30,
+		"rule_acceptance_timeout": 20,
 		"games": {
 			"Minigame_Test": false,
 			"Tapping_Contest": true,
