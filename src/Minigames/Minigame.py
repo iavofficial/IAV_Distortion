@@ -1,9 +1,14 @@
 from quart import Blueprint, render_template, request
 import uuid
 import asyncio
+import logging
 
 from socketio import AsyncServer
 from abc import abstractmethod
+
+from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
+
+logger = logging.getLogger(__name__)
 
 
 class Minigame:
@@ -18,6 +23,15 @@ class Minigame:
         self._players: list[str] = []
         self._ready_players: list[str] = []
         self._task = None
+        self._started = False
+        self._config_handler = ConfigurationHandler()
+        try:
+            self._rule_acceptance_timeout = \
+                int(self._config_handler.get_configuration()['minigame']['rule_acceptance_timeout'])
+        except Exception:
+            logger.warning("No valid value for minigame: rule_acceptance_timeout in config_file. \
+            Using default value of 20")
+            self._rule_acceptance_timeout = 20
 
         if blueprint is None:
             return
@@ -54,6 +68,9 @@ class Minigame:
         ----------
         ID of the victor
         """
+        self._started = False
+        asyncio.create_task(self._check_rule_acceptance_timeout())
+
         async def play_after_all_players_ready() -> str:
             actually_playing = self.set_players(*players)
 
@@ -65,6 +82,7 @@ class Minigame:
                     if player not in self._ready_players:
                         all_ready = False
                 if all_ready:
+                    self._started = True
                     player_data = {}
                     for i, player in enumerate(actually_playing):
                         player_data['player' + str(i)] = player
@@ -156,3 +174,15 @@ class Minigame:
 
     def get_name(self) -> str:
         return self._name
+
+    async def _check_rule_acceptance_timeout(self) -> None:
+        """
+        Checks if the minigame has started after the rule acceptance timeout delay.
+        Cancels minigame if the rules have not been accepted.
+        """
+        await asyncio.sleep(self._rule_acceptance_timeout)
+        if self._started:
+            # Minigame has already started -> rules have been accepted by everyone
+            return
+
+        self.cancel()
