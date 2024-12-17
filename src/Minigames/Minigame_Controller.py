@@ -197,11 +197,11 @@ class Minigame_Controller:
             Will return the winner's uuid once finished or None if cancelled
         tuple[None, None]: if the minigame could not be started for some reason
         """
+        players = list(set(players))
         for player in players:
             if self.get_minigame_instance_by_player_id(player) is not None:
                 logger.warning(f"The player {player} is already participating in another minigame.\
                     A new minigame cannot be started with them.")
-
                 return None, None
 
         minigame_instance: Minigame = Minigame_Controller.minigames[minigame](self._sio, str(uuid.uuid4()))
