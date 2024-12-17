@@ -16,6 +16,10 @@
                 <label for="driving_speed_while_playing">Speed % of drivers' cars while they are playing:</label>
                 <input type="number" id="driving_speed_while_playing" name="driving_speed_while_playing" min="0" max="100">
             </div>
+            <div class="menu_item">
+                <label for="rule_acceptance_timeout">Rule acceptance Timeout:</label>
+                <input type="number" id="rule_acceptance_timeout" name="rule_acceptance_timeout" min="5" max="30">
+            </div>
         </div>
 
         <div id="available_minigames">
@@ -83,6 +87,7 @@
 
         // numbers
         driving_speed_while_playing.value = settings.minigame.driving_speed_while_playing;
+        rule_acceptance_timeout.value = settings.minigame.rule_acceptance_timeout;
         Tapping_Contest_Game_length.value = settings.minigame['tapping-contest']['game-length'];
         Reaction_Contest_Min_length.value = settings.minigame['reaction-contest']['min-length'];
         Reaction_Contest_Max_length.value = settings.minigame['reaction-contest']['max-length'];
