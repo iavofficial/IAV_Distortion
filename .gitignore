@@ -7,3 +7,4 @@ src/UserInterface/static/images/IAV-Logo-White.png
 *.log
 .vscode/
 pyrightconfig.json
+venv/
