@@ -16,6 +16,7 @@ import time
 
 from socketio import AsyncServer
 
+from DataModel.Driver import Driver
 from DataModel.Vehicle import Vehicle
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
@@ -192,6 +193,24 @@ class DriverUI:
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
+            vehicle = self.get_vehicle_by_player(player=player)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_driver_score(driver=driver))
+            if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
+                self.__run_async_task(self.__in_physical_vehicle(driver))
+            return
+
+        @self._sio.on('switch_cars')
+        def switch_cars(sid, data: dict) -> None:
+            player = data["player"]
+            vehicle = self.environment_mng.get_vehicle_by_player_id(player)
+            player_id = vehicle.get_player_id()
+            self.environment_mng.manage_car_switch_for(player_id)
+            driver = self.environment_mng.get_driver_by_id(player_id=player)
+            self.__run_async_task(self.__emit_driver_score(driver=driver))
+            # For reasons unknown to me, 'driver.get_is_in_physical_vehicle() is not True' seems to be ignored, so the score rises faster and faster when switching between vehicles meeting the increasement requirements
+            if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
+                self.__run_async_task(self.__in_physical_vehicle(driver))
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
@@ -230,6 +249,18 @@ class DriverUI:
         else:
             # Todo: define error reaction if same player is assigned to different vehicles
             return None
+
+    async def __emit_driver_score(self, driver: Driver) -> None:
+        await self._sio.emit('update_player_score', {'score': driver.get_score().__round__(0), 'player': driver.get_player_id()})
+
+    async def __in_physical_vehicle(self, driver: Driver) -> None:
+        driver.set_is_in_physical_vehicle(True)
+        while self.get_vehicle_by_player(player=driver.get_player_id()) is not None and "Virtual" in self.get_vehicle_by_player(player=driver.get_player_id()).get_vehicle_id():
+            driver.increase_score(1)
+            await self._sio.emit('update_player_score', {'score': driver.get_score(), 'player': driver.get_player_id()})
+            await self._sio.sleep(1)
+        driver.set_is_in_physical_vehicle(False)
+        return
 
     async def __check_driver_heartbeat_timeout(self):
         """
