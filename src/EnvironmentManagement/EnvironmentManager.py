@@ -35,6 +35,8 @@ from VehicleManagement.FleetController import FleetController
 from LocationService.LocationService import LocationService
 from LocationService.TrackPieces import FullTrack
 
+from Minigames.Minigame_Controller import Minigame_Controller
+
 logger = logging.getLogger(__name__)
 
 
@@ -143,7 +145,8 @@ class EnvironmentManager:
 
     def _publish_removed_player(self, player_id: str, reason: RemovalReason = RemovalReason.NONE) -> bool:
         """
-        Sends which player has been removed from the game to the staff ui using a callback function.
+        Sends which player has been removed from the game to the staff ui using a callback function
+        and to the Minigame_Controller instance.
 
         Parameters
         ----------
@@ -171,6 +174,8 @@ class EnvironmentManager:
             message = "Your player was removed from the game, because your playing time is over."
         elif reason is RemovalReason.CAR_DISCONNECTED:
             message = "You were removed since your car wasn't reachable anymore"
+
+        Minigame_Controller.get_instance().handle_player_removed(player_id)
 
         if not callable(self.__publish_removed_player_callback):
             logger.critical('Missing publish_removed_player_callback!')

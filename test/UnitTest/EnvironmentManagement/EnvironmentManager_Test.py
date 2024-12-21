@@ -1,6 +1,6 @@
 import asyncio
 import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 
 from DataModel.PhysicalCar import PhysicalCar
 from DataModel.VirtualCar import VirtualCar
@@ -12,6 +12,7 @@ from LocationService.TrackPieces import TrackBuilder
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
 from VehicleMovementManagement.BehaviourController import BehaviourController
+from Minigames.Minigame_Controller import Minigame_Controller
 
 
 @pytest.fixture(scope="module")
@@ -275,34 +276,40 @@ class TestManageRemovalFromGame:
     @pytest.mark.asyncio
     def test_for_valid_player_id_and_reason(self, get_mut_with_endless_playing_time,
                                             get_one_dummy_vehicle):
-        # Arrange
-        vehicle1: Vehicle = get_one_dummy_vehicle
-        mut: EnvironmentManager = get_mut_with_endless_playing_time
+        with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+            # Arrange
+            minigame_controller_mock = MagicMock()
+            minigame_controller_mock._minigame_objects = {}
+            Minigame_Controller.instance = minigame_controller_mock
+            Minigame_Controller.get_instance = MagicMock(return_value=MagicMock())
 
-        mut._add_to_active_vehicle_list(vehicle1)
-        if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
-            pytest.fail("preconditions in vehicle list not correct.")
+            vehicle1: Vehicle = get_one_dummy_vehicle
+            mut: EnvironmentManager = get_mut_with_endless_playing_time
 
-        mut.put_player_on_next_free_spot("dummyplayer1")
-        mut.put_player_on_next_free_spot("dummyplayer2")
-        if not sum(vehicle.get_player_id() == "dummyplayer1"
-                   for vehicle in mut.get_vehicle_list()) == 1:
-            pytest.fail("preconditions in vehicle list not correct.")
+            mut._add_to_active_vehicle_list(vehicle1)
+            if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
+                pytest.fail("preconditions in vehicle list not correct.")
 
-        if not any(player == "dummyplayer2"
-                   for player in mut.get_waiting_players()):
-            pytest.fail("preconditions in vehicle list not correct.")
+            mut.put_player_on_next_free_spot("dummyplayer1")
+            mut.put_player_on_next_free_spot("dummyplayer2")
+            if not sum(vehicle.get_player_id() == "dummyplayer1"
+                       for vehicle in mut.get_vehicle_list()) == 1:
+                pytest.fail("preconditions in vehicle list not correct.")
 
-        # Act / Assert
-        assert len(mut.get_waiting_players()) == 1
-        result = mut.manage_removal_from_game_for("dummyplayer2", RemovalReason.NONE)
-        assert result
-        assert len(mut.get_waiting_players()) == 0
+            if not any(player == "dummyplayer2"
+                       for player in mut.get_waiting_players()):
+                pytest.fail("preconditions in vehicle list not correct.")
 
-        result = mut.manage_removal_from_game_for("dummyplayer1", RemovalReason.NONE)
-        assert result
-        assert all(vehicle.get_player_id() is None
-                   for vehicle in mut.get_vehicle_list())
+            # Act / Assert
+            assert len(mut.get_waiting_players()) == 1
+            result = mut.manage_removal_from_game_for("dummyplayer2", RemovalReason.NONE)
+            assert result
+            assert len(mut.get_waiting_players()) == 0
+
+            result = mut.manage_removal_from_game_for("dummyplayer1", RemovalReason.NONE)
+            assert result
+            assert all(vehicle.get_player_id() is None
+                       for vehicle in mut.get_vehicle_list())
 
     @pytest.mark.asyncio
     def test_for_invalid_player_id_and_reason(self, get_mut_with_endless_playing_time,
@@ -342,28 +349,35 @@ class TestPublishRemovedPlayer:
                                                                    "because you were no longer reachable.")])
     def test_with_valid_data(self, get_mut_with_endless_playing_time, reason_parameter, expected):
         # Arrange
-        remove_player_callback_mock = Mock()
-        mut: EnvironmentManager = get_mut_with_endless_playing_time
-        mut.set_publish_removed_player_callback(remove_player_callback_mock)
+        with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+            minigame_controller_mock = MagicMock()
+            minigame_controller_mock._minigame_objects = {}
+            Minigame_Controller.instance = minigame_controller_mock
+            Minigame_Controller.get_instance = MagicMock(return_value=MagicMock())
 
-        # Act
-        result = mut._publish_removed_player("dummyplayer1", reason_parameter)
+            remove_player_callback_mock = Mock()
+            mut: EnvironmentManager = get_mut_with_endless_playing_time
+            mut.set_publish_removed_player_callback(remove_player_callback_mock)
 
-        # Assert
-        assert result
-        remove_player_callback_mock.assert_called_with("dummyplayer1", expected)
+            # Act
+            result = mut._publish_removed_player("dummyplayer1", reason_parameter)
+
+            # Assert
+            assert result
+            remove_player_callback_mock.assert_called_with("dummyplayer1", expected)
 
     def test_with_invalid_string_reason(self, get_mut_with_endless_playing_time):
         # Arrange
-        remove_player_callback_mock = Mock()
-        mut: EnvironmentManager = get_mut_with_endless_playing_time
-        mut.set_publish_removed_player_callback(remove_player_callback_mock)
+        with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+            remove_player_callback_mock = Mock()
+            mut: EnvironmentManager = get_mut_with_endless_playing_time
+            mut.set_publish_removed_player_callback(remove_player_callback_mock)
 
-        # Act
-        result = mut._publish_removed_player("dummyplayer1", "invalid_reason")
+            # Act
+            result = mut._publish_removed_player("dummyplayer1", "invalid_reason")
 
-        # Assert
-        assert not result
+            # Assert
+            assert not result
 
     def test_with_invalid_int_reason(self, get_mut_with_endless_playing_time):
         # Arrange

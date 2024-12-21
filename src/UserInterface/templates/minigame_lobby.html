@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver {{player}}</title>
+
+    <!-- general style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- custom header stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+
+    <!-- Include socket.io library -->
+    <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+
+    <!-- Include jqeury -->
+    <script src="{{ url_for('static', filename='external_resources/jquery-3.7.1.min.js')}}"></script>
+
+</head>
+<body>
+
+    
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box" id="description">
+            <div class="info-title">
+                <h2>How to play</h2>
+            </div>
+            <p id="infoBoxContent"> A description of the Minigame should have appeared here...
+            </p>
+            <button class="close_tab_button" id="accept_button"> <span class="reload_symbol">&#10004;	</span> I understand the rules.</button>
+        </div>
+        <div class="info-box" id="waiting-for-players" style="display: none;">
+            <div class="info-title">
+                <h2>Waiting</h2>
+            </div>
+            <p id="waitingInfoBox"> Waiting for other players to accept the rules.
+            </p>
+        </div>
+    </div>
+    
+    <div class="flexbox-container custom_header">
+        <p class="header">Player {{player}}</p>
+        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+    </div>
+
+    <div class="flexbox-container flexbox-controls" id="control">   
+        <div class="popup" id="popup" style="display: none; font-size: larger;"></div> 
+        <div id="current-Minigame" name="{{minigame}}"></div>
+    </div>
+
+
+    <script type="text/javascript" charset="utf-8">
+        const minigame = "{{ minigame }}";
+
+        //Include the current Minigame's htm       
+        jQuery("#current-Minigame").load("{{ url_for('minigame_lobby_ui_blueprint_bp.' + minigame)}}", function(response, status){
+            if(status === 'error'){
+                alert("Failed to load minigame_lobby_ui_blueprint_bp.Minigame_Test");
+            }
+        });
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        var sent_to_driverUI = false;
+
+        window.onload = function() {
+            accept_button = document.getElementById("accept_button");
+            accept_button.onclick = function(){
+                document.getElementById("description").style.display = "none";
+                socket.emit('minigame_player_accept', {player: '{{player}}', minigame: minigame});
+                document.getElementById('waiting-for-players').style.display = "block";
+            };
+        }
+       
+        setInterval(function(){
+            socket.emit('driver_heartbeat', {player: '{{ player }}'});
+        }, {{ heartbeat_interval }});
+        
+        console.log(minigame);
+        socket.on('connect', () => {
+            socket.emit('minigame_handle_connect', {player: '{{ player }}', minigame: minigame});
+            console.log('Websocket connected');
+        });
+
+
+        window.onunload = function() {
+            socket.emit('minigame_disconnected', {player: '{{ player }}'});
+        }
+
+        socket.on('send_description', (data) => {
+            if (data.minigame != minigame)
+                return;
+
+            descriptionElement = document.getElementById("infoBoxContent");
+            descriptionElement.textContent = data.description;
+        })
+
+        /**
+        * Check if player leaves or enters the ui.
+        */
+        document.addEventListener('visibilitychange', function() {
+            console.log(document.visibilityState);
+            if (document.visibilityState === 'hidden') {
+                // e.g. changed to different tab
+                if(!sent_to_driverUI)
+                    socket.emit('driver_inactive', {player: '{{player}}'});
+            }
+            else {
+            // The page is visible again
+                socket.emit('driver_active', {player: '{{player}}'});
+            }
+        });
+
+        socket.on('redirect_to_driver_ui', (data) => {
+            if (Object.values(data).indexOf('{{ player }}') == -1)
+                return
+            sent_to_driverUI = true;
+            window.location = 'http://' + document.domain + ':' + location.port + '/driver';
+        }); 
+
+        socket.on('minigame_winner', (data) => {
+            if (data.minigame != minigame || !Object.values(data).includes("{{ player }}"))
+                return;
+
+            document.getElementById("infoBoxOverlay").style.display = 'none';
+            let popup = document.getElementById("popup")
+            document.getElementById("current-Minigame").style.display = 'none'
+            if (data.winner == '{{ player }}'){
+                if (data.owner_of_physical_vehicle_at_start == '{{ player }}'){
+                    popup.innerText = "You won the minigame. You get to keep your physical car."
+                }else{
+                    popup.innerText = "You won the minigame. You'll now take over your opponent's car."
+                }      
+            }else if(data.winner) {
+                if (data.owner_of_physical_vehicle_at_start == '{{ player }}'){
+                    popup.innerText = "You lost the minigame. Your oppononent will now take over your car and you theirs."
+                }else{
+                    popup.innerText = "You lost the minigame. You'll keep your virtual car."
+                }
+            }else{
+                popup.innerText = "The minigame was cancelled or there was a tie. There is no winner."
+            }
+            popup.style.display = 'block'
+        })
+
+        socket.on('all_ready', (data) => {
+            if (data.minigame != minigame || !Object.values(data).includes("{{ player }}"))
+                return;
+            
+            if (data.countdown == 0){
+                document.getElementById('infoBoxOverlay').style.display = 'none';
+            } else{
+                document.getElementById('waitingInfoBox').innerText = "Starting in " + data.countdown + " seconds.";
+            }
+        });
+
+    </script>
+
+</body>
+</html>
