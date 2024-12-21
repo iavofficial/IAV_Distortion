@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-import EnvironmentManagement
+from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from DataModel.Vehicle import Vehicle
 from LocationService.Trigo import Position
 from UserInterface.CarMap import CarMap
@@ -12,11 +12,10 @@ class TestVehicleProximity:
 
     @pytest.fixture(autouse=True)
     def setup_mocks(self):
-        self.env_manager_mock = MagicMock(spec=EnvironmentManagement)
+        self.env_manager_mock = MagicMock(spec=EnvironmentManager)
         self.location_service_mock = MagicMock()
 
-        with patch('asyncio.create_task') as create_task_mock, \
-                patch('EnvironmentManagement.EnvironmentManager.EnvironmentManager.is_vehicle_in_virtual_vehicles', return_value=True):
+        with patch('asyncio.create_task') as create_task_mock:
             create_task_mock.return_value = MagicMock()
 
             self.vehicle1 = Vehicle(vehicle_id="car1", location_service=self.location_service_mock)
@@ -42,7 +41,6 @@ class TestVehicleProximity:
 
             self.car_map = CarMap(self.env_manager_mock, sio=MagicMock())
 
-    @pytest.mark.fast
     def test_check_vehicle_proximity(self):
         # Act
         self.car_map.check_vehicle_proximity("car1", {"x": 100, "y": 100})
@@ -50,7 +48,6 @@ class TestVehicleProximity:
         # Assert
         assert self.vehicle1.vehicle_in_proximity == "car2"
 
-    @pytest.mark.fast
     def test_check_virtual_vehicle_leave_proximity(self):
         # Arrange
         self.car_map.check_vehicle_proximity("car1", {"x": 100, "y": 100})
