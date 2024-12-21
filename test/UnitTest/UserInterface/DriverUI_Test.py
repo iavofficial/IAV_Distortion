@@ -1,9 +1,7 @@
 import asyncio
 import time
-import asyncio
-import time
 import uuid
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -12,7 +10,6 @@ from socketio import AsyncServer
 from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from LocationService.LocationService import LocationService
-from Minigames.Minigame_Controller import Minigame_Controller
 from UserInterface.DriverUI import DriverUI
 from VehicleManagement.FleetController import FleetController
 from DataModel.Vehicle import Vehicle
@@ -42,7 +39,6 @@ def initialise_dependencies():
 
     location_service_mock = MagicMock(spec=LocationService)
 
-
     vehicle: Vehicle = Vehicle('1234', location_service_mock, disable_item_removal=True)
 
     return driver_ui, environment_manager, vehicle
@@ -71,19 +67,19 @@ async def test_driver_ui_template_data_player_exists(initialise_dependencies):
     has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
     assert not has_vehicle
 
-        # Remove player 1 from the vehicle
-        environment_manager.manage_removal_from_game_for(player_1)
-        # Now player 2 has the car
-        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-        assert not has_vehicle
-        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-        assert not has_vehicle
-        has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
-        assert has_vehicle
-        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-        assert not has_vehicle
-        has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
-        assert has_vehicle
+    # Remove player 1 from the vehicle
+    environment_manager.manage_removal_from_game_for(player_1)
+    # Now player 2 has the car
+    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+    assert not has_vehicle
+    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+    assert not has_vehicle
+    has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
+    assert has_vehicle
+    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+    assert not has_vehicle
+    has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
+    assert has_vehicle
 
 
 @pytest.mark.asyncio
