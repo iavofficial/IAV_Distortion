@@ -199,7 +199,7 @@ class DriverUI:
             if vehicle is not None and driver.get_is_in_physical_vehicle() is not True:
                 self.__run_async_task(self.__in_physical_vehicle(driver))
             return
-        
+
         @self._sio.on('switch_cars')
         def switch_cars(sid, data: dict) -> None:
             player = data["player"]
@@ -255,7 +255,7 @@ class DriverUI:
 
     async def __in_physical_vehicle(self, driver: Driver) -> None:
         driver.set_is_in_physical_vehicle(True)
-        while self.get_vehicle_by_player(player=driver.get_player_id()) is not None and "Virtual"  in self.get_vehicle_by_player(player=driver.get_player_id()).get_vehicle_id():
+        while self.get_vehicle_by_player(player=driver.get_player_id()) is not None and "Virtual" in self.get_vehicle_by_player(player=driver.get_player_id()).get_vehicle_id():
             driver.increase_score(1)
             await self._sio.emit('update_player_score', {'score': driver.get_score(), 'player': driver.get_player_id()})
             await self._sio.sleep(1)
