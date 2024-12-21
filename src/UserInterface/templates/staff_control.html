@@ -83,6 +83,7 @@
         var map_data = data["car_map"];
         var car_queue = data["car_queue"];
         var player_queue=data["player_queue"];
+        var vehicle_with_bots = data["vehicle_with_bots"];
         $('#table-container').empty();
         var uuids_table = document.createElement('table');
 
@@ -211,6 +212,16 @@
             row.appendChild(cell_player);
             row.appendChild(cell_uuid);
             row.appendChild(delVehicleButton);
+          if (!vehicle_with_bots.includes(car_queue[car])) {
+            let addBotButton = document.createElement("button");
+            addBotButton.textContent = "Add Bot";
+            addBotButton.className = "button_small button_pink";
+            addBotButton.onclick = function () {
+              addBotToVehicle(car_queue[car]);
+              addBotButton.style.display = "none";
+            };
+            row.appendChild(addBotButton);
+          }
             uuids_table.appendChild(row);
         }
         document.getElementById('table-container').appendChild(uuids_table);
@@ -371,6 +382,15 @@
     */
     function deleteVehicle(vehicle) {
         socket.emit('delete_vehicle',vehicle);
+    }
+
+    /**
+     * Emits 'add_bot_to_vehicle' event.
+     *
+     * @param {string} vehicle - ID of vehicle to be removed from the game.
+     */
+    function addBotToVehicle(vehicle) {
+      socket.emit('add_bot_to_vehicle', vehicle);
     }
 
     /**
