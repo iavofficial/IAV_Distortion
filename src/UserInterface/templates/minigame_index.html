@@ -66,6 +66,8 @@
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
+        var sent_to_driverUI = false;
+
         window.onload = function() {
             accept_button = document.getElementById("accept_button");
             accept_button.onclick = function(){
@@ -98,9 +100,26 @@
             descriptionElement.textContent = data.description;
         })
 
+        /**
+        * Check if player leaves or enters the ui.
+        */
+        document.addEventListener('visibilitychange', function() {
+            console.log(document.visibilityState);
+            if (document.visibilityState === 'hidden') {
+                // e.g. changed to different tab
+                if(!sent_to_driverUI)
+                    socket.emit('driver_inactive', {player: '{{player}}'});
+            }
+            else {
+            // The page is visible again
+                socket.emit('driver_active', {player: '{{player}}'});
+            }
+        });
+
         socket.on('redirect_to_driver_ui', (data) => {
             if (Object.values(data).indexOf('{{ player }}') == -1)
                 return
+            sent_to_driverUI = true;
             window.location = 'http://' + document.domain + ':' + location.port + '/driver';
         }); 
 
@@ -108,6 +127,7 @@
             if (data.minigame != minigame)
                 return;
 
+            document.getElementById("infoBoxOverlay").style.display = 'none';
             let popup = document.getElementById("popup")
             document.getElementById("current-Minigame").style.display = 'none'
             if (data.winner == '{{ player }}'){

@@ -221,7 +221,7 @@ class Minigame_Controller:
 
         self._available_minigames.remove(minigame)
 
-        running_game_task: asyncio.Task = asyncio.create_task(minigame_object.play(*players))
+        running_game_task: asyncio.Task = minigame_object.play(*players)
         running_game_task.add_done_callback(self._minigame_done_callback(minigame_object))
 
         self._minigame_start_callback(running_game_task, minigame_object)

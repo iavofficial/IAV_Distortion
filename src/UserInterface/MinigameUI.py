@@ -49,12 +49,12 @@ class Minigame_UI:
             self._driving_speed_while_playing = 30
 
         try:
-            self.__driver_heartbeat_timeout: int = int(self.config_handler.get_configuration()["driver"]
-                                                       ["driver_heartbeat_timeout_s"])
+            self.__driver_heartbeat_interval: int = int(self.config_handler.get_configuration()["driver"]
+                                                        ["driver_heartbeat_interval_ms"])
         except KeyError:
             logger.warning("No valid value for driver: driver_heartbeat_timeout in config_file. Using default "
                            "value of 30 seconds")
-            self.__driver_heartbeat_timeout = 30
+            self.__driver_heartbeat_interval = 30
 
         async def home_minigame() -> str:
             player = request.cookies.get("player")
@@ -64,7 +64,7 @@ class Minigame_UI:
             return await render_template(template_name_or_list='minigame_index.html',
                                          player=player,
                                          minigame=self._minigame_controller.get_minigame_name_by_player_id(player),
-                                         heartbeat_interval=self.__driver_heartbeat_timeout)
+                                         heartbeat_interval=self.__driver_heartbeat_interval)
 
         self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func=home_minigame)
 
