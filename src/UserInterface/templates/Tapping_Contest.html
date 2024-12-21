@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Click Game</title>
-  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+  <!-- Include socket.io library -->
+  <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
+  
   <style>
     @media screen and (orientation: portrait) {
       div.header { background-image: url(image1.jpg); }
