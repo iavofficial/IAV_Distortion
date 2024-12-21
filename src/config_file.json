@@ -59,6 +59,7 @@
 			"min-length": 2,
 			"max-length": 5,
 			"game-ends": 10
+		}
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
