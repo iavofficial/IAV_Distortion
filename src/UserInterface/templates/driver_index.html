@@ -148,7 +148,6 @@
 
 
         window.onunload = function() {
-            socket.emit('disconnected', {player: '{{ player }}'});
             if(!sent_to_minigame)
                 socket.emit('disconnected', {player: '{{ player }}'});
         }
