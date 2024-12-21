@@ -32,6 +32,12 @@
                     <span class="custom-checkbox"></span>    
                 </label>
             </div>
+            <div class="menu_item">
+                <label class="checkbox-container"> Reaction_Contest:
+                    <input type="checkbox" id="Reaction_Contest" name="Reaction_Contest">
+                    <span class="custom-checkbox"></span>    
+                </label>
+            </div>
         </div>
         <div id="specific_settings">
             <h2>Specific Settings</h2>
@@ -40,6 +46,21 @@
                 <div class="menu_item">
                     <label for="Tapping_Contest_Game_length">Length of Tapping Contest games in seconds (default 10):</label>
                     <input type="number" id="Tapping_Contest_Game_length" name="Tapping_Contest_Game_length" min="5" max="100">
+                </div>
+            </div>
+            <div id="Reaction_Contest_Settings">
+                <h3>Reaction Contest Settings:</h3>
+                <div class="menu_item">
+                    <label for="Reaction_Contest_Min_length">Min length of Reaction Contest games in seconds (default 2):</label>
+                    <input type="number" id="Reaction_Contest_Min_length" name="Reaction_Contest_Min_length" min="1" max="10">
+                </div>
+                <div class="menu_item">
+                    <label for="Reaction_Contest_Max_length">Max length of Reaction Contest games in seconds (default 5):</label>
+                    <input type="number" id="Reaction_Contest_Max_length" name="Reaction_Contest_Max_length" min="5" max="20">
+                </div>
+                <div class="menu_item">
+                    <label for="Reaction_Contest_Game_length">Length of Tapping Contest games in seconds (default 10):</label>
+                    <input type="number" id="Reaction_Contest_Game_length" name="Reaction_Contest_Game_length" min="10" max="30">
                 </div>
             </div>
         </div>
@@ -55,7 +76,7 @@
 
         // Checkboxes
         document.getElementById('auto_drive_constantly').checked = settings['minigame']['auto_drive_constantly']
-        let minigameCheckboxes = ['Minigame_Test', 'Tapping_Contest'] 
+        let minigameCheckboxes = ['Minigame_Test', 'Tapping_Contest', 'Reaction_Contest']  
         minigameCheckboxes.forEach( (id) => {
             document.getElementById(id).checked = settings['minigame']['games'][id]
         })
@@ -63,6 +84,9 @@
         // numbers
         driving_speed_while_playing.value = settings.minigame.driving_speed_while_playing;
         Tapping_Contest_Game_length.value = settings.minigame['tapping-contest']['game-length'];
+        Reaction_Contest_Min_length.value = settings.minigame['reaction-contest']['min-length'];
+        Reaction_Contest_Max_length.value = settings.minigame['reaction-contest']['max-length'];
+        Reaction_Contest_Game_length.value = settings.minigame['reaction-contest']['game-ends'];
     }
 
 

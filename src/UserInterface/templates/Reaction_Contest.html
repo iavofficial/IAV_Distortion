@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaction Contest</title>
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <style>
+    #reaction-box {
+      width: 150px;
+      height: 150px;
+      background-color: grey; /* Initial color is grey */
+      margin: 20px auto;
+      border-radius: 10px;
+      cursor: pointer;
+      display: none; /* Hidden until the game starts */
+    }
+
+    /* Centering elements */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #status, #result {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      text-align: center;
+    }  
+  </style>
+</head>
+<body>
+  <h1>Reaction Contest</h1>
+  <div id="status">Waiting for the game to start...</div>
+  <div id="reaction-box"></div>
+  <div id="result"></div>
+
+  <script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port); 
+    var playerId = '{{ player }}';
+
+    // Join game and send player ID to server
+    socket.emit('Reaction_Contess_join', { player_id: playerId });
+
+    socket.on('start_game', (data) => {
+      document.getElementById('status').textContent = 'Get ready...';
+      setTimeout(() => {
+        document.getElementById('reaction-box').style.display = 'block';
+        document.getElementById('reaction-box').style.backgroundColor = 'green';
+        document.getElementById('status').textContent = 'Click the green box!';
+      }, data['game-length'] * 1000); // Show the box after the delay
+    });
+
+    document.getElementById('reaction-box').addEventListener('click', () => {
+      socket.emit('Reaction_Contess_click', { player_id: playerId });
+      document.getElementById('reaction-box').style.display = 'none';
+    });
+
+    socket.on('end_game', (data) => {
+      const winner = data.winner;
+      const resultText = winner === playerId ? 'You won!' : `You lost! Winner: ${winner}`;
+      document.getElementById('result').textContent = resultText;
+      document.getElementById('status').textContent = 'Game over!';
+    });
+  </script>
+</body>
+</html>

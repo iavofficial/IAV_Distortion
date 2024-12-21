@@ -48,11 +48,16 @@
 		"driving_speed_while_playing": 30,
 		"games": {
 			"Minigame_Test": false,
-			"Tapping_Contest": true
+			"Tapping_Contest": true,
+			"Reaction_Contest": true
 		},
 		"tapping-contest": {
 			"game-length": 10
-		}
+		},
+		"reaction-contest": {
+			"min-length": 2,
+			"max-length": 5,
+			"game-ends": 10
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
