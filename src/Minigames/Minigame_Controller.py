@@ -25,7 +25,7 @@ class Minigame_Controller:
         "Tapping_Contest": Tapping_Contest_UI,
         "Minigame_Test": Minigame_Test,
         "Reaction_Contest": Reaction_Contest_UI,
-    }
+     }
 
     def __init__(self, sio: AsyncServer = None, minigame_ui_blueprint: Blueprint = None):
         """

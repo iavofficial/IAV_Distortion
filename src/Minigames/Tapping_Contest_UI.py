@@ -99,7 +99,7 @@ class Tapping_Contest_UI(Minigame):
             'update_clicks',
             {'player_id': player_id, 'clicks': self._game.get_clicks()[player_index], 'cps': cps},
             room=self._room
-        )
+         )
 
     async def _send_tie(self):
         await self._sio.emit('tie', to=self._room)
