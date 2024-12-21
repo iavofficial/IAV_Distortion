@@ -42,9 +42,9 @@ class TestVehicleProximity:
             self.car_map = CarMap(self.env_manager_mock, sio=MagicMock())
 
     @pytest.mark.fast
-    def test_check_virtual_vehicle_proximity(self):
+    def test_check_vehicle_proximity(self):
         # Act
-        self.car_map.check_virtual_vehicle_proximity("car1", {"x": 100, "y": 100})
+        self.car_map.check_vehicle_proximity("car1", {"x": 100, "y": 100})
 
         # Assert
         assert self.vehicle1.vehicle_in_proximity == "car2"
@@ -52,12 +52,12 @@ class TestVehicleProximity:
     @pytest.mark.fast
     def test_check_virtual_vehicle_leave_proximity(self):
         # Arrange
-        self.car_map.check_virtual_vehicle_proximity("car1", {"x": 100, "y": 100})
+        self.car_map.check_vehicle_proximity("car1", {"x": 100, "y": 100})
         assert self.vehicle1.vehicle_in_proximity == "car2"
 
         # Act
         self.vehicle2._location_service._current_position = Position(250, 250)
-        self.car_map.check_virtual_vehicle_proximity("car1", {"x": 100, "y": 100})
+        self.car_map.check_vehicle_proximity("car1", {"x": 100, "y": 100})
 
         # Assert
         assert not self.vehicle1.vehicle_in_proximity == "car2"
