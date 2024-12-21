@@ -50,12 +50,12 @@ class DriverUI:
             self.__driver_heartbeat_timeout = 30
 
         try:
-            self.__driver_proximity_timer: int = int(self.config_handler.get_configuration()["driver"]
-                                                     ["driver_proximity_timer_s"])
+            self.__driver_proximity_timer: int = int(self.config_handler.get_configuration()["vehicle_takeover"]
+                                                     ["proximity_timer"]["duration"])
         except KeyError:
-            logger.warning("No valid value for driver: driver_proximity_timer in config_file. Using default "
-                           "value of 5 seconds")
-            self.__driver_proximity_timer = 5
+            logger.warning("No valid value for driver: proximity_timer/duration in config_file. Using default "
+                           "value of 3 seconds")
+            self.__driver_proximity_timer = 3
 
         async def home_driver() -> str:
             """

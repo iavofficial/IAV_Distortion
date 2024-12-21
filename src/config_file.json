@@ -43,6 +43,21 @@
 		"item_spawn_interval": 30,
 		"item_max_count": 2
 	},
+	"vehicle_takeover": {
+		"proximity_timer": {
+			"duration": 3,
+			"range": 200
+		},
+		"cars_that_can_hack": {
+			"virtual": true,
+			"physical": true
+		},
+		"hackable_cars": {
+			"virtual": true,
+			"physical": true,
+			"virtuali": true
+		}
+	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
 		"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",

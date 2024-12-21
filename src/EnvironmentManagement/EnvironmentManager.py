@@ -787,6 +787,12 @@ class EnvironmentManager:
                     num += 1
         return full_map
 
+    def is_vehicle_in_virtual_vehicles(self, vehicle_id: str) -> bool:
+        return vehicle_id in self._active_virtual_cars
+
+    def is_vehicle_in_physical_vehicles(self, vehicle_id: str) -> bool:
+        return vehicle_id in self._active_physical_cars
+
     # racetrack management
     def get_track(self) -> FullTrack | None:
         """

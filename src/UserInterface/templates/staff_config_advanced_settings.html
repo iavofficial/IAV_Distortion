@@ -57,6 +57,49 @@
                 <input type="number" id="item_max_count" name="item_max_count" min="0" max="20">
             </div>
         </div>
+
+        <div id="adv_environment_settings">
+            <h2>Environment Settings</h2>
+            <div class="menu_item">
+                <label for="proximity_timer_duration_s">Proximity Timer Duration [s]:</label>
+                <input type="number" id="proximity_timer_duration_s" name="proximity_timer_duration_s" min="1" max="10">
+            </div>
+            <div class="menu_item">
+                <label for="proximity_timer_range">Proximity Check Range:</label>
+                <input type="number" id="proximity_timer_range" name="proximity_timer_range" min="100" max="500">
+            </div>
+            <div>
+                <label>Which Cars can hack:</label>
+                <div class="menu_item">
+                    <label class="checkbox-container"> Virtual Cars:
+                        <input type="checkbox" id="cars_that_can_hack_virtual" name="cars_that_can_hack_virtual">
+                        <span class="custom-checkbox"></span>    
+                    </label>
+                </div>
+                <div class="menu_item">
+                    <label class="checkbox-container"> Physical Cars:
+                        <input type="checkbox" id="cars_that_can_hack_physical" name="cars_that_can_hack_physical">
+                        <span class="custom-checkbox"></span>    
+                    </label>
+                </div>
+            </div>
+            <div>
+                <label>Which Cars can be hacked:</label>
+                <div class="menu_item">
+                    <label class="checkbox-container"> Virtual Cars:
+                        <input type="checkbox" id="hackable_cars_virtual" name="hackable_cars_virtual">
+                        <span class="custom-checkbox"></span>    
+                    </label>
+                </div>
+                <div class="menu_item">
+                    <label class="checkbox-container"> Physical Cars:
+                        <input type="checkbox" id="hackable_cars_physical" name="hackable_cars_physical">
+                        <span class="custom-checkbox"></span>    
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <button type="submit">Apply changes... </button>
     </form>
 </div>
@@ -74,6 +117,10 @@
         } else {
             checkbox_env_auto_discover_anki_cars.checked = false;
         }
+        document.getElementById('cars_that_can_hack_virtual').checked = settings['vehicle_takeover']['cars_that_can_hack']['virtual'];
+        document.getElementById('cars_that_can_hack_physical').checked = settings['vehicle_takeover']['cars_that_can_hack']['physical'];
+        document.getElementById('hackable_cars_virtual').checked = settings['vehicle_takeover']['hackable_cars']['virtual'];
+        document.getElementById('hackable_cars_physical').checked = settings['vehicle_takeover']['hackable_cars']['physical'];
 
         // numbers
         driver_heartbeat_interval_ms.value = settings.driver.driver_heartbeat_interval_ms;
@@ -86,6 +133,9 @@
         protection_duration_s.value = settings.hacking_protection.protection_duration_s;
         item_spawn_interval.value = settings.item.item_spawn_interval;
         item_max_count.value = settings.item.item_max_count;
+
+        proximity_timer_duration_s.value = settings.vehicle_takeover['proximity_timer']['duration'];
+        proximity_timer_range.value = settings.vehicle_takeover['proximity_timer']['range'];
     }
 
 
