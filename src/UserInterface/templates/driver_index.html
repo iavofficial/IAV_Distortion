@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
     <title>Driver {{player}}</title>
 
     <!-- general style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
 
     <!-- custom header stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
 
     <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
 
     <!-- Include socket.io library -->
     <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
@@ -60,6 +62,8 @@
 
         </div>
 
+        
+
         <div class="flexbox-container_right">
             <div class="flexbox-driver_buttons">
                 <div class="flexbox-item flexbox-change_lane_buttons">
@@ -76,10 +80,20 @@
                         &ShortRightArrow;
                     </button>
                 </div>
+
+            <div class="flexbox-item flexbox-change_lane_buttons">
+              <button class="driver-buttons" id="switch_cars">Hack</button>
             </div>
         </div>
+      </div>
+    </div>
+    <div class="loading-message" id="loadingMessage" style="display: none">
+      <p class="loading_bar"></p>
     </div>
 
+    <div id="loading-bar" class="loading-bar" style="display: none">
+      <div id="loading-progress" class="loading-progress"></div>
+    </div>
 
     <script type="text/javascript" charset="utf-8">
 
@@ -117,6 +131,13 @@
 
         buttonUTurn.onclick = function() {
           socket.emit('make_uturn', {player: '{{player}}'});
+        };
+
+        <!-- buttons to switch cars -->
+        var buttonSwitchCars = document.getElementById("switch_cars");
+
+        buttonSwitchCars.onclick = function() {
+          socket.emit('switch_cars', {player: '{{player}}'});
         };
 
         <!-- loading window -->
@@ -164,6 +185,75 @@
             show_hacked_info(data.active_hacking_scenario);
           }
         });
+
+      let timerInterval;
+
+      socket.on('send_proximity_vehicle', function(data) {
+          clearInterval(timerInterval);
+          const hacker_vehicle_id = data.hacker_vehicle_id;
+          const getting_hacked_vehicle_id = data.getting_hacked_vehicle_id;
+          const hacker_driver_id = data.hacker_driver_id;
+          const getting_hacked_driver_id = data.getting_hacked_driver_id;
+          const proximityTimer = data.proximity_timer * 1000;
+
+          if (hacker_driver_id == "{{ player }}" && getting_hacked_vehicle_id != null){
+            startLoadingBar(proximityTimer, getting_hacked_driver_id, "Trying to Hack: ");
+          } else if (getting_hacked_driver_id == "{{ player }}" && hacker_driver_id != null){
+            startLoadingBar(proximityTimer, hacker_driver_id, "Getting Hacked by: ")  
+          } else {
+              resetLoadingBar();
+              buttonSwitchCars.style.display = "none";
+          }
+      });
+
+      socket.on('send_finished_proximity_timer', function(data) {
+          if (data.hacker_driver_id == "{{ player }}"){
+            buttonSwitchCars.style.display = "block";
+            resetLoadingBar();
+          }
+          clearInterval(timerInterval);
+      });
+
+      socket.on('send_abort_hacking', function(data) {
+        if(data.hacker_driver_id == "{{ player }}" || data.getting_hacked_driver_id == "{{ player }}"){
+            buttonSwitchCars.style.display = "none";
+            resetLoadingBar();
+            }
+            clearInterval(timerInterval);
+      });
+
+      function startLoadingBar(duration,vehicle_id, displayMessage) {
+        const loadingBar = document.getElementById("loading-bar");
+        const progress = document.getElementById("loading-progress");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        loadingBar.style.display = "block";
+        loadingMessage.style.display = "block";
+        document.getElementsByClassName("loading_bar")[0].innerHTML = displayMessage + vehicle_id;
+
+        let startTime = Date.now();
+
+        timerInterval = setInterval(() => {
+          let elapsedTime = Date.now() - startTime;
+          let progressWidth = Math.min((elapsedTime / duration) * 100, 100);
+          progress.style.width = progressWidth + "%";
+
+          if (progressWidth === 100) {
+            clearInterval(timerInterval);
+          }
+        }, 100);
+      }
+
+      function resetLoadingBar() {
+        const loadingBar = document.getElementById("loading-bar");
+        const progress = document.getElementById("loading-progress");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        loadingBar.style.display = "none";
+        progress.style.width = "0%";
+        loadingMessage.style.display = "none";
+        clearInterval(timerInterval);
+      }
 
         function show_hacked_info(active_hacking_scenario){
           if(active_hacking_scenario == "0") {
