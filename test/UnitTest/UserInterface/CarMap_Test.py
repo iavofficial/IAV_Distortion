@@ -15,7 +15,8 @@ class TestVehicleProximity:
         self.env_manager_mock = MagicMock(spec=EnvironmentManagement)
         self.location_service_mock = MagicMock()
 
-        with patch('asyncio.create_task') as create_task_mock:
+        with patch('asyncio.create_task') as create_task_mock, \
+                patch('EnvironmentManagement.EnvironmentManager.is_vehicle_in_virtual_vehicles', return_value=True):
             create_task_mock.return_value = MagicMock()
 
             self.vehicle1 = Vehicle(vehicle_id="car1", location_service=self.location_service_mock)
