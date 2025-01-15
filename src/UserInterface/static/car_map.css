@@ -69,3 +69,15 @@
     padding: 50px;
     font-size: larger;
 }
+
+#scoreboard {
+    margin-top: 30px;
+}
+
+#scoreboard tr {
+    color: #96e7ff;
+}
+
+#scoreboard tbody td {
+    color: #96e7ff;
+}

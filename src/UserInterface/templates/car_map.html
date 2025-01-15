@@ -46,6 +46,17 @@
                             document.getElementById("slogan_text").style.color = disp_settings.disp_cm_slogan_color;
                         }
                     </script>
+                    <table id="scoreboard">
+                        <thead>
+                            <tr>
+                                <th>Player-Name</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
                 </div>
 
             <script>
@@ -457,6 +468,23 @@
                         ctx.fill();
                     }
 
+                    socket.on('update_scoreboard', function(data){
+                        const tableBody = document.getElementById('scoreboard').querySelector('tbody');
+                        tableBody.innerHTML = '';
+
+                        data.forEach(row => {
+                            const tr = document.createElement('tr');
+                            const nameCell = document.createElement('td');
+                            const scoreCell = document.createElement('td');
+
+                            nameCell.textContent = row["Player-Name"];
+                            scoreCell.textContent = row["Score"];
+
+                            tr.appendChild(nameCell);
+                            tr.appendChild(scoreCell);
+                            tableBody.appendChild(tr);
+                        });
+                    });
 
                     /**
                     * Reload the page when vehicle is added.
@@ -572,12 +600,12 @@
                         }
                         resizeCanvas();
                         renderFullCarmap();
+                        socket.emit('window_loaded');
                     };
                 </script>
                 {% endif %}
                 </div>
             </div>
-
             <div class="instructions" id="instructions">
                 <div class="qr-code wifi">
                   <h3>1. Scan to connect to WiFi!</h3>

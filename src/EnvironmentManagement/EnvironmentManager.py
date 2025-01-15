@@ -16,6 +16,7 @@ from typing import Callable, Any
 from collections import deque
 from deprecated import deprecated
 
+from DataModel.Driver import Driver
 from Items.ItemCollisionDetection import ItemCollisionDetector
 from DataModel.InitializationCar import InitializationCar
 from DataModel.PhysicalCar import PhysicalCar
@@ -55,6 +56,7 @@ class EnvironmentManager:
 
         self._player_queue_list: deque[str] = deque()
         self._active_anki_cars: list[Vehicle] = []
+        self._player_list: list[Driver] = []
 
         self.__update_staff_ui_callback: Callable[[list[dict[str, str]], list[str], list[str]], None] | None = None
         self.__publish_removed_player_callback: Callable[[str, str], None] | None = None
@@ -249,6 +251,15 @@ class EnvironmentManager:
                 return False
 
         result = self._add_player_to_queue(player_id)
+
+        isNewPlayer = 1
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                isNewPlayer = 0
+                p.set_online()
+        if isNewPlayer == 1:
+            newDriver = Driver(player_id=player_id)
+            self._player_list.append(newDriver)
         return result
 
     def put_player_on_next_free_spot(self, player_id: str) -> bool:
@@ -331,6 +342,9 @@ class EnvironmentManager:
         if player_was_removed:
             self._publish_removed_player(player_id=player_id, reason=reason)
             self.update_staff_ui()
+            d = self.get_driver_by_id(player_id)
+            d.set_offline()
+            self.__run_async_task(self.remove_offline_driver(d, False))
             return True
         else:
             return False
@@ -468,6 +482,37 @@ class EnvironmentManager:
             self._remove_player_tasks[player].cancel()
             del self._remove_player_tasks[player]
         return
+
+    def __run_async_task(self, task):
+        """
+        Run a asyncio awaitable task
+        task: awaitable task
+        """
+        asyncio.create_task(task)
+        # TODO: Log error, if the coroutine doesn't end successfully
+
+    async def remove_offline_driver(self, d: Driver, now: bool) -> None:
+        """
+        Wait for offline removal period then remove player if still offline.
+
+        Parameters
+        ----------
+        d: Driver
+            Driver instance of player to be removed
+        now: bool
+            Boolean value if player is to be removed now or after the set period
+        """
+        if not now:
+            period = int(self.config_handler.get_configuration()["driver"]["driver_removal_period_min"])
+            offline_since = d.get_offline_since()
+            try:
+                await asyncio.sleep(period*60)
+                if d.get_offline_since() == offline_since:
+                    self.__remove_driver(d)
+            except asyncio.CancelledError:
+                logger.debug(f"Player {d.get_player_id()} reconnected. Removing player aborted.")
+        else:
+            self.__remove_driver(d)
 
     async def __remove_player_after_grace_period(self, player: str, grace_period: int = 5) -> None:
         """
@@ -745,3 +790,35 @@ class EnvironmentManager:
 
     def get_item_collision_detector(self) -> ItemCollisionDetector:
         return self._item_collision_detector
+
+    def get_driver_by_id(self, player_id: str) -> Driver:
+        """
+        Returns the Driver instance for a specific player_id.
+
+        Parameters
+        ----------
+        player_id:
+            ID of player to return Driver instance of
+        """
+        for p in self._player_list:
+            if p.get_player_id() == player_id:
+                return p
+        return None
+
+    def get_drivers(self) -> list[Driver]:
+        """
+        Returns all Drivers of this session
+        """
+        return self._player_list
+
+    def __remove_driver(self, driver: Driver) -> None:
+        """
+        Removes the Driver instance of a specific player from the Driver list.
+
+        Parameters
+        ----------
+        driver: Driver
+            Driver instance to be removed.
+        """
+        self._player_list.remove(driver)
+        logger.info("Removing driver with player ID " + driver.get_player_id() + " from the driver list")

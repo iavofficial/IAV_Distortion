@@ -24,8 +24,10 @@
 		"Virtual Vehicle 8": "VirtualVehicle8.svg"
 	},
 	"driver": {
+		"driver_proximity_timer_s": 5,
 		"driver_heartbeat_interval_ms": 5000,
 		"driver_heartbeat_timeout_s": 30,
+		"driver_removal_period_min": 10,
 		"driver_reconnect_grace_period_s": 5,
 		"driver_background_grace_period_s": 30
 	},

@@ -264,6 +264,8 @@ class StaffUI:
             """
             # TODO: authentication check for websocket events
             environment_mng.manage_removal_from_game_for(player, )
+            driver = environment_mng.get_driver_by_id(player)
+            self.__run_async_task(environment_mng.remove_offline_driver(driver, now=True))
             logger.debug("Player deleted %s", player)
             return
 
@@ -577,6 +579,7 @@ class StaffUI:
                 'driver': {
                     'driver_heartbeat_interval_ms': int(new_settings.get('driver_heartbeat_interval_ms')),
                     'driver_heartbeat_timeout_s': int(new_settings.get('driver_heartbeat_timeout_s')),
+                    'driver_removal_period_min': int(new_settings.get('driver_removal_period_min')),
                     'driver_reconnect_grace_period_s': int(new_settings.get('driver_reconnect_grace_period_s')),
                     'driver_background_grace_period_s': int(new_settings.get('driver_background_grace_period_s'))},
                 'game_config': {

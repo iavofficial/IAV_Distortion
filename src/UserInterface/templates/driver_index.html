@@ -32,6 +32,17 @@
         </div>
     </div>
 
+    <div class="overlay" id="nicknameOverlay">
+        <div class="info-box">
+            <div class="info-title">
+                <h3>Choose your nickname</h3>
+            </div>
+            <input type="text" id="textInputNickname" maxlength="10">
+            <button class="close_tab_button" id="save_button"> Save</button>
+        </div>
+    </div>
+
+
     <div class="flexbox-container custom_header">
         <p class="header">Player {{player}}</p>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
@@ -46,6 +57,11 @@
             <div class="speedometer">
                 <span class="flexbox-item flexbox-speed_display-label">Speed:</span>
                 <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> km/h </span></span>
+            </div>
+
+            <div class="score">
+                <span class="flexbox-item flexbox-score_display-label">Score:</span>
+                <span class="flexbox-item flexbox-score_display"> <span id="player_score" class="flexbox-score_display value">0 </span> </span>
             </div>
 
             <div class="avatar">
@@ -121,6 +137,7 @@
 
         <!-- loading window -->
         window.onload = function() {
+            document.getElementById("nicknameOverlay").style.display = "none";
             socket.emit('driver_active', {player: '{{player}}'});
             let playerExists = {{ player_exists | tojson }};
             if(!playerExists) {
@@ -128,7 +145,6 @@
             }
             else {
                 document.getElementById("infoBoxOverlay").style.display = "none";
-
                 var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
                 show_hacked_info(active_hacking_scenario);
 
@@ -138,6 +154,39 @@
             }
         };
 
+        socket.on('has_no_nickname', function(data){   
+            if(data.player == '{{ player }}'){
+                document.getElementById("nicknameOverlay").style.display = "flex";
+                save_button = document.getElementById("save_button");
+                save_button.onclick = function(){
+                    emit_is_nickname_available();
+                };
+                document.addEventListener("keydown", function(event) {
+                    if (event.key === "Enter") {
+                        if(document.getElementById("nicknameOverlay").style.display != "none") {
+                            emit_is_nickname_available();
+                        }
+                    }
+                });
+            }
+        });
+
+        function emit_is_nickname_available() {
+            if (document.getElementById("textInputNickname").value != "") {
+                socket.emit('is_nickname_available', {player: '{{ player }}', nickname: document.getElementById("textInputNickname").value});
+            }
+        }
+
+        socket.on('nickname_available', function(data){
+            if(data.player == '{{ player }}') {
+                if(data.available == true) {
+                    document.getElementById("nicknameOverlay").style.display = "none";
+                    socket.emit('set_nickname', {player: '{{ player }}', nickname: document.getElementById("textInputNickname").value});
+                } else {
+                    document.querySelector('.info-title h3').textContent = 'Nickname not available, please choose another nickname!';
+                }
+            }
+        });
 
         socket.on('connect', () => {
             socket.emit('handle_connect', {player: '{{ player }}'});
@@ -163,6 +212,12 @@
             speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
             show_hacked_info(data.active_hacking_scenario);
           }
+        });
+
+        socket.on('update_player_score', function(data){
+            if(data.player == '{{ player }}'){
+                document.getElementById("player_score").innerHTML = data.score;
+            }
         });
 
         function show_hacked_info(active_hacking_scenario){

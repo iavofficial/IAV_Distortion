@@ -18,6 +18,10 @@
                 <input type="number" id="driver_heartbeat_timeout_s" name="driver_heartbeat_timeout_s" min="1" max="600">
             </div>
             <div class="menu_item">
+                <label for="driver_removal_period_min">Remove offline Drivers [min]:</label>
+                <input type="number" id="driver_removal_period_min" name="driver_removal_period_min" min="0" max="3600">
+            </div>
+            <div class="menu_item">
                 <label for="driver_reconnect_grace_period_s">Reconnection Grace Period [s]:</label>
                 <input type="number" id="driver_reconnect_grace_period_s" name="driver_reconnect_grace_period_s" min="0" max="600">
             </div>
@@ -78,6 +82,7 @@
         // numbers
         driver_heartbeat_interval_ms.value = settings.driver.driver_heartbeat_interval_ms;
         driver_heartbeat_timeout_s.value = settings.driver.driver_heartbeat_timeout_s;
+        driver_removal_period_min.value = settings.driver.driver_removal_period_min;
         driver_reconnect_grace_period_s.value = settings.driver.driver_reconnect_grace_period_s;
         driver_background_grace_period_s.value = settings.driver.driver_background_grace_period_s;
         game_cfg_playing_time_limit_min.value = settings.game_config.game_cfg_playing_time_limit_min;

@@ -1,3 +1,4 @@
+import logging
 from quart import Blueprint, render_template
 from typing import Any, Coroutine, List, Dict
 
@@ -10,6 +11,9 @@ from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 
 from DataModel.Vehicle import Vehicle
 from Items.Item import Item
+
+
+logger = logging.getLogger(__name__)
 
 
 class CarMap:
@@ -30,6 +34,8 @@ class CarMap:
         environment_manager.get_item_collision_detector().set_on_item_change_callback(self.update_item_positions)
 
         self._sio: AsyncServer = sio
+
+        self._isRunning: bool = False
 
         async def home_car_map():
             """
@@ -66,6 +72,12 @@ class CarMap:
                                          disp_settings=disp_settings)
 
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
+
+        @self._sio.on('window_loaded')
+        def __start_scoreboard_loop(sid):
+            if not self._isRunning:
+                self._isRunning = True
+                self.__run_async_task(self.__emit_scoreboard())
 
     def get_blueprint(self) -> Blueprint:
         """
@@ -131,3 +143,25 @@ class CarMap:
         asyncio.create_task(task)
         # TODO: Log error, if the coroutine doesn't end successfully
         return
+
+    async def __emit_scoreboard(self) -> None:
+        scoreboard_before = [{"Player-Name": "", "Score": 0}]
+        while True:
+            scoreboard = self.__create_table()
+            if scoreboard is not None:
+                await self._sio.emit('update_scoreboard', scoreboard)
+                if scoreboard != scoreboard_before:
+                    logger.info(scoreboard)
+                    scoreboard_before = scoreboard
+
+            await self._sio.sleep(1)
+
+    def __create_table(self) -> List[Dict[str, int]]:
+        """
+        Creates table from all current players with their respective nicknames and scores.
+
+        """
+        drivers = self._environment_manager.get_drivers()
+        if len(drivers) != 0:
+            return [{"Player-Name": d.get_nickname(), "Score": d.get_score()} for d in drivers]
+        return None
