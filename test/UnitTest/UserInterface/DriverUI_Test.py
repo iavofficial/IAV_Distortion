@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -46,34 +46,35 @@ async def test_driver_ui_template_data_player_exists(initialise_dependencies):
     """
     Test whether the player_exists boolean put into the HTML template is correct for 2 players and 1 vehicle
     """
-    player_1 = str(uuid.uuid4())
-    player_2 = str(uuid.uuid4())
+    with patch('Minigames.Minigame_Controller.Minigame_Controller.__init__', return_value=None):
+        player_1 = str(uuid.uuid4())
+        player_2 = str(uuid.uuid4())
 
-    driver_ui, environment_manager, vehicle = initialise_dependencies
-    environment_manager._add_to_active_vehicle_list(vehicle)
+        driver_ui, environment_manager, vehicle = initialise_dependencies
+        environment_manager._add_to_active_vehicle_list(vehicle)
 
-    # player 1 has vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-    assert has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-    assert has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
-    assert not has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-    assert has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
-    assert not has_vehicle
+        # player 1 has vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+        assert has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+        assert has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
+        assert not has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+        assert has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
+        assert not has_vehicle
 
-    # Remove player 1 from the vehicle
-    environment_manager.manage_removal_from_game_for(player_1)
-    # Now player 2 has the car
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-    assert not has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-    assert not has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
-    assert has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
-    assert not has_vehicle
-    has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
-    assert has_vehicle
+        # Remove player 1 from the vehicle
+        environment_manager.manage_removal_from_game_for(player_1)
+        # Now player 2 has the car
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+        assert not has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+        assert not has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
+        assert has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
+        assert not has_vehicle
+        has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
+        assert has_vehicle

@@ -21,6 +21,8 @@ from EnvironmentManagement.EnvironmentManager import EnvironmentManager
 from EnvironmentManagement.ConfigurationHandler import ConfigurationHandler
 from VehicleMovementManagement.BehaviourController import BehaviourController
 
+from Minigames.Minigame_Controller import Minigame_Controller
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,6 +38,8 @@ class DriverUI:
         self._sio: AsyncServer = sio
         self.environment_mng: EnvironmentManager = environment_mng
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
+
+        self.minigame_players: set = set()
 
         self.__latest_driver_heartbeats: dict[str, float] = {}
         self.__checking_heartbeats_flag: bool = False
@@ -106,6 +110,7 @@ class DriverUI:
             """
             player = data["player"]
             self.environment_mng.put_player_on_next_free_spot(player)
+            self.__run_async_task(self._sio.enter_room(sid, player))
             return
 
         @self._sio.on('disconnected')
@@ -113,6 +118,7 @@ class DriverUI:
             player = data["player"]
             logger.debug(f"Driver {player} disconnected!")
             self.__remove_player(player)
+            self.__run_async_task(self._sio.close_room(player))
             return
 
         @self._sio.on('disconnect')
@@ -192,6 +198,46 @@ class DriverUI:
             logger.debug(f"Player {player} is back in the application. Removal will be canceled or player will be "
                          f"added to the queue again.")
             self.environment_mng.put_player_on_next_free_spot(player)
+            return
+
+        @self._sio.on('switch_cars')
+        async def switch_cars(sid, data: dict) -> None:
+            player = data["player"]
+            vehicle = self.environment_mng.get_vehicle_by_player_id(player)
+            if vehicle is None:
+                logger.warn(f"Driver UI: No vehicle for player {player} could be found. Ignoring the switch request.")
+                return
+            target_vehicle_id = vehicle.vehicle_in_proximity
+            if target_vehicle_id is None:
+                logger.warn(f"Driver UI: No target vehicle id for player {player} driving {vehicle.get_vehicle_id()} \
+                    could be found. Ignoring the switch request.")
+                return
+            target_vehicle = self.environment_mng.get_vehicle_by_vehicle_id(target_vehicle_id)
+            if target_vehicle is None:
+                logger.warn(f"Driver UI: No target vehicle for player {player} driving {vehicle.get_vehicle_id()} with \
+                    target_vehicle_id {target_vehicle_id} could be found. Ignoring the switch request.")
+                return
+            target_player = target_vehicle.get_player_id()
+            minigame_players = []
+            minigame_players.append(player)
+            if target_player is not None:
+                minigame_players.append(target_player)
+
+            # Try to start Minigame
+            minigame_task, minigame_object = Minigame_Controller.get_instance().\
+                play_random_available_minigame(*minigame_players)
+
+            if minigame_task is None:
+                logger.warning(f"DriverUI: The minigame for player {player} and player {target_player} could not be \
+                    started for some reason. Ignoring the request.")
+                return
+            winner = await minigame_task
+            logger.debug(f"DriverUI: The player {player} has won a minigame that was initiated by a \
+                hack of vehicle {target_vehicle_id}.")
+            if winner is None or winner == target_player or winner == "":
+                return
+
+            self.environment_mng.manage_car_switch_for(player, target_vehicle_id)
             return
 
     def update_driving_data(self, driving_data: dict) -> None:
