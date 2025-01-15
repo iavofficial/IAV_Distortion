@@ -1,4 +1,6 @@
 import asyncio
+import time
+
 import pytest
 from unittest.mock import Mock, MagicMock
 
@@ -61,10 +63,32 @@ def get_two_dummy_vehicles() -> list[Vehicle]:
 
 
 @pytest.fixture(scope="module")
+def get_four_dummy_vehicles() -> list[Vehicle]:
+    location_service_mock = MagicMock(spec=LocationService)
+    vehicle1: Vehicle = Vehicle("123", location_service_mock, disable_item_removal=True)
+    vehicle2: Vehicle = Vehicle("456", location_service_mock, disable_item_removal=True)
+    vehicle3: Vehicle = Vehicle("789", location_service_mock, disable_item_removal=True)
+    vehicle4: Vehicle = Vehicle("012", location_service_mock, disable_item_removal=True)
+    output: list[Vehicle] = [vehicle1, vehicle2, vehicle3, vehicle4]
+    return output
+
+
+@pytest.fixture(scope="module")
 def get_two_dummy_player() -> list[str]:
     dummy1: str = "DummyPlayer1"
     dummy2: str = "DummyPlayer2"
     output: list[str] = [dummy1, dummy2]
+
+    return output
+
+
+@pytest.fixture(scope="module")
+def get_four_dummy_players() -> list[str]:
+    dummy1: str = "DummyPlayer1"
+    dummy2: str = "DummyPlayer2"
+    dummy3: str = "DummyPlayer3"
+    dummy4: str = "DummyPlayer4"
+    output: list[str] = [dummy1, dummy2, dummy3, dummy4]
 
     return output
 
@@ -144,7 +168,7 @@ class TestAddNewPlayer:
         location_service_mock = MagicMock(spec=LocationService)
         dummy_vehicle = Vehicle("vehicle1", location_service_mock, disable_item_removal=True)
         dummy_vehicle.set_player(self.dummy_player1)
-        mut._add_to_active_vehicle_list(dummy_vehicle)
+        mut._add_to_active_vehicle_list(dummy_vehicle, is_physical_car=False)
 
         # Act / Assert
         added = mut._add_new_player(self.dummy_player1)
@@ -159,7 +183,7 @@ class TestPutPlayerOnNextFreeSpot:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_one_minute_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -186,7 +210,7 @@ class TestPutPlayerOnNextFreeSpot:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_endless_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -221,7 +245,7 @@ class TestAssignPlayersToVehicles:
 
         for vehicle in dummy_vehicles:
             vehicle.remove_player()
-            mut._add_to_active_vehicle_list(vehicle)
+            mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
 
         for dummy_player in dummy_players:
             mut._add_new_player(dummy_player)
@@ -247,7 +271,7 @@ class TestAssignPlayersToVehicles:
         i: int = 3
         for vehicle in dummy_vehicles:
             vehicle.set_player("Player"+str(i))
-            mut._add_to_active_vehicle_list(vehicle)
+            mut._add_to_active_vehicle_list(vehicle, is_physical_car=False)
             i += 1
 
         for dummy_player in dummy_players:
@@ -279,7 +303,7 @@ class TestManageRemovalFromGame:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_endless_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -311,7 +335,7 @@ class TestManageRemovalFromGame:
         vehicle1: Vehicle = get_one_dummy_vehicle
         mut: EnvironmentManager = get_mut_with_endless_playing_time
 
-        mut._add_to_active_vehicle_list(vehicle1)
+        mut._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
         if any(vehicle.get_player_id() is not None for vehicle in mut.get_vehicle_list()):
             pytest.fail("preconditions in vehicle list not correct.")
 
@@ -481,14 +505,100 @@ def test_vehicle_cant_be_added_twice(get_two_dummy_vehicles):
     new_vehicle_1 = Vehicle(vehicle1.get_vehicle_id(), location_service_mock, disable_item_removal=True)
     new_vehicle_2 = Vehicle(vehicle2.get_vehicle_id(), location_service_mock, disable_item_removal=True)
 
-    env_manager._add_to_active_vehicle_list(vehicle1)
-    env_manager._add_to_active_vehicle_list(vehicle1)
-    env_manager._add_to_active_vehicle_list(new_vehicle_1)
-    env_manager._add_to_active_vehicle_list(new_vehicle_1)
+    env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(vehicle1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_1, is_physical_car=False)
     assert len(env_manager._active_anki_cars) == 1
 
-    env_manager._add_to_active_vehicle_list(vehicle2)
-    env_manager._add_to_active_vehicle_list(vehicle2)
-    env_manager._add_to_active_vehicle_list(new_vehicle_2)
-    env_manager._add_to_active_vehicle_list(new_vehicle_2)
+    env_manager._add_to_active_vehicle_list(vehicle2, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(vehicle2, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_2, is_physical_car=False)
+    env_manager._add_to_active_vehicle_list(new_vehicle_2, is_physical_car=False)
     assert len(env_manager._active_anki_cars) == 2
+
+
+class TestSwitchCars:
+
+    def test_manage_car_switch(self, get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
+        # Arrange
+        fleet_mock, config_mock = initialise_dependencies
+        config_mock = MagicMock(spec=ConfigurationHandler)
+        env_manager = EnvironmentManager(fleet_mock, config_mock)
+
+        dummy_player1, dummy_player2 = get_two_dummy_player
+        dummy_vehicle1, dummy_vehicle2 = get_two_dummy_vehicles
+
+        env_manager._add_to_active_vehicle_list(dummy_vehicle1, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle2, True)
+
+        dummy_vehicle1.set_player(dummy_player1)
+        dummy_vehicle2.set_player(dummy_player2)
+
+        # Act
+        env_manager.manage_car_switch_for(dummy_player1, dummy_vehicle2.get_vehicle_id())
+
+        # Assert
+        new_vehicle = env_manager.get_vehicle_by_player_id(dummy_player1)
+        assert new_vehicle == dummy_vehicle2
+        new_vehicle = env_manager.get_vehicle_by_player_id(dummy_player2)
+        assert new_vehicle == dummy_vehicle1
+
+    def test_car_switch_lower_300ms(self, get_two_dummy_player, get_two_dummy_vehicles, initialise_dependencies):
+        # Arrange
+        fleet_mock, config_mock = initialise_dependencies
+        config_mock = MagicMock(spec=ConfigurationHandler)
+        env_manager = EnvironmentManager(fleet_mock, config_mock)
+
+        dummy_player1, dummy_player2 = get_two_dummy_player
+        dummy_vehicle1, dummy_vehicle2 = get_two_dummy_vehicles
+
+        env_manager._add_to_active_vehicle_list(dummy_vehicle1, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle2, True)
+
+        dummy_vehicle1.set_player(dummy_player1)
+        dummy_vehicle2.set_player(dummy_player2)
+
+        # Act
+        start_time = time.time()
+        env_manager.manage_car_switch_for(dummy_player1, dummy_vehicle2.get_vehicle_id())
+        end_time = time.time()
+        duration = (end_time - start_time)
+        print(f"\nTime in seconds: {duration}")
+
+        # Assert
+        assert duration <= 0.3
+
+    def test_manage_multiple_car_switch(self, get_four_dummy_players, get_four_dummy_vehicles, initialise_dependencies):
+        # Arrange
+        fleet_mock, config_mock = initialise_dependencies
+        config_mock = MagicMock(spec=ConfigurationHandler)
+        env_manager = EnvironmentManager(fleet_mock, config_mock)
+
+        dummy_player1, dummy_player2, dummy_player3, dummy_player4 = get_four_dummy_players
+        dummy_vehicle1, dummy_vehicle2, dummy_vehicle3, dummy_vehicle4 = get_four_dummy_vehicles
+
+        env_manager._add_to_active_vehicle_list(dummy_vehicle1, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle2, True)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle3, False)
+        env_manager._add_to_active_vehicle_list(dummy_vehicle4, True)
+
+        dummy_vehicle1.set_player(dummy_player1)
+        dummy_vehicle2.set_player(dummy_player2)
+        dummy_vehicle3.set_player(dummy_player3)
+        dummy_vehicle4.set_player(dummy_player4)
+
+        # Act
+        env_manager.manage_car_switch_for(dummy_player1, dummy_vehicle2.get_vehicle_id())
+        env_manager.manage_car_switch_for(dummy_player3, dummy_vehicle4.get_vehicle_id())
+
+        # Assert
+        vehicle1 = env_manager.get_vehicle_by_vehicle_id(dummy_player1)
+        assert not vehicle1 == dummy_vehicle1
+        vehicle3 = env_manager.get_vehicle_by_vehicle_id(dummy_player3)
+        assert not vehicle3 == dummy_vehicle3
+
+
+class TestProximityBasedTimer:
+    def test_proximity_timer_starts(self):
+        pass

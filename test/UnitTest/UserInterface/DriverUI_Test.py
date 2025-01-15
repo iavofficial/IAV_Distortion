@@ -1,3 +1,5 @@
+import asyncio
+import time
 import uuid
 from unittest.mock import MagicMock
 
@@ -36,6 +38,7 @@ def initialise_dependencies():
     driver_ui = DriverUI(behaviour_ctrl=behaviour_ctrl, environment_mng=environment_manager, sio=socket)
 
     location_service_mock = MagicMock(spec=LocationService)
+
     vehicle: Vehicle = Vehicle('1234', location_service_mock, disable_item_removal=True)
 
     return driver_ui, environment_manager, vehicle
@@ -50,7 +53,7 @@ async def test_driver_ui_template_data_player_exists(initialise_dependencies):
     player_2 = str(uuid.uuid4())
 
     driver_ui, environment_manager, vehicle = initialise_dependencies
-    environment_manager._add_to_active_vehicle_list(vehicle)
+    environment_manager._add_to_active_vehicle_list(vehicle, is_physical_car=False)
 
     # player 1 has vehicle
     has_vehicle, _, _ = driver_ui._prepare_html_data(player_1)
@@ -77,3 +80,30 @@ async def test_driver_ui_template_data_player_exists(initialise_dependencies):
     assert not has_vehicle
     has_vehicle, _, _ = driver_ui._prepare_html_data(player_2)
     assert has_vehicle
+
+
+@pytest.mark.asyncio
+async def test_proximity_timer_increment(initialise_dependencies):
+    # Arrange
+    player_1 = str(uuid.uuid4())
+    player_2 = str(uuid.uuid4())
+
+    driver_ui, env_manager, vehicle = initialise_dependencies
+
+    vehicle2 = Vehicle("5678", location_service=MagicMock(spec=LocationService), disable_item_removal=False)
+    vehicle2.set_player(player_2)
+    vehicle.set_player(player_1)
+
+    vehicle.vehicle_in_proximity = "5678"
+    vehicle2.vehicle_in_proximity = "1234"
+    vehicle.proximity_timer = time.time()
+
+    env_manager._active_virtual_cars = ["1234", "5678"]
+    env_manager.add_virtual_vehicle()
+
+    # Act
+    driver_ui._prepare_html_data(player_1)
+    await asyncio.sleep(6)
+
+    # Assert
+    assert time.time() - vehicle.proximity_timer > 5
