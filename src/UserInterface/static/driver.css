@@ -286,6 +286,7 @@ body{
     background: #0091FF;
     border: 0px solid #0091FF;
     font-size: 23px;
+    min-width: 40 px;
 }
 
 .reload_symbol{

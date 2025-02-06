@@ -1,0 +1,12 @@
+*{
+    touch-action: auto;
+}
+
+.main-content{
+    height: 70vh;
+    overflow: scroll;
+}
+
+.instruction{
+    padding: 10px;
+}
