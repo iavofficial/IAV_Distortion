@@ -252,7 +252,7 @@ body{
 .info-box{
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 66%;
     background-color: #fff;
     padding: 20px;
     border: 0px solid #001A54;
@@ -263,10 +263,11 @@ body{
 .info-title {
     display: flex;
     align-items: center;
+    font-size: 35px;
 }
 
 .info-text {
-    font-size: 23px;
+    font-size: 35px;
 }
 
 .info-box-buttons{
@@ -279,14 +280,13 @@ body{
     display: flex;
     align-items: center;
     justify-content: space-around;
-    padding: 6px 12px;
+    padding: 30px;
     margin: 5px auto;
     border-radius: 15px;
     color: #FFFFFF;
     background: #0091FF;
     border: 0px solid #0091FF;
-    font-size: 23px;
-    min-width: 40 px;
+    font-size: 40px;
 }
 
 .reload_symbol{
