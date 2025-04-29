@@ -48,6 +48,23 @@ class DriverUI:
                            "value of 30 seconds")
             self.__driver_heartbeat_timeout = 30
 
+        async def driver_instruction(instruction_page: str = "driver_instruction_showcase_cybersecurity.html") -> str:
+            """
+            Loads the instruction page for the driver.
+
+            Parammeters
+            -----------
+            instruction_page : str
+                Name of html template to be shown as instruction page.
+
+            Returns
+            -------
+                Returns a Response object representing a redirect to the driver instruction page.
+            """
+            return await render_template(template_name_or_list=instruction_page)
+        
+        self.driverUI_blueprint.add_url_rule('/', 'driver_instruction', view_func=driver_instruction)
+
         async def home_driver() -> str:
             """
             Load the driver ui page.
@@ -78,7 +95,7 @@ class DriverUI:
                                          vehicle_scale=vehicle_scale,
                                          color_map=environment_mng.get_car_color_map())
 
-        self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
+        self.driverUI_blueprint.add_url_rule('/control', 'home_driver', view_func=home_driver)
 
         async def exit_driver() -> str:
             player_id = request.args.get(key='player_id', type=str)
