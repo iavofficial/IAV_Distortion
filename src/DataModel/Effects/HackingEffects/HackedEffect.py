@@ -11,8 +11,9 @@ class HackedEffect(VehicleEffect, ABC):
         super().__init__()
         self._scenario = scenario
 
-    def on_start(self, vehicle: 'Vehicle') -> None:
+    def on_start(self, vehicle: 'Vehicle') -> bool:
         vehicle.hacking_scenario = self._scenario
+        return True
 
     def effect_should_end(self, vehicle: 'Vehicle') -> bool:
         return False

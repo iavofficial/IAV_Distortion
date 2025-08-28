@@ -19,7 +19,7 @@ class ItemGenerator:
         for _ in range(0, max_item_length):
             self._item_collision_detection.add_item(self.generate_item())
 
-    def notify_new_track(self, track: FullTrack):
+    def notify_new_track(self, track: FullTrack) -> None:
         self._track = track
         num_items = len(self._item_collision_detection.get_current_items())
         self._item_collision_detection.clear_items()

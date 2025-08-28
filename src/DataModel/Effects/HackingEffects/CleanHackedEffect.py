@@ -15,7 +15,7 @@ class CleanHackedEffect(VehicleEffect):
         # this should end immediately since it's a quick "remove all bad effects" effect
         return True
 
-    def on_start(self, vehicle: 'Vehicle') -> None:
+    def on_start(self, vehicle: 'Vehicle') -> bool:
         # remove all hacked effects
         for effect in vehicle.get_active_effects():
             effect_type = effect.identify()
@@ -24,3 +24,5 @@ class CleanHackedEffect(VehicleEffect):
                     effect_type == VehicleEffectIdentification.HACKED_REDUCED_SPEED:
                 vehicle.remove_effect(effect)
                 vehicle.hacking_scenario = self._scenario
+        
+        return True

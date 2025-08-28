@@ -40,5 +40,6 @@ class ItemCollisionDetector:
         self._items.clear()
         self._on_item_change(self._items)
 
-    def get_current_items(self):
+    def get_current_items(self) -> List[Item]:
         return self._items
+    

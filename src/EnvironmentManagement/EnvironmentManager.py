@@ -32,6 +32,8 @@ from LocationService.TrackSerialization import parse_list_of_dicts_to_full_track
 from VehicleManagement.AnkiController import AnkiController
 from VehicleManagement.FleetController import FleetController
 
+from VehicleMovementManagement.BehaviourController import BehaviourController
+
 from LocationService.LocationService import LocationService
 from LocationService.TrackPieces import FullTrack
 

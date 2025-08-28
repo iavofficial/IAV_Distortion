@@ -34,7 +34,7 @@ class VehicleEffect(ABC):
         """
         Runs when added to a vehicle. Can also be used to start a background task
         """
-        pass
+        return True
 
     def on_end(self, vehicle: 'Vehicle') -> None:
         """
