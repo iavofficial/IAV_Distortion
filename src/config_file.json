@@ -16,14 +16,10 @@
 		"FE:58:E5:40:D6:6A": "FE58E540D66A.svg",
 		"E8:73:42:76:A7:23": "E8734276A723.svg",
 		"D3:FB:D2:4E:FD:BE": "D3FBD24EFDBE.svg",
-		"Virtual Vehicle 1": "VirtualVehicle1.svg",
-		"Virtual Vehicle 2": "VirtualVehicle2.svg",
-		"Virtual Vehicle 3": "VirtualVehicle3.svg",
-		"Virtual Vehicle 4": "VirtualVehicle4.svg",
-		"Virtual Vehicle 5": "VirtualVehicle5.svg",
-		"Virtual Vehicle 6": "VirtualVehicle6.svg",
-		"Virtual Vehicle 7": "VirtualVehicle7.svg",
-		"Virtual Vehicle 8": "VirtualVehicle8.svg"
+		"Virtual Vehicle 1": "satellite_bright_blue.svg",
+		"Virtual Vehicle 2": "satellite_pink.svg",
+		"Virtual Vehicle 3": "satellite_dark_blue.svg",
+		"Virtual Vehicle 4": "satellite_purple.svg"
 	},
 	"driver": {
 		"driver_proximity_timer_s": 5,
@@ -48,14 +44,6 @@
 	},
 	"track": [
 		{
-			"type": "LocationService.TrackPieces.StartPieceAfterLine",
-			"rotation": 90,
-			"physical_id": 33,
-			"length": 210,
-			"diameter": 184,
-			"start_line_width": 21
-		},
-		{
 			"type": "LocationService.TrackPieces.CurvedPiece",
 			"rotation": 180,
 			"physical_id": 18,
@@ -72,13 +60,6 @@
 			"mirrored": true
 		},
 		{
-			"type": "LocationService.TrackPieces.StraightPiece",
-			"rotation": 270,
-			"physical_id": 36,
-			"length": 559,
-			"diameter": 184
-		},
-		{
 			"type": "LocationService.TrackPieces.CurvedPiece",
 			"rotation": 0,
 			"physical_id": 17,
@@ -93,13 +74,6 @@
 			"square_size": 559,
 			"diameter": 184,
 			"mirrored": true
-		},
-		{
-			"type": "LocationService.TrackPieces.StartPieceBeforeLine",
-			"rotation": 90,
-			"physical_id": 34,
-			"length": 349,
-			"diameter": 184
 		}
 	],
 	"minigame": {
@@ -111,16 +85,16 @@
 	},
 	"display_settings": {
 		"disp_cm_slogan_enabled": true,
-		"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
+		"disp_cm_slogan_text": "A long time ago in a galaxy far, far away....    IAV is with us",
 		"disp_cm_slogan_color": "#96e7ff",
-		"disp_cm_qr_codes_enabled": true,
+		"disp_cm_qr_codes_enabled": false,
 		"disp_cm_qr_codes_color": "#5500b4",
-		"disp_cm_qr_background_enabled": true,
+		"disp_cm_qr_background_enabled": false,
 		"disp_cm_qr_background_color": "#96e7ff",
 		"disp_cm_iav_header_enabled": false,
-		"disp_cm_background_color": "#5500b4",
-		"disp_cm_track_color": "#001a54",
-		"disp_cm_track_border_color": "#001a54",
+		"disp_cm_background_color": "#000000",
+		"disp_cm_track_color": "#1c1313",
+		"disp_cm_track_border_color": "#000000",
 		"disp_cm_start_line_color": "#5500b4",
 		"disp_cm_default_settings": {
 			"disp_cm_slogan_enabled": true,
