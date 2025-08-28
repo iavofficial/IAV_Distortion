@@ -35,8 +35,8 @@ class Bot:
                 cases = {
                     1: lambda: self._behaviour_ctrl.request_speed_change_for(uuid=self.vehicle, value_perc=random_speed),
                     2: lambda: self._behaviour_ctrl.request_lane_change_for(uuid= self.vehicle, value="right"),
-                    3: lambda: self._behaviour_ctrl.request_lane_change_for(uuid= self.vehicle, value="left"),
-                    4: lambda: self._behaviour_ctrl.request_uturn_for(uuid=self.vehicle)
+                    3: lambda: self._behaviour_ctrl.request_lane_change_for(uuid= self.vehicle, value="left")
+                    # 4: lambda: self._behaviour_ctrl.request_uturn_for(uuid=self.vehicle) not used for Mission-K
                 }
                 action = cases.get(random_move) 
                 
