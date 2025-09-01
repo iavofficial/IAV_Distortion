@@ -6,3 +6,5 @@ src/UserInterface/static/images/IAV-Logo-White.png
 *.dtmp
 *.log
 .vscode/
+venv/
+src/logfile_IAV-Distortion.log.*
