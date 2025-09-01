@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Security Token enabled from {{player}}</title>
+    <title>Security Token enabled</title>
 
     <!-- general style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
@@ -16,9 +16,32 @@
 	<link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
 </head>
 <body>
+    <div class="overlay" id="infoBoxOverlay">
+        <div class="info-box">
+            <div class="info-title">
+                <h2>Information</h2>
+            </div>
+            <p id="infoBoxContent" class="info-text"> Security Token enabled</p>
+            <p id="exit_text" class="info-text"> </p>
+            <div class="info-box-buttons">
+                <button id="close_tab_button" class="button button_pink"> <span class="exit_symbol">x </span> close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="flexbox-container custom_header">
-        <p class="header">Player {{player}} enabled security token</p>
+        <p class="header">Enabled security token</p>
         <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
+    
+    <script type="text/javascript" charset="utf-8">
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const close_tab_button = document.getElementById('close_tab_button');
+            close_tab_button.addEventListener('click', function() {
+                window.close();
+            });
+        });
+    </script>
+
 </body>
 </html>

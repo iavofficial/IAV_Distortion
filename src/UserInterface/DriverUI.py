@@ -98,18 +98,15 @@ class DriverUI:
 
         self.driverUI_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_driver)
 
-        async def token_driver() -> str:
-            player_id = request.args.get(key='player_id', type=str)
-            number_of_token = "2"
+        async def token_driver(token: str = "1") -> str:
+            enable_security_token(token)
 
-            enable_security_token()
-
-            return await render_template(template_name_or_list='driver_token.html', player=player_id, value=number_of_token)
+            return await render_template(template_name_or_list='driver_token.html')
 
         self.driverUI_blueprint.add_url_rule('/configuration', 'token_driver', view_func=token_driver)
 
-        def enable_security_token():
-            new_item= {"item": {'item_spawn_interval': 1,'item_max_count': 1}}
+        def enable_security_token(token: str):
+            new_item= {"item": {'item_spawn_interval': 1,'item_max_count': int(token)}}
             self.config_handler.write_configuration(new_item)
             return
 
