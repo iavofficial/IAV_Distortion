@@ -68,7 +68,7 @@
 		"auto_drive_constantly": true,
 		"driving_speed_while_playing": 30,
 		"games": {
-			"Minigame_Test": true
+			"Minigame_Test": false
 		}
 	},
 	"display_settings": {
@@ -82,7 +82,7 @@
 		"disp_cm_iav_header_enabled": false,
 		"disp_cm_background_color": "#001a54",
 		"disp_cm_track_color": "#001a54",
-		"disp_cm_track_border_color": "#ff15fa",
+		"disp_cm_track_border_color": "#1446eb",
 		"disp_cm_start_line_color": "#001a54",
 		"disp_cm_default_settings": {
 			"disp_cm_slogan_enabled": true,
