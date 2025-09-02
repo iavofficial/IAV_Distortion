@@ -17,7 +17,7 @@ class Bot:
         self.vehicle = vehicle
 
     def set_is_player_active(self, is_player_active: bool) -> None:
-        self.is_player_active = is_player_active
+        self.is_player_active = False # is_player_active
         if(self.is_player_active == False):
             self._behaviour_ctrl.request_speed_change_for(uuid = self.vehicle, value_perc = 30.0)
         else:
