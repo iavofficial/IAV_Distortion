@@ -4,17 +4,24 @@
     <meta charset="UTF-8">
     <title>Configuration</title>
 
-    <!-- general style sheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
-
-    <!-- specific stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
-
-    <!-- specific style sheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='staff_configuration.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/staff_configuration.css"/> <!-- link to stylesheet for development for working preview -->
+    {% if theme.id == 2 %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <!-- specific style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='staff_configuration_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+    {% else %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+        <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+        <!-- specific style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='staff_configuration.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <link rel="stylesheet" href="../static/staff_configuration.css"/> <!-- link to stylesheet for development for working preview -->
+    {% endif %}
 
     <script src="{{ url_for('static', filename='external_resources/jquery-3.7.1.min.js')}}"></script>
 

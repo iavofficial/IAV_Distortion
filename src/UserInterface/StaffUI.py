@@ -110,10 +110,12 @@ class StaffUI:
             active_scenarios = cybersecurity_mng.get_active_hacking_scenarios()  # {'UUID': 'scenarioID'}
 
             # TODO: Show selection of choose hacking scenarios always sorted by player number
-            virtual_cars_pics = self.config_handler.get_configuration()["virtual_cars_pics"]
+            config = self.config_handler.get_configuration()
+            virtual_cars_pics = config["virtual_cars_pics"]
+            theme = config["display_settings"]["theme"]
             return await render_template('staff_control.html', activeScenarios=active_scenarios,
                                          uuids=environment_mng.get_controlled_cars_list(), names=names,
-                                         descriptions=descriptions, virtual_cars_pics=virtual_cars_pics)
+                                         descriptions=descriptions, virtual_cars_pics=virtual_cars_pics, theme=theme)
 
         self.staffUI_blueprint.add_url_rule('/staff_control', 'staff_control', view_func=home_staff_control)
 
@@ -159,15 +161,20 @@ class StaffUI:
             # if is_authenticated():
             #     sself.logger.info("Authenticated")
             #     return redirect(url_for('staffUI_bp.staff_control'))
+            config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
             if request.method == 'GET':
-                return await render_template('staff_login.html')
+                return await render_template('staff_login.html',
+                                             theme=theme)
             # a password was submitted via POST
             pwd = (await request.form).get('password')
             if pwd is not None and pwd == self.password:
                 response = redirect(url_for('staffUI_bp.staff_control'))
                 response.set_cookie('admin_token', self.admin_token)
                 return response
-            return await render_template('staff_login.html', wrong_password=True)
+            return await render_template('staff_login.html',
+                                         wrong_password=True,
+                                         theme=theme)
 
         self.staffUI_blueprint.add_url_rule('/', methods=['GET', 'POST'], view_func=login_site)
 
@@ -342,7 +349,10 @@ class StaffUI:
                 Returns a Response object representing the configuration page or a redirect to the login page, if not
                 authenticated.
             """
-            return await render_template('staff_config_home.html')
+            config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
+            return await render_template('staff_config_home.html',
+                                         theme=theme)
 
         @self.staffUI_blueprint.route('/configuration/config_update')
         async def config_update() -> Any:
@@ -357,7 +367,10 @@ class StaffUI:
                 Returns a Response object representing the update page or a redirect to the login page, if not
                 authenticated.
             """
-            return await render_template('staff_config_update.html')
+            config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
+            return await render_template('staff_config_update.html',
+                                         theme=theme)
 
         @self.staffUI_blueprint.route('/configuration/config_system_control')
         async def config_system_control() -> Any:
@@ -372,7 +385,10 @@ class StaffUI:
                 Returns a Response object representing the system control page or a redirect to the login page, if not
                 authenticated.
             """
-            return await render_template('staff_config_system_control.html')
+            config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
+            return await render_template('staff_config_system_control.html',
+                                         theme=theme)
 
         @self.staffUI_blueprint.route('/configuration/config_display_settings')
         async def config_display_settings() -> Any:
@@ -389,8 +405,10 @@ class StaffUI:
                 authenticated.
             """
             disp_settings = self.config_handler.get_configuration()["display_settings"]
+            theme = disp_settings["theme"]
             return await render_template(template_name_or_list='staff_config_display_settings.html',
-                                         disp_settings=disp_settings)
+                                         disp_settings=disp_settings,
+                                         theme=theme)
         
         @self.staffUI_blueprint.route('/configuration/config_advanced_settings')
         async def config_advanced_settings() -> Any:
@@ -407,8 +425,10 @@ class StaffUI:
                 authenticated.
             """
             settings = self.config_handler.get_configuration()
+            theme = settings["display_settings"]["theme"]
             return await render_template(template_name_or_list='staff_config_advanced_settings.html',
-                                         settings=settings)
+                                         settings=settings,
+                                         theme=theme)
 
         @self.staffUI_blueprint.route('/configuration/config_minigame_settings')
         async def config_minigame_settings() -> Any:
@@ -425,8 +445,10 @@ class StaffUI:
                 authenticated.
             """
             settings = self.config_handler.get_configuration()
+            theme = settings["display_settings"]["theme"]
             return await render_template(template_name_or_list='staff_config_minigame_settings.html',
-                                         settings=settings)
+                                         settings=settings,
+                                         theme=theme)
 
         @self.staffUI_blueprint.route('/update_program', methods=['POST'])
         async def update_application() -> Any:

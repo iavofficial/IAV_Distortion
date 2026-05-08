@@ -73,6 +73,7 @@ class DriverUI:
                 player = str(uuid.uuid4())
 
             config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
 
             heartbeat_interval = config["driver"]["driver_heartbeat_interval_ms"]
             background_grace_period = config["driver"]["driver_background_grace_period_s"]
@@ -86,15 +87,21 @@ class DriverUI:
                                          heartbeat_interval=heartbeat_interval,
                                          background_grace_period=background_grace_period,
                                          vehicle_scale=vehicle_scale,
-                                         color_map=environment_mng.get_car_color_map())
+                                         color_map=environment_mng.get_car_color_map(),
+                                         theme=theme)
 
         self.driverUI_blueprint.add_url_rule('/', 'home_driver', view_func=home_driver)
 
         async def exit_driver() -> str:
             player_id = request.args.get(key='player_id', type=str)
             reason = request.args.get(key='reason', default="You have been removed.", type=str)
+            config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
 
-            return await render_template(template_name_or_list='driver_exit.html', player=player_id, message=reason)
+            return await render_template(template_name_or_list='driver_exit.html',
+                                         player=player_id,
+                                         message=reason,
+                                         theme=theme)
 
         self.driverUI_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_driver)
 

@@ -4,17 +4,24 @@
     <meta charset="UTF-8">
     <title>Driver {{player}}</title>
 
-    <!-- general style sheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
-
-    <!-- custom header stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
-
+    {% if theme.id == 2 %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <!-- specific style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='driver_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+    {% else %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+        <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+        <!-- specific style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='driver.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <link rel="stylesheet" href="../static/driver.css"/> <!-- link to stylesheet for development for working preview -->
+    {% endif %}
     <!-- Include socket.io library -->
     <script src="{{ url_for('static', filename='external_resources/socketio/4.7.5/socket.io.js')}}" ></script>
 

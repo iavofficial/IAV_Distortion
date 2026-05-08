@@ -4,14 +4,22 @@
     <meta charset="UTF-8">
     <title>Car map</title>
 
-    <!-- general style sheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
 
-    <!-- custom header stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
-
+    {% if theme.id == 2 %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <!-- specific style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='staff_login_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+    {% else %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+        <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    {% endif %}
 
     <!-- custom car_map stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='car_map.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->

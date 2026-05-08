@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Staff_Control</title>
-
-    <!-- general stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
-
-    <!-- custom header stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
-
+    {% if theme.id == 2 %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+    {% else %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+        <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    {% endif %}
     <!-- specific stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_control.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
 	<link rel="stylesheet" href="../static/staff_control.css"/> <!-- link to stylesheet for development for working preview -->

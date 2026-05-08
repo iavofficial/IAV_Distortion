@@ -50,18 +50,28 @@ class Minigame_UI:
 
         async def home_minigame() -> str:
             player = request.cookies.get("player")
+            config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
             if player is None or self._minigame_controller.get_minigame_name_by_player_id(player) is None:
                 return redirect(url_for("driverUI_bp.home_driver"))
 
-            return await render_template(template_name_or_list='minigame_index.html', player=player, minigame = self._minigame_controller.get_minigame_name_by_player_id(player), heartbeat_interval = self.__driver_heartbeat_timeout)
+            return await render_template(template_name_or_list='minigame_index.html',
+                                         player=player,
+                                         minigame = self._minigame_controller.get_minigame_name_by_player_id(player),
+                                         heartbeat_interval = self.__driver_heartbeat_timeout,
+                                         theme=theme)
         
         self.minigame_ui_blueprint.add_url_rule('/', 'minigame', view_func = home_minigame)
 
         async def exit_minigame() -> str:
             player_id = request.args.get(key='player_id', type=str)
             reason = request.args.get(key='reason', default="The minigame has been cancelled.", type=str)
-
-            return await render_template(template_name_or_list='driver_index.html', player=player_id, message=reason)
+            config = self.config_handler.get_configuration()
+            theme = config["display_settings"]["theme"]
+            return await render_template(template_name_or_list='driver_index.html',
+                                         player=player_id,
+                                         message=reason,
+                                         theme=theme)
 
         self.minigame_ui_blueprint.add_url_rule('/exit', 'exit_driver', view_func=exit_minigame)
 

@@ -4,23 +4,31 @@
     <meta charset="UTF-8">
     <title>Staff_Control Login</title>
 
-    <!-- general style sheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
-
-    <!-- custom header stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    {% if theme.id == 2 %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header_2.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+    {% else %}
+        <!-- general style sheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='general.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+	    <link rel="stylesheet" href="../static/general.css"/> <!-- link to stylesheet for development for working preview -->
+        <!-- custom header stylesheet -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='custom_header.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
+        <link rel="stylesheet" href="../static/custom_header.css"/> <!-- link to stylesheet for development for working preview -->
+    {% endif %}
 
     <!-- specific style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='staff_login.css')}}"/> <!-- to include stylesheet when running webinterface with flask -->
-	<link rel="stylesheet" href="../static/staff_login.css"/> <!-- link to stylesheet for development for working preview -->
+    <link rel="stylesheet" href="../static/staff_login.css"/> <!-- link to stylesheet for development for working preview -->
+
+
 </head>
 
 <body>
     <div class="flexbox-container custom_header">
-        <p class="header">IAV Distortion - Login</p>
-        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+        <p class="header">theme.title - Login</p>
+        <img id="logo" src="{{ url_for('static', filename=theme.logo_url) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
     <div class="flexbox-container">
