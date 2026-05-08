@@ -68,8 +68,14 @@
         <button type="submit">Apply changes... </button>
     </form>
 
-    <form action="/staff/restore_default_display_settings" method="post">
-        <button type="submit" class="button_pink">Restore default settings</button>
+    <form action="/staff/apply_theme" method="post">
+        <input type="hidden" name="theme_id" value="1">
+        <button type="submit" class="button_pink">Apply IAV theme</button>
+    </form>
+
+    <form action="/staff/apply_theme" method="post">
+            <input type="hidden" name="theme_id" value="2">
+        <button type="submit" class="button_pink">Apply DFNZ theme</button>
     </form>
 
 </div>

@@ -54,8 +54,7 @@ class StaffUI:
         self.environment_mng: EnvironmentManager = environment_mng
         self.devices: list = []
         self.config_handler: ConfigurationHandler = ConfigurationHandler()
-
-        self.config_handler: ConfigurationHandler = ConfigurationHandler()
+        
 
         self.environment_mng.set_staff_ui_update_callback(self.publish_new_data)
         self.environment_mng.set_publish_removed_player_callback(self.publish_removed_player)
@@ -563,7 +562,7 @@ class StaffUI:
             Minigame_Controller.get_instance().play_random_available_minigame(*self._minigame_players[0:2])
             self._minigame_players.clear()
 
-        async def apply_display_settings(restore_default:bool=False) -> Any:
+        async def apply_display_settings(theme_id: int=0) -> Any:
             """
             Function to receive settings from display settings tab in driver ui.
             Writes received settings into the config file.
@@ -572,8 +571,8 @@ class StaffUI:
             -------
                 Returns a Response object representing a redirect to the staff ui display settings page.
             """
-            if restore_default:
-                new_display_settings = self.config_handler.get_configuration()["display_settings"]["disp_cm_default_settings"]
+            if theme_id > 0:
+                new_display_settings = self.config_handler.get_configuration()["display_settings"][f"disp_cm_default_settings_{theme_id}"]
             else:
                 new_display_settings = (await request.form)
                 new_display_settings = {key: value[0] if len(value) == 1 else value for key, value in new_display_settings.items()}
@@ -598,7 +597,7 @@ class StaffUI:
         self.staffUI_blueprint.add_url_rule('/apply_display_settings', methods=['POST'],
                                             view_func=apply_display_settings)
         
-        async def restore_default_display_settings() -> Any:
+        async def apply_theme() -> Any:
             """
             Function to receive settings from display settings tab in driver ui.
             Writes received settings into the config file.
@@ -607,11 +606,15 @@ class StaffUI:
             -------
                 Returns a Response object representing a redirect to the staff ui display settings page.
             """
-            await apply_display_settings(restore_default=True)
+            form = await request.form            # <-- await here
+            theme_id = form.get("theme_id", type=int)
+
+            await apply_display_settings(theme_id=theme_id)
             
             return redirect('/staff/configuration/config_display_settings')
-        self.staffUI_blueprint.add_url_rule('/restore_default_display_settings', methods=['POST'],
-                                            view_func=restore_default_display_settings)
+        self.staffUI_blueprint.add_url_rule('/apply_theme',
+                                            methods=['POST'],
+                                            view_func=apply_theme)
 
         async def apply_advanced_settings() -> Any:
             """
