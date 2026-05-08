@@ -26,7 +26,7 @@
 		"Virtual Vehicle 8": "VirtualVehicle8.svg"
 	},
 	"driver": {
-    "driver_proximity_timer_s": 5,
+		"driver_proximity_timer_s": 5,
 		"driver_heartbeat_interval_ms": 5000,
 		"driver_heartbeat_timeout_s": 30,
 		"driver_reconnect_grace_period_s": 5,
@@ -44,7 +44,7 @@
 	},
 	"item": {
 		"item_spawn_interval": 30,
-		"item_max_count" : 2
+		"item_max_count": 2
 	},
 	"track": [
 		{
@@ -110,19 +110,29 @@
 		}
 	},
 	"display_settings": {
+		"theme": {
+			"id": 2,
+			"title": "Distortion",
+			"logo_url": "images/DFNZ_Logo_1_Light.svg"
+		},
 		"disp_cm_slogan_enabled": true,
-		"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
-		"disp_cm_slogan_color": "#96e7ff",
-		"disp_cm_qr_codes_enabled": true,
-		"disp_cm_qr_codes_color": "#5500b4",
-		"disp_cm_qr_background_enabled": true,
-		"disp_cm_qr_background_color": "#96e7ff",
+		"disp_cm_slogan_text": "Merz leck Eier!",
+		"disp_cm_slogan_color": "#D8F991",
+		"disp_cm_qr_codes_enabled": false,
+		"disp_cm_qr_codes_color": "#D8F991",
+		"disp_cm_qr_background_enabled": false,
+		"disp_cm_qr_background_color": "#24210A",
 		"disp_cm_iav_header_enabled": false,
-		"disp_cm_background_color": "#5500b4",
-		"disp_cm_track_color": "#001a54",
-		"disp_cm_track_border_color": "#001a54",
-		"disp_cm_start_line_color": "#5500b4",
-		"disp_cm_default_settings": {
+		"disp_cm_background_color": "#24210A",
+		"disp_cm_track_color": "#CFBB6A",
+		"disp_cm_track_border_color": "#E5DAC6",
+		"disp_cm_start_line_color": "#FCF9F0",
+		"disp_cm_default_settings_1": {
+			"theme": {
+				"id": 1,
+				"title": "IAV Distortion",
+				"logo_url": "images/IAV-Logo-White.svg"
+			},
 			"disp_cm_slogan_enabled": true,
 			"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
 			"disp_cm_slogan_color": "#96e7ff",
@@ -135,6 +145,25 @@
 			"disp_cm_track_color": "#001a54",
 			"disp_cm_track_border_color": "#001a54",
 			"disp_cm_start_line_color": "#5500b4"
+		},
+		"disp_cm_default_settings_2": {
+			"theme": {
+				"id": 2,
+				"title": "Distortion",
+				"logo_url": "images/DFNZ_Logo_1_Light.svg"
+			},
+			"disp_cm_slogan_enabled": true,
+			"disp_cm_slogan_text": "Merz leck Eier!",
+			"disp_cm_slogan_color": "#D8F991",
+			"disp_cm_qr_codes_enabled": false,
+			"disp_cm_qr_codes_color": "#D8F991",
+			"disp_cm_qr_background_enabled": false,
+			"disp_cm_qr_background_color": "#24210A",
+			"disp_cm_iav_header_enabled": false,
+			"disp_cm_background_color": "#24210A",
+			"disp_cm_track_color": "#CFBB6A",
+			"disp_cm_track_border_color": "#E5DAC6",
+			"disp_cm_start_line_color": "#FCF9F0"
 		}
 	}
 }
