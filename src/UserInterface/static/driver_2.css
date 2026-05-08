@@ -1,0 +1,347 @@
+@import url('./colors.css');
+
+body{
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+* {
+  touch-action: none;
+}
+
+/* container to arrange the elements on the page*/
+.flexbox-container {
+    justify-content: space-between;
+    width: 100%;
+}
+
+.flexbox-controls {
+    display: flex;
+    height: 90vh;
+}
+
+.flexbox-container_middle{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    width: 50%;
+    height: 90%;
+    position: relative;
+}
+
+.avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 55%;
+    width: 80%;
+    position: relative;
+}
+
+.avatar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(150, 231, 255, 0.5);
+    border-style: solid;
+    border-color: var(--light_bright_2);
+    border-radius: 100px;
+    border-width: 5px;
+    box-sizing: border-box;
+    animation: protectionFadeEffect 3s infinite;
+    display: none;
+}
+
+.avatar.protection-active::after {
+    display: block; /* Show the pseudo-element when the class is active */
+}
+
+.flexbox-container_middle img {
+    display: flex;
+    object-fit: cover;
+    max-height: 100%;
+    width: 80%;
+    justify-content: center;
+    border-radius: 20px;
+}
+
+.flexbox-hackedInfo {
+    border: 8px solid var(--accent_2);
+    border-radius: 35px;
+    width: auto;
+    height: auto;
+    position: absolute;
+    background-color: rgba(26, 26, 26, 0.8);
+    animation: hackingInfoFading 3.5s linear;
+    animation-iteration-count: infinite;
+}
+
+.hackedInfo_text{
+    color: var(--accent_2);
+    font-size: 4vh;
+    text-align: center;
+    margin-left: 2vw;
+    margin-right: 2vw;
+}
+
+.flexbox-container_right{
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+    width: 25%;
+    justify-content: space-around;
+}
+
+.flexbox-item{
+    /*width: 300px;
+    margin: 10px;*/
+    /* below only for design*/
+    /*border: 3px solid #333;
+    background-color: white;*/
+}
+
+.flexbox-slider {
+    display: flex;
+    align-items: center;
+    height: 90%;
+    width: 25%;
+}
+
+/* container to group and arrange the buttons*/
+.flexbox-driver_buttons{
+    display: flex;
+    flex-direction: column;
+}
+
+.flexbox-change_lane_buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+/* style options for the slider to control the velocity */
+.slider {
+    -webkit-appearance: none;
+    width: 100vh;
+    height: 6vw;
+    background: var(--light_grey_2);
+    outline: none;
+    border-radius: 1.25vw;
+    transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
+}
+
+/* style options for slider thumb*/
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 5vw;
+    height: 8vw;
+    background: var(--mid_2);
+    cursor: pointer;
+    /*border: 5px solid var(--mid_2);*/
+    border-radius: 5vw;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    /*border: 5px solid #33A7FF;*/
+}
+
+.slider::-webkit-slider-thumb:active {
+    /*border: 5px solid var(--mid_dark_2);*/
+    background: var(--mid_dark_2);
+}
+
+.slider::-moz-range-thumb {
+    width: 5vw;
+    height: 8vw;
+    background: var(--mid_2);
+    cursor: pointer;
+    /*border: 5px solid var(--mid_2);*/
+    border-radius: 5vw;
+}
+
+.slider::-moz-range-thumb:hover {
+    /*border: 5px solid #33A7FF;2*/
+}
+
+.slider::-moz-range-thumb:active {
+    /*border: 5px solid var(--mid_dark_2);*/
+    background: var(--mid_dark_2);
+}
+
+.slider::-moz-range-progress {
+    background: var(--mid_2);
+}
+
+.slider::-moz-range-track {
+    background: var(--light_grey_2);
+}
+
+/* style for speed display */
+.speedometer {
+
+}
+
+.flexbox-speed_display-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6vh;
+    margin-bottom: 0px;
+}
+
+.flexbox-speed_display {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    font-size: 10vh;
+    margin-top: 0px;
+}
+.flexbox-speed_display.value{
+
+    margin-right: 5px;
+}
+
+.speed_unit{
+    font-size: 6vh;
+}
+
+/* style options for buttons */
+.driver-buttons {
+    width: 8vw;
+    height: 8vw;
+    font-size: 4vw;
+    border-radius: 25px;
+    /* color: var(--mid_2);
+    background: var(--white_2);
+    border: 5px solid var(--mid_2); */
+}
+
+.driver-buttons:hover {
+    /*color: #33A7FF;
+    border: 5px solid #33A7FF;
+    background: var(--white_2);*/
+}
+
+.driver-buttons:active {
+    /*color: var(--white_2);
+    border: 5px solid var(--mid_dark_2);
+    background: var(--mid_dark_2);*/
+}
+
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.info-box{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    background-color: var(--whithe_2);
+    padding: 20px;
+    border: 0px solid var(--dark_2);
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.info-title {
+    display: flex;
+    align-items: center;
+}
+
+.info-text {
+    font-size: 23px;
+}
+
+.info-box-buttons{
+    flex-direction: row;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.refresh-button{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 6px 12px;
+    margin: 5px auto;
+    border-radius: 15px;
+    color: var(--white_2);
+    background: var(--mid_2);
+    border: 0px solid var(--mid_2);
+    font-size: 23px;
+}
+
+.reload_symbol{
+    font-size: 28px;
+    color: var(--white_2);
+}
+
+.exit_symbol{
+    font-size: 18px;
+    color: var(--white_2);
+}
+
+#switch_cars.driver-buttons {
+  display: none;
+  font-size: 18px;
+}
+
+.loading-bar {
+  width: 100%;
+  background-color: var(--light_grey_2);
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 10%;
+  margin-top: 10px;
+}
+
+.loading-progress {
+  height: 100%;
+  width: 0;
+  background-color: var(--mid_2);
+  border-radius: 10px;
+  position: absolute;
+  transition: width 0.1s linear;
+}
+
+.loading-message {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  color: #000;
+  display: none;
+  position: absolute;
+  bottom: 10%;
+}
+
+@keyframes hackingInfoFading {
+    0%,100% { opacity: 1 }
+    50% { opacity: 0.6 }
+}
+
+@keyframes protectionFadeEffect {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+    100% { opacity: 1; }
+}

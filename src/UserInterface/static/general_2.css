@@ -1,0 +1,332 @@
+@import url('./colors.css');
+
+body{
+    background: var(--white_2); /* background color */
+    font-family: Helvetica, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.flexbox-container{
+    display:  flex;
+}
+
+/* text style*/
+h1{
+    color: var(--dark_2); /* color headline 1 */
+}
+
+h2{
+    color: var(--dark_2); /* color headline 1 */
+}
+
+h3{
+    color: var(--dark_2); /* color headline 1 */
+}
+
+summary{
+    color: var(--dark_2); /* color headline 1 */
+}
+
+span{
+    color: var(--dark_2);
+}
+
+td {
+    color: var(--dark_2);
+}
+
+tr {
+    color: var(--dark_2);
+}
+
+p{
+    color: var(--dark_2);
+}
+
+p.header{
+    color: var(--white_2);
+    font-size: 24px;
+    margin: 15px;
+}
+
+label{
+    color: var(--dark_2);
+}
+
+input[type=submit] {
+    min-width: 80px;
+    height: 60px;
+    border: 0px;
+    border-radius: 15px;
+    gap: 8px;
+    background-color: var(--mid_2);
+    color: var(--white_2);
+    color: var(--white_2);
+    margin-top: 5px;
+}
+
+input:hover[type=submit] {
+    background-color: var(--mid_bright_2);
+}
+
+input:active[type=submit] {
+    background-color: var(--mid_dark_2);
+}
+
+input[type=submit]:disabled {
+  background-color: var(--light_grey_2);
+  color: var(--dark_grey_2);
+}
+
+button {
+    min-width: 80px;
+    height: 60px;
+    border: 0px;
+    border-radius: 15px;
+    gap: 8px;
+    background-color: var(--mid_2);
+    color: var(--white_2);
+    margin-top: 5px;
+    user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+button:hover {
+    background-color: var(--mid_bright_2);
+}
+
+button:active {
+    background-color: var(--mid_dark_2);
+}
+
+.button_small{
+    min-width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    margin-left: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.button_red{
+    background-color: #F80000;
+}
+
+.button_red:hover{
+    background-color: #FB6666;
+}
+
+.button_red:active{
+    background-color: #C60000;
+}
+
+.button_pink{
+    background-color: var(--accent_2);
+}
+
+.button_pink:hover{
+    background-color: var(--accent_light_2);
+}
+
+.button_pink:active{
+    background-color: var(--accent_dark_2);
+}
+
+/* table style*/
+table {
+    border-collapse: collapse;
+}
+
+th, td{
+    text-align: left;
+    padding: 5px;
+    padding: 5px;
+    min-width: 60px;
+}
+
+tr + tr{
+    border-top: 1px solid #969494;
+}
+
+tr:last-child {
+    border-bottom: 1px solid #969494;
+}
+
+th{
+  position: relative;
+  }
+
+th::before {
+  content: "";
+  position: absolute;
+  top: 20%; /* Start from 10% to provide spacing from top */
+  bottom: 20%; /* End at 10% from bottom to provide spacing from bottom */
+  left: 0; /* Stick to the left */
+  border-left: 1px solid #969494;
+}
+
+th:first-child::before {
+    border-left: none;
+}
+
+td:last-child {
+    padding-right: 30px;
+}
+
+
+/* Hide the default radio button */
+.custom-radio {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Create a new 'radio' button */
+.custom-radio + label:before {
+    content: '';
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--light_grey_2);
+    vertical-align: middle;
+}
+
+/* Style for checked state */
+.custom-radio:checked + label:before {
+    background-image: radial-gradient(circle at center, var(--mid_2) 40%, transparent 50%);
+    border-color: var(--mid_2);
+}
+
+/* Checkbox style */
+input[type="checkbox"] {
+    display: none;
+}
+
+/* Custom checkbox container */
+.checkbox-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  margin: 2px 5px 2px 0px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+}
+
+/* Custom checkbox appearance */
+.custom-checkbox {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: var(--white_2);
+  margin: 5px;
+  border: 2px solid var(--light_grey_2);
+  border-radius: 25%;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input ~ .custom-checkbox {
+  border: 2px solid var(--mid_2);
+  border-radius: 4px;
+}
+/* Checked state for the custom checkbox */
+input[type="checkbox"]:checked + .custom-checkbox {
+    border-color: var(--bright_2);
+    background-color: var(--bright_2);
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.custom-checkbox::after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .custom-checkbox:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .custom-checkbox:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--white_2);
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+
+input[type="text"] {
+    border: 1px solid var(--light_grey_2);
+    border-radius: 6px;
+    padding: 5px;
+    height: 25px;
+
+}
+
+/* Hide the default color picker */
+input[type="color"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+
+/* Custom styles for the color picker */
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 4;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: 1px;
+    border-radius: 25%;
+    border-color: var(--light_grey_2);
+}
+
+input[type="color"]::-moz-color-swatch {
+    border: 1px;
+    border-radius: 25%;
+    border-color: var(--light_grey_2);
+}
+
+/* Additional custom styles */
+input[type="color"] {
+    border-radius: 25%;
+    margin: 2px 5px 2px 5px;
+    border: 1px solid var(--light_grey_2);
+    background-color: var(--white_2);
+}
+
+.alert{
+    --height: auto;
+    border: #FC9999 1px solid;
+    background-color: #FECCCC;
+    height: auto;
+    border-radius: 1% / 25%;
+    padding: 0px 10px;
+}
