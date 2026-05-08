@@ -1,5 +1,7 @@
+@import url('./colors.css');
+
 body{
-    background: #FFFFFF; /* background color */
+    background: var(--white); /* background color */
     font-family: Helvetica, Helvetica, sans-serif;
     margin: 0;
     padding: 0;
@@ -12,45 +14,45 @@ body{
 
 /* text style*/
 h1{
-    color: #001A54; /* color headline 1 */
+    color: var(--dark); /* color headline 1 */
 }
 
 h2{
-    color: #001A54; /* color headline 1 */
+    color: var(--dark); /* color headline 1 */
 }
 
 h3{
-    color: #001A54; /* color headline 1 */
+    color: var(--dark); /* color headline 1 */
 }
 
 summary{
-    color: #001A54; /* color headline 1 */
+    color: var(--dark); /* color headline 1 */
 }
 
 span{
-    color: #001A54;
+    color: var(--dark);
 }
 
 td {
-    color: #001A54;
+    color: var(--dark);
 }
 
 tr {
-    color: #001A54;
+    color: var(--dark);
 }
 
 p{
-    color: #001A54;
+    color: var(--dark);
 }
 
 p.header{
-    color: #FFFFFF;
+    color: var(--white);
     font-size: 24px;
     margin: 15px;
 }
 
 label{
-    color: #001A54;
+    color: var(--dark);
 }
 
 input[type=submit] {
@@ -59,23 +61,23 @@ input[type=submit] {
     border: 0px;
     border-radius: 15px;
     gap: 8px;
-    background-color: #0091FF;
-    color: #FFFFFF;
-    color: #FFFFFF;
+    background-color: var(--mid);
+    color: var(--white);
+    color: var(--white);
     margin-top: 5px;
 }
 
 input:hover[type=submit] {
-    background-color: #33A7FF;
+    background-color: var(--mid_bright);
 }
 
 input:active[type=submit] {
-    background-color: #0074CC;
+    background-color: var(--mid_dark);
 }
 
 input[type=submit]:disabled {
-  background-color: #C8C6C6;
-  color: #696969;
+  background-color: var(--light_grey);
+  color: var(--dark_grey);
 }
 
 button {
@@ -84,8 +86,8 @@ button {
     border: 0px;
     border-radius: 15px;
     gap: 8px;
-    background-color: #0091FF;
-    color: #FFFFFF;
+    background-color: var(--mid);
+    color: var(--white);
     margin-top: 5px;
     user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
@@ -97,11 +99,11 @@ button {
 }
 
 button:hover {
-    background-color: #33A7FF;
+    background-color: var(--mid_bright);
 }
 
 button:active {
-    background-color: #0074CC;
+    background-color: var(--mid_dark);
 }
 
 .button_small{
@@ -126,15 +128,15 @@ button:active {
 }
 
 .button_pink{
-    background-color: #DC46F3;
+    background-color: var(--accent);
 }
 
 .button_pink:hover{
-    background-color: #E36BF5;
+    background-color: var(--accent_light);
 }
 
 .button_pink:active{
-    background-color: #B038C2;
+    background-color: var(--accent_dark);
 }
 
 /* table style*/
@@ -195,14 +197,14 @@ td:last-child {
     height: 25px;
     margin-right: 10px;
     border-radius: 50%;
-    border: 2px solid #C8C6C6;
+    border: 2px solid var(--light_grey);
     vertical-align: middle;
 }
 
 /* Style for checked state */
 .custom-radio:checked + label:before {
-    background-image: radial-gradient(circle at center, #0091FF 40%, transparent 50%);
-    border-color: #0091FF;
+    background-image: radial-gradient(circle at center, var(--mid) 40%, transparent 50%);
+    border-color: var(--mid);
 }
 
 /* Checkbox style */
@@ -233,22 +235,22 @@ input[type="checkbox"] {
   left: 0;
   height: 25px;
   width: 25px;
-  background-color: #fff;
+  background-color: var(--white);
   margin: 5px;
-  border: 2px solid #C8C6C6;
+  border: 2px solid var(--light_grey);
   border-radius: 25%;
   transition: background-color 0.3s, border-color 0.3s;
 }
 
 /* On mouse-over, add a grey background color */
 .checkbox-container:hover input ~ .custom-checkbox {
-  border: 2px solid #0091FF;
+  border: 2px solid var(--mid);
   border-radius: 4px;
 }
 /* Checked state for the custom checkbox */
 input[type="checkbox"]:checked + .custom-checkbox {
-    border-color: #2196F3;
-    background-color: #2196F3;
+    border-color: var(--bright);
+    background-color: var(--bright);
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
@@ -268,7 +270,7 @@ input[type="checkbox"]:checked + .custom-checkbox {
   top: 5px;
   width: 5px;
   height: 10px;
-  border: solid white;
+  border: solid var(--white);
   border-width: 0 3px 3px 0;
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -277,7 +279,7 @@ input[type="checkbox"]:checked + .custom-checkbox {
 
 
 input[type="text"] {
-    border: 1px solid #C8C6C6;
+    border: 1px solid var(--light_grey);
     border-radius: 6px;
     padding: 5px;
     height: 25px;
@@ -303,21 +305,21 @@ input[type="color"]::-webkit-color-swatch-wrapper {
 input[type="color"]::-webkit-color-swatch {
     border: 1px;
     border-radius: 25%;
-    border-color: #C8C6C6;
+    border-color: var(--light_grey);
 }
 
 input[type="color"]::-moz-color-swatch {
     border: 1px;
     border-radius: 25%;
-    border-color: #C8C6C6;
+    border-color: var(--light_grey);
 }
 
 /* Additional custom styles */
 input[type="color"] {
     border-radius: 25%;
     margin: 2px 5px 2px 5px;
-    border: 1px solid #C8C6C6;
-    background-color: #ffffff;
+    border: 1px solid var(--light_grey);
+    background-color: var(--white);
 }
 
 .alert{

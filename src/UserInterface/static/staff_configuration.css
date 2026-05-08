@@ -1,3 +1,5 @@
+@import url('./colors.css');
+
 body{
     background-color: #F2F4F4;
 }
@@ -36,19 +38,19 @@ body{
 .sidebar li a {
     display: block;
     text-decoration: none;
-    color: #001A54; /* text color */
+    color: var(--dark); /* text color */
 }
 
 .sidebar li.active a {
-    color: #FFFFFF;
+    color: var(--white);
 }
 
 .sidebar li.active {
-    background-color: #001A54;
+    background-color: var(--dark);
 }
 
 .config_content {
-    background-color: white;
+    background-color: var(--white);
     padding: 10px;
 }
 

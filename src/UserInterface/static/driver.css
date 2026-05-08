@@ -1,3 +1,5 @@
+@import url('./colors.css');
+
 body{
     margin: 0;
     padding: 0;
@@ -47,7 +49,7 @@ body{
     height: 100%;
     background-color: rgba(150, 231, 255, 0.5);
     border-style: solid;
-    border-color: #96E7FF;
+    border-color: var(--light_bright);
     border-radius: 100px;
     border-width: 5px;
     box-sizing: border-box;
@@ -65,12 +67,11 @@ body{
     max-height: 100%;
     width: 80%;
     justify-content: center;
-    /* background-color: #d2f5ff; */
     border-radius: 20px;
 }
 
 .flexbox-hackedInfo {
-    border: 8px solid #DC46F3;
+    border: 8px solid var(--accent);
     border-radius: 35px;
     width: auto;
     height: auto;
@@ -81,7 +82,7 @@ body{
 }
 
 .hackedInfo_text{
-    color: #DC46F3;
+    color: var(--accent);
     font-size: 4vh;
     text-align: center;
     margin-left: 2vw;
@@ -128,7 +129,7 @@ body{
     -webkit-appearance: none;
     width: 100vh;
     height: 6vw;
-    background: #ddd;
+    background: var(--light_grey);
     outline: none;
     border-radius: 1.25vw;
     transform: rotate(270deg); /* rotate by 270deg to get vertical slider */
@@ -140,9 +141,9 @@ body{
     appearance: none;
     width: 5vw;
     height: 8vw;
-    background: #0091FF;
+    background: var(--mid);
     cursor: pointer;
-    /*border: 5px solid #0091FF;*/
+    /*border: 5px solid var(--mid);*/
     border-radius: 5vw;
 }
 
@@ -151,16 +152,16 @@ body{
 }
 
 .slider::-webkit-slider-thumb:active {
-    /*border: 5px solid #0074CC;*/
-    background: #0074CC;
+    /*border: 5px solid var(--mid_dark);*/
+    background: var(--mid_dark);
 }
 
 .slider::-moz-range-thumb {
     width: 5vw;
     height: 8vw;
-    background: #0091FF;
+    background: var(--mid);
     cursor: pointer;
-    /*border: 5px solid #0091FF;*/
+    /*border: 5px solid var(--mid);*/
     border-radius: 5vw;
 }
 
@@ -169,16 +170,16 @@ body{
 }
 
 .slider::-moz-range-thumb:active {
-    /*border: 5px solid #0074CC;*/
-    background: #0074CC;
+    /*border: 5px solid var(--mid_dark);*/
+    background: var(--mid_dark);
 }
 
 .slider::-moz-range-progress {
-    background: #0091FF;
+    background: var(--mid);
 }
 
 .slider::-moz-range-track {
-    background: #ddd;
+    background: var(--light_grey);
 }
 
 /* style for speed display */
@@ -217,21 +218,21 @@ body{
     height: 8vw;
     font-size: 4vw;
     border-radius: 25px;
-    /* color: #0091FF;
-    background: #FFFFFF;
-    border: 5px solid #0091FF; */
+    /* color: var(--mid);
+    background: var(--white);
+    border: 5px solid var(--mid); */
 }
 
 .driver-buttons:hover {
     /*color: #33A7FF;
     border: 5px solid #33A7FF;
-    background: #FFFFFF;*/
+    background: var(--white);*/
 }
 
 .driver-buttons:active {
-    /*color: #FFFFFF;
-    border: 5px solid #0074CC;
-    background: #0074CC;*/
+    /*color: var(--white);
+    border: 5px solid var(--mid_dark);
+    background: var(--mid_dark);*/
 }
 
 .overlay {
@@ -253,9 +254,9 @@ body{
     display: flex;
     flex-direction: column;
     width: 50%;
-    background-color: #fff;
+    background-color: var(--whithe);
     padding: 20px;
-    border: 0px solid #001A54;
+    border: 0px solid var(--dark);
     border-radius: 15px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
@@ -282,20 +283,20 @@ body{
     padding: 6px 12px;
     margin: 5px auto;
     border-radius: 15px;
-    color: #FFFFFF;
-    background: #0091FF;
-    border: 0px solid #0091FF;
+    color: var(--white);
+    background: var(--mid);
+    border: 0px solid var(--mid);
     font-size: 23px;
 }
 
 .reload_symbol{
     font-size: 28px;
-    color: #FFFFFF;
+    color: var(--white);
 }
 
 .exit_symbol{
     font-size: 18px;
-    color: #FFFFFF;
+    color: var(--white);
 }
 
 #switch_cars.driver-buttons {
@@ -305,7 +306,7 @@ body{
 
 .loading-bar {
   width: 100%;
-  background-color: #f3f3f3;
+  background-color: var(--light_grey);
   height: 20px;
   border-radius: 10px;
   overflow: hidden;
@@ -317,7 +318,7 @@ body{
 .loading-progress {
   height: 100%;
   width: 0;
-  background-color: #0091ff;
+  background-color: var(--mid);
   border-radius: 10px;
   position: absolute;
   transition: width 0.1s linear;
