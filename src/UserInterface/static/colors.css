@@ -14,16 +14,16 @@
     --accent_light: #E36BF5;
 
     --dark_2: #24210A;
-    --mid_dark_2: #0074CC; /* not defined */
+    --mid_dark_2: #96874e; /* not defined */
     --mid_2: #CFBB6A;
-    --mid_bright_2: #33A7FF; /* not defined */
+    --mid_bright_2: #dac476; /* not defined */
     --bright_2: #F7E397;
     --white_2: #FFFFFF;
     --light_grey_2: #C8C6C6; /* not defined */
     --grey_2: #696969; /* not defined */
 
-    --accent_dark_2: #B038C2; /* not defined */
+    --accent_dark_2: #97b35c; /* not defined */
     --accent_2: #D8F991;
-    --accent_light_2: #E36BF5; /* not defined */
+    --accent_light_2: #ebffbf; /* not defined */
 
 }
