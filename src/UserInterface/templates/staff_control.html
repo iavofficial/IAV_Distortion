@@ -28,7 +28,7 @@
 <body>
     <div class="flexbox-container custom_header">
         <div class="flexbox-container custom_header">
-            <p class="header">IAV Distortion</p>
+            <p class="header">{{ theme.title }} - Login</p>
             <div class="header_menu-container">
                 <div class="header_menu-item">
                     <a href="{{ url_for('staffUI_bp.staff_control') }}">Control</a>
@@ -38,7 +38,7 @@
                 </div>
             </div>
         </div>
-        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+        <img id="logo" src="{{ url_for('static', filename=theme.logo_url) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
     <div class="flexbox-container">

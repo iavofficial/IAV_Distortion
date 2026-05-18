@@ -32,8 +32,8 @@
 <body>
 <div class="container">
     <div class="flexbox-container custom_header" id="iav_header">
-        <p class="header">IAV Distortion</p>
-        <img id="logo" src="{{ url_for('static', filename='images/IAV-Logo-White.svg') }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
+        <p class="header">{{ theme.title }} - Login</p>
+        <img id="logo" src="{{ url_for('static', filename=theme.logo_url) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
     <div class="content">

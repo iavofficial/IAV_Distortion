@@ -27,7 +27,7 @@
 
 <body>
     <div class="flexbox-container custom_header">
-        <p class="header">theme.title - Login</p>
+        <p class="header">{{ theme.title }} - Login</p>
         <img id="logo" src="{{ url_for('static', filename=theme.logo_url) }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/blank.png') }}'" >
     </div>
 
