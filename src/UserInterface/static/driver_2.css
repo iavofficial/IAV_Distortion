@@ -1,5 +1,10 @@
 @import url('./colors.css');
 
+:root {
+  --slider-fill: var(--mid_2);
+  --slider-bg: var(--light_grey_2);
+}
+
 body{
     margin: 0;
     padding: 0;
