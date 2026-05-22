@@ -106,7 +106,7 @@
 		"auto_drive_constantly": true,
 		"driving_speed_while_playing": 30,
 		"games": {
-			"Minigame_Test": true
+			"Minigame_Test": false
 		}
 	},
 	"display_settings": {
@@ -119,16 +119,16 @@
 		},
 		"disp_cm_slogan_enabled": true,
 		"disp_cm_slogan_text": "Platzhalter",
-		"disp_cm_slogan_color": "#D8F991",
+		"disp_cm_slogan_color": "#24210a",
 		"disp_cm_qr_codes_enabled": false,
-		"disp_cm_qr_codes_color": "#D8F991",
+		"disp_cm_qr_codes_color": "#d8f991",
 		"disp_cm_qr_background_enabled": false,
-		"disp_cm_qr_background_color": "#24210A",
+		"disp_cm_qr_background_color": "#24210a",
 		"disp_cm_iav_header_enabled": false,
-		"disp_cm_background_color": "#24210A",
-		"disp_cm_track_color": "#CFBB6A",
-		"disp_cm_track_border_color": "#E5DAC6",
-		"disp_cm_start_line_color": "#FCF9F0",
+		"disp_cm_background_color": "#cfbb6a",
+		"disp_cm_track_color": "#24210a",
+		"disp_cm_track_border_color": "#e5dac6",
+		"disp_cm_start_line_color": "#d8f991",
 		"disp_cm_default_settings_1": {
 			"theme": {
 				"id": 1,
@@ -160,16 +160,16 @@
 			},
 			"disp_cm_slogan_enabled": true,
 			"disp_cm_slogan_text": "Platzhalter",
-			"disp_cm_slogan_color": "#D8F991",
+			"disp_cm_slogan_color": "#24210a",
 			"disp_cm_qr_codes_enabled": false,
-			"disp_cm_qr_codes_color": "#D8F991",
+			"disp_cm_qr_codes_color": "#d8f991",
 			"disp_cm_qr_background_enabled": false,
-			"disp_cm_qr_background_color": "#24210A",
+			"disp_cm_qr_background_color": "#24210a",
 			"disp_cm_iav_header_enabled": false,
-			"disp_cm_background_color": "#24210A",
-			"disp_cm_track_color": "#CFBB6A",
-			"disp_cm_track_border_color": "#E5DAC6",
-			"disp_cm_start_line_color": "#FCF9F0"
+			"disp_cm_background_color": "#cfbb6a",
+			"disp_cm_track_color": "#24210a",
+			"disp_cm_track_border_color": "#e5dac6",
+			"disp_cm_start_line_color": "#d8f991"
 		}
 	}
 }
