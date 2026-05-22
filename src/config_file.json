@@ -114,7 +114,8 @@
 			"id": 2,
 			"title": "Distortion",
 			"logo_url": "images/DFNZ_Logo_1_Light.svg",
-			"company_name": "DFNZ"
+			"company_name": "DFNZ",
+			"VirtualVehicles": "VirtualTruck"
 		},
 		"disp_cm_slogan_enabled": true,
 		"disp_cm_slogan_text": "Platzhalter",
@@ -133,7 +134,8 @@
 				"id": 1,
 				"title": "IAV Distortion",
 				"logo_url": "images/IAV-Logo-White.svg",
-				"company_name": "IAV"
+				"company_name": "IAV",
+				"VirtualVehicles": "VirtualVehicle"
 			},
 			"disp_cm_slogan_enabled": true,
 			"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
@@ -153,7 +155,8 @@
 				"id": 2,
 				"title": "Distortion",
 				"logo_url": "images/DFNZ_Logo_1_Light.svg",
-				"company_name": "DFNZ"
+				"company_name": "DFNZ",
+				"VirtualVehicles": "VirtualTruck"
 			},
 			"disp_cm_slogan_enabled": true,
 			"disp_cm_slogan_text": "Platzhalter",

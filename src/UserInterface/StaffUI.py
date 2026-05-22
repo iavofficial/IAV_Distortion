@@ -594,7 +594,16 @@ class StaffUI:
                 Returns a Response object representing a redirect to the staff ui display settings page.
             """
             if theme_id > 0:
-                new_display_settings = self.config_handler.get_configuration()["display_settings"][f"disp_cm_default_settings_{theme_id}"]
+                try:
+                    new_display_settings = self.config_handler.get_configuration()["display_settings"][f"disp_cm_default_settings_{theme_id}"]
+                    
+                    car_pic_settings = self.config_handler.get_configuration()["virtual_cars_pics"]
+                    for i in range(1, 9):
+                        car_pic_settings[f"Virtual Vehicle {i}"] = new_display_settings["theme"]["VirtualVehicles"] + str(i) + ".svg"
+
+                except KeyError:
+                    return
+
             else:
                 new_display_settings = (await request.form)
                 new_display_settings = {key: value[0] if len(value) == 1 else value for key, value in new_display_settings.items()}
