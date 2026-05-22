@@ -8,7 +8,7 @@
       }
 
       .cls-1, .cls-2, .cls-3, .cls-4 {
-        stroke: #FCF9F0;
+        stroke: #d8f991;
       }
 
       .cls-1, .cls-5, .cls-3 {
@@ -16,11 +16,11 @@
       }
 
       .cls-6, .cls-5 {
-        fill: #FCF9F0;
+        fill: #d8f991;
       }
 
       .cls-2 {
-        fill: #FCF9F0;
+        fill: #d8f991;
       }
 
       .cls-2, .cls-3, .cls-4 {
