@@ -288,7 +288,7 @@ body{
     padding: 6px 12px;
     margin: 5px auto;
     border-radius: 15px;
-    color: var(--white_2);
+    color: var(--dark_2);
     background: var(--mid_2);
     border: 0px solid var(--mid_2);
     font-size: 23px;
@@ -296,7 +296,7 @@ body{
 
 .reload_symbol{
     font-size: 28px;
-    color: var(--white_2);
+    color: var(--dark_2);
 }
 
 .exit_symbol{

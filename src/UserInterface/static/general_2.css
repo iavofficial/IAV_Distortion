@@ -62,8 +62,7 @@ input[type=submit] {
     border-radius: 15px;
     gap: 8px;
     background-color: var(--mid_2);
-    color: var(--white_2);
-    color: var(--white_2);
+    color: var(--dark_2);
     margin-top: 5px;
 }
 
@@ -87,7 +86,7 @@ button {
     border-radius: 15px;
     gap: 8px;
     background-color: var(--mid_2);
-    color: var(--white_2);
+    color: var(--dark_2);
     margin-top: 5px;
     user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
