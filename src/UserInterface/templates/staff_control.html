@@ -62,7 +62,8 @@
     </div>
 
 <script>
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    // Force websocket transport to avoid Engine.IO long-polling payload batching issues.
+    var socket = io({ transports: ['websocket'] });
     var virtualCarsPics = {{ virtual_cars_pics | tojson | safe }};
     
     /**

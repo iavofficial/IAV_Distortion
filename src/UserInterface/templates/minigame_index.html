@@ -71,7 +71,8 @@
             }
         });
 
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        // Force websocket transport to avoid Engine.IO long-polling payload batching issues.
+        var socket = io({ transports: ['websocket'] });
 
         window.onload = function() {
             accept_button = document.getElementById("accept_button");

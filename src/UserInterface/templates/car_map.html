@@ -57,7 +57,8 @@
                 </div>
 
             <script>
-                var socket = io.connect('http://' + document.domain + ':' + location.port);
+                // Force websocket transport to avoid Engine.IO long-polling payload batching issues.
+                var socket = io({ transports: ['websocket'] });
                 /**
                  * Reload the page when told. This is currently used
                  * for when the track changes
