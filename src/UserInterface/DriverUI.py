@@ -12,6 +12,7 @@ import uuid
 import logging
 import asyncio
 import time
+import os
 
 from socketio import AsyncServer
 
@@ -469,6 +470,9 @@ class DriverUI:
                     logger.warning(f'No image configured for {vehicle.vehicle_id}.')
             else:
                 picture = 'Real_Vehicles/' + picture.replace(":", "") + ".webp"
+                if not os.path.exists(picture):
+                    picture = picture.replace('Real_Vehicles/', 'Virtual_Vehicles/')
+                    picture = picture.replace('.webp', '.svg')
             vehicle.set_driving_data_callback(self.update_driving_data)
             vehicle.set_item_data_callback(self.update_item_activity)
             vehicle_information = vehicle.get_driving_data()
