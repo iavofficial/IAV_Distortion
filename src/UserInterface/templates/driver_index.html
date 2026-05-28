@@ -55,7 +55,7 @@
                 <span class="flexbox-item flexbox-speed_display"><strong> <span id="speed_actual" class="flexbox-speed_display value"> </span>  </strong> <span class="speed_unit"> km/h </span></span>
             </div>
 
-            <div class="score">
+            <div class="score" style="display: none;">
                 <span class="flexbox-item flexbox-score_display-label">Score:</span>
                 <span class="flexbox-item flexbox-score_display"> <span id="player_score" class="flexbox-score_display value">0 </span> </span>
             </div>
@@ -110,7 +110,7 @@
 
         document.cookie = "player={{ player }};path=/";
 
-        <!-- slider to control velocity-->
+        // <!-- slider to control velocity-->
 
         var slider = document.getElementById("speed_request");
         var speed_actual = document.getElementById("speed_actual");
@@ -126,7 +126,7 @@
           socket.emit('slider_changed', {player: '{{player}}', value: this.value});
         };
 
-        <!-- buttons to control lanes -->
+        // <!-- buttons to control lanes -->
         var buttonLeft = document.getElementById("change_lane_left");
         var buttonRight = document.getElementById("change_lane_right");
 
@@ -138,35 +138,37 @@
           socket.emit('lane_change', {player: '{{player}}', direction: 'right'});
         };
 
-        <!-- buttons to control uturn -->
+        // <!-- buttons to control uturn -->
         var buttonUTurn = document.getElementById("make_uturn");
 
         buttonUTurn.onclick = function() {
           socket.emit('make_uturn', {player: '{{player}}'});
         };
 
-        <!-- buttons to switch cars -->
+        // <!-- buttons to switch cars -->
         var buttonSwitchCars = document.getElementById("switch_cars");
 
         buttonSwitchCars.onclick = function() {
           socket.emit('switch_cars', {player: '{{player}}'});
         };
 
-        <!-- loading window -->
+        // <!-- loading window -->
         window.onload = function() {
             socket.emit('driver_active', {player: '{{player}}'});
-            let playerExists = {{ player_exists | tojson }};
+            let playerExists = JSON.parse('{{ player_exists | tojson | safe }}');
             if(!playerExists) {
                 document.getElementById("infoBoxOverlay").style.display = "flex";
+                var active_hacking_scenario = JSON.parse('{{vehicle_information.active_hacking_scenario | tojson | safe }}');
+                show_hacked_info(active_hacking_scenario);
             }
             else {
                 document.getElementById("infoBoxOverlay").style.display = "none";
 
-                var active_hacking_scenario = {{vehicle_information.active_hacking_scenario }};
+                var active_hacking_scenario = JSON.parse('{{vehicle_information.active_hacking_scenario | tojson | safe }}');
                 show_hacked_info(active_hacking_scenario);
 
                 var slider_temp = document.getElementById("speed_request");
-                slider_temp.value = {{ vehicle_information.speed_request }};
+                slider_temp.value = JSON.parse('{{ vehicle_information.speed_request | tojson | safe }}');
                 slider.oninput();
             }
         };
@@ -186,14 +188,15 @@
             socket.emit('driver_heartbeat', {player: '{{ player }}'});
         }, {{ heartbeat_interval }});
 
-        <!-- driving data functions -->
+        // <!-- driving data functions -->
         function get_driving_data(){
           socket.emit('get_driving_data');
         };
 
         socket.on('update_driving_data', function(data){
           if(data.player == '{{player}}'){
-            speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * {{vehicle_scale}});
+            const scale = JSON.parse('{{ vehicle_scale | tojson | safe }}')
+            speed_actual.innerHTML = Math.round(data.speed_actual  / 1000 * 3.6 * scale);
             show_hacked_info(data.active_hacking_scenario);
           }
         });
@@ -204,74 +207,74 @@
             }
         });
 
-      let timerInterval;
+        let timerInterval;
 
-      socket.on('send_proximity_vehicle', function(data) {
-          clearInterval(timerInterval);
-          const hacker_vehicle_id = data.hacker_vehicle_id;
-          const getting_hacked_vehicle_id = data.getting_hacked_vehicle_id;
-          const hacker_driver_id = data.hacker_driver_id;
-          const getting_hacked_driver_id = data.getting_hacked_driver_id;
-          const proximityTimer = data.proximity_timer * 1000;
+        socket.on('send_proximity_vehicle', function(data) {
+            clearInterval(timerInterval);
+            const hacker_vehicle_id = data.hacker_vehicle_id;
+            const getting_hacked_vehicle_id = data.getting_hacked_vehicle_id;
+            const hacker_driver_id = data.hacker_driver_id;
+            const getting_hacked_driver_id = data.getting_hacked_driver_id;
+            const proximityTimer = data.proximity_timer * 1000;
 
-          if (hacker_driver_id == "{{ player }}" && getting_hacked_vehicle_id != null){
-            startLoadingBar(proximityTimer, getting_hacked_driver_id, "Trying to Hack: ");
-          } else if (getting_hacked_driver_id == "{{ player }}" && hacker_driver_id != null){
-            startLoadingBar(proximityTimer, hacker_driver_id, "Getting Hacked by: ")  
-          } else {
-              resetLoadingBar();
-              buttonSwitchCars.style.display = "none";
-          }
-      });
+            if (hacker_driver_id == "{{ player }}" && getting_hacked_vehicle_id != null){
+                startLoadingBar(proximityTimer, getting_hacked_driver_id, "Trying to Hack: ");
+            } else if (getting_hacked_driver_id == "{{ player }}" && hacker_driver_id != null){
+                startLoadingBar(proximityTimer, hacker_driver_id, "Getting Hacked by: ")  
+            } else {
+                resetLoadingBar();
+                buttonSwitchCars.style.display = "none";
+            }
+        });
 
-      socket.on('send_finished_proximity_timer', function(data) {
-          if (data.hacker_driver_id == "{{ player }}"){
-            buttonSwitchCars.style.display = "block";
-            resetLoadingBar();
-          }
-          clearInterval(timerInterval);
-      });
-
-      socket.on('send_abort_hacking', function(data) {
-        if(data.hacker_driver_id == "{{ player }}" || data.getting_hacked_driver_id == "{{ player }}"){
-            buttonSwitchCars.style.display = "none";
-            resetLoadingBar();
+        socket.on('send_finished_proximity_timer', function(data) {
+            if (data.hacker_driver_id == "{{ player }}"){
+                buttonSwitchCars.style.display = "block";
+                resetLoadingBar();
             }
             clearInterval(timerInterval);
-      });
+        });
 
-      function startLoadingBar(duration,vehicle_id, displayMessage) {
-        const loadingBar = document.getElementById("loading-bar");
-        const progress = document.getElementById("loading-progress");
-        const loadingMessage = document.getElementById("loadingMessage");
+        socket.on('send_abort_hacking', function(data) {
+            if(data.hacker_driver_id == "{{ player }}" || data.getting_hacked_driver_id == "{{ player }}"){
+                buttonSwitchCars.style.display = "none";
+                resetLoadingBar();
+                }
+                clearInterval(timerInterval);
+        });
 
-        loadingBar.style.display = "block";
-        loadingMessage.style.display = "block";
-        document.getElementsByClassName("loading_bar")[0].innerHTML = displayMessage + vehicle_id;
+        function startLoadingBar(duration,vehicle_id, displayMessage) {
+            const loadingBar = document.getElementById("loading-bar");
+            const progress = document.getElementById("loading-progress");
+            const loadingMessage = document.getElementById("loadingMessage");
 
-        let startTime = Date.now();
+            loadingBar.style.display = "block";
+            loadingMessage.style.display = "block";
+            document.getElementsByClassName("loading_bar")[0].innerHTML = displayMessage + vehicle_id;
 
-        timerInterval = setInterval(() => {
-          let elapsedTime = Date.now() - startTime;
-          let progressWidth = Math.min((elapsedTime / duration) * 100, 100);
-          progress.style.width = progressWidth + "%";
+            let startTime = Date.now();
 
-          if (progressWidth === 100) {
+            timerInterval = setInterval(() => {
+            let elapsedTime = Date.now() - startTime;
+            let progressWidth = Math.min((elapsedTime / duration) * 100, 100);
+            progress.style.width = progressWidth + "%";
+
+            if (progressWidth === 100) {
+                clearInterval(timerInterval);
+            }
+            }, 100);
+        };
+
+        function resetLoadingBar() {
+            const loadingBar = document.getElementById("loading-bar");
+            const progress = document.getElementById("loading-progress");
+            const loadingMessage = document.getElementById("loadingMessage");
+
+            loadingBar.style.display = "none";
+            progress.style.width = "0%";
+            loadingMessage.style.display = "none";
             clearInterval(timerInterval);
-          }
-        }, 100);
-      }
-
-      function resetLoadingBar() {
-        const loadingBar = document.getElementById("loading-bar");
-        const progress = document.getElementById("loading-progress");
-        const loadingMessage = document.getElementById("loadingMessage");
-
-        loadingBar.style.display = "none";
-        progress.style.width = "0%";
-        loadingMessage.style.display = "none";
-        clearInterval(timerInterval);
-      }
+        };
 
         function show_hacked_info(active_hacking_scenario){
           if(active_hacking_scenario == "0") {
