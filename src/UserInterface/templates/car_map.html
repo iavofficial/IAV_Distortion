@@ -661,7 +661,7 @@
                 {% elif right_side_content_mode == 'bulletpoints' %}
                 <div class="bulletpoints-panel" style="color: {{ disp_settings.disp_cm_slogan_color }};">
                     {% if bulletpoints %}
-                    <ul class="bulletpoints-list">
+                    <ul class="bulletpoints-list" id="bulletpoints_list" style="color: {{ disp_settings.disp_cm_slogan_color }};">
                         {% for bullet in bulletpoints %}
                         <li>{{ bullet }}</li>
                         {% endfor %}
@@ -670,6 +670,58 @@
                     <p>No bullet points configured yet.</p>
                     {% endif %}
                 </div>
+                <script>
+                    function fitBulletpointsPanel() {
+                        const panel = document.querySelector('.bulletpoints-panel');
+                        const list = document.getElementById('bulletpoints_list');
+                        if (!panel || !list) {
+                            return;
+                        }
+
+                        const items = list.querySelectorAll('li');
+                        if (!items.length) {
+                            return;
+                        }
+
+                        const minFontSize = 20;
+                        const maxFontSize = 42;
+                        let bestFontSize = minFontSize;
+
+                        const applyFontSize = (fontSizePx) => {
+                            list.style.fontSize = `${fontSizePx}px`;
+                            list.style.lineHeight = '1.12';
+                            list.style.gap = `${Math.max(10, Math.round(fontSizePx * 0.35))}px`;
+                        };
+
+                        list.style.visibility = 'hidden';
+                        list.style.listStyle = 'none';
+                        list.style.padding = '0';
+                        list.style.margin = '0';
+                        list.style.height = '100%';
+                        list.style.width = '100%';
+
+                        let low = minFontSize;
+                        let high = maxFontSize;
+
+                        while (low <= high) {
+                            const mid = Math.floor((low + high) / 2);
+                            applyFontSize(mid);
+
+                            if (list.scrollHeight <= panel.clientHeight && list.scrollWidth <= panel.clientWidth) {
+                                bestFontSize = mid;
+                                low = mid + 1;
+                            } else {
+                                high = mid - 1;
+                            }
+                        }
+
+                        applyFontSize(bestFontSize);
+                        list.style.visibility = 'visible';
+                    }
+
+                    window.addEventListener('load', fitBulletpointsPanel);
+                    window.addEventListener('resize', fitBulletpointsPanel);
+                </script>
                 {% endif %}
 
             </div>
