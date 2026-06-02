@@ -19,20 +19,38 @@
                 <input type="text" id="disp_cm_slogan_text" name="disp_cm_slogan_text" maxlength="75" style="width: 500px">
             </div>
             <div class="menu_item">
-                <label class="checkbox-container">Display QR-Codes:
-                    <input type='hidden' value='off' name='disp_cm_qr_codes_enabled'>
-                    <input type="checkbox" id="disp_cm_qr_codes_enabled" name="disp_cm_qr_codes_enabled">
-                    <span class="custom-checkbox"></span>
-                </label>
-                <input type="color" id="disp_cm_qr_codes_color" name="disp_cm_qr_codes_color">
+                <span class="menu_item_label">Right-side content:</span>
+                <div class="menu_choice_group" style="display:flex; gap:18px; flex-wrap:wrap; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" id="disp_cm_right_side_content_qr" name="disp_cm_right_side_content" value="qr" {% if right_side_content_mode == 'qr' %}checked{% endif %}>
+                        QR codes
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" id="disp_cm_right_side_content_bullets" name="disp_cm_right_side_content" value="bulletpoints" {% if right_side_content_mode == 'bulletpoints' %}checked{% endif %}>
+                        Bullet points
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" id="disp_cm_right_side_content_none" name="disp_cm_right_side_content" value="none" {% if right_side_content_mode == 'none' %}checked{% endif %}>
+                        Disabled
+                    </label>
+                </div>
             </div>
-            <div class="menu_item">
-                <label for="disp_cm_qr_background_enabled" class="checkbox-container">QR-Codes background:
+            <div class="menu_item" id="qr_code_settings">
+                <label class="checkbox-container">QR-Codes background:
                     <input type='hidden' value='off' name='disp_cm_qr_background_enabled'>
                     <input type="checkbox" id="disp_cm_qr_background_enabled" name="disp_cm_qr_background_enabled">
                     <span class="custom-checkbox"></span>
                 </label>
                 <input type="color" id="disp_cm_qr_background_color" name="disp_cm_qr_background_color">
+            </div>
+            <div class="menu_item" id="qr_code_color_settings">
+                <label for="disp_cm_qr_codes_color">QR-Codes color:</label>
+                <input type="color" id="disp_cm_qr_codes_color" name="disp_cm_qr_codes_color">
+            </div>
+            <div class="menu_item" id="bulletpoint_settings">
+                <label for="disp_cm_bulletpoints">Bullet points (one per line):</label>
+                <textarea id="disp_cm_bulletpoints" name="disp_cm_bulletpoints" rows="6" style="width: 500px" placeholder="Scan the QR code to connect to WiFi&#10;Open the driver UI in your browser&#10;Wait for a car to become available">{{ bulletpoints_text }}</textarea>
+                <p style="max-width: 500px; opacity: 0.8;">Use one line per bullet. Empty lines are ignored. Existing bullet points are preserved unless you replace them here.</p>
             </div>
             <div class="menu_item">
                 <label class="checkbox-container">Display Header:
@@ -85,6 +103,8 @@
 
     function displayCurrentConfig(data) {
         var disp_settings = {{ disp_settings | tojson }};
+        var rightSideMode = {{ right_side_content_mode | tojson }};
+        var bulletpointsText = {{ bulletpoints_text | tojson }};
 
         // Checkboxes
         var checkbox_slogan = document.getElementById('disp_cm_slogan_enabled');
@@ -92,13 +112,6 @@
             checkbox_slogan.checked = true;
         } else {
             checkbox_slogan.checked = false;
-        }
-
-        var checkbox_qr_codes = document.getElementById('disp_cm_qr_codes_enabled');
-        if (disp_settings.disp_cm_qr_codes_enabled){
-            checkbox_qr_codes.checked = true;
-        } else {
-            checkbox_qr_codes.checked = false;
         }
 
         var checkbox_iav_header = document.getElementById('disp_cm_iav_header_enabled');
@@ -126,11 +139,42 @@
         document.getElementById('disp_cm_start_line_color').value = disp_settings.disp_cm_start_line_color;
         document.getElementById('disp_cm_qr_background_color').value = disp_settings.disp_cm_qr_background_color;
         document.getElementById('disp_cm_qr_codes_color').value = disp_settings.disp_cm_qr_codes_color;
+
+        // Right-side content mode
+        if (rightSideMode === 'bulletpoints') {
+            document.getElementById('disp_cm_right_side_content_bullets').checked = true;
+        } else if (rightSideMode === 'qr') {
+            document.getElementById('disp_cm_right_side_content_qr').checked = true;
+        } else {
+            document.getElementById('disp_cm_right_side_content_none').checked = true;
+        }
+
+        document.getElementById('disp_cm_bulletpoints').value = bulletpointsText;
     };
 
     // Call the function after the DOM has fully loaded
     document.addEventListener('DOMContentLoaded', () => {
         displayCurrentConfig();
+
+        const qrCodeSettings = document.getElementById('qr_code_settings');
+        const qrCodeColorSettings = document.getElementById('qr_code_color_settings');
+        const bulletpointSettings = document.getElementById('bulletpoint_settings');
+
+        function syncRightSideSettings() {
+            const selectedMode = document.querySelector('input[name="disp_cm_right_side_content"]:checked').value;
+            const qrEnabled = selectedMode === 'qr';
+            const bulletpointsEnabled = selectedMode === 'bulletpoints';
+
+            qrCodeSettings.style.display = qrEnabled ? 'flex' : 'none';
+            qrCodeColorSettings.style.display = qrEnabled ? 'flex' : 'none';
+            bulletpointSettings.style.display = bulletpointsEnabled ? 'flex' : 'none';
+        }
+
+        document.querySelectorAll('input[name="disp_cm_right_side_content"]').forEach((radio) => {
+            radio.addEventListener('change', syncRightSideSettings);
+        });
+
+        syncRightSideSettings();
 
         // Call the function to disable hidden inputs when checkboxes are checked
         function disableHiddenInputs() {

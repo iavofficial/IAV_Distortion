@@ -7,6 +7,7 @@
 # file that should have been included as part of this package.
 #
 import asyncio
+from copy import deepcopy
 
 from quart import Blueprint, render_template, request, redirect, url_for, Response
 import re
@@ -406,8 +407,11 @@ class StaffUI:
             """
             disp_settings = self.config_handler.get_configuration()["display_settings"]
             theme = disp_settings["theme"]
+            bulletpoints = self.config_handler.normalize_bulletpoints(disp_settings.get("disp_cm_bulletpoints", []))
             return await render_template(template_name_or_list='staff_config_display_settings.html',
                                          disp_settings=disp_settings,
+                                         right_side_content_mode=self.config_handler.get_right_side_content_mode(disp_settings),
+                                         bulletpoints_text="\n".join(bulletpoints),
                                          theme=theme)
         
         @self.staffUI_blueprint.route('/configuration/config_advanced_settings')
@@ -595,11 +599,22 @@ class StaffUI:
             """
             if theme_id > 0:
                 try:
-                    new_display_settings = self.config_handler.get_configuration()["display_settings"][f"disp_cm_default_settings_{theme_id}"]
+                    current_display_settings = self.config_handler.get_configuration()["display_settings"]
+                    new_display_settings = deepcopy(
+                        self.config_handler.get_configuration()["display_settings"][f"disp_cm_default_settings_{theme_id}"]
+                    )
                     
                     car_pic_settings = self.config_handler.get_configuration()["virtual_cars_pics"]
                     for i in range(1, 9):
                         car_pic_settings[f"Virtual Vehicle {i}"] = new_display_settings["theme"]["VirtualVehicles"] + str(i) + ".svg"
+
+                    current_bulletpoints = self.config_handler.normalize_bulletpoints(
+                        current_display_settings.get("disp_cm_bulletpoints", [])
+                    )
+                    current_right_side_mode = self.config_handler.get_right_side_content_mode(current_display_settings)
+                    new_display_settings["disp_cm_bulletpoints"] = current_bulletpoints
+                    new_display_settings["disp_cm_bulletpoints_enabled"] = current_right_side_mode == "bulletpoints"
+                    new_display_settings["disp_cm_qr_codes_enabled"] = current_right_side_mode == "qr"
 
                 except KeyError:
                     return
@@ -618,6 +633,22 @@ class StaffUI:
                         new_display_settings[key] = conversion_table[value]
                     elif value is None:
                         new_display_settings[key] = False
+
+                selected_right_side_mode = new_display_settings.get("disp_cm_right_side_content", "none")
+                bulletpoints = self.config_handler.normalize_bulletpoints(new_display_settings.get("disp_cm_bulletpoints", []))
+                new_display_settings["disp_cm_bulletpoints"] = bulletpoints
+
+                if selected_right_side_mode == "bulletpoints":
+                    new_display_settings["disp_cm_bulletpoints_enabled"] = True
+                    new_display_settings["disp_cm_qr_codes_enabled"] = False
+                elif selected_right_side_mode == "qr":
+                    new_display_settings["disp_cm_bulletpoints_enabled"] = False
+                    new_display_settings["disp_cm_qr_codes_enabled"] = True
+                else:
+                    new_display_settings["disp_cm_bulletpoints_enabled"] = False
+                    new_display_settings["disp_cm_qr_codes_enabled"] = False
+
+                new_display_settings.pop("disp_cm_right_side_content", None)
 
             self.config_handler.write_configuration(new_config={'display_settings':new_display_settings})
 

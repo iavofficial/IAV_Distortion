@@ -118,9 +118,15 @@
 			"VirtualVehicles": "VirtualTruck"
 		},
 		"disp_cm_slogan_enabled": true,
-		"disp_cm_slogan_text": "Platzhalter",
+		"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
 		"disp_cm_slogan_color": "#24210a",
 		"disp_cm_qr_codes_enabled": false,
+		"disp_cm_bulletpoints_enabled": true,
+		"disp_cm_bulletpoints": [
+			"Bulletpoint 1",
+			"Bulletpoint 2",
+			"Bulletpoint exceeding the line and needs a line break!"
+		],
 		"disp_cm_qr_codes_color": "#24210a",
 		"disp_cm_qr_background_enabled": false,
 		"disp_cm_qr_background_color": "#cfbb6a",
@@ -140,7 +146,13 @@
 			"disp_cm_slogan_enabled": true,
 			"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
 			"disp_cm_slogan_color": "#96e7ff",
-			"disp_cm_qr_codes_enabled": true,
+			"disp_cm_qr_codes_enabled": false,
+			"disp_cm_bulletpoints_enabled": true,
+			"disp_cm_bulletpoints": [
+				"Bulletpoint 1",
+				"Bulletpoint 2",
+				"Bulletpoint exceeding the line and needs a line break!"
+			],
 			"disp_cm_qr_codes_color": "#5500b4",
 			"disp_cm_qr_background_enabled": true,
 			"disp_cm_qr_background_color": "#96e7ff",
@@ -159,9 +171,15 @@
 				"VirtualVehicles": "VirtualTruck"
 			},
 			"disp_cm_slogan_enabled": true,
-			"disp_cm_slogan_text": "Platzhalter",
+			"disp_cm_slogan_text": "Can it be Safe without Security? - Find out while racing with us!",
 			"disp_cm_slogan_color": "#24210a",
 			"disp_cm_qr_codes_enabled": false,
+			"disp_cm_bulletpoints_enabled": true,
+			"disp_cm_bulletpoints": [
+				"Bulletpoint 1",
+				"Bulletpoint 2",
+				"Bulletpoint exceeding the line and needs a line break!"
+			],
 			"disp_cm_qr_codes_color": "#24210a",
 			"disp_cm_qr_background_enabled": false,
 			"disp_cm_qr_background_color": "#cfbb6a",

@@ -8,6 +8,7 @@
 #
 import json
 import logging
+import re
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -105,6 +106,46 @@ class ConfigurationHandler(metaclass=Singleton):
             
         self.__config_tup = self.__read_configuration()
         return
+
+    @staticmethod
+    def normalize_bulletpoints(raw_bulletpoints: Any) -> list[str]:
+        """
+        Normalize bullet point input to a clean list of strings.
+
+        Accepts a multiline string from the textarea or a list from the
+        configuration file. Leading bullet markers and numbering are stripped.
+        Empty lines are ignored.
+        """
+        if raw_bulletpoints is None:
+            return []
+
+        if isinstance(raw_bulletpoints, list):
+            lines = raw_bulletpoints
+        else:
+            lines = str(raw_bulletpoints).splitlines()
+
+        bulletpoints: list[str] = []
+        for line in lines:
+            cleaned = str(line).strip()
+            cleaned = re.sub(r"^[-*]\s+", "", cleaned)
+            cleaned = re.sub(r"^\d+[.)]\s+", "", cleaned)
+            if cleaned:
+                bulletpoints.append(cleaned)
+        return bulletpoints
+
+    @staticmethod
+    def get_right_side_content_mode(display_settings: dict[str, Any]) -> str:
+        """
+        Return the active right-side content mode.
+
+        Bullet points take precedence if both options are set, which keeps
+        conflicting older config files deterministic.
+        """
+        if display_settings.get("disp_cm_bulletpoints_enabled"):
+            return "bulletpoints"
+        if display_settings.get("disp_cm_qr_codes_enabled"):
+            return "qr"
+        return "none"
 
     def __merge_dict(self, target: dict, source: dict) -> None:
         """

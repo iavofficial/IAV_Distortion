@@ -48,9 +48,13 @@ class CarMap:
             track = environment_manager.get_track()
             disp_settings = self.config_handler.get_configuration()["display_settings"]
             theme = disp_settings["theme"]
+            right_side_content_mode = self.config_handler.get_right_side_content_mode(disp_settings)
+            bulletpoints = self.config_handler.normalize_bulletpoints(disp_settings.get("disp_cm_bulletpoints", []))
             if track is None:
                 return await render_template('car_map.html',
                                              track=None, disp_settings=disp_settings,
+                                             right_side_content_mode=right_side_content_mode,
+                                             bulletpoints=bulletpoints,
                                              theme=theme)
             serialized_track = track.get_as_list()
             if self._vehicles is not None:
@@ -68,6 +72,8 @@ class CarMap:
                                          used_space=environment_manager.get_track().get_used_space_as_dict(),
                                          items=items_as_dict,
                                          disp_settings=disp_settings,
+                                         right_side_content_mode=right_side_content_mode,
+                                         bulletpoints=bulletpoints,
                                          theme=theme)
 
         self.carMap_blueprint.add_url_rule("", "home_car_map", view_func=home_car_map)
