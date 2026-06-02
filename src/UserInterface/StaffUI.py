@@ -599,7 +599,6 @@ class StaffUI:
             """
             if theme_id > 0:
                 try:
-                    current_display_settings = self.config_handler.get_configuration()["display_settings"]
                     new_display_settings = deepcopy(
                         self.config_handler.get_configuration()["display_settings"][f"disp_cm_default_settings_{theme_id}"]
                     )
@@ -607,14 +606,6 @@ class StaffUI:
                     car_pic_settings = self.config_handler.get_configuration()["virtual_cars_pics"]
                     for i in range(1, 9):
                         car_pic_settings[f"Virtual Vehicle {i}"] = new_display_settings["theme"]["VirtualVehicles"] + str(i) + ".svg"
-
-                    current_bulletpoints = self.config_handler.normalize_bulletpoints(
-                        current_display_settings.get("disp_cm_bulletpoints", [])
-                    )
-                    current_right_side_mode = self.config_handler.get_right_side_content_mode(current_display_settings)
-                    new_display_settings["disp_cm_bulletpoints"] = current_bulletpoints
-                    new_display_settings["disp_cm_bulletpoints_enabled"] = current_right_side_mode == "bulletpoints"
-                    new_display_settings["disp_cm_qr_codes_enabled"] = current_right_side_mode == "qr"
 
                 except KeyError:
                     return
