@@ -85,7 +85,7 @@ The slider on the left controls the speed.
 With the buttons on the right the lanes can be changed or a u-turn can be performed.
 Player controlling a virtual car will get a top down view of the controlled vehicle (as displayed on the [virtual track](#Virtual-Racetrack)).
 
-<img src="./images/driverUI_noHacking.png" alt="IAV-Distortion driver ui" style="width:100%;max-width:600px">
+<img src="./images/driver.png" alt="IAV-Distortion driver ui" style="width:100%;max-width:600px">
 
 > [!NOTE]
 > To performe a lane change or a u-turn the slider as to be released.
@@ -104,7 +104,7 @@ The virtual and real cars are shown on a virtual racetrack.
 The virtual racetrack can be accessed via [&lt;system_iP&gt;:5000/car_map]().
 The virtual track must be defined before the start of the game. Currently, this is done through an initialization drive on the real track with a real vehicle.
 
-<img src="./images/virtual_racetrack.png" alt="IAV-Distortion virtual racetrack" style="width:100%;max-width:600px">
+<img src="./images/car_map.png" alt="IAV-Distortion virtual racetrack" style="width:100%;max-width:600px">
 
 <!--## Roadmap
 
