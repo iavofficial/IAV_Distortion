@@ -259,7 +259,7 @@ body{
     display: flex;
     flex-direction: column;
     width: 50%;
-    background-color: var(--whithe);
+    background-color: var(--white);
     padding: 20px;
     border: 0px solid var(--dark);
     border-radius: 15px;
