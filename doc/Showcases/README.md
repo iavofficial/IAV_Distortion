@@ -1,4 +1,4 @@
-# Default Showcase
+# Basic Showcase
 
 This page describes a typical showcase, starting with the basic setup and including possible extensions.
 This instruction is intended for users of the race track.
@@ -38,6 +38,9 @@ optional:
 > [!NOTE]
 > The monitor is needed if you plan to use the virtual track and cars.
 
+The following picture shows an example of the setup:<br>
+<img src="..\..\images\assembly.png" style="width:100%;max-width:750px">
+
 ## Commissioning
 
 1. Take the staff tablett and open the control page via any browser
@@ -48,10 +51,20 @@ optional:
 3. Place two Anki Cars on the track
     - the cars should be automatically discovered and connected to the game shortly after taking them from the charger
     - LED of the car turns blue and the car pops up in the "List of Players/Cars"
+
+4. Scan the track[^1] (once per setup)
+    - in the staff control go to the "Configuration" tab into the "Home" menu
+    - scan the track with one of the connected cars placed on the track by clicking the "Use for scanning" button
+    - <img src="..\..\images\staff_config_home_Rescan_track.png" style="width:100%;max-width:250px">
+    - the car will automatically drive about 3 rounds to scan the track, as soon as the track was scanned successfully a notification pops up and the car stops
 4. Take the two visitor tablets and open the driver ui
     - either saved as a favorit
     - scan: <img src="..\..\src\UserInterface\static\images\QR_driver_url.PNG" style="width:100%;max-width:150px">
     - or: 192.168.1.1:5000/driver
+
+[^1]: Scanning the track is needed once to initilize the track layout.
+The track is safed persistent.
+As long as you do not change the track or swap pices, you don't have to rescan the track.
 
 ## Bsic Usage - no virtual track
 
@@ -62,9 +75,20 @@ Place two Anki cars on the track.
 Open the driver ui on the visitor tablets, so that they will be assigned to the cars.
 For each set a moderate speed.
 Use the left and right arrow to navigate against one track border once to calibrate the cars postiion to ensure correct handling.
+(This has to be done with every new car placed on the track, also has to be repeated after car was recharged.)
 
-Let interesting visitors control the cars.
-After a short time activate a hacking scenario via the staff control page.
+Let interesting visitors control the cars.<br>
+<img src="..\..\images\driver.PNG" style="width:100%;max-width:500px">
+
+After a short time activate a hacking scenario via the staff control page by choosing a scenario.
+The selected scenario is activated as soon as you click the "Set Scenario" button.
+Use Scenario 1 - drive with reduced speed or Scenario 3 - vehicle stops instantaneous.
+(If the car is already to slow, it will also stop with Scenario 1 until the speed is increased again.)<br>
+<img src="..\..\images\staff_control_setScenario.PNG" style="width:100%;max-width:500px">
+
+The the behaviour of the car will change according to the scenario and the driver will get notify that the car was hacked.<br>
+<img src="..\..\images\driver_hacked.PNG" style="width:100%;max-width:500px">
+
 Use this as a conversation starter.
 Reset the hacking scenario (set to scenario 0).
 
@@ -81,7 +105,9 @@ The settings can be accessed under the "Configuratio" tab of the staff ui.
 ### Track Settings
 
 There are some settings you might want to adjust according to your specific show case.
-Uner "Advanced Settings" in the "Configuration" tab, you can configure the following items:
+Uner "Advanced Settings" in the "Configuration" tab, you can configure the following items (http://192.168.1.1:5000/staff/configuration/config_advanced_settings):<br>
+<img src="..\..\images\staff_config_advSettings.PNG" style="width:100%;max-width:500px">
+
 
 **Playing Time [min]**: if this value is set to 0 there is no limit.
 If you want to limit the playing time for a player you can set this value to a integer value >0.
@@ -106,7 +132,8 @@ To ensute that all these settings are applied, please restart the game after hit
 
 ### Car Map and themes
 
-The car map can be configured in the "Display Settings" menu under the "Configuration" tab. (http://192.168.1.1:5000/staff/configuration/config_display_settings).
+The car map can be configured in the "Display Settings" menu under the "Configuration" tab. (http://192.168.1.1:5000/staff/configuration/config_display_settings).<br>
+<img src="..\..\images\staff_config_dispSettings.PNG" style="width:100%;max-width:500px">
 
 Here you can configure individual colors for the differen elements of the car map.
 You can also enable or disable the slogan (on top of the car map) or insert an individual one.
@@ -125,3 +152,7 @@ The settings are applied as soon as you click the button "Apply changes..."
 You can also apply themes which change the overall appearance (car map, car models, staff and driver ui's).
 These will automatically override all current display settings with the default settings according to the themes.
 You can adjust them afterwards.
+
+<img src="..\..\images\car_map.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\car_map_bulletpoints.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\car_map_qr-codes.PNG" style="width:100%;max-width:500px">
