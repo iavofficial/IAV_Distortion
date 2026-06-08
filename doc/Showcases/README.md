@@ -21,7 +21,7 @@ optional:
 2. Set up the Raspberry Pi somewhere near the track and power it on
 3. Set up the charger for the Anki Cars (charge the cars if needed)
 4. Connect all devices to be used with the track to the WIFI of the Raspberry Pi
-    - Scan to connect: <img src="..\..\src\UserInterface\static\images\QR_wifi_access_distortion-ap.PNG" style="width:100%;max-width:150px">
+    - Scan to connect: <img src="..\..\src\UserInterface\static\images\QR_wifi_access_distortion-ap.PNG" style="width:50">
     - SSID: distortion-ap
     - pw: iavDistortion_2024
     
@@ -45,7 +45,7 @@ The following picture shows an example of the setup:<br>
 
 1. Take the staff tablett and open the control page via any browser
     - either saved as a favorit
-    - scan: <img src="..\QR_staff_url.PNG" style="width:100%;max-width:150px">
+    - scan: <img src="..\QR_staff_url.PNG" style="width:50">
     - or: 192.168.1.1:5000/staff
 2. Login by entering the password (provided with the track)
 3. Place two Anki Cars on the track
@@ -55,11 +55,11 @@ The following picture shows an example of the setup:<br>
 4. Scan the track[^1] (once per setup)
     - in the staff control go to the "Configuration" tab into the "Home" menu
     - scan the track with one of the connected cars placed on the track by clicking the "Use for scanning" button
-    - <img src="..\..\images\staff_config_home_Rescan_track.png" style="width:100%;max-width:250px">
+    - <img src="..\..\images\staff_config_home_Rescan_track.png" style="width:50">
     - the car will automatically drive about 3 rounds to scan the track, as soon as the track was scanned successfully a notification pops up and the car stops
 4. Take the two visitor tablets and open the driver ui
     - either saved as a favorit
-    - scan: <img src="..\..\src\UserInterface\static\images\QR_driver_url.PNG" style="width:100%;max-width:150px">
+    - scan: <img src="..\..\src\UserInterface\static\images\QR_driver_url.PNG" style="width:50">
     - or: 192.168.1.1:5000/driver
 
 [^1]: Scanning the track is needed once to initilize the track layout.
@@ -78,16 +78,16 @@ Use the left and right arrow to navigate against one track border once to calibr
 (This has to be done with every new car placed on the track, also has to be repeated after car was recharged.)
 
 Let interesting visitors control the cars.<br>
-<img src="..\..\images\driver.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\driver.png" style="width:100%;max-width:500px">
 
 After a short time activate a hacking scenario via the staff control page by choosing a scenario.
 The selected scenario is activated as soon as you click the "Set Scenario" button.
 Use Scenario 1 - drive with reduced speed or Scenario 3 - vehicle stops instantaneous.
 (If the car is already to slow, it will also stop with Scenario 1 until the speed is increased again.)<br>
-<img src="..\..\images\staff_control_setScenario.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\staff_control_setScenario.png" style="width:100%;max-width:500px">
 
 The the behaviour of the car will change according to the scenario and the driver will get notify that the car was hacked.<br>
-<img src="..\..\images\driver_hacked.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\driver_hacked.png" style="width:100%;max-width:500px">
 
 Use this as a conversation starter.
 Reset the hacking scenario (set to scenario 0).
@@ -106,7 +106,7 @@ The settings can be accessed under the "Configuratio" tab of the staff ui.
 
 There are some settings you might want to adjust according to your specific show case.
 Uner "Advanced Settings" in the "Configuration" tab, you can configure the following items (http://192.168.1.1:5000/staff/configuration/config_advanced_settings):<br>
-<img src="..\..\images\staff_config_advSettings.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\staff_config_advSettings.png" style="width:100%;max-width:500px">
 
 
 **Playing Time [min]**: if this value is set to 0 there is no limit.
@@ -133,7 +133,7 @@ To ensute that all these settings are applied, please restart the game after hit
 ### Car Map and themes
 
 The car map can be configured in the "Display Settings" menu under the "Configuration" tab. (http://192.168.1.1:5000/staff/configuration/config_display_settings).<br>
-<img src="..\..\images\staff_config_dispSettings.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\staff_config_dispSettings.png" style="width:100%;max-width:500px">
 
 Here you can configure individual colors for the differen elements of the car map.
 You can also enable or disable the slogan (on top of the car map) or insert an individual one.
@@ -153,6 +153,6 @@ You can also apply themes which change the overall appearance (car map, car mode
 These will automatically override all current display settings with the default settings according to the themes.
 You can adjust them afterwards.
 
-<img src="..\..\images\car_map.PNG" style="width:100%;max-width:500px">
-<img src="..\..\images\car_map_bulletpoints.PNG" style="width:100%;max-width:500px">
-<img src="..\..\images\car_map_qr-codes.PNG" style="width:100%;max-width:500px">
+<img src="..\..\images\car_map.png" style="width:100%;max-width:500px">
+<img src="..\..\images\car_map_bulletpoints.png" style="width:100%;max-width:500px">
+<img src="..\..\images\car_map_qr-codes.png" style="width:100%;max-width:500px">
